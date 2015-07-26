@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.7. Directory LDAP</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-it-IT-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="Il manuale dell'amministratore Debian" /><link
+        rel="up"
+        href="network-services.html"
+        title="Capitolo 11. Servizi di rete: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="prev"
+        href="sect.http-ftp-proxy.html"
+        title="11.6. Proxy HTTP/FTP" /><link
+        rel="next"
+        href="advanced-administration.html"
+        title="Capitolo 12. Amministrazione avanzata" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/it-IT/sect.ldap-directory.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.http-ftp-proxy.html"><strong>Indietro</strong></a></li><li
+          class="home">Il manuale dell'amministratore Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="advanced-administration.html"><strong>Avanti</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.ldap-directory"></a>11.7. Directory LDAP</h2></div></div></div><a
+          id="idm140618314450784"
+          class="indexterm"></a><a
+          id="idm140618314450016"
+          class="indexterm"></a><a
+          id="idm140618314449248"
+          class="indexterm"></a><div
+          class="para">
+			OpenLDAP è un'implementazione del protocollo LDAP: in altre parole si tratta di un database progettato con lo speciale proposito di conservare directory. Il caso d'uso più comune riguarda l'impiego di un server LDAP per centralizzare la gestione degli account utente ed i relativi permessi. Un database LDAP è inoltre facilmente replicato cosa che permette di impostare server LDAP multipli e sincronizzati. Quando la rete e la base utenti crescono velocemente il carico può essere bilanciato tra i vari server.
+		</div><div
+          class="para">
+			I dati di LDAP sono strutturati e gerarchici. La struttura è definita attraverso «schemi» che descrivono il tipo di oggetti che il database può contenere, con una lista di tutti i loro possibili attributi. La sintassi usata per riferirsi ad un particolare oggetto nel database è basata su questa struttura, cosa che spiega la sua complessità.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140618314446800"></a>11.7.1. Installazione</h3></div></div></div><div
+            class="para">
+				Il pacchetto <span
+              class="pkg pkg">slapd</span> contiene il server OpenLDAP. Il pacchetto <span
+              class="pkg pkg">ldap-utils</span> include strumenti a riga di comando per interagire con i server LDAP.
+			</div><a
+            id="idm140618314444432"
+            class="indexterm"></a><div
+            class="para">
+				Installing <span
+              class="pkg pkg">slapd</span> usually asks very few questions, unless you have configured debconf to display questions with lower priorities. Nevertheless, it is debconf-enabled, and thus a simple <code
+              class="command">dpkg-reconfigure slapd</code> can reconfigure the LDAP database:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						Omettere la configurazione del server OpenLDAP? No, naturalmente vogliamo configurare questo servizio.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Nome di dominio DNS: “<code
+                    class="literal">falcot.com</code>”.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Nome dell'organizzazione: “Falcot Corp”.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Dev'essere inserita una password amministrativa.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Database di backend da usare: «HDB».
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Eliminare il database in caso di rimozione completa di <span
+                    class="pkg pkg">slapd</span>? No. Non ha senso rischiare di perdere il database in caso di uno sbaglio.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Spostare il vecchio database? Questa domanda è posta solamente quando viene tentata un configurazione ed un database è già presente. Rispondere «sì» se si desidera ricominciare da un database pulito, per esempio se si esegue <code
+                    class="command">dpkg-reconfigure slapd</code> subito dopo la prima installazione.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Abilitare il protocollo LDAPv2? No, non c'è motivo. Tutti gli strumenti che vogliamo utilizzare utilizzano il protocollo LDAPv3.
+					</div></li></ul></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>FONDAMENTALI</em></span> Il formato LDIF</strong></p></div></div></div><div
+              class="para">
+				Un file LDIF (<span
+                class="emphasis"><em>LDAP Data Interchange Format</em></span>) è un file di testo portabile che descrive il contenuto di un database LDAP (o di una sua porzione): può quindi essere usato per inserire dati in qualsiasi altro server LDAP.
+			</div><a
+              id="idm140618314431296"
+              class="indexterm"></a></div><div
+            class="para">
+				Un database minimale è attualmente configurato, come dimostra la seguente richiesta:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>ldapsearch -x -b dc=falcot,dc=com</code></strong>
+<code
+              class="computeroutput"># extended LDIF
+#
+# LDAPv3
+# base &lt;dc=falcot,dc=com&gt; with scope sub
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# falcot.com
+dn: dc=falcot,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Falcot Corp
+dc: falcot
+
+# admin, falcot.com
+dn: cn=admin,dc=falcot,dc=com
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 3
+# numEntries: 2
+</code></pre><div
+            class="para">
+				La richiesta restituisce due oggetti: l'organizzazione stessa e l'utente amministrativo.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140618314427504"></a>11.7.2. Riempire la directory</h3></div></div></div><div
+            class="para">
+				Dato che un database vuoto non è particolarmente utile ci apprestiamo ad inserire al suo interno tutte le directory esistenti: inclusi i database utenti, gruppi, servizi ed host.
+			</div><div
+            class="para">
+				Il pacchetto <span
+              class="pkg pkg">migrationtools</span> fornisce un insieme di script dedicati ad estrarre i dati dalle directory standard di Unix (<code
+              class="filename">/etc/passwd</code>, <code
+              class="filename">/etc/group</code>, <code
+              class="filename">/etc/services</code>, <code
+              class="filename">/etc/hosts</code> e così via), convertire questi dati ed inserirli all'interno del database LDAP.
+			</div><a
+            id="idm140618314423520"
+            class="indexterm"></a><div
+            class="para">
+				Once the package is installed, the <code
+              class="filename">/etc/migrationtools/migrate_common.ph</code> must be edited; the <code
+              class="varname">IGNORE_UID_BELOW</code> and <code
+              class="varname">IGNORE_GID_BELOW</code> options need to be enabled (uncommenting them is enough), and <code
+              class="varname">DEFAULT_MAIL_DOMAIN</code>/<code
+              class="varname">DEFAULT_BASE</code> need to be updated.
+			</div><div
+            class="para">
+				La reale operazione di migrazione è gestita dal comando <code
+              class="command">migrate_all_online.sh</code> come segue:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>cd /usr/share/migrationtools</code></strong>
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>LDAPADD="/usr/bin/ldapadd -c" ETC_ALIASES=/dev/null ./migrate_all_online.sh</code></strong></pre><div
+            class="para">
+				<code
+              class="command">migrate_all_online.sh</code> rivolge alcune domande a proposito del database LDAP nel quale si vogliono migrare i dati. <a
+              class="xref"
+              href="sect.ldap-directory.html#tab-migrate-all">Tabella 11.1</a> riassume le risposte fornite nel caso d'uso della Falcot.
+			</div><div
+            class="table"><a
+              id="tab-migrate-all"></a><p
+              class="title"><strong>Tabella 11.1. Le risposte fornite alle domande poste dallo script <code
+                  class="command">migrate_all_online.sh</code></strong></p><div
+              class="table-contents"><table
+                xmlns:d="http://docbook.org/ns/docbook"
+                class="lt-4-cols lt-7-rows"
+                summary="Le risposte fornite alle domande poste dallo script migrate_all_online.sh"><colgroup><col
+                    align="justify" /><col
+                    align="justify" /></colgroup><thead><tr><th
+                      align="justify">Domanda</th><th
+                      align="justify">Risposta</th></tr></thead><tbody><tr><td
+                      align="justify">X.500 naming context</td><td
+                      align="justify"><code
+                        class="literal">dc=falcot,dc=com</code></td></tr><tr><td
+                      align="justify">Nome host del server LDAP</td><td
+                      align="justify"><code
+                        class="literal">localhost</code></td></tr><tr><td
+                      align="justify">Manager DN</td><td
+                      align="justify"><code
+                        class="literal">cn=admin,dc=falcot,dc=com</code></td></tr><tr><td
+                      align="justify">Bind credentials</td><td
+                      align="justify">la password amministrativa</td></tr><tr><td
+                      align="justify">Create DUAConfigProfile</td><td
+                      align="justify">no</td></tr></tbody></table></div></div><div
+            class="para">
+				Abbiamo deliberatamente ignorato la migrazione del file <code
+              class="filename">/etc/aliases</code> dato che lo schema standard fornito da Debian non include le strutture che utilizza questo script per gli alias email. Se dovessimo integrare questi dati nella directory il file <code
+              class="filename">/etc/ldap/schema/misc.schema</code> dovrebbe essere aggiunto allo schema standard.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>STRUMENTO</em></span> Consultare una directory LDAP</strong></p></div></div></div><div
+              class="para">
+				The <code
+                class="command">jxplorer</code> command (in the package of the same name) is a graphical tool allowing to browse and edit an LDAP database. It's an interesting tool that provides an administrator with a good overview of the hierarchical structure of the LDAP data.
+			</div><a
+              id="idm140618314401296"
+              class="indexterm"></a></div><div
+            class="para">
+				Notare altresì l'uso dell'opzione <code
+              class="literal">-c</code> con il comando <code
+              class="command">ldapadd</code>: questa opzione richiede che l'elaborazione non si interrompa in caso di errori. Utilizzare questa opzione è necessario poiché convertire il database <code
+              class="filename">/etc/services</code> genera spesso qualche errore che può essere ignorato senza conseguenze.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140618314398336"></a>11.7.3. Gestire gli account con LDAP</h3></div></div></div><div
+            class="para">
+				Ora il database LDAP contiene diverse informazioni utili ed è giunto il momento di sfruttarle. Questa sezione si concentra su come configurare un sistema Linux per far sì che le varie directory di sistema utilizzino il database LDAP.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.config-nss"></a>11.7.3.1. Configurare NSS</h4></div></div></div><div
+              class="para">
+					The NSS system (Name Service Switch, see sidebar <a
+                class="xref"
+                href="sect.user-group-databases.html#sidebar.intro-nss"><span
+                  class="emphasis"><em>APPROFONDIMENTI</em></span> NSS ed i database di sistema</a>) is a modular system designed to define or fetch information for system directories. Using LDAP as a source of data for NSS requires installing the <span
+                class="pkg pkg">libnss-ldap</span> package. Its installation asks a few questions; the answers are summarized in <a
+                class="xref"
+                href="sect.ldap-directory.html#tab-libnss-ldap">Tabella 11.2</a>.
+				</div><a
+              id="idm140618314393680"
+              class="indexterm"></a><div
+              class="table"><a
+                id="tab-libnss-ldap"></a><p
+                class="title"><strong>Tabella 11.2. Configurare il pacchetto <span
+                    class="pkg pkg">libnss-ldap</span></strong></p><div
+                class="table-contents"><table
+                  xmlns:d="http://docbook.org/ns/docbook"
+                  class="lt-4-cols gt-7-rows"
+                  summary="Configurare il pacchetto libnss-ldap"><colgroup><col
+                      align="justify" /><col
+                      align="justify" /></colgroup><thead><tr><th
+                        align="justify">Domanda</th><th
+                        align="justify">Risposta</th></tr></thead><tbody><tr><td
+                        align="justify">L'Uniform Resource Identifier del server LDAP</td><td
+                        align="justify"><code
+                          class="literal">ldap://ldap.falcot.com</code></td></tr><tr><td
+                        align="justify">Il nome distintivo per la base di ricerca</td><td
+                        align="justify"><code
+                          class="literal">dc=falcot,dc=com</code></td></tr><tr><td
+                        align="justify">La versione di LDAP da utilizzare</td><td
+                        align="justify"><code
+                          class="literal">3</code></td></tr><tr><td
+                        align="justify">Il database LDAP deve richiedere il login?</td><td
+                        align="justify">no</td></tr><tr><td
+                        align="justify">Special LDAP privileges for root</td><td
+                        align="justify">yes</td></tr><tr><td
+                        align="justify">Make the configuration file readable/writeable by its owner only</td><td
+                        align="justify">no</td></tr><tr><td
+                        align="justify">L'account LDAP per root</td><td
+                        align="justify"><code
+                          class="literal">cn=admin,dc=falcot,dc=com</code></td></tr><tr><td
+                        align="justify">La password per l'account root di LDAP</td><td
+                        align="justify">la password amministrativa</td></tr></tbody></table></div></div><div
+              class="para">
+					Il file <code
+                class="filename">/etc/nsswitch.conf</code> richiede poi di essere modificato per configurare NSS in modo che utilizzi il modulo <code
+                class="command">ldap</code> appena installato.
+				</div><div
+              class="example"><a
+                id="idm140618314376448"></a><p
+                class="title"><strong>Esempio 11.31. Il file <code
+                    class="filename">/etc/nsswitch.conf</code></strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+# /etc/nsswitch.conf
+#
+# Example configuration of GNU Name Service Switch functionality.
+# If you have the `glibc-doc' and `info' packages installed, try:
+# `info libc "Name Service Switch"' for information about this file.
+
+passwd: ldap compat
+group: ldap compat
+shadow: ldap compat
+
+hosts: files dns ldap
+networks: ldap files
+
+protocols: ldap db files
+services: ldap db files
+ethers: ldap db files
+rpc: ldap db files
+
+netgroup: ldap files
+</pre></div></div><div
+              class="para">
+					The <code
+                class="command">ldap</code> module is usually inserted before others, and it will therefore be queried first. The notable exception is the <code
+                class="literal">hosts</code> service since contacting the LDAP server requires consulting DNS first (to resolve <code
+                class="literal">ldap.falcot.com</code>). Without this exception, a hostname query would try to ask the LDAP server; this would trigger a name resolution for the LDAP server, and so on in an infinite loop.
+				</div><div
+              class="para">
+					Se il server LDAP dev'essere considerato autoritativo (e i file locali utilizzati dal modulo <code
+                class="command">files</code> ignorati) i servizi possono essere configurati con la seguente sintassi:
+				</div><div
+              class="para">
+					<code
+                class="literal"><em
+                  class="replaceable">servizio</em>: ldap [NOTFOUND=return] files</code>.
+				</div><div
+              class="para">
+					Se l'entità richiesta non esiste nel database LDAP, la richiesta restituirà una risposta «non esistente» anche se la risorsa esiste in uno dei file locali: questi file locali saranno utilizzati unicamente quando il servizio LDAP non è raggiungibile.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.config-pam"></a>11.7.3.2. Configurare PAM</h4></div></div></div><div
+              class="para">
+					This section describes a PAM configuration (see sidebar <a
+                class="xref"
+                href="basic-configuration.html#sidebar.intro-pam"><span
+                  class="emphasis"><em>DIETRO LE QUINTE</em></span> <code
+                  class="filename">/etc/environment</code> e <code
+                  class="filename">/etc/default/locale</code></a>) that will allow applications to perform the required authentications against the LDAP database.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>ATTENZIONE</em></span> Rischio di rendere l'autenticazione inutilizzabile</strong></p></div></div></div><div
+                class="para">
+					Cambiare la configurazione standard di PAM utilizzata da vari programmi è un'operazione delicata. Un errore può portare all'impossibiltà di autenticarsi ovvero potrebbe impedire il login. Mantenere una shell aperta con root è una buona precauzione. Se si verificano errori potranno sempre essere corretti ed i servizi riavviati con uno sforzo minimo.
+				</div></div><div
+              class="para">
+					Il modulo LDAP per PAM è fornito dal pacchetto <span
+                class="pkg pkg">libpam-ldap</span>. L'installazione di questo pacchetto pone alcune domande molto simili a quelle viste con <span
+                class="pkg pkg">libnss-ldap</span>: alcuni parametri di configurazione (come l'URI del server LDAP) sono in realtà persino condivisi con il pacchetto <span
+                class="pkg pkg">libnss-ldap</span>. Le risposte sono riassunte in <a
+                class="xref"
+                href="sect.ldap-directory.html#tab-libpam-ldap">Tabella 11.3</a>.
+				</div><a
+              id="idm140618314362848"
+              class="indexterm"></a><div
+              class="table"><a
+                id="tab-libpam-ldap"></a><p
+                class="title"><strong>Tabella 11.3. Configurazione di <span
+                    class="emphasis"><em>libpam-ldap</em></span></strong></p><div
+                class="table-contents"><table
+                  xmlns:d="http://docbook.org/ns/docbook"
+                  class="lt-4-cols lt-7-rows"
+                  summary="Configurazione di libpam-ldap"><colgroup><col
+                      align="justify" /><col
+                      align="justify" /></colgroup><thead><tr><th
+                        align="justify">Domanda</th><th
+                        align="justify">Risposta</th></tr></thead><tbody><tr><td
+                        align="justify">Permettere all'account amministrativo LDAP di agire come root?</td><td
+                        align="justify">Sì. Questo ci consente di utilizzare il comando <code
+                          class="command">passwd</code> per cambiare le password conservate nel database LDAP.</td></tr><tr><td
+                        align="justify">Il database LDAP richiede il login?</td><td
+                        align="justify">no</td></tr><tr><td
+                        align="justify">L'account LDAP per root</td><td
+                        align="justify"><code
+                          class="literal">cn=admin,dc=falcot,dc=com</code></td></tr><tr><td
+                        align="justify">La password per l'account root di LDAP</td><td
+                        align="justify">La password amministrativa del database LDAP</td></tr><tr><td
+                        align="justify">Local encryption algorithm to use for passwords</td><td
+                        align="justify">crypt</td></tr></tbody></table></div></div><div
+              class="para">
+					L'installazione di <span
+                class="pkg pkg">libpam-ldap</span> adatta automaticamente la configurazione predefinita di PAM contenuta nei file <code
+                class="filename">/etc/pam.d/common-auth</code>, <code
+                class="filename">/etc/pam.d/common-password</code> e <code
+                class="filename">/etc/pam.d/common-account</code>. Questo meccanismo utilizza lo strumento dedicato <code
+                class="command">pam-auth-update</code> (fornito con il pacchetto <span
+                class="pkg pkg">libpam-runtime</span>). Questo strumento può anche essere eseguito dall'amministratore qualora desideri abilitare o disabilitare dei moduli PAM.
+				</div><a
+              id="idm140618314347152"
+              class="indexterm"></a><a
+              id="idm140618314346256"
+              class="indexterm"></a><a
+              id="idm140618314345360"
+              class="indexterm"></a><a
+              id="idm140618314344464"
+              class="indexterm"></a><a
+              id="idm140618314343568"
+              class="indexterm"></a><a
+              id="idm140618314342672"
+              class="indexterm"></a></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140618314341648"></a>11.7.3.3. Mettere al sicuro lo scambio dati di LDAP</h4></div></div></div><a
+              id="idm140618314341008"
+              class="indexterm"></a><div
+              class="para">
+					In via predefinita il protocollo LDAP transita sulla rete come testo in chiaro: questo include le password (cifrate). Poiché le password cifrate possono essere estratte dalla rete rimangono vulnerabili ad attacchi a dizionario. Questo può essere evitato utilizzando uno strato di cifratura addizionale: abilitare questo strato è l'argomento di questa sezione.
+				</div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140618314339088"></a>11.7.3.3.1. Configurare il server</h5></div></div></div><a
+                id="idm140618314338448"
+                class="indexterm"></a><a
+                id="idm140618314337168"
+                class="indexterm"></a><div
+                class="para">
+						The first step is to create a key pair (comprising a public key and a private key) for the LDAP server. The Falcot administrators reuse <span
+                  class="emphasis"><em>easy-rsa</em></span> to generate it (see <a
+                  class="xref"
+                  href="sect.virtual-private-network.html#sect.easy-rsa">Sezione 10.2.1.1, «Infrastruttura a chiave pubblica: <span
+                    class="emphasis"><em>easy-rsa</em></span>»</a>). Running <code
+                  class="command">./build-server-key ldap.falcot.com</code> asks a few mundane questions (location, organization name and so on). The answer to the “common name” question <span
+                  class="emphasis"><em>must</em></span> be the fully-qualified hostname for the LDAP server; in our case, <code
+                  class="literal">ldap.falcot.com</code>.
+					</div><div
+                class="para">
+						This command creates a certificate in the <code
+                  class="filename">keys/ldap.falcot.com.crt</code> file; the corresponding private key is stored in <code
+                  class="filename">keys/ldap.falcot.com.key</code>.
+					</div><div
+                class="para">
+						Now these keys have to be installed in their standard location, and we must make sure that the private file is readable by the LDAP server which runs under the <code
+                  class="literal">openldap</code> user identity:
+					</div><pre
+                class="screen">
+# <strong
+                  class="userinput"><code>adduser openldap ssl-cert</code></strong>
+Adding user `openldap' to group `ssl-cert' ...
+Adding user openldap to group ssl-cert
+Done.
+# <strong
+                  class="userinput"><code>mv keys/ldap.falcot.com.key /etc/ssl/private/ldap.falcot.com.key</code></strong>
+# <strong
+                  class="userinput"><code>chown root:ssl-cert /etc/ssl/private/ldap.falcot.com.key</code></strong>
+# <strong
+                  class="userinput"><code>chmod 0640 /etc/ssl/private/ldap.falcot.com.key</code></strong>
+# <strong
+                  class="userinput"><code>mv newcert.pem /etc/ssl/certs/ldap.falcot.com.pem</code></strong></pre><div
+                class="para">
+						The <code
+                  class="command">slapd</code> daemon also needs to be told to use these keys for encryption. The LDAP server configuration is managed dynamically: the configuration can be updated with normal LDAP operations on the <code
+                  class="literal">cn=config</code> object hierarchy, and the server updates <code
+                  class="filename">/etc/ldap/slapd.d</code> in real time to make the configuration persistent. <code
+                  class="command">ldapmodify</code> is thus the right tool to update the configuration:
+					</div><div
+                class="example"><a
+                  id="idm140618314326864"></a><p
+                  class="title"><strong>Esempio 11.32. Configurare <code
+                      class="command">slapd</code> per la cifratura</strong></p><div
+                  class="example-contents"><pre
+                    class="screen">
+# <strong
+                      class="userinput"><code>cat &gt;ssl.ldif &lt;&lt;END
+dn: cn=config
+changetype: modify
+add: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ssl/certs/ldap.falcot.com.pem
+-
+add: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ssl/private/ldap.falcot.com.key
+-
+END</code></strong>
+# <strong
+                      class="userinput"><code>ldapmodify -Y EXTERNAL -H ldapi:/// -f ssl.ldif</code></strong>
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=config"
+</pre></div></div><div
+                class="sidebar"><div
+                  class="titlepage"><div><div><p
+                        class="title"><strong><span
+                            class="emphasis"><em>TOOL</em></span> <code
+                            class="command">ldapvi</code> to edit an LDAP directory</strong></p></div></div></div><a
+                  id="idm140618314322864"
+                  class="indexterm"></a><div
+                  class="para">
+						With <code
+                    class="command">ldapvi</code>, you can display an LDIF output of any part of the LDAP directory, make some changes in the text editor, and let the tool do the corresponding LDAP operations for you.
+					</div><div
+                  class="para">
+						It is thus a convenient way to update the configuration of the LDAP server, simply by editing the <code
+                    class="literal">cn=config</code> hierarchy.
+					</div><pre
+                  class="screen">
+# <strong
+                    class="userinput"><code>ldapvi -Y EXTERNAL -h ldapi:/// -b cn=config</code></strong></pre></div><div
+                class="para">
+						L'ultimo passo per abilitare la cifratura richiede la modifica della variabile <code
+                  class="varname">SLAPD_SERVICES</code> nel file <code
+                  class="filename">/etc/default/slapd</code>. Inoltre, per essere prudenti, si renderà necessario disabilitare l'LDAP non sicuro.
+					</div><div
+                class="example"><a
+                  id="idm140618314317984"></a><p
+                  class="title"><strong>Esempio 11.33. Il file <code
+                      class="filename">/etc/default/slapd</code></strong></p><div
+                  class="example-contents"><pre
+                    class="programlisting">
+# Default location of the slapd.conf file or slapd.d cn=config directory. If
+# empty, use the compiled-in default (/etc/ldap/slapd.d with a fallback to
+# /etc/ldap/slapd.conf).
+SLAPD_CONF=
+
+# System account to run the slapd server under. If empty the server
+# will run as root.
+SLAPD_USER="openldap"
+
+# System group to run the slapd server under. If empty the server will
+# run in the primary group of its user.
+SLAPD_GROUP="openldap"
+
+# Path to the pid file of the slapd server. If not set the init.d script
+# will try to figure it out from $SLAPD_CONF (/etc/ldap/slapd.conf by
+# default)
+SLAPD_PIDFILE=
+
+# slapd normally serves ldap only on all TCP-ports 389. slapd can also
+# service requests on TCP-port 636 (ldaps) and requests via unix
+# sockets.
+# Example usage:
+# SLAPD_SERVICES="ldap://127.0.0.1:389/ ldaps:/// ldapi:///"
+SLAPD_SERVICES="ldaps:/// ldapi:///"
+
+# If SLAPD_NO_START is set, the init script will not start or restart
+# slapd (but stop will still work).  Uncomment this if you are
+# starting slapd via some other means or if you don't want slapd normally
+# started at boot.
+#SLAPD_NO_START=1
+
+# If SLAPD_SENTINEL_FILE is set to path to a file and that file exists,
+# the init script will not start or restart slapd (but stop will still
+# work).  Use this for temporarily disabling startup of slapd (when doing
+# maintenance, for example, or through a configuration management system)
+# when you don't want to edit a configuration file.
+SLAPD_SENTINEL_FILE=/etc/ldap/noslapd
+
+# For Kerberos authentication (via SASL), slapd by default uses the system
+# keytab file (/etc/krb5.keytab).  To use a different keytab file,
+# uncomment this line and change the path.
+#export KRB5_KTNAME=/etc/krb5.keytab
+
+# Additional options to pass to slapd
+SLAPD_OPTIONS=""
+</pre></div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140618314314656"></a>11.7.3.3.2. Configurare il client</h5></div></div></div><div
+                class="para">
+						On the client side, the configuration for the <span
+                  class="emphasis"><em>libpam-ldap</em></span> and <span
+                  class="emphasis"><em>libnss-ldap</em></span> modules needs to be modified to use an <code
+                  class="literal">ldaps://</code> URI.
+					</div><div
+                class="para">
+						LDAP clients also need to be able to authenticate the server. In a X.509 public key infrastructure, public certificates are signed by the key of a certificate authority (CA). With <span
+                  class="emphasis"><em>easy-rsa</em></span>, the Falcot administrators have created their own CA and they now need to configure the system to trust the signatures of Falcot's CA. This can be done by putting the CA certificate in <code
+                  class="filename">/usr/local/share/ca-certificates</code> and running <code
+                  class="command">update-ca-certificates</code>.
+					</div><pre
+                class="screen">
+# <strong
+                  class="userinput"><code>cp keys/ca.crt /usr/local/share/ca-certificates/falcot.crt</code></strong>
+# <strong
+                  class="userinput"><code>update-ca-certificates</code></strong>
+Updating certificates in /etc/ssl/certs... 1 added, 0 removed; done.
+Running hooks in /etc/ca-certificates/update.d....
+Adding debian:falcot.pem
+done.
+done.
+</pre><div
+                class="para">
+						Last but not least, the default LDAP URI and default base DN used by the various command line tools can be modified in <code
+                  class="filename">/etc/ldap/ldap.conf</code>. This will save quite some typing.
+					</div><div
+                class="example"><a
+                  id="idm140618314308208"></a><p
+                  class="title"><strong>Esempio 11.34. Il file <code
+                      class="filename">/etc/ldap/ldap.conf</code></strong></p><div
+                  class="example-contents"><pre
+                    class="programlisting">#
+# LDAP Defaults
+#
+
+# See ldap.conf(5) for details
+# This file should be world readable but not world writable.
+
+BASE   dc=falcot,dc=com
+URI    ldaps://ldap.falcot.com
+
+#SIZELIMIT      12
+#TIMELIMIT      15
+#DEREF          never
+
+# TLS certificates (needed for GnuTLS)
+TLS_CACERT      /etc/ssl/certs/ca-certificates.crt
+</pre></div></div><div
+                class="para">
+						Questo capitolo ha unicamente dato dimostrazione di una piccola parte dei software disponibili per i sistemi server: tuttavia molti dei servizi di rete comuni sono stati descritti. Ora è tempo di passare ad un capitolo ancora più tecnico: scenderemo ancor più in profondità su alcuni concetti, descrivendo implementazioni massive e virtualizzazione.
+					</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.http-ftp-proxy.html"><strong>Indietro</strong>11.6. Proxy HTTP/FTP</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Risali</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Partenza</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="advanced-administration.html"><strong>Avanti</strong>Capitolo 12. Amministrazione avanzata</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.ldap-directory.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.ldap-directory.html">da-DK</a></li><li><a
+              href="../de-DE/sect.ldap-directory.html">de-DE</a></li><li><a
+              href="../el-GR/sect.ldap-directory.html">el-GR</a></li><li><a
+              href="../en-US/sect.ldap-directory.html">en-US</a></li><li><a
+              href="../es-ES/sect.ldap-directory.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.ldap-directory.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.ldap-directory.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.ldap-directory.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.ldap-directory.html">id-ID</a></li><li><a
+              href="../it-IT/sect.ldap-directory.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.ldap-directory.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.ldap-directory.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.ldap-directory.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.ldap-directory.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.ldap-directory.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.ldap-directory.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.ldap-directory.html">zh-CN</a></li></ul></div></body></html>

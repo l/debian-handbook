@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.3. 権限の管理</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="システム起動, 初期化スクリプト, SSH, Telnet, 権限, パーミッション, 管理, Inetd, Cron, バックアップ, ホットプラグ, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第9章 Unix サービス" /><link
+        rel="prev"
+        href="sect.remote-login.html"
+        title="9.2. リモートログイン" /><link
+        rel="next"
+        href="sect.administration-interfaces.html"
+        title="9.4. 管理インターフェース" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.rights-management.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.remote-login.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.administration-interfaces.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.rights-management"></a>9.3. 権限の管理</h2></div></div></div><div
+          class="para">
+			Linux は完全なマルチユーザシステムです。このため、ユーザの権限に基いてファイルやディレクトリに対する操作を制御するために、パーミッションシステムを提供する事が必要です。このパーミッションシステムは、すべてのシステムリソースとデバイス (Unix システムではすべてのデバイスはファイルまたはディレクトリとして表現されます) を対象とします。この原理はすべての Unix システムで共通ですが、特に興味深く比較的知られていない上級の使い方があるので、注意は常に必要です。
+		</div><a
+          id="idm140393323940208"
+          class="indexterm"></a><a
+          id="idm140393323939248"
+          class="indexterm"></a><a
+          id="idm140393323938288"
+          class="indexterm"></a><a
+          id="idm140393323936848"
+          class="indexterm"></a><a
+          id="idm140393323935408"
+          class="indexterm"></a><a
+          id="idm140393323933968"
+          class="indexterm"></a><div
+          class="para">
+			ファイルとディレクトリには、ユーザの種類別に 3 種類の特定のパーミッションが付けられます:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					所有者 (「user」の <code
+                  class="literal">u</code> で表記されます);
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					所有者グループ (「group」の <code
+                  class="literal">g</code> で表記されます)、グループに所属する全ユーザを意味します;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					その他 (「other」の <code
+                  class="literal">o</code> で表記されます)。
+				</div></li></ul></div><div
+          class="para">
+			3 種類の権限は組み合わせて使う事が可能です:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					読み込み (「read」の <code
+                  class="literal">r</code> で表記されます);
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					書き込み (または変更、「write」の <code
+                  class="literal">w</code> で表記されます);
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					実行 (「eXecute」の <code
+                  class="literal">x</code> で表記されます)。
+				</div></li></ul></div><a
+          id="idm140393323922064"
+          class="indexterm"></a><a
+          id="idm140393323921104"
+          class="indexterm"></a><a
+          id="idm140393323920144"
+          class="indexterm"></a><a
+          id="idm140393323919184"
+          class="indexterm"></a><div
+          class="para">
+			ファイルの場合、これらの権限は簡単に理解できます: 読み込み権限があれば、内容を読む (コピーを含めて) 事が可能です。書き込み権限があれば、内容を変更する事が可能です。実行権限があれば、内容を実行する事が可能です (プログラムの場合のみ有効)。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SECURITY</em></span> <code
+                      class="literal">setuid</code> と <code
+                      class="literal">setgid</code> 実行ファイル</strong></p></div></div></div><div
+            class="para">
+			実行ファイルに関係する 2 種類の特別な権限があります: <code
+              class="literal">setuid</code> と <code
+              class="literal">setgid</code> (「s」で表記されます) です。これらは「ビット」と呼ばれる事が多い点に注意してください。なぜなら、これらは 0 か 1 で表されるブール値だからです。これら 2 種類の権限を使うと、実行されたプログラムは、所有者か所有グループの権限で動くことになります。このメカニズムを使うと、プログラムはプログラムを実行したユーザが通常持っているよりも高位のパーミッションを要求する機能にアクセスできるようになります。
+		</div><a
+            id="idm140393323913344"
+            class="indexterm"></a><a
+            id="idm140393323912064"
+            class="indexterm"></a><div
+            class="para">
+			<code
+              class="literal">setuid</code> root プログラムは一貫してスーパーユーザとして実行されるため、安全で信頼できるプログラムか否かはとても重要です。実際、好きなコマンドを呼び出すために何とかしてシステムを破壊したいと思うユーザは root ユーザになりすまし、システムのすべての権限を持つ事が可能です。
+		</div></div><div
+          class="para">
+			ディレクトリは別のやり方で取り扱われます。読み込み権限があれば、そのエントリ (ファイルとディレクトリ) のリストを閲覧する事が可能です。書き込み権限があれば、ファイルを作成および削除する事が可能です。実行権限があれば、そのディレクトリを横断する事が可能です (<code
+            class="command">cd</code> コマンドでそのディレクトリに移動できます)。ディレクトリの読み込み権限が無くてもディレクトリを横断する事ができるならば、ディレクトリ内の名前を知っているエントリにアクセスする事が可能です。ただし、エントリの存在を知らないか、エントリの完全な名前を知らない場合、そのエントリを見つけることはできません。
+		</div><div
+          class="sidebar"><a
+            id="sidebar.setgid-dir"></a><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SECURITY</em></span> <code
+                      class="literal">setgid</code> ディレクトリと<span
+                      class="emphasis"><em>スティッキービット</em></span></strong></p></div></div></div><a
+            id="idm140393323905280"
+            class="indexterm"></a><div
+            class="para">
+			<code
+              class="literal">setgid</code> ビットはディレクトリにも適用されます。<code
+              class="literal">setgid</code> ビットが適用されたディレクトリの中に新しく作成されたアイテムは、作成者のメイングループを継承するのではなく、自動的に親ディレクトリの所有者グループを割り当てられます。こうすることで、ユーザが同じ専用グループに所属する複数のユーザの間で共有されているファイルツリーの中で作業をしている場合、自分の (<code
+              class="command">newgrp</code> コマンドを使って) メイングループを変更しなくてもよくなります。
+		</div><a
+            id="idm140393323901520"
+            class="indexterm"></a><div
+            class="para">
+			「スティッキー」ビット (「t」で表記されます) とはディレクトリだけに有効なパーミッションです。これは特に、誰でも書き込み権限を持つ一時ディレクトリ (<code
+              class="filename">/tmp/</code> など) に使われます: スティッキービットを付けられたディレクトリ以下に含まれるファイルの削除が制限されます。ファイルは所有者 (または親ディレクトリの所有者) だけが削除できるようになります。<code
+              class="filename">/tmp/</code> にスティッキービットが無ければ、そのディレクトリ以下にある他のユーザのファイルを誰でも削除できる事になります。
+		</div></div><div
+          class="para">
+			ファイルのパーミッションを制御する 3 種類のコマンド:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chown <em
+                    class="replaceable">user</em> <em
+                    class="replaceable">file</em></code> ファイルの所有者を変更します;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chgrp <em
+                    class="replaceable">group</em> <em
+                    class="replaceable">file</em></code> ファイルの所有グループを変更します;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chmod <em
+                    class="replaceable">rights</em> <em
+                    class="replaceable">file</em></code> ファイルのパーミッションを変更します。
+				</div></li></ul></div><div
+          class="para">
+			権限の指定方法には 2 種類あります。それらの中でも、記号指定が最もわかりやすく覚えやすいでしょう。これは上で述べた文字記号を使います。ユーザのカテゴリ (<code
+            class="literal">u</code>/<code
+            class="literal">g</code>/<code
+            class="literal">o</code>) に対する権限を (<code
+            class="literal">=</code> で) 明示するか、(<code
+            class="literal">+</code> で) 追加するか、(<code
+            class="literal">-</code> で) 取り除く事ができます。そんな訳で、<code
+            class="literal">u=rwx,g+rw,o-r</code> 式は、所有者に読み込み、書き込み、実行権限を与え、所有グループに読み込み、書き込み権限を追加し、その他のユーザから読み込み権限を奪います。追加と削除によって変更されない権限はそのままです。「all」を意味する文字 <code
+            class="literal">a</code> は 3 つのユーザカテゴリすべてを表現します。このため、<code
+            class="literal">a=rx</code> はすべてのカテゴリのユーザに対して同じ権限 (読み込みと実行権限を与えますが、書き込み権限は与えません) を与えます。
+		</div><a
+          id="idm140393323885264"
+          class="indexterm"></a><a
+          id="idm140393323884144"
+          class="indexterm"></a><a
+          id="idm140393323883024"
+          class="indexterm"></a><a
+          id="idm140393323881904"
+          class="indexterm"></a><a
+          id="idm140393323880976"
+          class="indexterm"></a><div
+          class="para">
+			(8 進数) 数値表記は各権限を値で表現します: 読み込みは 4、書き込みは 2、実行権限は 1 です。権限を組み合わせるには組み合わせたい権限に対応する数字を合計します。ユーザの各カテゴリ (所有者、グループ、その他) に対して与える権限を同じ順番で連結して、それぞれの権限を割り当てます。
+		</div><div
+          class="para">
+			例えば、<code
+            class="command">chmod 754 <em
+              class="replaceable">file</em></code> コマンドは以下の権限を設定します: 所有者に書き込み、読み込み、実行権限 (7 = 4 + 2 + 1 なので) を設定し; 所有グループに読み込み、実行権限 (5 = 4 + 1 なので) を設定し; その他のユーザに読み込み権限を設定します。<code
+            class="literal">0</code> は権限が無い事を意味します; このため <code
+            class="command">chmod 600 <em
+              class="replaceable">file</em></code> は所有者に読み込み、書き込み権限を設定し、所有者以外のユーザにはいかなる権限も与えません。最もよく使われる権限の組み合わせは、実行ファイルやディレクトリの場合 <code
+            class="literal">755</code> で、データファイルの場合 <code
+            class="literal">644</code> です。
+		</div><div
+          class="para">
+			同じ原則に従って特別な権限を表す 4 番目の桁は先に説明した 3 桁の権限表記の前に付けます。<code
+            class="literal">setuid</code>、<code
+            class="literal">setgid</code>、<code
+            class="literal">sticky</code> ビットがそれぞれ 4、2、1 に対応します。<code
+            class="command">chmod 4754</code> は前に説明した権限に加えて、<code
+            class="literal">setuid</code> ビットを設定します。
+		</div><div
+          class="para">
+			8 進数表記の権限設定が使えるのは、あるファイルに対するすべての権限を一度に設定する場合だけです; 例えば、所有グループに読み込み権限を与えるなどの、新しい権限を追加したい場合は使えません。なぜなら、既に設定されている権限を考慮して、新しい権限を数値表記に直さなければいけないからです。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>TIP</em></span> 再帰操作</strong></p></div></div></div><div
+            class="para">
+			しばしばファイルツリー全体の権限を変更しなければいけない場合があります。上に挙げた 3 種類のコマンドには、サブディレクトリを再帰的に辿って操作を行うための <code
+              class="literal">-R</code> オプションがあります。
+		</div><div
+            class="para">
+			再帰操作を行った時に、ディレクトリとファイルの間の違いが原因で、時々問題が起こります。このため、「X」文字が権限の記号表記に導入されました。「X」文字はディレクトリだけに適用される (そして実行権限の無いファイルには適用されない) 実行権限を表します。このため、<code
+              class="command">chmod -R a+X <em
+                class="replaceable">directory</em></code> は、少なくとも 1 つのカテゴリのユーザ (所有者が一人しかいなくても) が既に対象の実行権限を持っている場合に、すべてのカテゴリのユーザ (<code
+              class="literal">a</code>) に対してすべてのサブディレクトリとファイルへの実行権限を追加します。
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>TIP</em></span> ユーザとグループの変更</strong></p></div></div></div><div
+            class="para">
+			しばしば、ファイルのグループと所有者を同時に変更したい場合があります。この用途向けに <code
+              class="command">chown</code> コマンドには特別な構文があります: <code
+              class="command">chown <em
+                class="replaceable">user</em>:<em
+                class="replaceable">group</em> <em
+                class="replaceable">file</em></code>
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>GOING FURTHER</em></span> <code
+                      class="command">umask</code></strong></p></div></div></div><div
+            class="para">
+			アプリケーションがファイルを作成する際、ファイルには目安となるパーミッションが割り当てられます。このパーミッションは <code
+              class="command">umask</code> コマンドで表示される特定の権限が自動的に削除されたものです。シェルで <code
+              class="command">umask</code> を実行すると; <code
+              class="computeroutput">0022</code> 等のマスクが表示されます。これは権限の単純な 8 進数表記で、これで表される権限は体系的に削除されます (上の場合、グループとその他のユーザに対する書き込み権限が削除されます)。
+		</div><a
+            id="idm140393323858096"
+            class="indexterm"></a><a
+            id="idm140393323857136"
+            class="indexterm"></a><a
+            id="idm140393323855696"
+            class="indexterm"></a><div
+            class="para">
+			新しい 8 進数値でマスクを再設定したければ、<code
+              class="command">umask</code> コマンドでマスクを変更できます。シェル初期化ファイル (例えば、<code
+              class="filename">~/.bash_profile</code>) の中で <code
+              class="command">umask</code> コマンドを使った場合、作業セッション内で有効なデフォルトのマスクを変更します。
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.remote-login.html"><strong>戻る</strong>9.2. リモートログイン</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.administration-interfaces.html"><strong>次へ</strong>9.4. 管理インターフェース</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.rights-management.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.rights-management.html">da-DK</a></li><li><a
+              href="../de-DE/sect.rights-management.html">de-DE</a></li><li><a
+              href="../el-GR/sect.rights-management.html">el-GR</a></li><li><a
+              href="../en-US/sect.rights-management.html">en-US</a></li><li><a
+              href="../es-ES/sect.rights-management.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.rights-management.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.rights-management.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.rights-management.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.rights-management.html">id-ID</a></li><li><a
+              href="../it-IT/sect.rights-management.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.rights-management.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.rights-management.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.rights-management.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.rights-management.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.rights-management.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.rights-management.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.rights-management.html">zh-CN</a></li></ul></div></body></html>

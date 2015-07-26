@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">5.4. Manipulando Pacotes com o dpkg</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="Pacote Binário, Pacote fonte, dpkg, dependências, conflitos" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="packaging-system.html"
+        title="Capítulo 5. Sistema de Pacotes: Ferramentas e Princípios Fundamentais" /><link
+        rel="prev"
+        href="sect.source-package-structure.html"
+        title="5.3. Estrutura de um Pacote Fonte" /><link
+        rel="next"
+        href="sect.coexistence-with-other-packaging-systems.html"
+        title="5.5. Coexistencia com outros sistemas de pacotes" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.manipulating-packages-with-dpkg.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.source-package-structure.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.coexistence-with-other-packaging-systems.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.manipulating-packages-with-dpkg"></a>5.4. Manipulando Pacotes com o <code
+                  class="command">dpkg</code></h2></div></div></div><a
+          id="idm140035072663264"
+          class="indexterm"></a><div
+          class="para">
+			O <code
+            class="command">dpkg</code> é o comando básico para lidar com pacotes Debian no sistema. Se você tem pacotes <code
+            class="filename">.deb</code>, é com o <code
+            class="command">dpkg</code> que você instala ou analisa seu conteúdo. Mas este programa tem apenas uma visão parcial do universo Debian: ele sabe o que está instalado no sistema, e o que for dado na linha de comando, mas não sabe nada dos outros pacotes disponíveis. Assim, ele vai falhar se uma dependência não for satisfeita. Ferramentas como o <code
+            class="command">apt-get</code>, ao contrário, criará uma lista de dependências para instalar tudo o mais automaticamente possível.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>OBS</em></span> <code
+                      class="command">dpkg</code> ou <code
+                      class="command">apt-get</code>?</strong></p></div></div></div><div
+            class="para">
+			<code
+              class="command">dpkg</code> deve ser vista como uma ferramenta de sistema (nos bastidores), e <code
+              class="command">apt-get</code> como uma ferramenta mais próxima do usuário, que supera as limitações das antigas. Estas ferramentas trabalham juntas, cada uma com suas particularidades, adequedas para tarefas específicas.
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035072655456"></a>5.4.1. Instalando pacotes</h3></div></div></div><a
+            id="idm140035072654656"
+            class="indexterm"></a><a
+            id="idm140035072653216"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">dpkg</code> é, principalmente, a ferramenta para instalar um pacote Debian já disponível (já que ele não baixa nada). Para isto, usamos sua opção <code
+              class="literal">-i</code> ou <code
+              class="literal">--install</code>.
+			</div><div
+            class="example"><a
+              id="idm140035072649728"></a><p
+              class="title"><strong>Exemplo 5.2. Instalação de um pacote com <code
+                  class="command">dpkg</code></strong></p><div
+              class="example-contents"><pre
+                class="screen scale">
+<code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>dpkg -i man-db_2.7.0.2-5_amd64.deb</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 86425 files and directories currently installed.)
+Preparing to unpack man-db_2.7.0.2-5_amd64.deb ...
+Unpacking man-db (2.7.0.2-5) over (2.7.0.2-4) ...
+Setting up man-db (2.7.0.2-5) ...
+Updating database of manual pages ...
+Processing triggers for mime-support (3.58) ...</code></pre></div></div><div
+            class="para">
+				Podemos ver os diferentes passos realizados pelo <code
+              class="command">dpkg</code>; sabemos, portanto, em qual ponto um erro ocorreu. A instalação pode também ser realizada em dois estágios: primeiro desempacotar, depois configurar. O <code
+              class="command">apt-get</code> usa isto, limitando o número de chamadas para o <code
+              class="command">dpkg</code> (já que cada chamada é custosa, devido à carga do banco de dados em memória, principalmente da lista de arquivos já instalados).
+			</div><div
+            class="example"><a
+              id="idm140035072644208"></a><p
+              class="title"><strong>Exemplo 5.3. Desempacotando e configurando separadamente</strong></p><div
+              class="example-contents"><pre
+                class="screen scale">
+<code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>dpkg --unpack man-db_2.7.0.2-5_amd64.deb</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 86425 files and directories currently installed.)
+Preparing to unpack man-db_2.7.0.2-5_amd64.deb ...
+Unpacking man-db (2.7.0.2-5) over (2.7.0.2-5) ...
+Processing triggers for mime-support (3.58) ...
+# </code><strong
+                  class="userinput"><code>dpkg --configure man-db</code></strong>
+<code
+                  class="computeroutput">Setting up man-db (2.7.0.2-5) ...
+Updating database of manual pages ...
+</code></pre></div></div><a
+            id="idm140035072640432"
+            class="indexterm"></a><a
+            id="idm140035072638992"
+            class="indexterm"></a><div
+            class="para">
+				Algumas vezes, o <code
+              class="command">dpkg</code> vai falhar ao instalar um pacote e retornar um erro; se o usuário ordenar que ele ignore isto, ele vai mostrar apenas um aviso; é por esta razão que temos as diferentes opções <code
+              class="literal">--force-*</code>. O comando <code
+              class="command">dpkg --force-help</code>, ou a documentação deste comando, vai dar uma lista completa destas opções. O erro mais frequente, que você vai encontrar, cedo ou tarde, é colisão de arquivos. Quando um pacote contém um arquivo que já está instalado por outro pacote, o <code
+              class="command">dpkg</code> se recusará a instalá-lo. As seguintes mensagens vão aparecer:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">Unpacking libgdm (from .../libgdm_3.8.3-2_amd64.deb) ...
+dpkg: error processing /var/cache/apt/archives/libgdm_3.8.3-2_amd64.deb (--unpack):
+ trying to overwrite '/usr/bin/gdmflexiserver', which is also in package gdm3 3.4.1-9</code></pre><div
+            class="para">
+				Neste caso, se você pensa que se você acha que substituir este arquivo não é um risco significante à estabilidade de seu sistema (o que normalmente é o caso), você pode usar a opção <code
+              class="literal">--force-overwrite</code>, que diz ao <code
+              class="command">dpkg</code> para ignorar este erro e sobreescrever o arquivo.
+			</div><div
+            class="para">
+				Mesmo que existam muitas opções <code
+              class="literal">--force-*</code> disponíveis, apenas <code
+              class="literal">--force-overwrite</code> costuma ser usada normalmente. Estas opções existem apenas para situações excepcionais, e é melhor evitar usá-las o máximo possível para respeitar as regras impostas pelo mecanismo de empacotamento. Não esqueça, estas regras garantem a consistência e estabilidade de seu sistema.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATENÇÃO</em></span> Uso efetivo do <code
+                        class="literal">--force-*</code></strong></p></div></div></div><a
+              id="idm140035072628992"
+              class="indexterm"></a><div
+              class="para">
+				Se você não for cuidadoso, o uso de uma opção <code
+                class="literal">--force-*</code> pode levar a um sistema onde a família APT de comandos vai re recusar a funcionar. Em efeito, algumas destas opções permitem a instalação de um pacote quando uma dependência não é atingida, ou quando existe um conflito. O resultado é um sistema incosistente do ponto de vista de dependências, e os comandos APT vão se recusar a executar quaisquer ações exceto aquelas que trarão o sistema de volta a um estado consistente (isto frequentemente consiste da instalação de dependências faltando ou da remoção de um pacote problemático). Isto às vezes resulta numa mensagem como esta, obtida depois de instalar uma nova versão do <span
+                class="pkg pkg">rdesktop</span> enquanto ignora suas dependências de uma versão mais nova do <span
+                class="pkg pkg">libc6</span>:
+			</div><pre
+              class="programlisting"># apt-get dist-upgrade
+[...]
+You can run "apt-get -f install" to correct these problems.
+The following packages contain unmet dependencies:
+  rdesktop: Depends on: libc6 (&gt;= 2.5) but 2.3.6.ds1-13etch7 is installed
+E: missing dependencies. Try to use the option -f.
+</pre><div
+              class="para">
+				Um administrador corajoso que tem certeza da corretude da sua análise pode escolher ignorar uma dependência ou conflito e usar a respectiva opção <code
+                class="literal">--force-*</code>. Neste caso, se ele quiser ser capaz de continuar a usar o <code
+                class="command">apt-get</code> ou o <code
+                class="command">aptitude</code>, ele deve editar o <code
+                class="filename">/var/lib/dpkg/status</code> para apagar ou modificar a dependência, ou conflito, que ele escolher passar por cima.
+			</div><div
+              class="para">
+				Esta manipulação é um truuque feio, e nunca deve ser feito, exceto na mais extrema necessidade. Muito frequentemente, uma solução mais adequada é recompilar o pacote que está causando o problema (veja em <a
+                class="xref"
+                href="debian-packaging.html#sect.rebuilding-package">Seção 15.1, “Reconstruindo um Pacote a partir de suas Fontes”</a>) ou use uma versão nova (provavelmente corrigida) de um repositório como o <code
+                class="literal">table-backports</code> (veja em <a
+                class="xref"
+                href="apt.html#sect.backports">Seção 6.1.2.4, “Backports estáveis”</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035072618736"></a>5.4.2. Remoção de pacote</h3></div></div></div><a
+            id="idm140035072617936"
+            class="indexterm"></a><a
+            id="idm140035072616976"
+            class="indexterm"></a><a
+            id="idm140035072616016"
+            class="indexterm"></a><a
+            id="idm140035072614576"
+            class="indexterm"></a><div
+            class="para">
+				Invocando o <code
+              class="command">dpkg</code> com a opção <code
+              class="literal">-r</code> ou <code
+              class="literal">--remove</code>, seguida pelo nome de um pacote, remove o pacote. Esta remoção é, entretanto, incompleta: todos os arquivos de configuração, scripts do mantenedor, arquivos de log (logs de sistema) e outros dados do usuário manipulados pelo pacote permanecem. Dessa forma, a desativação do programa é feita facilmente desinstalando-o, e ainda é possível reinstalá-lo rapidamente com a mesma configuração Para remover completamente tudo associado a um pacote, use a opção <code
+              class="literal">-P</code> ou <code
+              class="literal">--purge</code>, seguida do nome do pacote.
+			</div><div
+            class="example"><a
+              id="idm140035072609824"></a><p
+              class="title"><strong>Exemplo 5.4. Removal and purge of the <span
+                  class="pkg pkg">debian-cd</span> package</strong></p><div
+              class="example-contents"><pre
+                class="screen"><code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>dpkg -r debian-cd</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 97747 files and directories currently installed.)
+Removing debian-cd ...
+# </code><strong
+                  class="userinput"><code>dpkg -P debian-cd</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 97401 files and directories currently installed.)
+Removing debian-cd ...
+Purging configuration files for debian-cd ...</code></pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035072605504"></a>5.4.3. Consultando o banco de dados do <code
+                    class="command">dpkg</code> e inspecionando os arquivos <code
+                    class="filename">.deb</code></h3></div></div></div><a
+            id="idm140035072603968"
+            class="indexterm"></a><a
+            id="idm140035072602528"
+            class="indexterm"></a><a
+            id="idm140035072601088"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DE VOLTA AO BÁSICO</em></span> sintaxe das opções</strong></p></div></div></div><div
+              class="para">
+				A maioria das opções estão disponíveis em uma versão "longa" (uma ou mais palavras relevantes, precedidas de traço duplo) e uma versão "curta" (uma única letra, geralmente a inicial de uma palavra da versão longa, e precedida de um traço). Esta convenção é tão comum que é um padrão do POSIX.
+			</div></div><div
+            class="para">
+				Antes de concluir esta seção, estudaremos as opções do <code
+              class="command">dpkg</code> que consultam o banco de dados interno para obter informações. Mostrando primeiro as opções longas e depois as curtas correspondentes (que recebem, evidentemente, os mesmos argumentos) citamos <code
+              class="literal">--listfiles <em
+                class="replaceable">pacote</em></code> (ou <code
+              class="literal">-L</code>), que lista os arquivos instalados por este pacote; <code
+              class="literal">--search <em
+                class="replaceable">arquivo</em></code> (ou <code
+              class="literal">-S</code>), que procura o pacote contndo o arquivo; <code
+              class="literal">--status <em
+                class="replaceable">pacote</em></code> (ou <code
+              class="literal">-s</code>), que mostra os cabeçalhos de um pacote instalado; <code
+              class="literal">--list</code> (ou <code
+              class="literal">-l</code>), que mostra a lista de pacotes que o sistema conhece e seus estados de instalação; <code
+              class="literal">--contents <em
+                class="replaceable">arquivo.deb</em></code> (ou <code
+              class="literal">-c</code>), que lista os arquivos no pacote debian especificado; <code
+              class="literal">--info<em
+                class="replaceable"> arquivo.deb </em></code> (ou <code
+              class="literal">-I</code>), que mostra os cabeçalhos de seu pacote Debian.
+			</div><div
+            class="example"><a
+              id="idm140035072589152"></a><p
+              class="title"><strong>Exemplo 5.5. Várias consultas com o <code
+                  class="command">dpkg</code></strong></p><div
+              class="example-contents"><pre
+                class="screen scale"
+                width="80">
+<code
+                  class="computeroutput">$ </code><strong
+                  class="userinput"><code>dpkg -L base-passwd</code></strong>
+<code
+                  class="computeroutput">/.
+/usr
+/usr/sbin
+/usr/sbin/update-passwd
+/usr/share
+/usr/share/lintian
+/usr/share/lintian/overrides
+/usr/share/lintian/overrides/base-passwd
+/usr/share/doc-base
+/usr/share/doc-base/users-and-groups
+/usr/share/base-passwd
+/usr/share/base-passwd/group.master
+/usr/share/base-passwd/passwd.master
+/usr/share/man
+/usr/share/man/pl
+/usr/share/man/pl/man8
+/usr/share/man/pl/man8/update-passwd.8.gz
+/usr/share/man/ru
+/usr/share/man/ru/man8
+/usr/share/man/ru/man8/update-passwd.8.gz
+/usr/share/man/ja
+/usr/share/man/ja/man8
+/usr/share/man/ja/man8/update-passwd.8.gz
+/usr/share/man/fr
+/usr/share/man/fr/man8
+/usr/share/man/fr/man8/update-passwd.8.gz
+/usr/share/man/es
+/usr/share/man/es/man8
+/usr/share/man/es/man8/update-passwd.8.gz
+/usr/share/man/de
+/usr/share/man/de/man8
+/usr/share/man/de/man8/update-passwd.8.gz
+/usr/share/man/man8
+/usr/share/man/man8/update-passwd.8.gz
+/usr/share/doc
+/usr/share/doc/base-passwd
+/usr/share/doc/base-passwd/users-and-groups.txt.gz
+/usr/share/doc/base-passwd/changelog.gz
+/usr/share/doc/base-passwd/copyright
+/usr/share/doc/base-passwd/README
+/usr/share/doc/base-passwd/users-and-groups.html
+$ </code><strong
+                  class="userinput"><code>dpkg -S /bin/date</code></strong>
+<code
+                  class="computeroutput">coreutils: /bin/date
+$ </code><strong
+                  class="userinput"><code>dpkg -s coreutils</code></strong>
+<code
+                  class="computeroutput">Package: coreutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 13855
+Maintainer: Michael Stone &lt;mstone@debian.org&gt;
+Architecture: amd64
+Multi-Arch: foreign
+Version: 8.23-3
+Replaces: mktemp, realpath, timeout
+Pre-Depends: libacl1 (&gt;= 2.2.51-8), libattr1 (&gt;= 1:2.4.46-8), libc6 (&gt;= 2.17), libselinux1 (&gt;= 2.1.13)
+Conflicts: timeout
+Description: GNU core utilities
+ This package contains the basic file, shell and text manipulation
+ utilities which are expected to exist on every operating system.
+ .
+ Specifically, this package includes:
+ arch base64 basename cat chcon chgrp chmod chown chroot cksum comm cp
+ csplit cut date dd df dir dircolors dirname du echo env expand expr
+ factor false flock fmt fold groups head hostid id install join link ln
+ logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt
+ od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm
+ rmdir runcon sha*sum seq shred sleep sort split stat stty sum sync tac
+ tail tee test timeout touch tr true truncate tsort tty uname unexpand
+ uniq unlink users vdir wc who whoami yes
+Homepage: http://gnu.org/software/coreutils
+$ </code><strong
+                  class="userinput"><code>dpkg -l 'b*'</code></strong>
+<code
+                  class="computeroutput">Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                    Version          Architecture     Description
++++-=======================-================-================-====================================================
+un  backupninja             &lt;none&gt;           &lt;none&gt;           (no description available)
+ii  backuppc                3.3.0-2          amd64            high-performance, enterprise-grade system for backin
+un  base                    &lt;none&gt;           &lt;none&gt;           (no description available)
+un  base-config             &lt;none&gt;           &lt;none&gt;           (no description available)
+ii  base-files              8                amd64            Debian base system miscellaneous files
+ii  base-passwd             3.5.37           amd64            Debian base system master password and group files
+[...]
+$ </code><strong
+                  class="userinput"><code>dpkg -c /var/cache/apt/archives/gnupg_1.4.18-6_amd64.deb</code></strong>
+<code
+                  class="computeroutput">drwxr-xr-x root/root         0 2014-12-04 23:03 ./
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./lib/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./lib/udev/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./lib/udev/rules.d/
+-rw-r--r-- root/root      2711 2014-12-04 23:03 ./lib/udev/rules.d/60-gnupg.rules
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/lib/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/lib/gnupg/
+-rwxr-xr-x root/root     39328 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_ldap
+-rwxr-xr-x root/root     92872 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_hkp
+-rwxr-xr-x root/root     47576 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_finger
+-rwxr-xr-x root/root     84648 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_curl
+-rwxr-xr-x root/root      3499 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_mailto
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/bin/
+-rwxr-xr-x root/root     60128 2014-12-04 23:03 ./usr/bin/gpgsplit
+-rwxr-xr-x root/root   1012688 2014-12-04 23:03 ./usr/bin/gpg
+[...]
+$ </code><strong
+                  class="userinput"><code>dpkg -I /var/cache/apt/archives/gnupg_1.4.18-6_amd64.deb</code></strong>
+<code
+                  class="computeroutput"> new debian package, version 2.0.
+ size 1148362 bytes: control archive=3422 bytes.
+    1264 bytes,    26 lines      control              
+    4521 bytes,    65 lines      md5sums              
+     479 bytes,    13 lines   *  postinst             #!/bin/sh
+     473 bytes,    13 lines   *  preinst              #!/bin/sh
+ Package: gnupg
+ Version: 1.4.18-6
+ Architecture: amd64
+ Maintainer: Debian GnuPG-Maintainers &lt;pkg-gnupg-maint@lists.alioth.debian.org&gt;
+ Installed-Size: 4888
+ Depends: gpgv, libbz2-1.0, libc6 (&gt;= 2.15), libreadline6 (&gt;= 6.0), libusb-0.1-4 (&gt;= 2:0.1.12), zlib1g (&gt;= 1:1.1.4)
+ Recommends: gnupg-curl, libldap-2.4-2 (&gt;= 2.4.7)
+ Suggests: gnupg-doc, libpcsclite1, parcimonie, xloadimage | imagemagick | eog
+ Section: utils
+ Priority: important
+ Multi-Arch: foreign
+ Homepage: http://www.gnupg.org
+ Description: GNU privacy guard - a free PGP replacement
+  GnuPG is GNU's tool for secure communication and data storage.
+  It can be used to encrypt data and to create digital signatures.
+  It includes an advanced key management facility and is compliant
+  with the proposed OpenPGP Internet standard as described in RFC 4880.
+[...]</code></pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>INDO ALÉM</em></span> Comparação de versões</strong></p></div></div></div><a
+              id="idm140035072575104"
+              class="indexterm"></a><a
+              id="idm140035072574176"
+              class="indexterm"></a><div
+              class="para">
+				Como o <code
+                class="command">dpkg</code> é o programa para manipular pacotes Debian, ele também é a implementação de referência da lógica de comparar números de versão. É por isto que ele tem uma opção <code
+                class="literal">--compare-versions</code>, usada por programas externos (principalmente scripts de configuração executados pelo próprio <code
+                class="command">dpkg</code>). Esta opção precisa de três parâmetros: um número de versão, um operador de comparação e um segundo número de versão. Os operadores são <code
+                class="literal">lt</code> (menor que "lower than"), <code
+                class="literal">le</code> (menor ou igual "less than or equal to"), <code
+                class="literal">eq</code> (igual "equal"), <code
+                class="literal">ne</code> (diferente "not equal"), <code
+                class="literal">ge</code> (maior ou igual "greater than or equal to") e <code
+                class="literal">gt</code> (maior que "strictly greater than"). Se a comparação der correta, o <code
+                class="command">dpkg</code> retorna 0 (sucesso); senão, retorna um valor não-zero (indicando falha).
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 1.2-3 gt 1.1-4</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">0
+$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 1.2-3 lt 1.1-4</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">1
+$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 2.6.0pre3-1 lt 2.6.0-1</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">1</code></pre><div
+              class="para">
+				Observe a falha inesperada da última comparação: para o <code
+                class="command">dpkg</code>, <code
+                class="literal">pre</code> normalmente significa uma pre-release ("pré-lançamento") e não tem um significado especial, e este programa compara as letras da mesma forma que os números (a &lt;b &lt; c ...), em ordem alfabética. É por isto que ele considera “<code
+                class="literal">0pre3</code>” como sendo maior que “<code
+                class="literal">0</code>”. Quando nós queremos um número de versão de pacote para indicar que é um pré-lançamento, usamos o til, “<code
+                class="literal">~</code>”:
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 2.6.0~pre3-1 lt 2.6.0-1</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">0</code></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035072556304"></a>5.4.4. Arquivo de log do <code
+                    class="command">dpkg</code></h3></div></div></div><div
+            class="para">
+				<code
+              class="command">dpkg</code> mantém um log de todas as suas ações em <code
+              class="filename">/var/log/dpkg.log</code>. Este log é extremamente detalhado, pois detalha todos os passos da manipulação de pacotes pelo <code
+              class="command">dpkg</code>. Adicionalmente oferece uma forma de rastrear o comportamento do dpkg, ele ajuda, sobretudo, a manter um histórico do desenvolvimento do sistema: pode-se encontrar o exato momento em que cada pacote foi instalado ou atualizado, e esta informação pode ser extremamente útil para entender uma mudança de comportamento recente. Adicionalmente, com todas as versões sendo registradas, é fácil cruzar os dados com a informação em <code
+              class="filename">changelog.Debian.gz</code> para o pacote em questão, ou mesmo com o relatorio de defeitos on line (bug reports online).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.multi-arch"></a>5.4.5. Suporte Multi-Arqu</h3></div></div></div><a
+            id="idm140035072550912"
+            class="indexterm"></a><a
+            id="idm140035072549952"
+            class="indexterm"></a><div
+            class="para">
+				Todos os pacotes Debian tem um campo <code
+              class="literal">Arquitetura</code> na informação de controle dele. Este campo pode conter também “<code
+              class="literal">Todos</code>” (para aqueles pacotes que são de todas as arquiteturas independentemente) ou o nome da arquitetura que ele aponta (como “amd64”, “armhf”, …). Neste último caso, por padrão, <code
+              class="command">dpkg</code> apenas aceitará instalar o pacote, se a sua arquitectura combinar com a arquitetura do host como retornado pelo <code
+              class="command">dpkg --print-arquitetura</code>.
+			</div><div
+            class="para">
+				Esta restrição garante que os usuários não acabam com os binários compilados para uma arquitetura incorreta. Tudo seria perfeito, exceto que (alguns) computadores podem executar binários para várias arquiteturas, quer nativamente (um sistema de "amd64" pode rodar binários "i386") ou através de emuladores.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035072545072"></a>5.4.5.1. Habilitando Multi-Arqu</h4></div></div></div><div
+              class="para">
+					suporte multi-arqu do <code
+                class="command">dpkg</code> permite aos usuários definir arquiteturas “estrangeiras” que podem ser instaladas no sistema atual. Isto é simplesmente feito com <code
+                class="command">dpkg --add-architecture</code> como no exemplo abaixo. Há um correspondente <code
+                class="command">dpkg --remove-architecture</code> para remover o suporte de uma arquitetura externa, mas ele só pode ser usado quando nenhum pacote desta arquitetura permanece.
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --print-architecture</code></strong>
+<code
+                class="computeroutput">amd64
+# </code><strong
+                class="userinput"><code>dpkg --print-foreign-architectures</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg -i gcc-4.9-base_4.9.1-19_armhf.deb</code></strong>
+<code
+                class="computeroutput">dpkg: error processing archive gcc-4.9-base_4.9.1-19_armhf.deb (--install):
+ package architecture (armhf) does not match system (amd64)
+Errors were encountered while processing:
+ gcc-4.9-base_4.9.1-19_armhf.deb
+# </code><strong
+                class="userinput"><code>dpkg --add-architecture armhf</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --add-architecture armel</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --print-foreign-architectures</code></strong>
+<code
+                class="computeroutput">armhf
+armel
+# </code><strong
+                class="userinput"><code>dpkg -i gcc-4.9-base_4.9.1-19_armhf.deb</code></strong>
+<code
+                class="computeroutput">Selecting previously unselected package gcc-4.9-base:armhf.
+(Reading database ... 86425 files and directories currently installed.)
+Preparing to unpack gcc-4.9-base_4.9.1-19_armhf.deb ...
+Unpacking gcc-4.9-base:armhf (4.9.1-19) ...
+Setting up gcc-4.9-base:armhf (4.9.1-19) ...
+# </code><strong
+                class="userinput"><code>dpkg --remove-architecture armhf</code></strong>
+<code
+                class="computeroutput">dpkg: error: cannot remove architecture 'armhf' currently in use by the database
+# </code><strong
+                class="userinput"><code>dpkg --remove-architecture armel</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --print-foreign-architectures</code></strong>
+<code
+                class="computeroutput">armhf</code></pre><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>OBS</em></span> suporte APT multi-arqu</strong></p></div></div></div><div
+                class="para">
+					APT irá detectar automaticamente quando dpkg foi configurado para suportar arquiteturas estrangeiras e vai começar a fazer o download dos <code
+                  class="filename">pacotes</code> correspondentes durante seu processo de atualização.
+				</div><div
+                class="para">
+					Pacotes estranhos podem em seguida ser instalados com <code
+                  class="command">apt-get install <em
+                    class="replaceable">pacote</em>:<em
+                    class="replaceable">arquitetura</em></code>.
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>NA PRÁTICA</em></span> Usando binários de propriedade do i386 no amd64</strong></p></div></div></div><div
+                class="para">
+					Existem vários casos de uso para multi-arqu, mas o mais popular é a possibilidade de executar binários 32 bits (i386) em sistemas de 64 bits (AMD64), em particular, uma vez que vários aplicativos populares proprietários (como o Skype) são fornecidos apenas em versões 32 bit.
+				</div><div
+                class="para">
+					Antes de multi-arqu, quando você queria usa uma aplicação 32 bits em um sistema de 64 bits, você tinha que instalar <span
+                  class="pkg pkg">ia32-libs</span> para ter versões das bibliotecas mais populares de 32 bits. Esse pacote foi um enorme truque que reembalou bibliotecas 32 bits em um pacote "amd64".
+				</div><a
+                id="idm140035072525728"
+                class="indexterm"></a></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035072523984"></a>5.4.5.2. Alterações relativas ao Multi-Arqu</h4></div></div></div><div
+              class="para">
+					To make multi-arch actually useful and usable, libraries had to be repackaged and moved to an architecture-specific directory so that multiple copies (targeting different architectures) can be installed alongside. Such updated packages contain the “<code
+                class="literal">Multi-Arch: same</code>” header field to tell the packaging system that the various architectures of the package can be safely co-installed (and that those packages can only satisfy dependencies of packages of the same architecture). Since multi-arch made its debut in Debian <span
+                class="distribution distribution">Wheezy</span>, not all libraries have been converted yet (but all libraries which were embedded in <span
+                class="pkg pkg">ia32-libs</span> do!).
+				</div><pre
+              class="screen">
+$ <strong
+                class="userinput"><code>dpkg -s gcc-4.9-base</code></strong>
+dpkg-query: error: --status needs a valid package name but 'gcc-4.9-base' is not: ambiguous package name 'gcc-4.9-base' with more than one installed instance
+
+Use --help for help about querying packages.
+$ <strong
+                class="userinput"><code>dpkg -s gcc-4.9-base:amd64 gcc-4.9-base:armhf | grep ^Multi</code></strong>
+Multi-Arch: same
+Multi-Arch: same
+$ <strong
+                class="userinput"><code>dpkg -L libgcc1:amd64 |grep .so</code></strong>
+/lib/x86_64-linux-gnu/libgcc_s.so.1
+$ <strong
+                class="userinput"><code>dpkg -S /usr/share/doc/gcc-4.9-base/copyright</code></strong>
+gcc-4.9-base:amd64, gcc-4.9-base:armhf: /usr/share/doc/gcc-4.9-base/copyright
+</pre><div
+              class="para">
+					Vale a pena notar que o pacote <code
+                class="literal">Multi-Arqu: same</code> devem ter seus nomes qualificados com sua arquitetura para ser inequivocamente identificável. Eles também têm a possibilidade de compartilhar arquivos com outras instâncias do mesmo pacote; <code
+                class="command">dpkg</code> garante que todos os pacotes têm arquivos bit-por-bit idênticos quando eles são compartilhados. Por último, mas não menos importante, todas as instâncias de um pacote devem ter a mesma versão. Devem, portanto, ser atualizados em conjunto.
+				</div><div
+              class="para">
+					Suporte Multi-Arch também traz alguns desafios interessantes na forma como são tratadas as dependências. Satisfazer uma dependência requer um pacote marcado “<code
+                class="literal">Multi-Arqu: foreign</code>” ou um pacote cuja arquitetura corresponde ao do pacote declarando a dependência (no processo de resolução de dependência, pacotes independentes de arquitetura são assumidos ser da mesma arquitetura que o host). A dependência também pode ser enfraquecida para permitir que qualquer arquitetura de cumpri-la, com a sintaxe <code
+                class="literal"><em
+                  class="replaceable">pacote</em>:any</code>, mas pacotes estrangeiros só podem satisfazer uma tal dependência, se eles são marcados “<code
+                class="literal">Multi-Arch: allowed</code>”.
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.source-package-structure.html"><strong>Anterior</strong>5.3. Estrutura de um Pacote Fonte</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.coexistence-with-other-packaging-systems.html"><strong>Próxima</strong>5.5. Coexistencia com outros sistemas de pacotes</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.manipulating-packages-with-dpkg.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.manipulating-packages-with-dpkg.html">da-DK</a></li><li><a
+              href="../de-DE/sect.manipulating-packages-with-dpkg.html">de-DE</a></li><li><a
+              href="../el-GR/sect.manipulating-packages-with-dpkg.html">el-GR</a></li><li><a
+              href="../en-US/sect.manipulating-packages-with-dpkg.html">en-US</a></li><li><a
+              href="../es-ES/sect.manipulating-packages-with-dpkg.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.manipulating-packages-with-dpkg.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.manipulating-packages-with-dpkg.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.manipulating-packages-with-dpkg.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.manipulating-packages-with-dpkg.html">id-ID</a></li><li><a
+              href="../it-IT/sect.manipulating-packages-with-dpkg.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.manipulating-packages-with-dpkg.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.manipulating-packages-with-dpkg.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.manipulating-packages-with-dpkg.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.manipulating-packages-with-dpkg.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.manipulating-packages-with-dpkg.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.manipulating-packages-with-dpkg.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.manipulating-packages-with-dpkg.html">zh-CN</a></li></ul></div></body></html>

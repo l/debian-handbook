@@ -1,0 +1,1221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.2. Виртуализация</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ru-RU-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, Пресидинг, Мониторинг, Виртуализация, Xen, LXC" /><link
+        rel="home"
+        href="index.html"
+        title="Настольная книга администратора Debian" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="Глава 12. Углублённое администрирование" /><link
+        rel="prev"
+        href="advanced-administration.html"
+        title="Глава 12. Углублённое администрирование" /><link
+        rel="next"
+        href="sect.automated-installation.html"
+        title="12.3. Автоматизированная установка" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ru-RU/sect.virtualization.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="advanced-administration.html"><strong>Пред.</strong></a></li><li
+          class="home">Настольная книга администратора Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automated-installation.html"><strong>След.</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.virtualization"></a>12.2. Виртуализация</h2></div></div></div><div
+          class="para">
+			Виртуализация <a
+            id="idm139917852491056"
+            class="indexterm"></a> — это одно из крупнейших достижений вычислительной техники последних лет. Этот термин включает в себя различные абстракции и технологии имитации виртуальных компьютеров с разной степенью независимости от реального оборудования. На одном физическом сервере могут размещаться несколько систем, работающих одновременно и изолированных друг от друга. Приложений много, и зачастую они были бы невозможны без такой изоляции: к примеру, тестовые окружения с различными конфигурациями или разделение сервисов по разным виртуальным машинам для безопасности.
+		</div><div
+          class="para">
+			Существует множество решений для виртуализации, каждое со своими достоинствами и недостатками. Эта книга сфокусируется на Xen, LXC и KVM, но есть и другие реализации, достойные упоминания:
+		</div><a
+          id="idm139917852488480"
+          class="indexterm"></a><a
+          id="idm139917852487360"
+          class="indexterm"></a><a
+          id="idm139917852486240"
+          class="indexterm"></a><a
+          id="idm139917852485120"
+          class="indexterm"></a><a
+          id="idm139917852484000"
+          class="indexterm"></a><a
+          id="idm139917852482880"
+          class="indexterm"></a><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					QEMU — это программный эмулятор полноценного компьютера; производительность далека от скоростей, которых можно было бы достичь, запуская программы нативно, но это позволяет запуск немодифицированных или экспериментальных операционных систем на эмулируемом оборудовании. Он также позволяет эмулировать разные аппаратные архитектуры, например на системе <span
+                  class="emphasis"><em>amd64</em></span> можно сэмулировать <span
+                  class="emphasis"><em>arm</em></span>-компьютер. QEMU является свободным ПО. <div
+                  class="url">→ <a
+                    href="http://www.qemu.org/">http://www.qemu.org/</a></div>
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Bochs — другая свободная виртуальная машина, но она эмулирует только архитектуры x86 (i386 и amd64).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					VMWare — это собственническая виртуальная машина; будучи одной из самых старых, она является и одной из самых известных. Она работает на принципах, сходных с QEMU. VMWare предлагает расширенный функционал, такой как создание снимков работающей виртуальной машины. <div
+                  class="url">→ <a
+                    href="http://www.vmware.com/">http://www.vmware.com/</a></div>
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					VirtualBox — преимущественно свободная виртуальная машина (хотя некоторые дополнительные компоненты распространяются под собственнической лицензией). Она моложе VMWare и ограничена архитектурами i386 и amd64, но также позволяет создавать снимки и имеет другую интересную функциональность. VirtualBox входит в состав Debian начиная с <span
+                  class="distribution distribution">Lenny</span>. <div
+                  class="url">→ <a
+                    href="http://www.virtualbox.org/">http://www.virtualbox.org/</a></div>
+				</div></li></ul></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.xen"></a>12.2.1. Xen</h3></div></div></div><div
+            class="para">
+				Xen <a
+              id="idm139917852470496"
+              class="indexterm"></a> — это решение для «паравиртуализации». Оно вводит тонкий слой абстракции, называемый «гипервизором», между оборудованием и вышележащими системами; он играет роль арбитра, контролирующего доступ к оборудованию из виртуальных машин. Однако он обрабатывает лишь немногие инструкции, остальные напрямую выполняются оборудованием от имени систем. Главное преимущество заключается в том, что производительность не страдает, и системы работают со скоростью, близкой к нативной; минусом является то, что ядра операционных систем, которые нужно запускать на гипервизоре Xen, должны быть адаптированы для этого.
+			</div><div
+            class="para">
+				Уделим немного времени терминологии. Гипервизор является нижним слоем, выполняющимся непосредственно на оборудовании, даже ниже ядра. Гипервизор может разделять остальное программное обеспечение по нескольким <span
+              class="emphasis"><em>доменам</em></span>, которые могут выглядеть как множество виртуальных машин. Один из этих доменов (первый, который запускается) известен как <span
+              class="emphasis"><em>dom0</em></span> и имеет особую роль, поскольку только этот домен может управлять гипервизором и исполнением других доменов. Эти другие домены известны как <span
+              class="emphasis"><em>domU</em></span>. Другими словами, с точки зрения пользователя <span
+              class="emphasis"><em>dom0</em></span> соответствует «хосту» в других системах виртуализации, а <span
+              class="emphasis"><em>domU</em></span> — «гостю».
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>КУЛЬТУРА</em></span> Xen и разные версии Linux</strong></p></div></div></div><div
+              class="para">
+				Xen изначально разрабатывался как набор заплат, живший вне официального дерева и не интегрированный в ядро Linux. В то же время некоторые развивающиеся системы виртуализации (включая KVM) требовали некоторых общих функций, связанных с виртуализацией, для облегчения их интеграции, и ядро Linux получило такой набор функций (известный как интерфейс <span
+                class="emphasis"><em>paravirt_ops</em></span> или <span
+                class="emphasis"><em>pv_ops</em></span>). Поскольку заплаты Xen дублировали часть функционала этого интерфейса, они не могли быть приняты официально.
+			</div><div
+              class="para">
+				Xensource, компания, стоящая за Xen, по этой причине должна была перенести Xen на этот новый каркас, чтобы заплаты Xen могли быть влиты в официальное ядро Linux. Это означало переписывание большого объёма кода, и хотя Xensource вскоре получила работающую версию, основанную на интерфейсе paravirt_ops, заплаты были лишь постепенно влиты в официальное ядро. Процесс закончился в Linux 3.0. <div
+                class="url">→ <a
+                  href="http://wiki.xenproject.org/wiki/XenParavirtOps">http://wiki.xenproject.org/wiki/XenParavirtOps</a></div>
+			</div><div
+              class="para">
+				Поскольку <span
+                class="distribution distribution">Wheezy</span> основан на версии 3.2 ядра Linux, стандартные пакеты <span
+                class="pkg pkg">linux-image-686-pae</span> и <span
+                class="pkg pkg">linux-image-amd64</span> включают необходимый код, и в наложении заплат, которые требовались для <span
+                class="distribution distribution">Squeeze</span> и более ранних версий Debian, более нет нужды. <div
+                class="url">→ <a
+                  href="http://wiki.xenproject.org/wiki/Xen_Kernel_Feature_Matrix">http://wiki.xenproject.org/wiki/Xen_Kernel_Feature_Matrix</a></div>
+			</div></div><div
+            class="para">
+				Чтобы использовать Xen в Debian, нужны три компонента:
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ЗАМЕТКА</em></span> Архитектуры, совместимые с Xen</strong></p></div></div></div><div
+              class="para">
+				Xen в настоящее время доступен только для архитектур i386 и amd64. Более того, он использует инструкции процессора, которые были реализованы не во всех компьютерах класса i386. Большинство процессоров класса Pentium (или лучше), выпущенных после 2001 года, будут работать, так что это ограничение действует в немногих случаях.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>КУЛЬТУРА</em></span> Xen и ядра, отличные от Linux</strong></p></div></div></div><div
+              class="para">
+				Xen требует изменений во всех операционных системах, которые хочется на нём запустить; не все ядра достигли полной функциональности в этом отношении. Многие полнофункциональны как dom0 и domU: Linux 3.0 и выше, NetBSD 4.0 и выше и OpenSolaris. Другие, такие как OpenBSD 4.0, FreeBSD 8 и Plan 9, работают только как domU.
+			</div><div
+              class="para">
+				Однако если Xen может положиться на аппаратные функции виртуализации (которые наличествуют только в недавно выпущенных процессорах), даже немодифицированные операционные системы могут запускаться как domU (включая Windows).
+			</div></div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						Сам гипервизор. В соответствии с доступным оборудованием пакет называется <span
+                    class="pkg pkg">xen-hypervisor-4.1-i386</span> или <span
+                    class="pkg pkg">xen-hypervisor-4.1-amd64</span>.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Ядро, работающее на этом гипервизоре. Любое ядро, новее 3.0, включая версию 3.2 из состава <span
+                    class="distribution distribution">Wheezy</span>.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Для архитектуры i386 также требуется стандартная библиотека с заплатами, использующими Xen; она находится в пакете <span
+                    class="pkg pkg">libc6-xen</span>.
+					</div></li></ul></div><div
+            class="para">
+				Чтобы избежать мороки с выбором этих компонентов вручную, для удобства создано несколько пакетов (таких как <span
+              class="pkg pkg">xen-linux-system-686-pae</span> и <span
+              class="pkg pkg">xen-linux-system-amd64</span>); они тянут за собой заведомо работоспособный набор соответствующих пакетов гипервизора и ядра. С гипервизором также поставляется пакет <span
+              class="pkg pkg">xen-utils-4.1</span>, содержащий инструменты для управления гипервизором из dom0. Он в свою очередь зависит от соответствующей стандартной библиотеки. Во время установки всего этого конфигурационные сценарии также создают новую запись в меню загрузчика Grub, чтобы запустить выбранное ядро в Xen dom0. Заметьте однако, что эта запись обычно устанавливается не первой в списке, и поэтому не выбирается по умолчанию. Если это не то поведение, которого вы хотели, следующие команды изменят его:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>mv /etc/grub.d/20_linux_xen /etc/grub.d/09_linux_xen
+</code></strong><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>update-grub
+</code></strong></pre><div
+            class="para">
+				Когда всё необходимое установлено, следующим шагом будет тестирование поведения самого dom0; оно включает перезагрузку в гипервизор и ядро Xen. Система должна загрузиться обычным образом, с несколькими дополнительными сообщениями в консоли на ранних стадиях инициализации.
+			</div><div
+            class="para">
+				Теперь время собственно установить подходящие системы в domU с помощью инструментов из <span
+              class="pkg pkg">xen-tools</span>. Этот пакет предоставляет команду <code
+              class="command">xen-create-image</code>, которая в значительной мере автоматизирует задачу. Единственный обязательный параметр — <code
+              class="literal">--hostname</code>, передающий имя domU; другие опции важны, но они могут быть сохранены в конфигурационном файле <code
+              class="filename">/etc/xen-tools/xen-tools.conf</code>, и их отсутствие в командной строке не вызовет ошибки. Поэтому следует проверить содержимое этого файла перед созданием образов, или же использовать дополнительные параметры в вызове <code
+              class="command">xen-create-image</code>. Отметим следующие важные параметры:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--memory</code> для указания количества ОЗУ, выделенного вновь создаваемой системе;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--size</code> и <code
+                    class="literal">--swap</code>, чтобы задать размер «виртуальных дисков», доступных для domU;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--debootstrap</code>, чтобы новая система устанавливалась с помощью <code
+                    class="command">debootstrap</code>; в этом случае также чаще всего используется опция <code
+                    class="literal">--dist</code> (с указанием имени дистрибутива, например <span
+                    class="distribution distribution">wheezy</span>).
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>УГЛУБЛЯЕМСЯ</em></span> Установка систем, отличных от Debian, в domU</strong></p></div></div></div><div
+                    class="para">
+						В случае системы, основанной не на Linux, следует быть аккуратным при указании ядра, которое должно использоваться domU, с помощью опции <code
+                      class="literal">--kernel</code>.
+					</div></div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--dhcp</code> объявляет, что конфигурация сети domU должна быть получена по DHCP, в то время как <code
+                    class="literal">--ip</code> позволяет задать статический IP-адрес.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Наконец, следует выбрать метод хранения для создаваемых образов (тех, которые будут видны как жёсткие диски из domU). Самый простой метод, соответствующий опции <code
+                    class="literal">--dir</code>, заключается в создании одного файла на dom0 для каждого устройства, которое будет передано domU. Для систем, использующих LVM, альтернативой является использование опции <code
+                    class="literal">--lvm</code>, за которой указывается имя группы томов; в таком случае <code
+                    class="command">xen-create-image</code> создаст новый логический том в этой группе, и этот логический том станет доступным для domU как жёсткий диск.
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>ЗАМЕТКА</em></span> Хранилище в domU</strong></p></div></div></div><div
+                    class="para">
+						Целые жёсткие диски также могут быть экспортированы в domU, равно как разделы, RAID-массивы или ранее созданные логические тома LVM. Эти операции не автоматизированы <code
+                      class="command">xen-create-image</code>, однако, поэтому требуется редактирование конфигурационного файла образа Xen после его создания с помощью <code
+                      class="command">xen-create-image</code>.
+					</div></div></li></ul></div><div
+            class="para">
+				Когда выборы сделаны, мы можем создать образ для нашего будущего Xen domU:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xen-create-image --hostname testxen --dhcp --dir /srv/testxen --size=2G --dist=wheezy --role=udev</code></strong>
+<code
+              class="computeroutput">
+[...]
+General Information
+--------------------
+Hostname       :  testxen
+Distribution   :  wheezy
+Mirror         :  http://ftp.debian.org/debian/
+Partitions     :  swap            128Mb (swap)
+                  /               2G    (ext3)
+Image type     :  sparse
+Memory size    :  128Mb
+Kernel path    :  /boot/vmlinuz-3.2.0-4-686-pae
+Initrd path    :  /boot/initrd.img-3.2.0-4-686-pae
+[...]
+Logfile produced at:
+         /var/log/xen-tools/testxen.log
+
+Installation Summary
+---------------------
+Hostname        :  testxen
+Distribution    :  wheezy
+IP-Address(es)  :  dynamic
+RSA Fingerprint :  0a:6e:71:98:95:46:64:ec:80:37:63:18:73:04:dd:2b
+Root Password   :  48su67EW
+</code></pre><div
+            class="para">
+				Теперь у нас есть виртуальная машина, но она ещё не запущена (и поэтому только занимает место на жёстком диске dom0). Разумеется, мы можем создать больше образов, возможно с разными параметрами.
+			</div><div
+            class="para">
+				До включения этих виртуальных машин нам нужно определить, как будет получаться доступ к ним. Разумеется, они могут быть назначены изолированными машинами, доступными только через системную консоль, но это редко соответствует сценарию работы. Большую часть времени domU будет считаться удалённым сервером, и доступ к нему будет осуществляться только через сеть. Однако было бы весьма неудобным добавлять сетевую карту для каждого domU; по этой причине Xen позволяет создавать виртуальные интерфейсы, которые каждый домен может видеть и использовать обычным образом. Заметьте, что эти карты, хоть они и виртуальные, будут полезными только когда они подключены к сети, хотя бы виртуальной. У Xen есть несколько сетевых моделей для этого:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						Простейшей является модель <span
+                    class="emphasis"><em>моста</em></span>; все сетевые карты eth0 (как в dom0, так и в domU-системах) ведут себя, как если бы они были напрямую подключены к Ethernet-коммутатору.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Следующая модель — <span
+                    class="emphasis"><em>маршрутизируемая</em></span>, когда dom0 ведёт себя как маршрутизатор, находящийся между domU-системами и (физической) внешней сетью.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Наконец, в модели <span
+                    class="emphasis"><em>NAT</em></span> dom0 опять находится между domU-системами и остальной сетью, но domU-системы не доступны извне напрямую, и трафик проходит через преобразование адресов на dom0.
+					</div></li></ul></div><div
+            class="para">
+				Эти три сетевых режима включают различные интерфейсы с необычными именами, такими как <code
+              class="filename">vif*</code>, <code
+              class="filename">veth*</code>, <code
+              class="filename">peth*</code> и <code
+              class="filename">xenbr0</code>. Гипервизор Xen комбинирует их в соответствии с заданной схемой под контролем инструментов пространства пользователя. Поскольку NAT и маршрутизируемая модель приспособлены лишь для отдельных случаев, мы рассмотрим только модель моста.
+			</div><div
+            class="para">
+				Стандартная конфигурация пакетов Xen не меняет общесистемных сетевых настроек. Однако демон xend настроен на подключение виртуальных сетевых интерфейсов к любому уже существующему сетевому мосту (при наличии нескольких таких мостов предпочтение отдаётся <code
+              class="filename">xenbr0</code>). Поэтому нам надо настроить мост в <code
+              class="filename">/etc/network/interfaces</code> (для этого требуется установить пакет <span
+              class="pkg pkg">bridge-utils</span>, поэтому он рекомендуется пакетом <span
+              class="pkg pkg">xen-utils-4.1</span>), заменив существующую запись eth0:
+			</div><pre
+            class="programlisting">auto xenbr0
+iface xenbr0 inet dhcp
+    bridge_ports eth0
+    bridge_maxwait 0
+</pre><div
+            class="para">
+				Перезагрузившись для проверки, что мост создаётся автоматически, мы можем запустить domU с помощью инструментов управления Xen, а именно команды <code
+              class="command">xm</code>. Эта команда позволяет производить различные манипуляции с доменами, в частности выводить их список, запускать их и останавливать.
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xm list</code></strong>
+<code
+              class="computeroutput">Name                                        ID   Mem VCPUs      State   Time(s)
+Domain-0                                     0   463     1     r-----      9.8
+# </code><strong
+              class="userinput"><code>xm create testxen.cfg</code></strong>
+<code
+              class="computeroutput">Using config file "/etc/xen/testxen.cfg".
+Started domain testxen (id=1)
+# </code><strong
+              class="userinput"><code>xm list</code></strong>
+<code
+              class="computeroutput">Name                                        ID   Mem VCPUs      State   Time(s)
+Domain-0                                     0   366     1     r-----     11.4
+testxen                                      1   128     1     -b----      1.1</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ОСТОРОЖНО</em></span> Только один domU на образ!</strong></p></div></div></div><div
+              class="para">
+				Хотя, безусловно, возможно запускать несколько domU-систем параллельно, каждая из них должна иметь свой собственный образ, ведь каждый domU создан, как если бы он работал на своём собственном оборудовании (за исключением маленькой части ядра, общающейся с гипервизором). В частности, две запущенных одновременно domU-системы не могут использовать общее хранилище. Если системы не запускаются одновременно, всё же возможно использовать для них один раздел подкачки или раздел, на котором размещается файловая система <code
+                class="filename">home</code>.
+			</div></div><div
+            class="para">
+				Заметьте, что domU <code
+              class="filename">testxen</code> использует реальную память, взятую из ОЗУ, которая иначе была бы доступна dom0, а не виртуальную. Поэтому при сборке сервера для размещения машин Xen следует побеспокоиться об обеспечении достаточного объёма физического ОЗУ.
+			</div><div
+            class="para">
+				Voilà! Наша виртуальная машина запускается. Мы можем получить доступ к ней в одном из двух режимов. Обычный путь — подключаться к ней «удалённо» через сеть, как мы подключались бы к реальной машине; для этого обычно требуется настройка либо DHCP-сервера, либо DNS. Другой путь, который может стать единственно возможным в случае неправильной настройки сети, — использование консоли <code
+              class="filename">hvc0</code> с помощью команды <code
+              class="command">xm console</code>:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xm console testxen</code></strong>
+<code
+              class="computeroutput">[...]
+
+Debian GNU/Linux 7.0 testxen hvc0
+
+testxen login: </code></pre><div
+            class="para">
+				После этого можно начать сессию, как если бы вы сидели за клавиатурой виртуальной машины. Для отключения от этой консоли служит сочетание клавиш <span
+              class="keycap"><strong>Control</strong></span>+<span
+              class="keycap"><strong>]</strong></span>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>СОВЕТ</em></span> Получение консоли сразу</strong></p></div></div></div><div
+              class="para">
+				Иногда хочется запустить domU-систему и сразу же подключиться к её консоли; для этого команда <code
+                class="command">xm create</code> может принимать флаг <code
+                class="literal">-c</code>. Запуск domU с этим флагом приведёт к отображению всех сообщений во время загрузки системы.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ИНСТРУМЕНТ</em></span> OpenXenManager</strong></p></div></div></div><div
+              class="para">
+				OpenXenManager (в пакете <span
+                class="pkg pkg">openxenmanager</span>) — это графический интерфейс, позволяющий удалённо управлять доменами Xen через API Xen. Он предоставяляет большую часть возможностей команды <code
+                class="command">xm</code>.
+			</div></div><div
+            class="para">
+				Когда domU запущен, он может использоваться как любой другой сервер (ведь это, помимо прочего, система GNU/Linux). Однако благодаря тому, что это виртуальная машина, доступны и некоторые дополнительные возможности. К примеру, domU может быть временно приостановлен, а затем вновь запущен с помощью команд <code
+              class="command">xm pause</code> и <code
+              class="command">xm unpause</code>. Заметьте, что хотя приостановленный domU не использует ресурсы процессора, выделенная ему память по-прежнему занята. Может иметь смысл использовать команды <code
+              class="command">xm save</code> и <code
+              class="command">xm restore</code>: сохранение domU освобождает ресурсы, которые ранее использовались этим domU, в том числе и ОЗУ. После восстановления (или снятия с паузы) domU не замечает ничего кроме того, что прошло некоторое время. Если domU был запущен, когда dom0 выключается, сценарии из пакетов автоматически сохраняют domU и восстанавливают его при следующей загрузке. Отсюда, конечно, проистекает обычное неудобство, проявляющееся, например, при переводе ноутбука в спящий режим; в частности, если domU приостановлен слишком надолго, сетевые подключения могут завершиться. Заметьте также, что Xen на данный момент несовместим с большей частью системы управления питанием ACPI, что мешает приостановке dom0-системы.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ДОКУМЕНТАЦИЯ</em></span> Опции <code
+                        class="command">xm</code></strong></p></div></div></div><div
+              class="para">
+				Большая часть подкоманд <code
+                class="command">xm</code> требуют одного или более аргументов, часто — имени domU. Эти аргументы подробно описаны в странице руководства <span
+                class="citerefentry"><span
+                  class="refentrytitle">xm</span>(1)</span>.
+			</div></div><div
+            class="para">
+				Выключение или перезагрузка domU могут быть выполнены как изнутри domU (с помощью команды <code
+              class="command">shutdown</code>), так и из dom0, с помощью <code
+              class="command">xm shutdown</code> или <code
+              class="command">xm reboot</code>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>УГЛУБЛЯЕМСЯ</em></span> Xen углублённо</strong></p></div></div></div><div
+              class="para">
+				У Xen есть гораздо больше возможностей, чем мы могли описать в этих нескольких абзацах. В частности, система очень динамична, и многие параметры домена (такие как объём выделенной памяти, видимые жёсткие диски, поведение планировщика задач и так далее) могут быть изменены даже когда домен запущен. domU может быть даже перенесён с одного сервера на другой без отключения, и даже без потери сетевых подключений! Главным источником информации обо всех этих углублённых аспектах является официальная документация Xen. <div
+                class="url">→ <a
+                  href="http://www.xen.org/support/documentation.html">http://www.xen.org/support/documentation.html</a></div>
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.lxc"></a>12.2.2. LXC</h3></div></div></div><div
+            class="para">
+				Хотя она и используется для создания «виртуальных машин», LXC <a
+              id="idm139917852359856"
+              class="indexterm"></a> является, строго говоря, не системой виртуализации, а системой для изоляции групп процессов друг от друга, даже если они все выполняются на одном узле. Она использует набор недавних изменений в ядре Linux, известных под общим названием <span
+              class="emphasis"><em>control groups</em></span>, благодаря которому разные наборы процессов, называемые «группами», имеют разные представления о некоторых аспектах системы. Наиболее примечательные из этих аспектов — идентификаторы процессов, конфигурация сети и точки монтирования. Такая группа изолированных процессов не будет иметь доступа к другим процессам в системе, и её доступ к файловой системе может быть ограничен определённым подмножеством. У неё также могут быть свои собственные сетевой интерфейс и таблица маршрутизации, и она может быть настроена так, чтобы видеть только подмножество устройств, присутствующих в системе.
+			</div><div
+            class="para">
+				С помощью комбинации этих возможностей можно изолировать целое семейство процессов начиная с процесса <code
+              class="command">init</code>, и получившийся набор будет выглядеть чрезвычайно похоже на виртуальную машину. Официальное название для такой схемы «контейнер» (отсюда и неофициальное название LXC: <span
+              class="emphasis"><em>LinuX Containers</em></span>), но весьма значительным отличием от «настоящих» виртуальных машин, таких как предоставляемые Xen или KVM, заключается в отсутствии второго ядра; контейнер использует то же самое ядро, что и хост-система. У этого есть как преимущества, так и недостатки: к преимуществам относится великолепная производительность благодаря полному отсутствию накладных расходов, а также тот факт, что ядро видит все процессы в системе, поэтому планировщик может работать более эффективно, чем если бы два независимых ядра занимались планированием выполнения разных наборов задач. Основное из неудобств — невозможность запустить другое ядро в контейнере (как другую версию Linux, так и другую операционную систему).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ЗАМЕТКА</em></span> Ограничения изоляции LXC</strong></p></div></div></div><div
+              class="para">
+				Контейнеры LXC не предоставляют такого уровня изоляции, который достижим с помощью более серьёзных эмуляторов или виртуальных машин. В частности:
+			</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+						стандартное ядро <span
+                      class="distribution distribution">Wheezy</span> не позволяет ограничивать объём памяти, доступный контейнеру; эта возможность существует и ядро собрано с её поддержкой, но по умолчанию она отключена, поскольку (незначительно) снижает общую производительность системы; однако чтобы включить её, достаточно просто передать ядру параметр командной строки <code
+                      class="command">cgroup_enable=memory</code> при загрузке;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						поскольку ядро разделяется между хост-системой и контейнерами, процессы, заключённые в контейнеры, всё же могут получать доступ к сообщениям ядра, что может привести к утечкам информации, если сообщения исходят из контейнера;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						по той же причине, если контейнер скомпрометирован и была эксплуатирована уязвимость ядра, другие контейнеры также могут быть затронуты;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						ядро проверяет права доступа файловых систем в соответствии с числовыми идентификаторами пользователей и групп; эти идентификаторы могут обозначать разных пользователей и группы в зависимости от контейнера, что следует помнить, если доступные для записи части файловой системы разделяются между контейнерами.
+					</div></li></ul></div></div><div
+            class="para">
+				Поскольку мы имеем дело с изоляцией, а не обычной виртуализацией, настройка контейнеров LXC более сложна, чем простой запуск debian-installer на виртуальной машине. Мы опишем некоторые предварительные требования, затем перейдём к конфигурации сети; после этого мы сможем собственно создать систему для запуска в контейнере.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917852343568"></a>12.2.2.1. Предварительные шаги</h4></div></div></div><div
+              class="para">
+					Пакет <span
+                class="pkg pkg">lxc</span> содержит инструменты, необходимые для запуска LXC, поэтому его необходимо установить.
+				</div><div
+              class="para">
+					LXC также требует систему конфигурации <span
+                class="emphasis"><em>control groups</em></span>, представляющую собой виртуальную файловую систему, которая должна быть смонтирована в <code
+                class="filename">/sys/fs/cgroup</code>. Поэтому <code
+                class="filename">/etc/fstab</code> должен содержать следующую запись:
+				</div><pre
+              class="programlisting scale"># /etc/fstab: static file system information.
+[...]
+cgroup            /sys/fs/cgroup           cgroup    defaults        0       0
+</pre><div
+              class="para">
+					<code
+                class="filename">/sys/fs/cgroup</code> будет в таком случае монтироваться автоматически во время загрузки; если немедленная перезагрузка не планируется, файловую систему следует смонтировать вручную с помощью команды <code
+                class="command">mount /sys/fs/cgroup</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.lxc.network"></a>12.2.2.2. Сетевые настройки</h4></div></div></div><div
+              class="para">
+					Цель установки LXC — в запуске виртуальных машин; хотя мы, разумеется, можем держать их изолированными от сети и взаимодействовать с ними только через файловую систему, для большинства задач требуется хотя бы минимальный сетевой доступ к контейнерам. В типичном случае каждый контейнер получит виртуальный сетевой интерфейс присоединённый к реальной сети через мост. Этот виртуальный интерфейс может быть подключён либо напрямую к физическому сетевому интерфейсу хост-системы (в таком случае контейнер непосредственно в сети), либо к другому виртуальному интерфейсу, определённому в хост-системе (тогда хост сможет фильтровать или маршрутизировать трафик). В обоих случаях потребуется пакет <span
+                class="pkg pkg">bridge-utils</span>.
+				</div><div
+              class="para">
+					В простейшем случае это всего лишь вопрос правки <code
+                class="filename">/etc/network/interfaces</code>, переноса конфигурации физического интерфейса (например <code
+                class="literal">eth0</code>) на интерфейс моста (обычно <code
+                class="literal">br0</code>) и настройки связи между ними. Например, если конфигурационный файл сетевых интерфейсов изначально содержит записи вроде таких:
+				</div><pre
+              class="programlisting">auto eth0
+iface eth0 inet dhcp</pre><div
+              class="para">
+					Их следует отключить и заменить на следующие:
+				</div><pre
+              class="programlisting">#auto eth0
+#iface eth0 inet dhcp
+
+auto br0
+iface br0 inet dhcp
+  bridge-ports eth0</pre><div
+              class="para">
+					Результат такой настройки будет похож на тот, какой мы получили бы, если бы контейнеры были машинами, подключёнными к той же физической сети, что и хост-машина. Конфигурация «мост» управляет прохождением кадров Ethernet между всеми связанными интерфейсами, включая и физический <code
+                class="literal">eth0</code>, и интерфейсы, заданные для контейнеров.
+				</div><div
+              class="para">
+					В случаях, когда такую конфигурацию использовать невозможно (например если контейнерам нельзя выделить публичные IP-адреса), будет создан и подключён к мосту виртуальный <span
+                class="emphasis"><em>tap</em></span>-интерфейс. Это будет эквивалентно сетевой топологии, при которой вторая сетевая карта подключена к отдельному коммутатору, и к нему же подключены контейнеры. Хост тогда должен выступать как шлюз для контейнеров, если им требуется соединяться с остальным миром.
+				</div><div
+              class="para">
+					В дополнение к <span
+                class="pkg pkg">bridge-utils</span> для «продвинутой» конфигурации потребуется пакет <span
+                class="pkg pkg">vde2</span>; файл <code
+                class="filename">/etc/network/interfaces</code> тогда примет следующий вид:
+				</div><pre
+              class="programlisting"># Interface eth0 is unchanged
+auto eth0
+iface eth0 inet dhcp
+
+# Virtual interface 
+auto tap0
+iface tap0 inet manual
+  vde2-switch -t tap0
+
+# Bridge for containers
+auto br0
+iface br0 inet static
+  bridge-ports tap0
+  address 10.0.0.1
+  netmask 255.255.255.0
+</pre><div
+              class="para">
+					Сеть может быть настроена как статически в контейнерах, так и динамически и помощью DHCP-сервера, запущенного на хост-системе. Такой DHCP-сервер должен быть сконфигурирован для ответа на запросы на интерфейсе <code
+                class="literal">br0</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917852321104"></a>12.2.2.3. Установка системы</h4></div></div></div><div
+              class="para">
+					Давайте теперь настроим файловую систему для использования контейнером. Поскольку эта «виртуальная машина» не будет запускаться непосредственно на оборудовании, потребуются некоторые дополнительные манипуляции по сравнению с обычной файловой системой, особенно когда дело касается ядра, устройств и консолей. К счастью, пакет <span
+                class="pkg pkg">lxc</span> включает сценарии, которые в значительной степени автоматизируют эту настройку. В частности, следующие команды (для которых требуются пакеты <span
+                class="pkg pkg">debootstrap</span> и <span
+                class="pkg pkg">rsync</span>) установят контейнер с Debian:
+				</div><pre
+              class="screen"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-create -n testlxc -t debian
+</code></strong><code
+                class="computeroutput">Note: Usually the template option is called with a configuration
+file option too, mostly to configure the network.
+For more information look at lxc.conf (5)
+
+debootstrap is /usr/sbin/debootstrap
+Checking cache download in /var/cache/lxc/debian/rootfs-wheezy-amd64 ... 
+Downloading debian minimal ...
+I: Retrieving Release
+I: Retrieving Release.gpg
+[...]
+Root password is 'root', please change !
+'debian' template installed
+'testlxc' created
+root@mirwiz:~# </code>
+</pre><div
+              class="para">
+					Заметьте, что файловая система изначально создана в <code
+                class="filename">/var/cache/lxc</code>, а затем перемещена в каталог назначения. Это позволяет создавать идентичные контейнеры намного быстрее, поскольку требуется лишь скопировать их.
+				</div><div
+              class="para">
+					Заметьте, что сценарий создания шаблона debian принимает опцию <code
+                class="option">--arch</code> с указанием архитектуры системы для установки и опцию <code
+                class="option">--release</code>, если вы вы хотите установить что-то отличное от текущего стабильного релиза Debian. Вы можете также установить переменную окружения <code
+                class="literal">MIRROR</code>, чтобы указать на локальное зеркало Debian.
+				</div><div
+              class="para">
+					Только что созданная файловая система теперь содержит минимальную систему Debian, и по умолчанию контейнер делит сетевое устройство с хост-системой. Поскольку это не то, чего мы хотели, мы отредактируем конфигурационный файл контейнера (<code
+                class="filename">/var/lib/lxc/testlxc/config</code>) и добавим несколько записей <code
+                class="literal">lxc.network.*</code>:
+				</div><pre
+              class="programlisting">lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br0
+lxc.network.hwaddr = 4a:49:43:49:79:20
+</pre><div
+              class="para">
+					Эти записи означают, соответственно, что в контейнере будет создан виртуальный интерфейс, что он будет автоматически подниматься при запуске этого контейнера, что он будет автоматически соединяться с мостом <code
+                class="literal">br0</code> на хост-системе и что его MAC-адрес будет соответствовать указанному. Если бы эта последняя запись отсутствовала или была отключена, генерировался бы случайный MAC-адрес.
+				</div><div
+              class="para">
+					Другая полезная запись в этом файле — имя узла:
+				</div><pre
+              class="programlisting">lxc.utsname = testlxc
+</pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917852306064"></a>12.2.2.4. Запуск контейнера</h4></div></div></div><div
+              class="para">
+					Теперь, когда наша виртуальная машина готова, давайте запустим контейнер:
+				</div><pre
+              class="screen scale"
+              width="94"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-start --daemon --name=testlxc
+</code></strong><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-console -n testlxc
+</code></strong><code
+                class="computeroutput">Debian GNU/Linux 7 testlxc tty1
+
+testlxc login: </code><strong
+                class="userinput"><code>root</code></strong><code
+                class="computeroutput">
+Password: 
+Linux testlxc 3.2.0-4-amd64 #1 SMP Debian 3.2.46-1+deb7u1 x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+root@testlxc:~# </code><strong
+                class="userinput"><code>ps auxwf</code></strong>
+<code
+                class="computeroutput">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0  10644   824 ?        Ss   09:38   0:00 init [3]  
+root      1232  0.0  0.2   9956  2392 ?        Ss   09:39   0:00 dhclient -v -pf /run/dhclient.eth0.pid 
+root      1379  0.0  0.1  49848  1208 ?        Ss   09:39   0:00 /usr/sbin/sshd
+root      1409  0.0  0.0  14572   892 console  Ss+  09:39   0:00 /sbin/getty 38400 console
+root      1410  0.0  0.1  52368  1688 tty1     Ss   09:39   0:00 /bin/login --     
+root      1414  0.0  0.1  17876  1848 tty1     S    09:42   0:00  \_ -bash
+root      1418  0.0  0.1  15300  1096 tty1     R+   09:42   0:00      \_ ps auxf
+root      1411  0.0  0.0  14572   892 tty2     Ss+  09:39   0:00 /sbin/getty 38400 tty2 linux
+root      1412  0.0  0.0  14572   888 tty3     Ss+  09:39   0:00 /sbin/getty 38400 tty3 linux
+root      1413  0.0  0.0  14572   884 tty4     Ss+  09:39   0:00 /sbin/getty 38400 tty4 linux
+root@testlxc:~# </code></pre><div
+              class="para">
+					Теперь мы в контейнере; наш доступ к процессам ограничен только теми, которые запущены изнутри самого контейнера, и наш доступ к файловой системе также ограничен до выделенного подмножества полной файловой системы (<code
+                class="filename">/var/lib/lxc/testlxc/rootfs</code>). Мы можем выйти из консоли с помощью <span
+                class="keycap"><strong>Control</strong></span>+<span
+                class="keycap"><strong>a</strong></span> <span
+                class="keycap"><strong>q</strong></span>.
+				</div><div
+              class="para">
+					Заметьте, что мы запустили контейнер как фоновый процесс благодаря опции <code
+                class="option">--daemon</code> команды <code
+                class="command">lxc-start</code>. Контейнер можно прервать впоследствии с помощью такой команды как <code
+                class="command">lxc-kill --name=testlxc</code>.
+				</div><div
+              class="para">
+					Пакет <span
+                class="pkg pkg">lxc</span> содержит инициализационный скрипт, который может автоматически запускать один или несколько контейнеров при загрузке хост-системы; его конфигурационный файл, <code
+                class="filename">/etc/default/lxc</code>, относительно прост; отметьте, что конфигурационные файлы контейнера должны храниться в <code
+                class="filename">/etc/lxc/auto/</code>; многие пользователи могут предпочесть символьные ссылки, вроде создаваемой командой <code
+                class="command">ln -s /var/lib/lxc/testlxc/config /etc/lxc/auto/testlxc.config</code>.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>УГЛУБЛЯЕМСЯ</em></span> Массовая виртуализация</strong></p></div></div></div><div
+                class="para">
+					Поскольку LXC — очень легковесная система изоляции, её в частности можно приспособить для массового размещения виртуальных серверов. Сетевая конфигурация будет, возможно, несколько более сложной, чем мы описали выше, но «продвинутой» конфигурации с использованием интерфейсов <code
+                  class="literal">tap</code> и <code
+                  class="literal">veth</code> должно быть достаточно во многих случаях.
+				</div><div
+                class="para">
+					Может также иметь смысл сделать общей часть файловой системы, такую как ветки <code
+                  class="filename">/usr</code> и <code
+                  class="filename">/lib</code>, чтобы избежать дупликации программного обеспечения, которое может быть общим для нескольких контейнеров. Это обычно достигается с помощью записей <code
+                  class="literal">lxc.mount.entry</code> в конфигурационных файлах контейнеров. Интересным побочным эффектом является то, что процессы станут потреблять меньше физической памяти, поскольку ядро способно определить, что программы используются совместно. Минимальные затраты на один дополнительный контейнер могут быть снижены до дискового пространства, выделенного под его специфические данные, и нескольких дополнительных процессов, которыми должно управлять ядро.
+				</div><div
+                class="para">
+					Разумеется, мы не описали всех доступных опций; более исчерпывающая информация может быть получена из страниц руководства <span
+                  class="citerefentry"><span
+                    class="refentrytitle">lxc</span>(7)</span> и <span
+                  class="citerefentry"><span
+                    class="refentrytitle">lxc.conf</span>(5)</span> и тех, на которые они ссылаются.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139917852280528"></a>12.2.3. Виртуализация с помощью KVM</h3></div></div></div><a
+            id="idm139917852279760"
+            class="indexterm"></a><div
+            class="para">
+				KVM, что расшифровывается как <span
+              class="emphasis"><em>Kernel-based Virtual Machine</em></span>, является первым и главным модулем ядра, предоставляющим большую часть инфраструктуры, которая может использоваться виртуализатором, но не является самим виртуализатором. Собственно контроль за виртуализацией осуществляется приложением, основанным на QEMU. Не переживайте, если в этом разделе будут упоминаться команды <code
+              class="command">qemu-*</code>: речь всё равно о KVM.
+			</div><div
+            class="para">
+				В отличие от других систем виртуализации, KVM был влит в ядро Linux с самого начала. Его разработчики выбрали использование наборов инструкций процессора, выделенных для виртуализации (Intel-VT и AMD-V), благодаря чему KVM получился легковесным, элегантным и не прожорливым до ресурсов. Обратной стороной медали является, естественно, то, что KVM работает главным образом на процессорах i386 и amd64, и только достаточно недавних из них, имеющих эти наборы инструкций. Вы можете убедиться, такой ли у вас процессор, проверив наличие флага «vmx» или «svm» в файле <code
+              class="filename">/proc/cpuinfo</code>.
+			</div><div
+            class="para">
+				Поскольку его разработка активно поддерживается Red Hat, KVM стал в той или иной степени эталоном виртуализации в Linux.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917852274176"></a>12.2.3.1. Предварительные шаги</h4></div></div></div><a
+              id="idm139917852273408"
+              class="indexterm"></a><div
+              class="para">
+					В отличие от таких инструментов, как VirtualBox, сам по себе KVM не включает никакого пользовательского интерфейса для создания виртуальных машин и управления ими. Пакет <span
+                class="pkg pkg">qemu-kvm</span> предоставляет лишь исполняемый файл, способный запустить виртуальную машину, а также инициализационный скрипт, загружающий соответствующие модули ядра.
+				</div><a
+              id="idm139917852270464"
+              class="indexterm"></a><a
+              id="idm139917852269504"
+              class="indexterm"></a><div
+              class="para">
+					К счастью, Red Hat также предоставляет набор инструментов для решения этой проблемы, разрабатывая библиотеку <span
+                class="emphasis"><em>libvirt</em></span> и связанные с ней инструменты <span
+                class="emphasis"><em>менеджера виртуальных машин</em></span>. libvirt позволяет управлять виртуальными машинами унифицированным образом, независимо от стоящей за ней системой виртуализации (на данный момент она поддерживает QEMU, KVM, Xen, LXC, OpenVZ, VirtualBox, VMWare и UML). <code
+                class="command">virtual-manager</code> — это графический интерфейс, который использует libvirt для создания виртуальных машин и управления ими.
+				</div><a
+              id="idm139917852265440"
+              class="indexterm"></a><div
+              class="para">
+					Первым делом мы установим необходимые пакеты с помощью команды <code
+                class="command">apt-get install qemu-kvm libvirt-bin virtinst virt-manager virt-viewer</code>. <span
+                class="pkg pkg">libvirt-bin</span> предоставляет демон <code
+                class="command">libvirtd</code>, позволяющий (возможно удалённо) управлять виртуальными машинами, запущенными на хосте, и запускает необходимые виртуальные машины при загрузке хоста. Кроме того, этот пакет предоставляет утилиту <code
+                class="command">virsh</code> с интерфейсом командной строки, которая позволяет контролировать виртуальные машины, управляемые <code
+                class="command">libvirt</code>.
+				</div><div
+              class="para">
+					Пакет <span
+                class="pkg pkg">virtinst</span> предоставляет <code
+                class="command">virt-install</code>, которая позволяет создавать виртуальные машины из командной строки. Наконец, <span
+                class="pkg pkg">virt-viewer</span> позволяет получать доступ к графической консоли виртуальной машины.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917852257296"></a>12.2.3.2. Сетевые настройки</h4></div></div></div><div
+              class="para">
+					Как и в случаях Xen и LXC, наиболее распространённая сетевая конфигурация включает мост, группирующий сетевые интерфейсы виртуальных машин (см. <a
+                class="xref"
+                href="sect.virtualization.html#sect.lxc.network">Раздел 12.2.2.2, «Сетевые настройки»</a>).
+				</div><div
+              class="para">
+					В качестве альтернативы, в конфигурации KVM по умолчанию, виртуальной машине выдаётся адрес из частного диапазона (192.168.122.0/24), и NAT настраивается таким образом, чтобы виртуальная машина могла получить доступ во внешнюю сеть.
+				</div><div
+              class="para">
+					Ниже в этом разделе считается, что на хост-системе имеются физический интерфейс <code
+                class="literal">eth0</code> и мост <code
+                class="literal">br0</code>, и что первый присоединён к последнему.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917852252576"></a>12.2.3.3. Установка с помощью <code
+                      class="command">virt-install</code></h4></div></div></div><a
+              id="idm139917852251488"
+              class="indexterm"></a><div
+              class="para">
+					Создание виртуальной машины очень похоже на установку обычной системы с той разницей, что характеристики виртуальной машины описываются в командной строке, кажущейся бесконечной.
+				</div><div
+              class="para">
+					С практической точки зрения это значит, что мы будем использовать установщик Debian, загружая виртуальную машину с виртуального привода DVD-ROM, соответствующего образу DVD Debian, хранящемуся на хост-системе. Виртуальная машина экспортирует свой графический интерфейс по протоколу VNC (см. подробности в <a
+                class="xref"
+                href="sect.remote-login.html#sect.remote-desktops">Раздел 9.2.2, «Using Remote Graphical Desktops»</a>), что позволит нам контролировать процесс установки.
+				</div><div
+              class="para">
+					Для начала потребуется сказать libvirtd, где хранить образы дисков, если только нас не устраивает расположение по умолчанию (<code
+                class="filename">/var/lib/libvirt/images/</code>).
+				</div><pre
+              class="screen"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>mkdir /srv/kvm</code></strong>
+<code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>virsh pool-create-as srv-kvm dir --target /srv/kvm</code></strong>
+<code
+                class="computeroutput">Pool srv-kvm created
+
+root@mirwiz:~# </code></pre><div
+              class="para">
+					Давайте запустим процесс установки на виртуальной машине и поближе взглянем на наиболее важные опции <code
+                class="command">virt-install</code>. Эта команда регистрирует виртуальную машину и её параметры в libvirtd, а затем запускает её, чтобы приступить к установке.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virt-install --connect qemu:///system  <span
+                    id="virtinst.connect"><img
+                      class="callout"
+                      src="Common_Content/images/1.png"
+                      alt="1" /></span>
+               --virt-type kvm           <span
+                    id="virtinst.type"><img
+                      class="callout"
+                      src="Common_Content/images/2.png"
+                      alt="2" /></span>
+               --name testkvm            <span
+                    id="virtinst.name"><img
+                      class="callout"
+                      src="Common_Content/images/3.png"
+                      alt="3" /></span>
+               --ram 1024                <span
+                    id="virtinst.ram"><img
+                      class="callout"
+                      src="Common_Content/images/4.png"
+                      alt="4" /></span>
+               --disk /srv/kvm/testkvm.qcow,format=qcow2,size=10 <span
+                    id="virtinst.disk"><img
+                      class="callout"
+                      src="Common_Content/images/5.png"
+                      alt="5" /></span>
+               --cdrom /srv/isos/debian-7.2.0-amd64-netinst.iso  <span
+                    id="virtinst.cdrom"><img
+                      class="callout"
+                      src="Common_Content/images/6.png"
+                      alt="6" /></span>
+               --network bridge=br0      <span
+                    id="virtinst.network"><img
+                      class="callout"
+                      src="Common_Content/images/7.png"
+                      alt="7" /></span>
+               --vnc                     <span
+                    id="virtinst.vnc"><img
+                      class="callout"
+                      src="Common_Content/images/8.png"
+                      alt="8" /></span>
+               --os-type linux           <span
+                    id="virtinst.os"><img
+                      class="callout"
+                      src="Common_Content/images/9.png"
+                      alt="9" /></span>
+               --os-variant debianwheezy
+</code></strong><code
+                class="computeroutput">
+Starting install...
+Allocating 'testkvm.qcow'             |  10 GB     00:00
+Creating domain...                    |    0 B     00:00
+Cannot open display:
+Run 'virt-viewer --help' to see a full list of available command line options.
+Domain installation still in progress. You can reconnect
+to the console to complete the installation process.
+</code></pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.connect"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Опция <code
+                        class="literal">--connect</code> указывает, какой «гипервизор» использовать. Он указывается в виде URL, содержащего систему виртуализации(<code
+                        class="literal">xen://</code>, <code
+                        class="literal">qemu://</code>, <code
+                        class="literal">lxc://</code>, <code
+                        class="literal">openvz://</code>, <code
+                        class="literal">vbox://</code> и т. п.) и машину, на которой должны размещаться виртуальные машины (это поле можно оставить пустым в случае локального узла). В дополнение к этому, в случае QEMU/KVM каждый пользователь может управлять виртуальными машинами, работающими с ограниченными правами, и путь URL позволяет дифференцировать «системные» машины (<code
+                        class="literal">/system</code>) от остальных (<code
+                        class="literal">/session</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Так как KVM управляется тем же образом, что и QEMU, в <code
+                        class="literal">--virt-type kvm</code> можно указать использование KVM, хотя URL и выглядит так же, как для QEMU.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.name"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Опция <code
+                        class="literal">--name</code> задаёт (уникальное) имя виртуальной машины.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.ram"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Опция <code
+                        class="literal">--ram</code> позволяет указать объём ОЗУ (в МБ), который будет выделен виртуальной машине.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.disk"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">--disk</code> служит для указания местоположения файла образа, который будет представляться жёстким диском виртуальной машины; этот файл создаётся, если только ещё не существует, а его размер (в ГБ) указывается параметром <code
+                        class="literal">size</code>. Параметр <code
+                        class="literal">format</code> позволяет выбрать из нескольких способов хранения образа файла. Формат по умолчанию (<code
+                        class="literal">raw</code>) — это отдельный файл, в точности соответствующий диску по размеру и содержимому. Мы выбрали здесь более передовой формат, специфичный для QEMU и позволяющий начать с небольшого файла, увеличивающегося только по мере того, как виртуальная машина использует пространство.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.cdrom"><img
+                          class="callout"
+                          src="Common_Content/images/6.png"
+                          alt="6" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Опция <code
+                        class="literal">--cdrom</code> используется, чтобы указать, где искать оптический диск для установки. Путь может быть либо локальным путём к ISO-файлу, либо URL, по которому можно получить файл, либо файлом устройства физического привода CD-ROM (то есть <code
+                        class="filename">/dev/cdrom</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.network"><img
+                          class="callout"
+                          src="Common_Content/images/7.png"
+                          alt="7" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							С помощью опции <code
+                        class="literal">--network</code> указывается, каким образом виртуальная сетевая карта интегрируется в сетевую конфигурацию хоста. Поведением по умолчанию (которое мы задали явно в этом примере) является интеграция в любой существующий сетевой мост. Если ни одного моста нет, виртуальная машина сможет получить доступ к физической сети только через NAT, поэтому она получает адрес в подсети из частного диапазона (192.168.122.0/24).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.vnc"><img
+                          class="callout"
+                          src="Common_Content/images/8.png"
+                          alt="8" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">--vnc</code> означает, что подключение к графической консоли нужно сделать доступным через VNC. По умолчанию соответствующий VNC-сервер слушает только на локальном интерфейсе; если VNC-клиент должен запускаться на другой системе, для подключения потребуется использовать SSH-туннель (см. <a
+                        class="xref"
+                        href="sect.remote-login.html#sect.ssh-port-forwarding">Раздел 9.2.1.3, «Creating Encrypted Tunnels with Port Forwarding»</a>). Как вариант, можно использовать опцию <code
+                        class="literal">--vnclisten=0.0.0.0</code>, чтобы VNC-сервер стал доступен на всех интерфейсах; заметьте, что если вы сделаете так, вам серьёзно стоит заняться настройкой межсетевого экрана.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.os"><img
+                          class="callout"
+                          src="Common_Content/images/9.png"
+                          alt="9" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Опции <code
+                        class="literal">--os-type</code> и <code
+                        class="literal">--os-variant</code> позволяют оптимизировать некоторые параметры виртуальной машины, исходя из известных особенностей указанной операционной системы.
+						</div></td></tr></table></div><div
+              class="para">
+					Сейчас виртуальная машина запущена, и нам надо подключиться к графической консоли, чтобы произвести установку. Если предыдущий шаг выполнялся в графическом окружении, это подключение установится автоматически. В противном случае, или же при удалённой работе, чтобы открыть графическую консоль, можно запустить <code
+                class="command">virt-viewer</code> в любом графическом окружении (пароль root на удалённой машине запрашивается дважды, поскольку для работы требуется два SSH-соединения):
+				</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>virt-viewer --connect qemu+ssh://root@<em
+                    class="replaceable">server</em>/system testkvm
+</code></strong><code
+                class="computeroutput">root@server's password: 
+root@server's password: </code></pre><div
+              class="para">
+					Когда процесс установки завершится, виртуальная машина перезагрузится и будет готова к работе.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917848940704"></a>12.2.3.4. Управление машинами с помощью <code
+                      class="command">virsh</code></h4></div></div></div><a
+              id="idm139917848939808"
+              class="indexterm"></a><div
+              class="para">
+					Теперь, когда установка выполнена, давайте посмотрим, как обращаться с имеющимися виртуальными машинами. Первым делом попробуем попросить у <code
+                class="command">libvirtd</code> список управляемых им виртуальных машин:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system list --all
+ Id Name                 State
+----------------------------------
+  - testkvm              shut off
+</code></strong></pre><div
+              class="para">
+					Давайте запустим нашу тестовую виртуальную машину:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system start testkvm
+</code></strong><code
+                class="computeroutput">Domain testkvm started</code></pre><div
+              class="para">
+					Теперь можно получить инструкции для подключения к графической консоли (возвращённый VNC-дисплей можно передать в качестве параметра команде <code
+                class="command">vncviewer</code>):
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system vncdisplay testkvm
+</code></strong><code
+                class="computeroutput">:0</code></pre><div
+              class="para">
+					В число прочих подкоманд <code
+                class="command">virsh</code> входят:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">reboot</code> для перезапуска виртуальной машины;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">shutdown</code> для корректного завершения работы;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">destroy</code> для грубого прерывания работы;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">suspend</code> для временной приостановки;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">resume</code> для продолжения работы после приостановки;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">autostart</code> для включения (или для выключения, с опцией <code
+                      class="literal">--disable</code>) автоматического запуска виртуальной машины при запуске хост-системы;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">undefine</code> для удаления всех следов виртуальной машины из <code
+                      class="command">libvirtd</code>.
+						</div></li></ul></div><div
+              class="para">
+					Все эти подкоманды принимают идентификатор виртуальной машины в качестве параметра.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139917848922384"></a>12.2.3.5. Установка RPM-системы в Debian с помощью yum</h4></div></div></div><div
+              class="para">
+					Если виртуальная машина предназначается для запуска Debian (или одного из производных дистрибутивов), систему можно инициализировать с помощью <code
+                class="command">debootstrap</code>, как описано выше. Но если на виртуальную машину надо установить систему, основанную на RPM (такую как Fedora, CentOS или Scientific Linux), установку следует производить с помощью утилиты <code
+                class="command">yum</code> (которая доступна из одноимённого пакета).
+				</div><div
+              class="para">
+					Для процедуры требуется файл <code
+                class="filename">yum.conf</code>, содержащий необходимые параметры, включая путь к репозиториям RPM, путь к конфигурации плагинов и каталог назначения. Для примера будем считать, что окружение будет храниться в <code
+                class="filename">/var/tmp/yum-bootstrap</code>. Файл <code
+                class="filename">/var/tmp/yum-bootstrap/yum.conf</code> должен выглядеть таким образом:
+				</div><pre
+              class="programlisting">[main]
+reposdir=/var/tmp/yum-bootstrap/repos.d
+pluginconfpath=/var/tmp/yum-bootstrap/pluginconf.d
+cachedir=/var/cache/yum
+installroot=/path/to/destination/domU/install
+exclude=$exclude
+keepcache=1
+#debuglevel=4  
+#errorlevel=4
+pkgpolicy=newest
+distroverpkg=centos-release
+tolerant=1
+exactarch=1
+obsoletes=1
+gpgcheck=1
+plugins=1
+metadata_expire=1800</pre><div
+              class="para">
+					Каталог <code
+                class="filename">/var/tmp/yum-bootstrap/repos.d</code> должен содержать описания репозиториев RPM, в точности как в <code
+                class="filename">/etc/yum.repos.d</code> в уже установленной RPM-системе. Вот пример для установки CentOS 6:
+				</div><pre
+              class="programlisting">[base]
+name=CentOS-6 - Base
+#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=os
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+   
+[updates]
+name=CentOS-6 - Updates
+#baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=updates
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+
+[extras]
+name=CentOS-6 - Extras
+#baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=extras
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+
+[centosplus]
+name=CentOS-6 - Plus
+#baseurl=http://mirror.centos.org/centos/$releasever/centosplus/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=centosplus
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+</pre><div
+              class="para">
+					Наконец, файл <code
+                class="filename">pluginconf.d/installonlyn.conf</code> должен содержать следующее:
+				</div><pre
+              class="programlisting">[main]
+enabled=1
+tokeep=5
+</pre><div
+              class="para">
+					Когда это всё настроено, убедитесь, что базы данных rpm корректно инициализированы с помощью такой команды как <code
+                class="command">rpm --rebuilddb</code>. Установка CentOS 6 теперь сводится к следующему:
+				</div><pre
+              class="screen"><strong
+                class="userinput"><code>yum -c /var/tmp/yum-bootstrap/yum.conf -y install coreutils basesystem centos-release yum-basearchonly initscripts</code></strong></pre></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="advanced-administration.html"><strong>Пред.</strong>Глава 12. Углублённое администрирование</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Наверх</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Начало</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automated-installation.html"><strong>След.</strong>12.3. Автоматизированная установка</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.virtualization.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.virtualization.html">da-DK</a></li><li><a
+              href="../de-DE/sect.virtualization.html">de-DE</a></li><li><a
+              href="../el-GR/sect.virtualization.html">el-GR</a></li><li><a
+              href="../en-US/sect.virtualization.html">en-US</a></li><li><a
+              href="../es-ES/sect.virtualization.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.virtualization.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.virtualization.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.virtualization.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.virtualization.html">id-ID</a></li><li><a
+              href="../it-IT/sect.virtualization.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.virtualization.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.virtualization.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.virtualization.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.virtualization.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.virtualization.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.virtualization.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.virtualization.html">zh-CN</a></li></ul></div></body></html>

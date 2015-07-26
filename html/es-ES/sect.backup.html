@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. Respaldo</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-es-ES-1.0-1" /><meta
+        name="keywords"
+        content="Arranque del sistema, Scripts de inicio, SSH, Telnet, Derechos, Permisos, Supervisión, Inetd, Cron, Respaldo, Conexión en caliente («hotplug»), PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="El libro del administrador de Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Capítulo 9. Servicios Unix" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. Cuotas" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. Conexión en caliente: hotplug" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/es-ES/sect.backup.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Anterior</strong></a></li><li
+          class="home">El libro del administrador de Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Siguiente</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. Respaldo</h2></div></div></div><div
+          class="para">
+			Realizar respaldos es una de las principales responsabilidades de cualquier administrador; pero es un tema complejo, que involucra herramientas potentes que usualmente son difíciles de dominar.
+		</div><a
+          id="idm140447094793184"
+          class="indexterm"></a><a
+          id="idm140447094792416"
+          class="indexterm"></a><div
+          class="para">
+			Existen muchos programas, como <code
+            class="command">amanda</code>, <code
+            class="command">bacula</code> y <code
+            class="command">BackupPC</code>. Éstos son sistemas cliente/servidor con muchas opciones y cuya configuración es bastante complicada. Algunos proveen una interfaz de usuario amigable para mitigarlo. Sin embargo, como bien puede comprobar con <code
+            class="command">apt-cache search backup</code>, Debian contiene docenas de paquetes de software de respaldo que cubren todos los casos de uso posibles.
+		</div><a
+          id="idm140447094789376"
+          class="indexterm"></a><a
+          id="idm140447094788480"
+          class="indexterm"></a><a
+          id="idm140447094787584"
+          class="indexterm"></a><div
+          class="para">
+			En lugar de detallar algunos de ellos, esta sección presentará lo que pensaron los administradores de Falcot Corp cuando definieron su estrategia de respaldos.
+		</div><div
+          class="para">
+			En Falcot Corp los respaldos tiene dos objetivos: restaurar archivos eliminados por error y recuperar rápidamente cualquier equipo (servidor o de escritorio) en el que falle el disco duro.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140447094785520"></a>9.10.1. Respaldos con <code
+                    class="command">rsync</code></h3></div></div></div><div
+            class="para">
+				Habiendo descartado los respaldos en cintas por ser lentos y costosos, se respaldarán los datos en discos duros en un servidor dedicado en el que utilizarán RAID por software (revise la <a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">Sección 12.1.1, “RAID por software”</a>) que protegerá los datos contra errores de disco duro. No se respaldarán individualmente los equipos de escritorio, pero se le informa a los usuarios que se respaldará su cuenta personal en el servidor de archivos del departamento. Se utiliza diariamente el programa <code
+              class="command">rsync</code> (en el paquete del mismo nombre) para respaldar estos diferentes servidores.
+			</div><a
+            id="idm140447094782768"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>VOLVER A LOS CIMIENTOS</em></span> El enlace duro, un segundo nombre para el archivo</strong></p></div></div></div><a
+              id="idm140447094780976"
+              class="indexterm"></a><a
+              id="idm140447094779824"
+              class="indexterm"></a><div
+              class="para">
+				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+			</div><div
+              class="para">
+				Puede crear un enlace duro con <code
+                class="command">ln <em
+                  class="replaceable">objetivo</em> <em
+                  class="replaceable">enlace</em></code>. El archivo <em
+                class="replaceable">enlace</em> será un nuevo nombre para el archivo <em
+                class="replaceable">objetivo</em>. Sólo puede crear enlaces duros en el mismo sistema de archivos, mientras que los enlaces simbólicos no tienen dicha restricción.
+			</div></div><div
+            class="para">
+				El espacio en disco disponible prohíbe la implementación de un respaldo diario completo. Por lo tanto, el programa <code
+              class="command">rsync</code> es precedido con una duplicación del contenido del respaldo anterior con enlaces duros, lo que evita utilizar demasiado espacio en disco. Luego, el proceso <code
+              class="command">rsync</code> sólo reemplazará los archivos que fueron modificados desde el último respaldo. Con este mecanismo, pueden mantener una gran cantidad de respaldos en un espacio pequeño. Debido a que todos los respaldos están disponibles inmediatamente (por ejemplo, en diferentes directorios de un recurso compartido en la red) puede realizar comparaciones entre dos fechas rápidamente.
+			</div><a
+            id="idm140447094773824"
+            class="indexterm"></a><a
+            id="idm140447094773056"
+            class="indexterm"></a><a
+            id="idm140447094771904"
+            class="indexterm"></a><div
+            class="para">
+				Puede implementar fácilmente este mecanismo de respaldo con el programa <code
+              class="command">dirvish</code>. Utiliza un espacio de almacenamiento de respaldo («bank» — banco — en su vocabulario) en el que ubica copias con marcas temporales de conjuntos de archivos de respaldo (estos conjuntos son llamados «vaults» — bóvedas — en la documentación de dirvish).
+			</div><div
+            class="para">
+				La configuración principal se encuentra en el archivo <code
+              class="filename">/etc/dirvish/master.conf</code>. Define la ubicación del espacio de almacenamiento de respaldos, la lista de «bóvedas» administradas y los valores predeterminados de expiración de los respaldos. El resto de la configuración está ubicada en los archivos <code
+              class="filename"><em
+                class="replaceable">banco</em>/<em
+                class="replaceable">bóveda</em>/dirvish/default.conf</code> y contienen las configuraciones específicas a los conjuntos de archivos correspondientes.
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>Ejemplo 9.3. EL archivo <code
+                  class="filename">/etc/dirvish/master.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1
+</pre></div></div><div
+            class="para">
+				La configuración <code
+              class="literal">bank</code> indica el directorio en el que se almacenarán los respaldos. La configuración <code
+              class="literal">exclude</code> le permite indicar archivos (o tipos de archivo) a excluir del respaldo. <code
+              class="literal">Runall</code> es una lista de conjuntos de archivos a respaldar con una marca temporal para cada conjunto, lo que le permite asignar la fecha correcta la copia en caso que el respaldo no ejecute exactamente en el momento programado. Debe indicar una hora justo antes del momento de ejecución (las 22:04 de forma predeterminada en Debian, según <code
+              class="filename">/etc/cron.d/dirvish</code>). Finalmente, las configuraciones <code
+              class="literal">expire-default</code> y <code
+              class="literal">expire-rule</code> definen las políticas de expiración para los respaldos. El ejemplo anterior mantiene por siempre los respaldos generados el primer domingo de cada trimestre, elimina después de un año aquellos realizados el primer domingo de cada mes y luego de 3 meses aquellos realizados otros días domingo. Mantendrá los demás respaldos diarios por 15 días. El orden de las reglas sí importa, Dirvish utiliza la última regla que coincida o la directiva <code
+              class="literal">expire-default</code> si ninguna línea de <code
+              class="literal">expire-rule</code> coincide.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EN LA PRÁCTICA</em></span> Expiración programada</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">dirvish-expire</code> no utiliza las reglas de expiración para realizar su trabajo. En realidad, se utilizan las reglas de expiración cuando se crea una nueva copia de respaldo para definir la fecha de expiración asociada con dicha copia. <code
+                class="command">dirvish-expire</code> simplemente examina las copias almacenadas y elimina aquellas cuyas fechas de expiración ya pasaron.
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>Ejemplo 9.4. El archivo <code
+                  class="filename">/backup/root/dirvish/default.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak
+</pre></div></div><div
+            class="para">
+				El ejemplo anterior especifica el conjunto de archivos a respaldar: los archivos en la máquina <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> (para respaldos de datos locales, simplemente especifique el nombre local del equipo según indica <code
+              class="command">hostname</code>), especialmente aquellos en el árbol raíz (<code
+              class="literal">tree: /</code>), excepto aquellos enumerados en <code
+              class="literal">exclude</code>. El respaldo estará limitado a los contenidos de un sistema de archivos (<code
+              class="literal">xdev: 1</code>). No incluirá archivos de otros puntos de montaje. Generará un índice de los archivos almacenados (<code
+              class="literal">index: gzip</code>) y el nombre de la imagen estará basado en la fecha actual (<code
+              class="literal">image-default: %Y%m%d</code>).
+			</div><div
+            class="para">
+				Existen muchas opciones disponibles, todas documentadas en la página de manual <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span>. Una vez que finalizó estos archivos de configuración deben inicializar cada conjunto de archivos ejecutando <code
+              class="command">dirvish --vault <em
+                class="replaceable">bóveda</em> --init</code>. Luego, la ejecución <code
+              class="command">dirvish-runall</code> automáticamente generará una nueva copia de respaldo inmediatamente después de eliminar aquellas que hayan expirado.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EN LA PRÁCTICA</em></span> Respaldos remotos sobre SSH</strong></p></div></div></div><div
+              class="para">
+				Cuando dirvish necesita guardar datos en una máquina remota, utilizará <code
+                class="command">ssh</code> para conectarse con ella, e iniciará <code
+                class="command">rsync</code> en modo servidor. Esto necesita que el usuario root pueda conectarse automáticamente. Las llaves de autenticación SSH permiten esto exactamente (revise la <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">Sección 9.2.1.1, “Autenticación basada en llaves”</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140447094747136"></a>9.10.2. Restauración de equipos sin repaldos</h3></div></div></div><div
+            class="para">
+				Los equipos de escritorio, que no son respaldados, serán fáciles de reinstalar desde DVD-ROMs personalizados que fueron preparados con <span
+              class="emphasis"><em>Simple-CDD</em></span> (revise la <a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">Sección 12.3.3, “Simple-CDD: la solución todo-en-uno”</a>). Dado que se realiza una instalación desde cero, se pierden todas las personalizaciones que pueden haberse realizado luego de la instalación inicial. Esto no es un problema ya que los sistemas están conectados a un directorio LDAP central para las cuentas de usuario y la mayoría de las aplicaciones de escritorio son preconfiguradas gracias a dconf (revise la <a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">Sección 13.3.1, “GNOME”</a> para más información al respecto).
+			</div><div
+            class="para">
+				Los administradores de Falcot Corp están al tanto de las limitaciones de sus políticas de respaldo. Debido a que no pueden proteger el servidor de respaldo tan bien como una cinta en una caja fuerte a prueba de fuego, lo instalaron en una habitación separada para que desastres como fuego en la sala de servidores no destruyan los respaldos junto con todo lo demás. Lo que es más, realizan un respaldo incremental en DVD-ROM una vez por semana — sólo se incluyen los archivos que fueron modificados desde el último respaldo.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>YENDO MÁS ALLÁ</em></span> Respaldo de servicios SQL y LDAP</strong></p></div></div></div><div
+              class="para">
+				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
+                class="command">diff</code> each day, which is created with a command of the type <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code>. The <code
+                class="command">xdelta</code> program produces incremental differences from binary dumps.
+			</div><a
+              id="idm140447094739552"
+              class="indexterm"></a><a
+              id="idm140447094738656"
+              class="indexterm"></a><a
+              id="idm140447094737760"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURA</em></span> <span
+                        class="emphasis"><em>TAR</em></span>, el estándar para respaldos en cinta</strong></p></div></div></div><a
+              id="idm140447094735584"
+              class="indexterm"></a><a
+              id="idm140447094734432"
+              class="indexterm"></a><a
+              id="idm140447094733664"
+              class="indexterm"></a><div
+              class="para">
+				Históricamente, la forma más sencilla de realizar un respaldo en Unix era almacenar un compendio <span
+                class="emphasis"><em>TAR</em></span> en una cinta. Inclusive el programa <code
+                class="command">tar</code> obtuvo su nombre de «compendio en cinta» («Tape ARchive»).
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Anterior</strong>9.9. Cuotas</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Subir</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Inicio</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Siguiente</strong>9.11. Conexión en caliente: hotplug</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

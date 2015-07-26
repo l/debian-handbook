@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. Backup</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-it-IT-1.0-1" /><meta
+        name="keywords"
+        content="Avvio del sistema, Initscripts, SSH, Telnet, Diritti, Permessi, Supervisione, Inetd, Cron, Backup, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Il manuale dell'amministratore Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Capitolo 9. Servizi Unix" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. Quote" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. Collegamento a caldo: hotplug" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/it-IT/sect.backup.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Indietro</strong></a></li><li
+          class="home">Il manuale dell'amministratore Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Avanti</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. Backup</h2></div></div></div><div
+          class="para">
+			Fare copie di backup è uno dei compiti principali di ogni amministratore, ma rappresenta un argomento complesso, che coinvolge potenti strumenti che sono spesso difficili da padroneggiare.
+		</div><a
+          id="idm140618333964496"
+          class="indexterm"></a><a
+          id="idm140618333963536"
+          class="indexterm"></a><div
+          class="para">
+			Esistono molti programmi, come <code
+            class="command">amanda</code>, <code
+            class="command">bacula</code>, <code
+            class="command">BackupPC</code>. Sono sistemi client/server con molte opzioni, la cui configurazione è piuttosto difficile. Alcuni di essi forniscono interfacce web facili da usare per mitigare il problema. Debian tuttavia contiene decine di altri software per i backup che coprono tutti i casi d'uso, come si può facilmente confermare con <code
+            class="command">apt-cache search backup</code>.
+		</div><a
+          id="idm140618333959920"
+          class="indexterm"></a><a
+          id="idm140618333958800"
+          class="indexterm"></a><a
+          id="idm140618333957680"
+          class="indexterm"></a><div
+          class="para">
+			Invece di descriverne in dettaglio alcuni, questa sezione esporrà i pensieri degli amministratori della Falcot Corp quando definirono la loro strategia di backup.
+		</div><div
+          class="para">
+			Nella Falcot Corp, i backup hanno due obiettivi: recuperare i file erroneamente cancellati e ripristinare rapidamente qualsiasi computer (server o desktop), il cui disco rigido è venuto meno.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140618333955264"></a>9.10.1. Backup con <code
+                    class="command">rsync</code></h3></div></div></div><div
+            class="para">
+				Dato che i backup su nastro sono stati ritenuti troppo lenti e costosi, il backup dei dati viene fatto su hard disk su un server dedicato, in cui l'uso di RAID software (vedere la <a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">Sezione 12.1.1, «RAID software»</a>) proteggerà i dati da guasti del disco rigido. I backup dei computer desktop non vengono fatti singolarmente, ma gli utenti sono avvisati che verrà eseguito il backup del loro account personale sul file server del proprio dipartimento. Il comando <code
+              class="command">rsync</code> (dal pacchetto omonimo) viene utilizzato quotidianamente per eseguire il backup di questi server diversi.
+			</div><a
+            id="idm140618333952048"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>FONDAMENTALI</em></span> Il collegamento fisico, un secondo nome per il file</strong></p></div></div></div><a
+              id="idm140618333949840"
+              class="indexterm"></a><a
+              id="idm140618333948400"
+              class="indexterm"></a><div
+              class="para">
+				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+			</div><div
+              class="para">
+				Un collegamento fisico viene creato con il comando <code
+                class="command">ln <em
+                  class="replaceable">obiettivo</em> <em
+                  class="replaceable">collegamento</em></code>. Il file <em
+                class="replaceable">collegamento</em> è quindi un nuovo nome per il file <em
+                class="replaceable">obiettivo</em>. I collegamenti fisici possono essere creati solo sullo stesso file system, mentre i collegamenti simbolici non sono soggetti a questa limitazione.
+			</div></div><div
+            class="para">
+				Lo spazio disponibile sul disco fisso vieta l'attuazione di un backup completo ogni giorno. Pertanto, il comando <code
+              class="command">rsync</code> è preceduto da una duplicazione del contenuto del backup precedente con collegamenti fisici, il che impedisce l'utilizzo eccessivo di spazio su disco. Il processo <code
+              class="command">rsync</code> quindi sostituisce solo i file che sono stati modificati dall'ultimo backup. Con questo meccanismo un gran numero di backup può essere mantenuto in una piccola quantità di spazio. Dal momento che tutti i backup sono immediatamente disponibili e accessibili (per esempio, in diverse directory di una determinata condivisione della rete), è possibile fare rapidamente paragoni tra due date.
+			</div><a
+            id="idm140618333941376"
+            class="indexterm"></a><a
+            id="idm140618333940416"
+            class="indexterm"></a><a
+            id="idm140618333938976"
+            class="indexterm"></a><div
+            class="para">
+				Questo meccanismo di backup viene facilmente implementato con il programma <code
+              class="command">dirvish</code>. Utilizza uno spazio di archiviazione di backup («banca» nel suo vocabolario), in cui colloca copie con l'indicazione della data di insiemi di file di backup (questi insiemi sono chiamati «casseforti» («vault») nella documentazione di dirvish).
+			</div><div
+            class="para">
+				La configurazione principale è nel file <code
+              class="filename">/etc/dirvish/master.conf</code>. Esso definisce la posizione dello spazio di archiviazione di backup, l'elenco delle «casseforti» da gestire, ed i valori predefiniti per la scadenza dei backup. Il resto della configurazione si trova nel file <code
+              class="filename"><em
+                class="replaceable">banca</em>/<em
+                class="replaceable">cassaforte</em>/dirvish/default.conf</code> e contiene una configurazione specifica per il corrispondente insieme di file.
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>Esempio 9.3. Il file <code
+                  class="filename">/etc/dirvish/master.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1
+</pre></div></div><div
+            class="para">
+				L'impostazione <code
+              class="literal">bank</code> indica la directory in cui sono memorizzati i backup. L'impostazione <code
+              class="literal">exclude</code> consente di indicare i file (o i tipi di file) da escludere dal backup. <code
+              class="literal">Runall</code> è un elenco di insiemi di file di cui fare il backup, ciascuno con una marcatura temporale che permette di assegnare la data corretta alla copia nel caso in cui il backup non venga avviato precisamente al tempo stabilito. Si deve indicare una data appena precedente all'effettiva ora di esecuzione (che in Debian sono in modo predefinito le 22.04, secondo il contenuto di <code
+              class="filename">/etc/cron.d/dirvish</code>). Da ultimo, le impostazioni <code
+              class="literal">expire-default</code> e <code
+              class="literal">expire-rule</code> definiscono la politica di scadenza per i backup. Nell'esempio precedente vengono conservati per sempre i backup che sono generati la prima domenica di ogni trimestre, quelli della prima domenica di ogni mese sono cancellati dopo un anno e quelli delle altre domeniche dopo 3 mesi. Gli altri backup giornalieri sono conservati per 15 giorni. L'ordine in cui sono scritte le regole non ha importanza, Dirvish usa l'ultima regola che fa corrispondenza, o <code
+              class="literal">expire-default</code> se nessuna altra regola <code
+              class="literal">expire-rule</code> corrisponde.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRATICA</em></span> Scadenza programmata</strong></p></div></div></div><div
+              class="para">
+				Le regole di scadenza non vengono utilizzate da <code
+                class="command">dirvish-expire</code> per fare il suo lavoro. In realtà, le regole di scadenza vengono applicate quando si crea una nuova copia di backup per definire la data di scadenza associata a quella copia. <code
+                class="command">dirvish-expire</code> analizza semplicemente le copie memorizzate ed elimina quelle per le quali la data di scadenza è trascorsa.
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>Esempio 9.4. Il file <code
+                  class="filename">/backup/root/dirvish/default.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak
+</pre></div></div><div
+            class="para">
+				L'esempio precedente specifica l'insieme di file di cui eseguire il backup: questi sono i file sulla macchina <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> (per il backup locale dei dati, è sufficiente specificare il nome della macchina locale come indicato da <code
+              class="command">hostname</code>), in particolare quelli nell'albero radice (<code
+              class="literal">tree: /</code>), eccetto quelli elencati in <code
+              class="literal">exclude</code>. Il backup sarà limitato ai contenuti di un file system (<code
+              class="literal">xdev: 1</code>). Non include i file da altri punti di mount. Sarà generato un indice dei file salvati (<code
+              class="literal">index: gzip</code>), e il nome dell'immagine sarà creato in base alla data corrente (<code
+              class="literal">image-default: %Y%m%d</code>).
+			</div><div
+            class="para">
+				Ci sono molte opzioni disponibili, tutte documentate nella pagina di manuale <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span>. Una volta che questi file di configurazione sono impostati, è necessario inizializzare ogni insieme di file con il comando <code
+              class="command">dirvish --vault <em
+                class="replaceable">cassaforte</em> --init</code>. Da quel momento in poi l'invocazione quotidiana di <code
+              class="command">dirvish-runall</code> creerà automaticamente una nuova copia di backup subito dopo aver cancellato quelle scadute.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRATICA</em></span> Backup remoto tramite SSH</strong></p></div></div></div><div
+              class="para">
+				Quando dirvish ha bisogno di salvare i dati in un computer remoto, utilizzerà <code
+                class="command">ssh</code> per connettersi ed avvierà <code
+                class="command">rsync</code> come server. Questo richiede che l'utente root sia in grado di connettersi automaticamente. L'utilizzo di una chiave di autenticazione SSH consente appunto questo (vedere la <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">Sezione 9.2.1.1, «Autenticazione basata su chiave»</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140618333910544"></a>9.10.2. ﻿Ripristino di macchine senza backup</h3></div></div></div><div
+            class="para">
+				I computer desktop, di cui non esiste il backup, saranno facile da reinstallare da DVD-ROM personalizzati preparati con <span
+              class="emphasis"><em>Simple-CDD</em></span> (vedere la <a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">Sezione 12.3.3, «Simple-CDD: la soluzione completa»</a>). Dato che questo fa un'installazione da zero, viene persa ogni personalizzazione eventualmente fatta dopo l'installazione iniziale. Ciò non è un problema, dato che i sistemi sono tutti agganciati ad una directory LDAP centralizzata per gli account e la maggior parte delle applicazioni desktop è preconfigurata grazie a dconf (per ulteriori informazioni su questo vedere la <a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">Sezione 13.3.1, «GNOME»</a>).
+			</div><div
+            class="para">
+				Gli amministratori della Falcot Corp sono consapevoli dei limiti della loro politica di backup. Dal momento che non possono proteggere il server di backup così efficacemente come un nastro in una cassetta di sicurezza a prova di fuoco, l'hanno installato in una stanza separata in modo che un disastro come un incendio nella stanza del server non distruggerà i backup insieme a tutto il resto. Inoltre, ne fanno un backup incrementale su DVD-ROM, una volta a settimana: vengono inclusi solo quei file che sono stati modificati dopo l'ultimo backup.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>APPROFONDIMENTO</em></span> Backup dei servizi SQL e LDAP</strong></p></div></div></div><div
+              class="para">
+				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
+                class="command">diff</code> each day, which is created with a command of the type <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code>. The <code
+                class="command">xdelta</code> program produces incremental differences from binary dumps.
+			</div><a
+              id="idm140618333901728"
+              class="indexterm"></a><a
+              id="idm140618333900608"
+              class="indexterm"></a><a
+              id="idm140618333899488"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURA</em></span> <span
+                        class="emphasis"><em>TAR</em></span>, lo standard per i backup su nastro</strong></p></div></div></div><a
+              id="idm140618333896800"
+              class="indexterm"></a><a
+              id="idm140618333895360"
+              class="indexterm"></a><a
+              id="idm140618333894400"
+              class="indexterm"></a><div
+              class="para">
+				Storicamente, il mezzo più semplice per fare un backup in Unix era quello di memorizzare un archivio <span
+                class="emphasis"><em>TAR</em></span> su un nastro. Il comando <code
+                class="command">tar</code> ha preso il suo nome da «Tape ARchive» (archivio su nastro).
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Indietro</strong>9.9. Quote</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Risali</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Partenza</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Avanti</strong>9.11. Collegamento a caldo: hotplug</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.8. 调度异步任务：anacron</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="系统启动, 启动脚本, SSH, Telnet, 权限, 许可, 管理, Inetd, Cron, 备份, 热插拔, PCMCIA接口, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="prev"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. 使用 cron 和 atd运行计划任务" /><link
+        rel="next"
+        href="sect.quotas.html"
+        title="9.9. 配额" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.asynchronous-task-scheduling-anacron.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.asynchronous-task-scheduling-anacron"></a>9.8. 调度异步任务：<code
+                  class="command">anacron</code></h2></div></div></div><div
+          class="para">
+			<code
+            class="command">anacron</code> 用于不能全天候开机的电脑，替代完成 <code
+            class="command">cron</code> 命令的守护进程。由于常规的计划任务通常被安排在午夜执行，如果计算机当时没有开机就不会运行这些任务。 <code
+            class="command">anacron</code> 的目的就在于运行这些计划任务，并考虑计算机关机时间。
+		</div><a
+          id="idm140492716978880"
+          class="indexterm"></a><div
+          class="para">
+			请注意 <code
+            class="command">anacron</code> 会在启动机器之后，频频执行此类活动，有可能导致计算机反应迟缓。这也正是<code
+            class="filename">/etc/anacrontab</code> 文件中的任务以 <code
+            class="command">nice</code> 命令开头的原因，这样可以减小它们执行优先级进而限制它们对系统的影响。注意，该文件的格式和 <code
+            class="filename">/etc/crontab</code>不完全相同；如果对 <code
+            class="command">anacron</code>有特殊需求设定，可参看 <span
+            class="citerefentry"><span
+              class="refentrytitle">anacrontab</span>(5)</span> 手册。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>回到基础</em></span> 优先级和 <code
+                      class="command">nice</code></strong></p></div></div></div><div
+            class="para">
+			Unix 系统（包括Linux）都是多任务，多用户系统。实际上，几个进程可以并行执行，而且属于不同的用户：内核隔离并管理不同进程对资源的访问。作为完成该任务的一部分，就产生了优先级的概念，它允许按需求将某些进程排在其他进程前面。如果已知一个进程可以在低优先级运行，可以通过 <code
+              class="command">nice <em
+                class="replaceable">程序</em></code>来指定。该程序会享有很少的CPU时间，对其他正在运行的进程影响也更小。当然，如果没有其他进程在运行，程序也不会被人为停住。
+		</div><div
+            class="para">
+			<code
+              class="command">nice</code> 会给优先级添加“niceness”：正值优先级（从１到１９）逐渐降低优先级，而负值（从－１到－２０）增加优先级－但是仅有超级用户可以使用负值优先级。除非特别指明（参看 <span
+              class="citerefentry"><span
+                class="refentrytitle">nice</span>(1)</span> 手册）， <code
+              class="command">nice</code> 将当前优先级加１０。
+		</div><div
+            class="para">
+			If you discover that an already running task should have been started with <code
+              class="command">nice</code> it is not too late to fix it; the <code
+              class="command">renice</code> command changes the priority of an already running process, in either direction (but reducing the “niceness” of a process is reserved for the root user).
+		</div></div><div
+          class="para">
+			安装 <span
+            class="pkg pkg">anacron</span> 软件包会禁用 <code
+            class="command">cron</code> 在 <code
+            class="filename">/etc/cron.hourly/</code>, <code
+            class="filename">/etc/cron.daily/</code>, <code
+            class="filename">/etc/cron.weekly/</code>, 和 <code
+            class="filename">/etc/cron.monthly/</code>目录中的脚本。避免 <code
+            class="command">anacron</code> 和 <code
+            class="command">cron</code>重复运行这些脚本。 <code
+            class="command">cron</code> 命令仍然可用并处理其他计划任务（特别是用户安排的计划任务）。
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>上一页</strong>9.7. 使用 cron 和 atd运行计划任务</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>下一页</strong>9.9. 配额</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.asynchronous-task-scheduling-anacron.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.asynchronous-task-scheduling-anacron.html">da-DK</a></li><li><a
+              href="../de-DE/sect.asynchronous-task-scheduling-anacron.html">de-DE</a></li><li><a
+              href="../el-GR/sect.asynchronous-task-scheduling-anacron.html">el-GR</a></li><li><a
+              href="../en-US/sect.asynchronous-task-scheduling-anacron.html">en-US</a></li><li><a
+              href="../es-ES/sect.asynchronous-task-scheduling-anacron.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.asynchronous-task-scheduling-anacron.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.asynchronous-task-scheduling-anacron.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.asynchronous-task-scheduling-anacron.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.asynchronous-task-scheduling-anacron.html">id-ID</a></li><li><a
+              href="../it-IT/sect.asynchronous-task-scheduling-anacron.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.asynchronous-task-scheduling-anacron.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.asynchronous-task-scheduling-anacron.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.asynchronous-task-scheduling-anacron.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.asynchronous-task-scheduling-anacron.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.asynchronous-task-scheduling-anacron.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.asynchronous-task-scheduling-anacron.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.asynchronous-task-scheduling-anacron.html">zh-CN</a></li></ul></div></body></html>

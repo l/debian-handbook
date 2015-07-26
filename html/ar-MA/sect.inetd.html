@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.6. المخدم الفائق inetd</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="إقلاع النظام, سكربتات Init, SSH , Telnet, حقوق, صلاحيات, إشراف, Inetd, Cron, النسخ الاحتياطي, توصيل ساخن, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="unix-services.html"
+        title="فصل 9. خدمات يونكس" /><link
+        rel="prev"
+        href="sect.syslog.html"
+        title="9.5. أحداث syslog" /><link
+        rel="next"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. جدولة المهام باستخدام cron وatd" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.inetd.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.syslog.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.task-scheduling-cron-atd.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.inetd"></a>9.6. المخدم الفائق <code
+                  class="command">inetd</code></h2></div></div></div><div
+          class="para">
+			Inetd (الذي يدعى غالباً ”مخدم الإنترنت الفائق“) هو مخدم المخدمات. يعمل Inetd على تنفيذ المخدمات التي يندر استخدامها حسب الطلب، بحيث لا تضطر هذه المخدمات للعمل بشكل مستمر.
+		</div><a
+          id="idm140225826187424"
+          class="indexterm"></a><a
+          id="idm140225826186304"
+          class="indexterm"></a><div
+          class="para">
+			يسرد الملف <code
+            dir="ltr"
+            class="filename">/etc/inetd.conf</code> هذه المخدمات بالإضافة لمنافذها المعتادة. ينصت الأمر <code
+            class="command">inetd</code> على جميع هذه المنافذ؛ وعندما يستشعر اتصالاً على أي منها، يستدعي المخدم المناسب.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>سياسة دبيان</em></span> تسجيل مخدم في <code
+                      class="filename">inetd.conf</code></strong></p></div></div></div><div
+            class="para">
+			Packages frequently want to register a new server in the <code
+              class="filename">/etc/inetd.conf</code> file, but Debian Policy prohibits any package from modifying a configuration file that it doesn't own. This is why the <code
+              class="command">update-inetd</code> script (in the package with the same name) was created: It manages the configuration file, and other packages can thus use it to register a new server to the super-server's configuration.
+		</div></div><div
+          class="para">
+			يصف كل سطر فعلي من ملف <code
+            dir="ltr"
+            class="filename">/etc/inetd.conf</code> مخدماً من خلال سبعة حقول (تفصلها فراغات):
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					رقم منفذ TCP أو UDP، أو اسم الخدمة (الذي يقابل مع رقم منفذ معياري حسب المعلومات في الملف <code
+                  dir="ltr"
+                  class="filename">/etc/services</code>).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					نوع المقبس (socket)‏: <code
+                  class="literal">stream</code> لاتصالات TCP، و<code
+                  class="literal">dgram</code> لبيانات UDP.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					البروتوكول: <code
+                  class="literal">tcp</code> أو <code
+                  class="literal">udp</code>.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					الخيارات: هناك قيميتن محتملتين: <code
+                  class="literal">wait</code> أو <code
+                  class="literal">nowait</code>، لإعلام <code
+                  class="command">inetd</code> هل ينتظر انتهاء العملية المستدعاة قبل قبول اتصالات أخرى أم لا. بالنسبة لاتصالات TCP، التي يمكن جمعها (multiplex) بسهولة، يمكنك عادة استخدام <code
+                  class="literal">nowait</code>. أما للبرامج التي تستجيب عبر UDP، عليك استخدام <code
+                  class="literal">nowait</code> فقط إذا كان المخدم قادراً على إدارة عدة اتصالات على التوازي. يمكنك أن تسبق هذا الحقل بنقطة، وتلحقها بعدد الاتصالات الأعظمي المسموح كل دقيقة (الحد الافتراضي 256).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					اسم المستخدم الذي سيعمل المخدم باسمه.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					المسار الكامل للبرنامج المخدم الذي سيستدعى.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					المتغيرات: قائمة كاملة بمتغيرات البرنامج، بما فيها اسمه (<code
+                  dir="ltr"
+                  class="literal">argv[0]</code> في لغة C).
+				</div></li></ul></div><div
+          class="para">
+			يشرح المثال التالي أكثر الحالات شيوعاً:
+		</div><div
+          class="example"><a
+            id="example.inetd-conf"></a><p
+            class="title"><strong>مثال 9.1. مقتطفات من <code
+                dir="ltr"
+                class="filename">/etc/inetd.conf</code></strong></p><div
+            class="example-contents"><pre
+              class="programlisting">talk   dgram  udp wait    nobody.tty /usr/sbin/in.talkd in.talkd
+finger stream tcp nowait  nobody     /usr/sbin/tcpd     in.fingerd
+ident  stream tcp nowait  nobody     /usr/sbin/identd   identd -i
+</pre></div></div><a
+          id="idm140225826162064"
+          class="indexterm"></a><div
+          class="para">
+			يستخدم البرنامج <code
+            class="command">tcpd</code> كثيراً في الملف <code
+            dir="ltr"
+            class="filename">/etc/inetd.conf</code>. يسمح هذا البرنامج بتحديد عدد الاتصالات الواردة بتطبيق قواعد تحكم بالوصول، وهي موثقة في صفحة الدليل <span
+            class="citerefentry"><span
+              class="refentrytitle">hosts_access</span>(5)</span>‎، ويتم ضبطها في الملفين <code
+            dir="ltr"
+            class="filename">/etc/hosts.allow</code> و<code
+            dir="ltr"
+            class="filename">/etc/hosts.deny</code>. بمجرد تحديد أن الاتصال مسموح، يستدعي <code
+            class="command">tcpd</code> المخدم الحقيقي (مثل <code
+            class="command">in.fingerd</code> في مثالنا). من المهم أن نذكر أن <code
+            class="command">tcpd</code> يعتمد على الاسم الذي استدعي به (وهو المتغير الأول الذي استقبله، <code
+            dir="ltr"
+            class="literal">argv[0]</code>) للتعرف على البرنامج الحقيقي الذي يجب تشغيله. عليك إذن ألا تبدأ قائمة المتغيرات بالاسم <code
+            class="literal">tcpd</code> بل باسم البرنامج الذي تريد تغليفه.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>مجتمع</em></span> Wietse Venema</strong></p></div></div></div><a
+            id="idm140225826152256"
+            class="indexterm"></a><a
+            id="idm140225826151296"
+            class="indexterm"></a><div
+            class="para">
+			Wietse Venema (فيتس فينما)، الذي جعلت منه خبرته في أمن المعلومات مبرمجاً ذائع الصيت، هو مؤلف برنامج <code
+              class="command">tcpd</code>. كما أنه المؤلف الرئيسي لمخدم البريد الإلكتروني التجزيئي Postfix‏ (مخدم SMTP ‏– Simple Mail Transfer Protocol، أو البروتوكول البسيط للبريد الإلكتروني)، الذي صُمّم ليكون آمَنُ وأكثر وثوقية من <code
+              class="command">sendmail</code>، صاحب التاريخ الطويل في الثغرات الأمنية.
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>بدائل</em></span> أوامر <code
+                      class="command">inetd</code> أخرى</strong></p></div></div></div><div
+            class="para">
+			في حين أن دبيان تثبت <span
+              class="pkg pkg">openbsd-inetd</span> افتراضياً، إلا أن هناك العديد من البدائل الأخرى: يمكن أن نذكر منها <span
+              class="pkg pkg">inetutils-inetd</span>،‏ <span
+              class="pkg pkg">micro-inetd</span>،‏ <span
+              class="pkg pkg">rlinetd</span> و<span
+              class="pkg pkg">xinetd</span>.
+		</div><div
+            class="para">
+			يقدم تطبيق المخدم الفائق الأخير إمكانيات جذابة جداً. أهمها أنه يمكن فصل إعداداته إلى عدة ملفات (مخزنة طبعاً في المجلد <code
+              class="filename">/etc/xinetd.d/</code>)، الأمر الذي يمكن أن يجعل حياة مدير النظام أسهل.
+		</div><div
+            class="para">
+			It's even possible to emulate <code
+              class="command">inetd</code>'s behaviour with <code
+              class="command">systemd</code>'s socket-activation mechanism (see above).
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.syslog.html"><strong>السابق</strong>9.5. أحداث syslog</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.task-scheduling-cron-atd.html"><strong>التالي</strong>9.7. جدولة المهام باستخدام cron وatd</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.inetd.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.inetd.html">da-DK</a></li><li><a
+              href="../de-DE/sect.inetd.html">de-DE</a></li><li><a
+              href="../el-GR/sect.inetd.html">el-GR</a></li><li><a
+              href="../en-US/sect.inetd.html">en-US</a></li><li><a
+              href="../es-ES/sect.inetd.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.inetd.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.inetd.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.inetd.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.inetd.html">id-ID</a></li><li><a
+              href="../it-IT/sect.inetd.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.inetd.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.inetd.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.inetd.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.inetd.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.inetd.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.inetd.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.inetd.html">zh-CN</a></li></ul></div></body></html>

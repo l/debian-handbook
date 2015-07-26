@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">B.4. カーネルが担当する一部の操作</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="BIOS, カーネル, Unix, プロセス, 階層構造, 基本コマンド" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="short-remedial-course.html"
+        title="付録B 簡単な補習講座" /><link
+        rel="prev"
+        href="sect.computer-layers.html"
+        title="B.3. コンピュータ内部の仕組み: 様々な層の関係性" /><link
+        rel="next"
+        href="sect.user-space.html"
+        title="B.5. ユーザ空間" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.kernel-role-and-tasks.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.computer-layers.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.user-space.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.kernel-role-and-tasks"></a>B.4. カーネルが担当する一部の操作</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.hardware-drivers"></a>B.4.1. ハードウェアの操作</h3></div></div></div><div
+            class="para">
+				カーネルの第一義はハードウェア部分を制御すること、検知すること、コンピュータが起動された時に切り替える事です。更にカーネルは単純化されたプログラミングインターフェースを使った高レベルソフトウェアからのハードウェアの利用を可能にします。こうすることで、アプリケーションは拡張ボードがどの拡張スロットに接続されているかなどの詳細を気にすることなくデバイスを上手く活用する事が可能になります。更にこのプログラミングインターフェースは抽象化レイヤを提供します; 抽象化レイヤを使うことで、例えばビデオ会議ソフトは種類やモデル番号を気にせずにウェブカメラを使う事が可能です。ビデオ会議ソフトは <span
+              class="emphasis"><em>Video for Linux</em></span> (V4L) を使うだけです。カーネルが V4L インターフェースの機能呼び出しを特定のウェブカメラを制御するために必要な実際のハードウェアコマンドに変換します。
+			</div><div
+            class="para">
+				<a
+              id="idm140393305323312"
+              class="indexterm"></a> <a
+              id="idm140393305322512"
+              class="indexterm"></a> <a
+              id="idm140393305321712"
+              class="indexterm"></a> <a
+              id="idm140393305320912"
+              class="indexterm"></a> カーネルは検出されたハードウェアに関する多くの詳細を <code
+              class="filename">/proc/</code> と <code
+              class="filename">/sys/</code> 仮想ファイルシステムを通じて書き出します。ハードウェアの詳細をまとめて表示するツールも存在します。中でも、<code
+              class="command">lspci</code> (<span
+              class="pkg pkg">pciutils</span> パッケージに含まれます) は PCI デバイスをリストし、<code
+              class="command">lsusb</code> (<span
+              class="pkg pkg">usbutils</span> パッケージに含まれます) は USB デバイスをリストし、<code
+              class="command">lspcmcia</code> (<span
+              class="pkg pkg">pcmciautils</span> パッケージに含まれます) は PCMCIA カードをリストします。これらのツールはデバイスの正確なモデル番号を識別するのに役立ちます。デバイスの正確なモデル番号を使えば、より的確に検索したり、より関連性の高い文書を見つける事が可能です。
+			</div><div
+            class="example"><a
+              id="idm140393305315168"></a><p
+              class="title"><strong>例B.1 <code
+                  class="command">lspci</code> と <code
+                  class="command">lsusb</code> で提供される情報の例</strong></p><div
+              class="example-contents"><pre
+                class="screen">
+<code
+                  class="computeroutput">$ </code><strong
+                  class="userinput"><code>lspci</code></strong>
+<code
+                  class="computeroutput">[...]
+00:02.1 Display controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03)
+00:1c.0 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 1 (rev 03)
+00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #1 (rev 03)
+[...]
+01:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5751 Gigabit Ethernet PCI Express (rev 01)
+02:03.0 Network controller: Intel Corporation PRO/Wireless 2200BG Network Connection (rev 05)
+$ </code><strong
+                  class="userinput"><code>lsusb</code></strong>
+<code
+                  class="computeroutput">Bus 005 Device 004: ID 413c:a005 Dell Computer Corp.
+Bus 005 Device 008: ID 413c:9001 Dell Computer Corp.
+Bus 005 Device 007: ID 045e:00dd Microsoft Corp.
+Bus 005 Device 006: ID 046d:c03d Logitech, Inc.
+[...]
+Bus 002 Device 004: ID 413c:8103 Dell Computer Corp. Wireless 350 Bluetooth
+</code></pre></div></div><div
+            class="para">
+				これらのプログラムは <code
+              class="literal">-v</code> オプションを取ります。<code
+              class="literal">-v</code> オプションを使うことで、より詳しい (通常は不要な) 情報が表示されます。最後に、<code
+              class="command">lsdev</code> コマンド (<span
+              class="pkg pkg">procinfo</span> に含まれます) はデバイスによって使われている通信リソースをリストします。
+			</div><div
+            class="para">
+				アプリケーションは <code
+              class="filename">/dev/</code> 内に作られた特殊ファイルを介してデバイスにアクセスする場合が多いです (傍注<a
+              class="xref"
+              href="sect.creating-accounts.html#sidebar.special-files"><span
+                class="emphasis"><em>BACK TO BASICS</em></span> デバイスアクセスパーミッション</a>参照)。<code
+              class="filename">/dev/</code> 内には特殊ファイルがあり、これらはディスクドライブ (例えば、<code
+              class="filename">/dev/hda</code> や <code
+              class="filename">/dev/sdc</code>)、パーティション (<code
+              class="filename">/dev/hda1</code> や <code
+              class="filename">/dev/sdc3</code>)、その他 (<code
+              class="filename">/dev/input/mouse0</code>)、キーボード (<code
+              class="filename">/dev/input/event0</code>)、サウンドカード (<code
+              class="filename">/dev/snd/*</code>)、シリアルポート (<code
+              class="filename">/dev/ttyS*</code>)、などを表します。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.filesystems"></a>B.4.2. ファイルシステム</h3></div></div></div><a
+            id="idm140393305300656"
+            class="indexterm"></a><a
+            id="idm140393305299728"
+            class="indexterm"></a><div
+            class="para">
+				ファイルシステムはカーネルの最も目立つ側面の 1 つです。Unix システムはすべてのファイルを統合し、1 つの階層構造の中に保存します。こうすることで、ユーザ (とアプリケーション) は階層構造の中のファイルの場所を知るだけでデータにアクセスする事が可能です。
+			</div><div
+            class="para">
+				階層構造ツリーの起点はルート、<code
+              class="filename">/</code>、と呼ばれています。ルートディレクトリには名前を付けられたサブディレクトリが含まれます。例えば、<code
+              class="filename">/</code> の <code
+              class="literal">home</code> サブディレクトリは <code
+              class="filename">/home/</code> と呼ばれます。このサブディレクトリには、更に別のサブディレクトリを含める事が可能です。各ディレクトリには、実際のデータが保存されるファイルを含める事も可能です。そんなわけで、<code
+              class="filename">/home/rmas/Desktop/hello.txt</code> ファイルはルートディレクトリ内の <code
+              class="literal">home</code> サブディレクトリ内の <code
+              class="literal">rmas</code> サブディレクトリ内の <code
+              class="literal">Desktop</code> サブディレクトリ内の <code
+              class="literal">hello.txt</code> と名付けられたファイルを表します。カーネルはこの命名システムと実際のディスク上の物理的な保存領域を変換します。
+			</div><div
+            class="para">
+				他のシステムと異なり、このような階層構造は一つしかありません。そしてこの単独の階層構造に複数のディスクからのデータを統合できます。1 台のディスクがルートディレクトリとして使われ、他のディスクは階層構造中のディレクトリに「マウント」されます (Unix コマンドは <code
+              class="command">mount</code> と呼ばれます)。マウントされたディスクは「マウントポイント」の下から利用可能になります。これのお陰で、2 台目のハードディスクにユーザのホームディレクトリ (伝統的に <code
+              class="filename">/home/</code> の中に保存されます) を保存する事が可能です。このディスクには <code
+              class="literal">rhertzog</code> と <code
+              class="literal">rmas</code> ディレクトリが含まれます。2 台目のハードディスクを <code
+              class="filename">/home/</code> にマウントすると、ユーザのホームディレクトリの通常の場所からこれらのディレクトリにアクセス可能になり、<code
+              class="filename">/home/rmas/Desktop/hello.txt</code> などのパスが動作するようになります。
+			</div><a
+            id="idm140393305288896"
+            class="indexterm"></a><div
+            class="para">
+				ディスク上に物理的にデータを保存する方法の違いに対応して、多くのファイルシステムフォーマットが存在します。最も広く知られているファイルシステムは <span
+              class="emphasis"><em>ext2</em></span>、<span
+              class="emphasis"><em>ext3</em></span>、<span
+              class="emphasis"><em>ext4</em></span> ですが、他にも存在します。例えば、<span
+              class="emphasis"><em>vfat</em></span> は歴史的に DOS と Windows オペレーティングシステムで使われていたファイルシステムで、<span
+              class="emphasis"><em>vfat</em></span> ファイルシステムを使っているハードディスクは Debian および Windows の下で使う事が可能です。いかなる場合でも、ディスクをマウントする前に必ずディスク上にファイルシステムを準備しなければいけません。この準備作業は「フォーマット」として知られています。フォーマットを行うには <code
+              class="command">mkfs.ext3</code> (ここで <code
+              class="command">mkfs</code> は <span
+              class="emphasis"><em>MaKe FileSystem</em></span> の略語です) などのコマンドを使います。<code
+              class="command">mkfs</code> コマンドには、フォーマットされるパーティションを指すデバイスファイル (例えば <code
+              class="filename">/dev/sda1</code>) をパラメータとして渡す必要があります。ファイルシステムの作成作業は破壊的なものです。意図的にファイルシステムを完全消去して、最初からやり直したい場合を除いて、2 回やってはいけません。
+			</div><div
+            class="para">
+				更に、<acronym
+              class="acronym">NFS</acronym> などのネットワークファイルシステムも存在します。ネットワークファイルシステムを使った場合、データはローカルディスクに保存されません。その代わり、データはネットワークを介してサーバに送信されます。サーバは要求に応じてデータを保存したり、読み出したりします。ファイルシステムを抽象化したことによるユーザが特に心がける点はありません: ファイルは通常の階層構造的方法を使ってアクセス可能です。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.shared-functions"></a>B.4.3. 共有機能</h3></div></div></div><div
+            class="para">
+				数多くの同じ機能がすべてのソフトウェアで使われますから、これらの機能をカーネルに集中させることは合理的です。例えば、共有ファイルシステムを取り扱う機能を使うことで、名前から簡単にファイルを開く事が可能になります。ファイルが物理的に保存されている場所を気にする必要はありません。ファイルは 1 台のハードディスクの複数の異なる部分に保存したり、複数のハードディスクに渡って分割したり、リモートファイルサーバに保存する事が可能です。アプリケーションはデータを交換するために共有された通信機能を使います。アプリケーション側からするとデータを転送する方法を意識する必要はありません。例えば、データ転送はローカル、ワイヤレスネットワーク、固定電話回線の任意の組み合わせを通じて行われるかもしれません。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.process-management"></a>B.4.4. プロセス管理</h3></div></div></div><a
+            id="idm140393305276048"
+            class="indexterm"></a><div
+            class="para">
+				プロセスとはプログラムの実行中インスタンスです。プロセスはプログラム自身とその動作データを保存するためのメモリを要求します。カーネルはプロセスの作成と追跡を担当します。プログラムが実行されると、カーネルは最初に幾らかのメモリを確保し、次にファイルシステムから確保したメモリに実行可能なコードを読み込み、次にコードの実行を開始します。カーネルはプロセスに関する情報を保持します。中でも最もよく知られている情報は <span
+              class="emphasis"><em>pid</em></span> (<span
+              class="emphasis"><em>プロセス識別子</em></span>) として知られる識別番号です。
+			</div><div
+            class="para">
+				Unix 系カーネル (Linux を含めて) は、多くの他の現代的なオペレーティングシステムと同様、「マルチタスク」機能を備えています。言い換えれば、Unix 系カーネルは多くのプロセスを「同時に」実行する事が可能です。ある時点で動いているのは 1 つのプロセスだけですが、カーネルは時間を小さな単位に切り分け、順繰りにそれぞれのプロセスを実行します。これらの時分割単位は極めて短い (ミリ秒程度) ので、プロセスが並列実行されているような錯覚を起こさせます。しかし実際のところプロセスはある時間周期で活動しており、残りの時間は動いていません。カーネルの仕事はこの錯覚を保つためにスケジューリングメカニズムを調節し、同時にシステム全体の性能を最大化する事です。時分割単位が長すぎる場合、アプリケーションが要求通りの反応をしていないように見えるかもしれません。時分割単位が短すぎる場合、タスク切り替えが頻繁に起こるようになり、システムは処理時間を損する事になります。プロセス優先度を使えば、時分割単位を微調整する事が可能です。優先度の高いプロセスは優先度の低いプロセスに比べて長くそしてより頻繁な時分割単位で実行されます。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NOTE</em></span> マルチプロセッサシステム (とその亜種)</strong></p></div></div></div><div
+              class="para">
+				ある時間に実行できるプロセスをたった 1 つに制限するという、上で説明した制限は必ずしも適用できるとは限りません。実用上の制限としては、同時に実行されるプロセスの数が<span
+                class="emphasis"><em>プロセッサのコア 1 つあたり</em></span> 1 つという制限です。マルチプロセッサ、マルチコア、「ハイパースレッディング」システムを使うことで、複数のプロセスを並列実行する事が可能です。ここでも同じ時分割システムを使いますが、このシステムは利用可能なプロセッサコアよりも多くのプロセスを実行させるようなケースを取り扱う事が可能です。これは決して珍しいことではありません: ベースシステムはほとんど動いていませんが、ほとんど常時数十個の実行中プロセスを抱えています。
+			</div></div><div
+            class="para">
+				もちろん、カーネルは同じプログラムの複数の独立したインスタンスも取り扱う事が可能です。しかし各プロセスは自分自身以外の時分割基準とメモリにアクセスすることはできません。このため、プロセスごとのデータは独立に管理されています。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.permissions"></a>B.4.5. 権限管理</h3></div></div></div><div
+            class="para">
+				Unix 系システムはマルチユーザに対応しています。Unix 系システムはグループとユーザの別々な管理をサポートする権限管理システムを提供しています; さらに、パーミッションに基いて動作を制御する事が可能です。カーネルは各プロセスに対するデータを管理し、そのデータを使ってパーミッションを制御します。ほとんどの場合、プロセスはプロセスを開始したユーザ同じ権限を持つとされます。そして、プロセスは自分を開始した所有者が実行できる動作だけを実行する事が可能です。例えば、プロセスがファイルを開く前に、カーネルによってそのプロセスの識別情報がアクセスパーミッションを持つ事を確認されます (具体的な例についてのより詳しい情報は<a
+              class="xref"
+              href="sect.rights-management.html">「権限の管理」</a>をご覧ください)。
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.computer-layers.html"><strong>戻る</strong>B.3. コンピュータ内部の仕組み: 様々な層の関係性</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.user-space.html"><strong>次へ</strong>B.5. ユーザ空間</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.kernel-role-and-tasks.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.kernel-role-and-tasks.html">da-DK</a></li><li><a
+              href="../de-DE/sect.kernel-role-and-tasks.html">de-DE</a></li><li><a
+              href="../el-GR/sect.kernel-role-and-tasks.html">el-GR</a></li><li><a
+              href="../en-US/sect.kernel-role-and-tasks.html">en-US</a></li><li><a
+              href="../es-ES/sect.kernel-role-and-tasks.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.kernel-role-and-tasks.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.kernel-role-and-tasks.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.kernel-role-and-tasks.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.kernel-role-and-tasks.html">id-ID</a></li><li><a
+              href="../it-IT/sect.kernel-role-and-tasks.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.kernel-role-and-tasks.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.kernel-role-and-tasks.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.kernel-role-and-tasks.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.kernel-role-and-tasks.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.kernel-role-and-tasks.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.kernel-role-and-tasks.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.kernel-role-and-tasks.html">zh-CN</a></li></ul></div></body></html>

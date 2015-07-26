@@ -1,0 +1,844 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.4. مقدمة إلى SELinux</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="الجدار الناري, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="security.html"
+        title="فصل 14. الأمن" /><link
+        rel="prev"
+        href="sect.supervision.html"
+        title="14.3. الإشراف: المنع، والاكتشاف، والردع" /><link
+        rel="next"
+        href="sect.other-security-considerations.html"
+        title="14.5. اعتبارات أمنية أخرى" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.selinux.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.selinux"></a>14.4. مقدمة إلى SELinux</h2></div></div></div><a
+          id="idm140225822735504"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-principles"></a>14.4.1. المبادئ</h3></div></div></div><div
+            class="para">
+				SELinux‏ (<span
+              class="emphasis"><em>Security Enhanced Linux</em></span>) هو نظام تحكم بالوصول الإلزامي <span
+              class="emphasis"><em>Mandatory Access Control</em></span> مبني على واجهة LSM‏ (<span
+              class="emphasis"><em>Linux Security Modules</em></span>) في لينكس. عملياً، تستشير النواة SELinux قبل كل استدعاء للنظام حتى تعرف إذا كانت العملية المستدعية مخولة لتنفيذ الإجراء المطلوب.
+			</div><div
+            class="para">
+				يستخدم SELinux مجموعة من القواعد — تُعرَف باسم <span
+              class="emphasis"><em>السياسة policy</em></span> — لحظر الإجراءات أو السماح بها. إنشاء هذه القواعد صعب. لكن لحسن الحظ، هناك سياستين قياسيتين (<span
+              class="emphasis"><em>targeted</em></span> و <span
+              class="emphasis"><em>strict</em></span>) متاحتين لتوفير عناء معظم عملية الإعداد.
+			</div><div
+            class="para">
+				إدارة الصلاحيات مع SELinux تختلف تماماً عن نظم يونكس التقليدية. تعتمد صلاحيات العملية على <span
+              class="emphasis"><em>سياقها الأمني</em></span>. يتحدد السياق <span
+              class="emphasis"><em>بهوية</em></span> المستخدم الذي بدأ تنفيذ العملية، و<span
+              class="emphasis"><em>الدور</em></span> و<span
+              class="emphasis"><em>النطاق</em></span> الذين كان يحملهما المستخدم في ذلك الوقت. تعتمد الصلاحيات فعلياً على النطاق، لكن الأدوار هي التي تحكم الانتقالات بين النطاقات. أخيراً، تعتمد الانتقالات بين الأدوار على هوية المستخدم.
+			</div><div
+            class="figure"><a
+              id="idm140225822726384"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-context.png"
+                  alt="السياق الأمني ومستخدمي يونكس" /></div></div><p
+              class="title"><strong>شكل 14.3. السياق الأمني ومستخدمي يونكس</strong></p></div><div
+            class="para">
+				عملياً، يحصل المستخدم، لحظة تسجيل الدخول، على سياق أمني افتراضي (اعتماداً على الأدوار التي يحق له أخذها) . وبذلك يتحدد النطاق الحالي، أي النطاق الذي ستحمله جميع العمليات الأبناء الجديدة. إذا كنت تريد تغيير الدور الحالي والنطاق المرتيط معه، عليك استدعاء <code
+              class="command">newrole -r <em
+                class="replaceable">role_r</em> -t <em
+                class="replaceable">domain_t</em></code> (عادة يكون هناك نطاق وحيد فقط مسموح لكل دور، ولذلك يمكن إهمال المتغير <code
+              dir="ltr"
+              class="literal">-t</code> غالباً). يتحقق هذا الأمر منك عبر طلب إدخال كلمة السر. تمنع هذه الميزة البرامج من تغيير الأدوار آلياً. لا يمكن تنفيذ هذه التغييرات إلا إذا كانت مسموحة صراحة في سياسة SELinux.
+			</div><div
+            class="para">
+				من الواضح أن الصلاحيات نفسها لا تنطبق على جميع <span
+              class="emphasis"><em>الكائنات objects</em></span> (ملفات، مجلدات، مقابس شبكية، أجهزة، الخ)، بل تختلف من كائن لآخر. لتحقيق هذا، يُربَط كل كائن مع <span
+              class="emphasis"><em>نوع type</em></span> (تعرف هذه العملية بالوسم labeling). تُمثَّل صلاحيات النطاق إذن بمجموعات من الإجراءات المسموحة (أو الممنوعة) على هذه الأنواع (وبالتالي، تنطبق بشكل غير مباشر على الكائنات التي وسمت بهذا النوع).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>إضافة</em></span> النطاقات والأنواع متساويان</strong></p></div></div></div><div
+              class="para">
+				داخلياً النطاق هو نوع، لكنه نوع يطبّق على العمليات. لذلك تلحق أسماء النطاقات بالرمز <code
+                dir="ltr"
+                class="literal">_t</code> مثل أنواع الكائنات تماماً.
+			</div></div><div
+            class="para">
+				افتراضياً، يرث البرنامج نطاقه من المستخدم الذي بدأ تنفيذه، لكن سياسات SELinux القياسية تتوقع تشغيل برامج مهمة عديدة في نطاقات خاصة بها. لتحقيق ذلك، توسم هذه البرامج التنفيذية بأنواع خاصة بها (مثلاً، يوسم <code
+              class="command">ssh</code> بالنوع <code
+              class="literal">ssh_exec_t</code> وعند تشغيل البرنامج، سينتقل تلقائياً إلى النطاق <code
+              class="literal">ssh_t</code>) . تسمح آلية الانتقال التلقائي بين النطاقات هذه بمنح كل برنامج الصلاحيات التي يحتاجها فقط. هذا أحد المبادئ الأساسية في SELinux.
+			</div><div
+            class="figure"><a
+              id="idm140225822712448"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-transitions.png"
+                  alt="الانتقالات الآلية بين النطاقات" /></div></div><p
+              class="title"><strong>شكل 14.4. الانتقالات الآلية بين النطاقات</strong></p></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ممارسة عملية</em></span> معرفة السياق الأمني</strong></p></div></div></div><a
+              id="idm140225822707888"
+              class="indexterm"></a><a
+              id="idm140225822706928"
+              class="indexterm"></a><a
+              id="idm140225822706000"
+              class="indexterm"></a><div
+              class="para">
+				لمعرفة السياق الأمني لعملية معينة، عليك استخدام الخيار <code
+                class="literal">Z</code> لبرنامج <code
+                class="command">ps</code>.
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ps axZ | grep vstfpd</code></strong>
+<code
+                class="computeroutput">system_u:system_r:ftpd_t:s0   2094 ?    Ss  0:00 /usr/sbin/vsftpd</code></pre><div
+              class="para">
+				يحوي الحقل الأول الهوية، والدور، والنطاق، ورتبة MCS، تفصل عن بعضها بنقاط رأسية. رتبة MCS‏ (<span
+                class="emphasis"><em>Multi-Category Security</em></span>) هي متغير يدخل في إعداد سياسة حماية السرية، التي تنظم الوصول للملفات اعتماداً على حساسيتها. هذه الميزة غير مشروحة في هذا الكتاب.
+			</div><div
+              class="para">
+				لمعرفة السياق الأمني الحالي في الصَدَفة، بمكنك استدعاء <code
+                class="command">id -Z</code>.
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>id -Z</code></strong>
+<code
+                class="computeroutput">unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre><div
+              class="para">
+				وأخيراً، لمعرفة النوع المرتبط بملف ما، يمكنك استخدام <code
+                class="command">ls -Z</code>.
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ls -Z test /usr/bin/ssh</code></strong>
+<code
+                class="computeroutput">unconfined_u:object_r:user_home_t:s0 test
+     system_u:object_r:ssh_exec_t:s0 /usr/bin/ssh</code></pre><div
+              class="para">
+				يجدر بالملاحظة أن الهوية والدور المسندين إلى الملفات لا تحملان أي أهمية خاصة (إذ أنها لا تستخدم أبداً)، لكن جميع الكائنات تتمتع بسياق أمني كامل في سبيل الحفاظ على الاتساق.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-setup"></a>14.4.2. إعداد SELinux</h3></div></div></div><div
+            class="para">
+				دعم SELinux مبني ضمن النَوَى القياسية التي توفرها دبيان. كما تدعم أدوات يونكس الأساسية SELinux دون أي تعديلات. إذن من السهل نسبياً تفعيل SELinux.
+			</div><div
+            class="para">
+				سوف يثبت الأمر <code
+              class="command">aptitude install selinux-basics selinux-policy-default</code> آلياً الحزم اللازمة لإعداد نظام SELinux.
+			</div><div
+            class="para">
+				تحوي الحزمة <span
+              class="pkg pkg">selinux-policy-default</span> مجموعة من الأدوات القياسية. افتراضياً، تُقيّد هذه السياسة الوصول لبضعة خدمات واسعة الانتشار. جلسات عمل المستخدمين غير مقيدة ولذلك يُستبعَد أن يمنع SELinux إجراءات المستخدمين المشروعة. ومع ذلك، يزيد هذا من أمان خدمات النظام التي تعمل على الجهاز. لإعداد سياسة تشبه القواعد ”الصارمة“ القديمة، عليك فقط تعطيل وحدة <code
+              class="literal">unconfined</code> (سنشرح إدارة الوحدات لاحقاً في هذا القسم).
+			</div><div
+            class="para">
+				بعد تثبيت السياسة، عليك وسم جميع الملفات المتوفرة (أي إعطائهم نوعاً). يجب بدء تنفيذ هذه العملية يدوياً باستدعاء <code
+              class="command">fixfiles relabel</code>.
+			</div><div
+            class="para">
+				نظام SELinux جاهز الآن. لتفعيله عليك إضافة المتغير <code
+              class="literal">selinux=1</code> إلى النواة لينكس. أما المتغير <code
+              class="literal">audit=1</code> فيفعّل سجلات SELinux التي تسجل كل الإجراءات التي منعها. أخيراً، يضع المتغير <code
+              class="literal">enforcing=1</code> القواعد في حيز التطبيق، إذ بدونه يعمل SELinux في وضع <span
+              class="emphasis"><em>permissive</em></span> الافتراضي حيث يكتفي بتسجيل الإجراءات الممنوعة لكنه يسمح بتنفيذها. عليك إذن تعديل ملف إعداد محمل الإقلاع GRUB لإضافة المتغيرات المطلوبة. إحدى الطرق السهلة لتنفيذ ذلك تعديل المتغير <code
+              class="literal">GRUB_CMDLINE_LINUX</code> في الملف <code
+              class="filename">/etc/default/grub</code> ثم استدعاء <code
+              class="command">update-grub</code>. سينشط SELinux بعد إعادة الإقلاع.
+			</div><div
+            class="para">
+				يجدر بالملاحظة أن السكربت <code
+              class="command">selinux-activate</code> يؤتمت هذه الخطوات ويفرض عملية الوسم عند الإقلاع التالي (وبذلك يتفادى إنشاء ملفات جديدة غير موسومة قبل تنشيط SELinux أو أثناء تنفيذ عملية الوسم).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-management"></a>14.4.3. إدارة نظام SELinux</h3></div></div></div><a
+            id="idm140225822681056"
+            class="indexterm"></a><a
+            id="idm140225822679936"
+            class="indexterm"></a><div
+            class="para">
+				سياسة SELinux هي مجموعة تجزيئية (modular) من القواعد، وتكتشف أثناء تثبيتها جميع الوحدات الملائمة وتُفعّلها آلياً اعتماداً على الخدمات المثبتة سابقاً. أي أن النظام جاهز للعمل مباشرة. لكن، إذا ثبَّتّ خدمة بعد تثبيت سياسة SELinux، يجب أن تتمكن بطريقة ما من تفعيل الوحدة المناسبة يدوياً. هذا هو الهدف من الأمر <code
+              class="command">semodule</code>. بالإضافة لذلك، يجب أن تتمكن من تعريف الأدوار التي يمكن أن يأخذها كل مستخدم، ويمكن تنفيذ هذا باستخدام الأمر <code
+              class="command">semanage</code>.
+			</div><div
+            class="para">
+				يمكن استخدام هذين الأمرين إذن لتعديل إعدادات SELinux الحالية، المخزنة في <code
+              class="filename">/etc/selinux/default/</code>. بخلاف ملفات الإعداد الأخرى التي تجدها في <code
+              class="filename">/etc/</code>، لا يجب تعديل أي من هذه الملفات يدوياً. بل يجب استخدام البرامج المخصصة لهذا الغرض.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>التعمق أكثر</em></span> وثائق إضافية</strong></p></div></div></div><div
+              class="para">
+				بما أن NSA لا تقدم أي توثيق رسمي، فقد أسس المجتمع ويكي ليعوض عن ذلك. يجمع هذا الويكي معلومات كثيرة. لكن عليك أن تدرك أن معظم المساهمين في SELinux هم من مستخدمي فيدورا (SELinux مفعل افتراضياً هناك). لذلك تميل الوثائق إلى التعامل مع تلك التوزيعة بشكل خاص. <div
+                class="url">→ <a
+                  href="http://www.selinuxproject.org">http://www.selinuxproject.org</a></div>
+			</div><div
+              class="para">
+				عليك أيضاً إلقاء نظرة على صفحة ويكي دبيان المخصصة له بالإضافة لمدونة Russell Coker، وهو أحد أكثر مطوري دبيان نشاطاً في العمل على دعم SELinux. <div
+                class="url">→ <a
+                  href="http://wiki.debian.org/SELinux">http://wiki.debian.org/SELinux</a></div> <div
+                class="url">→ <a
+                  href="http://etbe.coker.com.au/tag/selinux/">http://etbe.coker.com.au/tag/selinux/</a></div>
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822669456"></a>14.4.3.1. إدارة وحدات SELinux</h4></div></div></div><div
+              class="para">
+					تخزن وحدات SELinux في المجلد <code
+                class="filename">/usr/share/selinux/default/</code>. لتنشيط إحدى هذه الوحدات في الإعداد الحالي، عليك استخدام <code
+                class="command">semodule -i <em
+                  class="replaceable">module.pp</em></code>. ترمز الإضافة <span
+                class="emphasis"><em>pp</em></span> للعبارة <span
+                class="emphasis"><em>policy package</em></span>.
+				</div><div
+              class="para">
+					يمكن إزالة وحدة من الإعداد الحالي باستخدام <code
+                class="command">semodule -r <em
+                  class="replaceable">module</em></code>. أخيراً، يسرد الأمر <code
+                class="command">semodule -l</code> الوحدات النشطة حالياً، كما أنه يطبع أرقام إصدارها.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -i /usr/share/selinux/default/aide.pp</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">aide    1.4.0
+apache  1.10.0
+apm     1.7.0
+[...]</code>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -r aide</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">apache  1.10.0
+apm     1.7.0
+[...]</code></pre><div
+              class="para">
+					يُحمّل <code
+                class="command">semodule</code> الإعدادات الجديدة فوراً ما لم تستخدم معه الخيار <code
+                dir="ltr"
+                class="literal">-n</code>. يجدر بالملاحظة أن البرنامج يُعدِّل افتراضياً على الإعدادات الحالية (التي يشير لها المتغير <code
+                class="literal">SELINUXTYPE</code> في <code
+                dir="ltr"
+                class="filename">/etc/selinux/config</code>)، لكن يمكنك جعله يعدل على إعداد آخر عبر استخدام الخيار <code
+                dir="ltr"
+                class="literal">-s</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822655696"></a>14.4.3.2. إدارة الهويات</h4></div></div></div><div
+              class="para">
+					في كل مرة يُسجّل فيها المستخدم دخوله، تُسنَد له هوية SELinux. تحدد هذه الهوية الأدوار التي يستطيع أخذها. يمكن إدارة هذه التقابلات (بين اسم المستخدم والهويّة، وبين هذه الهوية والأدوار) بالأمر <code
+                class="command">semanage</code>.
+				</div><div
+              class="para">
+					يتحتم عليك قراءة صفحة الدليل <span
+                class="citerefentry"><span
+                  class="refentrytitle">semanage</span>(8)</span>‎، حتى لو بدت صيغة الأمر متشابهة بين جميع المجالات التي يديرها. سوف تجد خيارات مشتركة بين جميع الأوامر الفرعية: <code
+                dir="ltr"
+                class="literal">-a</code> للإضافة، <code
+                dir="ltr"
+                class="literal">-d</code> للحذف، <code
+                dir="ltr"
+                class="literal">-m</code> للتعديل، <code
+                dir="ltr"
+                class="literal">-l</code> للعرض، و <code
+                dir="ltr"
+                class="literal">-t</code> لذكر النوع (أو النطاق).
+				</div><div
+              class="para">
+					يسرد الأمر <code
+                class="command">semanage login -l</code> التقابلات الحالية بين هويات المستخدمين وهويات SELinux. يحصل المستخدمون الذين ليس لهم مدخلة تقابل صريحة على الهوية المذكورة في المدخلة <code
+                class="literal">__default__</code>. يربط الأمر <code
+                class="command">semanage login -a -s user_u <em
+                  class="replaceable">user</em></code> المستخدم المحدد بالهويّة <span
+                class="emphasis"><em>user_u</em></span>. وأخيراً، يُسقِط <code
+                class="command">semanage login -d <em
+                  class="replaceable">user</em></code> مدخلة التقابل المسندة للمستخدم.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -a -s user_u rhertzog</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -l</code></strong>
+<code
+                class="computeroutput">
+Login Name                SELinux User              MLS/MCS Range
+
+__default__               unconfined_u              s0-s0:c0.c1023
+rhertzog                  user_u                    None
+root                      unconfined_u              s0-s0:c0.c1023
+system_u                  system_u                  s0-s0:c0.c1023
+# </code><strong
+                class="userinput"><code>semanage login -d rhertzog</code></strong></pre><div
+              class="para">
+					يسرد الأمر <code
+                class="command">semanage user -l</code> التقابلات بين هويات المستخدمين في SELinux والأدوار المسموحة. تحتاج إضافة هوية جديدة إلى تعريف الأدوار الموافقة لها بالإضافة لتعريف سابقة الوسم التي تستخدم لتعيين أنواع الملفات الشخصية (<code
+                dir="ltr"
+                class="filename">/home/<em
+                  class="replaceable">user</em>/*</code>). إما أن تكون قيمة هذه السابقة <code
+                class="literal">user</code> أو <code
+                class="literal">staff</code> أو <code
+                class="literal">sysadm</code>. استخدام السابقة ”<code
+                class="literal">staff</code>“ ينتج ملفات لهذا النوع ”<code
+                class="literal">staff_home_dir_t</code>“. تنشأ هويات SELinux الجديدة باستخدام <code
+                class="command">semanage user -a -R <em
+                  class="replaceable">roles</em> -P <em
+                  class="replaceable">prefix</em> <em
+                  class="replaceable">identity</em></code>. أخيراً، يمكنك إزالة هوية مستخدم SELinux باستخدام <code
+                class="command">semanage user -d <em
+                  class="replaceable">identity</em></code>.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -a -R 'staff_r user_r' -P staff test_u</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -l</code></strong>
+<code
+                class="computeroutput">
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range        SELinux Roles
+
+root            sysadm     s0         s0-s0:c0.c1023   staff_r sysadm_r system_r
+staff_u         staff      s0         s0-s0:c0.c1023   staff_r sysadm_r
+sysadm_u        sysadm     s0         s0-s0:c0.c1023   sysadm_r
+system_u        user       s0         s0-s0:c0.c1023   system_r
+test_u          staff      s0         s0               staff_r user_r
+unconfined_u    unconfined s0         s0-s0:c0.c1023   system_r unconfined_r
+user_u          user       s0         s0               user_r
+# </code><strong
+                class="userinput"><code>semanage user -d test_u</code></strong></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822630752"></a>14.4.3.3. إدارة سياقات الملفات والمنافذ والمتغيرات البوليانية</h4></div></div></div><div
+              class="para">
+					توفر كل وحدة من وحدات SELinux مجموعة من قواعد وسم الملفات، لكن يمكن أيضاً إضافة قواعد وسم مخصصة استجابة لحالة خاصة. مثلاً، إذا أردت أن يتمكن مخدم الوب من قراءة الملفات ضمن الشجرة <code
+                class="filename">/srv/www/</code>، عليك تنفيذ <code
+                dir="ltr"
+                class="command">semanage fcontext -a -t httpd_sys_content_t "/srv/www(/.*)?"</code> يتبعه <code
+                dir="ltr"
+                class="command">restorecon -R /srv/www/</code>. يسجل الأمر الأول قواعد الوسم الجديدة ويعيد الأمر الثاني ضبط أنواع الملفات وفق قواعد الوسم الجديدة هذه.
+				</div><div
+              class="para">
+					Similarly, TCP/UDP ports are labeled in a way that ensures that only the corresponding daemons can listen to them. For instance, if you want the web server to be able to listen on port 8080, you should run <code
+                class="command">semanage port -m -t http_port_t -p tcp 8080</code>.
+				</div><div
+              class="para">
+					تُصدِّر بعض وحدات SELinux خيارات بوليانية يمكنك تعديلها لتغيير سلوك القواعد الافتراضية. يمكن استخدام الأداة <code
+                class="command">getsebool</code> لفحص هذه الخيارات (يعرض الأمر <code
+                class="command">getsebool <em
+                  class="replaceable">boolean</em></code> خياراً واحداً، أما <code
+                class="command">getsebool -a</code> فيعرضها كلها). يغيّر الأمر <code
+                class="command">setsebool <em
+                  class="replaceable">boolean</em> <em
+                  class="replaceable">value</em></code> القيمة الحالية للخيار البولياني. استخدام الخيار <code
+                dir="ltr"
+                class="literal">-P</code> يجعل التغيير نهائياً، أي أن القيمة الجديدة ستصبح القيمة الافتراضية وسيحتفظ بها بعد إعادة الإقلاع. يمنح المثال التالي مخدمات الوب صلاحية الوصول لمجلدات بيوت المستخدمين (يفيد هذا عندما يملك المستخدمون مواقع شخصية في <code
+                dir="ltr"
+                class="filename">~/public_html/</code>).
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong>
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; off
+# </code><strong
+                class="userinput"><code>setsebool -P httpd_enable_homedirs on</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong> 
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; on</code></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-custom-rules"></a>14.4.4. ملائمة القواعد</h3></div></div></div><div
+            class="para">
+				بما أن سياسة SELinux تجزيئية، فقد يهمُّك تطوير وحدات جديدة (أو وحدات مخصصة) للتطبيقات التي تفتقر لهذه الوحدات. عندها سوف تكمل هذه الوحدات <span
+              class="emphasis"><em>السياسة المرجعية reference policy</em></span>.
+			</div><div
+            class="para">
+				لإنشاء وحدة جديدة، ستحتاج للحزمة <span
+              class="pkg pkg">selinux-policy-dev</span>. بالإضافة إلى <span
+              class="pkg pkg">selinux-policy-doc</span> تحوي الأخيرة وثائق القواعد القياسية (<code
+              dir="ltr"
+              class="filename">/usr/share/doc/selinux-policy-doc/html/</code>) وملفات أمثلة يمكن استخدامها كقوالب لإنشاء الوحدات الجديدة. ثَبِّت هذه الملفات وادرسها بعمق:
+			</div><pre
+            class="screen"><code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/Makefile.example.gz &gt;Makefile</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.fc.gz &gt;example.fc</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.if.gz &gt;example.if</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cp /usr/share/doc/selinux-policy-doc/example.te ./</code></strong></pre><div
+            class="para">
+				ملف <code
+              dir="ltr"
+              class="filename">.te</code> هو الأهم بينها. فهو الذي يحدد القواعد. يُعرِّف الملف <code
+              dir="ltr"
+              class="filename">.fc</code> ”سياقات الملفات“، وهي الأنواع التي تسند إلى الملفات المرتبطة بهذه الوحدة. تُستَخدَم البيانات من الملف <code
+              dir="ltr"
+              class="filename">.fc</code> أثناء مرحلة وسم الملفات. أخيراً، يُعرِّف الملف <code
+              dir="ltr"
+              class="filename">.if</code> واجهة الوحدة: وهي مجموعة من ”الدوال العامة“ التي تستطيع الوحدات الأخرى استخدامها للتفاعل مع هذه الوحدة الجديدة بشكل سليم.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822604112"></a>14.4.4.1. كتابة ملف <code
+                      dir="ltr"
+                      class="filename">.fc</code></h4></div></div></div><div
+              class="para">
+					يجب أن تفي قراءة المثال التالي لفهم بنية هذا الملف. يمكنك استخدام التعابير المنتظمة لإسناد السياق الأمني نفسه لعدة ملفات، أو لشجرة ملفات كاملة حتى.
+				</div><div
+              class="example"><a
+                id="idm140225822601952"></a><p
+                class="title"><strong>مثال 14.2. ملف <code
+                    class="filename">example.fc</code></strong></p><div
+                class="example-contents"><pre
+                  class="programlisting scale"># myapp executable will have:
+# label: system_u:object_r:myapp_exec_t
+# MLS sensitivity: s0
+# MCS categories: &lt;none&gt;
+
+/usr/sbin/myapp         --      gen_context(system_u:object_r:myapp_exec_t,s0)
+</pre></div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822599552"></a>14.4.4.2. كتابة ملف <code
+                      dir="ltr"
+                      class="filename">.if</code></h4></div></div></div><div
+              class="para">
+					في المثال التالي، تتحكم الواجهة الأولى (”<code
+                class="literal">myapp_domtrans</code>“) بمن يستطيع تنفيذ التطبيق. أما الثانية (”<code
+                class="literal">myapp_read_log</code>“) فتمنح صلاحيات القراءة على ملفات سجلات التطبيق.
+				</div><div
+              class="para">
+					يجب أن تولد كل واجهة مجموعة صالحة من القواعد التي يمكن تضمينها في ملف <code
+                dir="ltr"
+                class="filename">.te</code>. عليك إذن التصريح عن جميع الأنواع التي تستخدمها (باستخدام الماكرو <code
+                class="literal">gen_require</code>)، واستخدام التعليمات التوجيهية القياسية لمنح الصلاحيات. لاحظ، على أي حال، أنك تستطيع استخدام الواجهات التي توفرها الوحدات الأخرى. يتفصّل القسم التالي أكثر في شرح طريقة تمثيل هذه الصلاحيات.
+				</div><div
+              class="example"><a
+                id="idm140225822594368"></a><p
+                class="title"><strong>مثال 14.3. ملف <code
+                    class="filename">example.if</code></strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">## &lt;summary&gt;Myapp example policy&lt;/summary&gt;
+## &lt;desc&gt;
+##      &lt;p&gt;
+##              More descriptive text about myapp.  The &lt;desc&gt;
+##              tag can also use &lt;p&gt;, &lt;ul&gt;, and &lt;ol&gt;
+##              html tags for formatting.
+##      &lt;/p&gt;
+##      &lt;p&gt;
+##              This policy supports the following myapp features:
+##              &lt;ul&gt;
+##              &lt;li&gt;Feature A&lt;/li&gt;
+##              &lt;li&gt;Feature B&lt;/li&gt;
+##              &lt;li&gt;Feature C&lt;/li&gt;
+##              &lt;/ul&gt;
+##      &lt;/p&gt;
+## &lt;/desc&gt;
+#
+
+########################################
+## &lt;summary&gt;
+##      Execute a domain transition to run myapp.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to transition.
+## &lt;/param&gt;
+#
+interface(`myapp_domtrans',`
+        gen_require(`
+                type myapp_t, myapp_exec_t;
+        ')
+
+        domtrans_pattern($1,myapp_exec_t,myapp_t)
+')
+
+########################################
+## &lt;summary&gt;
+##      Read myapp log files.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to read the log files.
+## &lt;/param&gt;
+#
+interface(`myapp_read_log',`
+        gen_require(`
+                type myapp_log_t;
+        ')
+
+        logging_search_logs($1)
+        allow $1 myapp_log_t:file r_file_perms;
+')
+</pre></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>توثيق</em></span> توضيحات حول <span
+                          class="emphasis"><em>reference policy</em></span></strong></p></div></div></div><div
+                class="para">
+					تتطور <span
+                  class="emphasis"><em>السياسة المرجعية</em></span> كما يتطور أي مشروع برمجية حرة: اعتماداً على مساهمات المتطوعين. تستضيف Tresys هذا المشروع، وهي إحدى أكثر الشركات نشاطاً في مجال SELinux. يتحوي الويكي الخاص بهم على توضيحات عن طريقة صياغة القواعد وكيف يمكنك إنشاء قواعد جديدة. <div
+                  class="url">→ <a
+                    href="http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted">http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822587360"></a>14.4.4.3. كتابة ملف <code
+                      dir="ltr"
+                      class="filename">.te</code></h4></div></div></div><div
+              class="para">
+					لنلق نظرة على الملف <code
+                class="filename">example.te</code>:
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>التعمق أكثر</em></span> لغة الماكرو <code
+                          class="command">m4</code></strong></p></div></div></div><div
+                class="para">
+					لبناء السياسة بشكل سليم، استخدم مطورو SELinux معالج أوامر ماكرو. فبدلاً من نسخ الكثير من تعليمات <span
+                  class="emphasis"><em>allow</em></span> التوجيهية المتشابهة، أنشأوا ”دوالاً ماكروية“ لاستخدام منطق ذا مستوى أعلى، وهذا ينتج أيضاً سياسة قراءتها أسهل لكثير.
+				</div><div
+                class="para">
+					عملياً، تترجم هذه القواعد عبر استخدام الأداة <code
+                  class="command">m4</code> التي تجري العملية المعاكسة: حيث توسّع جميع هذه التعليمات عالية المستوى إلى قاعدة بيانات عملاقة من تعليمات <span
+                  class="emphasis"><em>allow</em></span>.
+				</div><div
+                class="para">
+					”واجهات“ SELinux هي مجرد دوال ماكروية تُستبدَل بمجموعة قواعد أثناء الترجمة. وكذلك، هناك بعض الصلاحيات التي تتألف في الواقع من مجموعة من الصلاحيات التي تستبدل بقيمها عند الترجمة.
+				</div></div><pre
+              class="programlisting">policy_module(myapp,1.0.0) <span
+                id="example.te.module"><img
+                  class="callout"
+                  src="Common_Content/images/1.png"
+                  alt="1" /></span>
+
+########################################
+#
+# Declarations
+#
+
+type myapp_t; <span
+                id="example.te.type"><img
+                  class="callout"
+                  src="Common_Content/images/2.png"
+                  alt="2" /></span>
+type myapp_exec_t;
+domain_type(myapp_t)
+domain_entry_file(myapp_t, myapp_exec_t) <span
+                id="example.te.domain"><img
+                  class="callout"
+                  src="Common_Content/images/3.png"
+                  alt="3" /></span>
+
+type myapp_log_t;
+logging_log_file(myapp_log_t) <span
+                id="example.te.interface"><img
+                  class="callout"
+                  src="Common_Content/images/4.png"
+                  alt="4" /></span>
+
+type myapp_tmp_t;
+files_tmp_file(myapp_tmp_t)
+
+########################################
+#
+# Myapp local policy
+#
+
+allow myapp_t myapp_log_t:file { read_file_perms append_file_perms }; <span
+                id="example.te.allow"><img
+                  class="callout"
+                  src="Common_Content/images/5.png"
+                  alt="5" /></span>
+
+allow myapp_t myapp_tmp_t:file manage_file_perms;
+files_tmp_filetrans(myapp_t,myapp_tmp_t,file)
+</pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#example.te.module"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يجب تعريف الوحدة باسمها ورقم إصدارها. هذه التعليمة إلزامية.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#example.te.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							إذا كانت الوحدة تُعرّف أنواعاً جديدة، فعليها التصريح عنها باستخدام تعليمات كهذه. لا تتردد في إنشاء أنواع كثيرة بقدر الحاجة بدلاً من منح صلاحيات عديمة الجدوى.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#example.te.domain"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							تُعرّف هذه الواجهات النوع <code
+                        class="literal">myapp_t</code> كنطاق للعمليات الذي يجب استخدامه مع أي ملف تنفيذي موسوم بالنوع <code
+                        class="literal">myapp_exec_t</code>. ضمنياً، هذا يضيف الصفة <code
+                        class="literal">exec_type</code> إلى هذه الكائنات، التي تسمح بدورها للوحدات الأخرى بمنح صلاحيات تنفيذ هذه البرامج: مثلاً، تسمح الوحدة <code
+                        class="literal">userdomain</code> للعمليات ذات النطاقات <code
+                        class="literal">user_t</code>، و <code
+                        class="literal">staff_t</code>، و <code
+                        class="literal">sysadm_t</code> بتنفيذها. أما نطاقات البرمجيات المقيّدة الأخرى فلا تملك صلاحيات تنفيذها، إلا إذا منحتها القواعد صلاحيات مشابهة (هذه هي حالة <code
+                        class="command">dpkg</code> ونطاقه <code
+                        class="literal">dpkg_t</code>، على سبيل المثال).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#example.te.interface"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							<code
+                        class="literal">logging_log_file</code> هي واجهة تقدمها السياسة المرجعية. وهي تدل أن الملفات الموسومة بهذا النوع المحدد هي ملفات سجلات ويجب أن تستفيد من القواعد المختصة بالسجلات (مثلاً منح الصلاحيات لبرنامج <code
+                        class="command">logrotate</code> بحيث يستطيع معالجتها).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#example.te.allow"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							تعليمة <code
+                        class="literal">allow</code> هي التعليمة الأساسية المستخدمة للسماح بتنفيذ إجراء. المتغير الأول هو نطاق العملية المخولة بتنفيذ الإجراء. أما المتغير الثاني فهو يُعرّف الكائنات التي سيسمح للعمليات من النطاق السابق بالتعديل عليها. صيغة هذا المتغير هي ”<em
+                        class="replaceable">type</em>:<em
+                        class="replaceable">class</em>“ حيث <em
+                        class="replaceable">type</em> هو النوع في SELinux ويحدد الصنف <em
+                        class="replaceable">class</em> طبيعة الكائن (ملف، مجلد، مقبس شبكي، fifo، الخ). أخيراً، يحدد المتغير الأخير الصلاحيات (الإجراءات المسموحة).
+						</div><div
+                      class="para">
+							تُعرّف الصلاحيات بشكل مجموعة من الإجراءات المسموحة وهي تتبع هذا القالب: <code
+                        dir="ltr"
+                        class="literal">{ <em
+                          class="replaceable">operation1</em> <em
+                          class="replaceable">operation2</em> }</code>. لكن يمكنك أيضاً استخدام ماكروات تعبر عن الصلاحيات التي تفيدك. يسرد الملف <code
+                        dir="ltr"
+                        class="filename">/usr/share/selinux/default/include/support/obj_perm_sets.spt</code> الماكروات المتاحة.
+						</div><div
+                      class="para">
+							تقدم صفحة الوب التالية قائمة شاملة نسبياً لأصناف الكائنات، والصلاحيات التي يمكن منحها. <div
+                        class="url">→ <a
+                          href="http://www.selinuxproject.org/page/ObjectClassesPerms">http://www.selinuxproject.org/page/ObjectClassesPerms</a></div>
+						</div></td></tr></table></div><div
+              class="para">
+					كل ما عليك الآن هو إيجاد أقل مجموعة من القواعد اللازمة لضمان عمل التطبيق أو الخدمة بشكل صحيح. لتحقيق هذا، يجب أن تعرف طريقة عمل التطبيق جيداً وأن تعرف نوع البيانات التي يديرها أو يولدها.
+				</div><div
+              class="para">
+					على أي حال، يمكن استخدام الطريقة التجريبية. حيث يمكنك فور وسم الكائنات المناسبة بشكل صحيح، استخدام التطبيق في الوضع المتساهل: فالعمليات التي ستحظر سوف تسجل لكنها ستنفّذ بنجاح مع ذلك. يمكنك الآن عبر تحليل السجلات معرفة العمليات التي يجب السماح بها. إليك مثالاً عن هذا النوع من مدخلات السجل:
+				</div><pre
+              class="programlisting">avc:  denied  { read write } for  pid=1876 comm="syslogd" name="xconsole" dev=tmpfs ino=5510 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=fifo_file
+</pre><div
+              class="para">
+					دعنا ندرس هذه الرسالة قطعة بعد أخرى حتى نفهمها بشكل أفضل.
+				</div><div
+              class="table"><a
+                id="idm140225819911648"></a><p
+                class="title"><strong>جدول 14.1. تحليل أثر SELinux</strong></p><div
+                class="table-contents"><table
+                  xmlns:d="http://docbook.org/ns/docbook"
+                  class="lt-4-cols gt-7-rows"
+                  summary="تحليل أثر SELinux"><colgroup><col /><col /></colgroup><thead><tr><th>الرسالة</th><th>الوصف</th></tr></thead><tbody><tr><td><code
+                          class="computeroutput">avc: denied</code></td><td>هذا الإجراء قد مُنع.</td></tr><tr><td><code
+                          class="computeroutput">{ read write }</code></td><td>يحتاج هذا الإجراء لصلاحيات <code
+                          class="literal">read</code> و <code
+                          class="literal">write</code>.</td></tr><tr><td><code
+                          class="computeroutput">pid=1876</code></td><td>نفّذت العملية ذات PID رقم 1876 الإجراء (أو حاولت تنفيذه).</td></tr><tr><td><code
+                          dir="ltr"
+                          class="computeroutput">comm="syslogd"</code></td><td>كانت العملية تنفذ البرنامج <code
+                          class="literal">syslogd</code>.</td></tr><tr><td><code
+                          dir="ltr"
+                          class="computeroutput">name="xconsole"</code></td><td>كان اسم الكائن الهدف <code
+                          class="literal">xconsole</code>.</td></tr><tr><td><code
+                          class="computeroutput">dev=tmpfs</code></td><td>الجهاز الذي يستضيف الكائن الهدف هو <code
+                          class="literal">tmpfs</code> (نظام ملفات في الذاكرة). بالنسبة للأقراص الحقيقية، يمكن أن ترى القسم الذي يستضيف الكائن (مثلاً: ”hda3“).</td></tr><tr><td><code
+                          class="computeroutput">ino=5510</code></td><td>الكائن مُعرّف برقم inode يساوي 5510.</td></tr><tr><td><code
+                          class="computeroutput">scontext=system_u:system_r:syslogd_t:s0</code></td><td>هذا هو السياق الأمني للعملية التي نفّذت الإجراء.</td></tr><tr><td><code
+                          class="computeroutput">tcontext=system_u:object_r:device_t:s0</code></td><td>هذا هو السياق الأمني للكائن الهدف.</td></tr><tr><td><code
+                          class="computeroutput">tclass=fifo_file</code></td><td>الكائن الهدف هو ملف FIFO.</td></tr></tbody></table></div></div><div
+              class="para">
+					من خلال دراسة مدخلة السجل هذه، يمكننا بناء قاعدة تسمح بهذا الإجراء. مثلاً: <code
+                class="literal">allow syslogd_t device_t:fifo_file { read write }</code>. يمكن أتمتة هذه العملية، وهذا بالضبط ما يُقدِّمه الأمر <code
+                class="command">audit2allow</code> (من الحزمة <span
+                class="pkg pkg">policycoreutils</span>). يفيد هذا الأسلوب فقط إذا كانت الكائنات المختلفة موسومة مسبقاً بشكل صحيح وفقاً للعملية التي يجب تقييدها. في جميع الحالات، عليك مراجعة القواعد المولدة بحذر والتحقق من صحتها على حسب معرفتك بالتطبيق. في الواقع، تميل هذه الطريقة لمنح صلاحيات أكثر مما يلزم فعلاً. الحل الأنسب غالباً هو إنشاء أنواع جديدة ومنح الصلاحيات على هذه الأنواع فقط. كما قد تصادفك أيضاً إجراءات لا يكون حظرها مصيرياً بالنسبة للتطبيق، وفي تلك الحالة قد تكون إضافة ”<code
+                class="literal">dontaudit</code>“ فقط لتفادي تسجيل مدخلة في السجل رغم حظر الإجراء أفضل.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>تتمة</em></span> لا أدوار في قواعد السياسة</strong></p></div></div></div><div
+                class="para">
+					قد تستغرب عدم ظهور الأدوار أبداً عند إنشاء قواعد جديدة. يستخدم SELinux النطاقات فقط ليعرف الإجراءات المسموحة. يتدخل الدور بشكل غير مباشر فقط عند السماح للمستخدم بالتبديل إلى نطاق مختلف. يعتمد SELinux على نظرية تعرف باسم <span
+                  class="emphasis"><em>Type Enforcement</em></span> والنوع هو العنصر الوحيد الذي يؤثر في عملية منح الصلاحيات. <a
+                  id="idm140225819886864"
+                  class="indexterm"></a> <a
+                  id="idm140225819886352"
+                  class="indexterm"></a>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225819885456"></a>14.4.4.4. ترجمة الملفات</h4></div></div></div><div
+              class="para">
+					بعد أن تتفق الملفات الثلاثة (<code
+                class="filename">example.if</code>، و<code
+                class="filename">example.fc</code>، و<code
+                class="filename">example.te</code>) مع القواعد الجديدة التي تريدها، يكفي استدعاء <code
+                class="command">make</code> لتوليد وحدة بالاسم <code
+                class="filename">example.pp</code> (يمكنك تحميلها فوراً باستخدام <code
+                class="command">semodule -i example.pp</code>). إذا عَرَّفت عدة وحدات، سوف ينشئ <code
+                class="command">make</code> جميع ملفات <code
+                dir="ltr"
+                class="filename">.pp</code> الموافقة لها.
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>السابق</strong>14.3. الإشراف: المنع، والاكتشاف، والردع</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>التالي</strong>14.5. اعتبارات أمنية أخرى</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.selinux.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.selinux.html">da-DK</a></li><li><a
+              href="../de-DE/sect.selinux.html">de-DE</a></li><li><a
+              href="../el-GR/sect.selinux.html">el-GR</a></li><li><a
+              href="../en-US/sect.selinux.html">en-US</a></li><li><a
+              href="../es-ES/sect.selinux.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.selinux.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.selinux.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.selinux.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.selinux.html">id-ID</a></li><li><a
+              href="../it-IT/sect.selinux.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.selinux.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.selinux.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.selinux.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.selinux.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.selinux.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.selinux.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.selinux.html">zh-CN</a></li></ul></div></body></html>

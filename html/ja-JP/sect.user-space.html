@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">B.5. ユーザ空間</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="BIOS, カーネル, Unix, プロセス, 階層構造, 基本コマンド" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="short-remedial-course.html"
+        title="付録B 簡単な補習講座" /><link
+        rel="prev"
+        href="sect.kernel-role-and-tasks.html"
+        title="B.4. カーネルが担当する一部の操作" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.user-space.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-role-and-tasks.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.user-space"></a>B.5. ユーザ空間</h2></div></div></div><a
+          id="idm140393306816496"
+          class="indexterm"></a><a
+          id="idm140393306815536"
+          class="indexterm"></a><div
+          class="para">
+			「ユーザ空間」とは通常 (カーネルに対して) プロセスの実行環境を意味します。「ユーザ空間」プロセスとは実際にユーザによって開始されたプロセスという意味ではありません。なぜなら、標準的なシステムでは通常、ユーザがセッションを開始する前から実行されている複数の「デーモン」(またはバックグラウンド) プロセスが存在するからです。デーモンプロセスもまたユーザ空間プロセスと考えられます。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.process-basics"></a>B.5.1. プロセス</h3></div></div></div><a
+            id="idm140393306812496"
+            class="indexterm"></a><div
+            class="para">
+				カーネルはその初期化終了後に、最初のプロセス <code
+              class="command">init</code> を開始します。最初のプロセス <code
+              class="command">init</code> はそれ自身が役に立つことはほとんどなく、Unix 系システムは多くの追加的プロセスと一緒に動いています。
+			</div><a
+            id="idm140393306809872"
+            class="indexterm"></a><div
+            class="para">
+				まず最初に、プロセスは自分自身を複製 (これは<span
+              class="emphasis"><em>フォーク</em></span>として知られています) する事が可能です。カーネルは新しい (全く同じ) プロセスをメモリ空間に割り当てます。そして、複製したプロセスが複製されたプロセスを使います。この時点で、2 つのプロセスの違いは <span
+              class="emphasis"><em>pid</em></span> だけです。新しいプロセスは通常子プロセスと呼ばれています。そして <span
+              class="emphasis"><em>pid</em></span> が変わらなかったプロセスは親プロセスと呼ばれています。
+			</div><div
+            class="para">
+				しばしば、子プロセスは親プロセスからコピーされたデータを持った状態で、親プロセスから独立して引き続き実行されます。とはいえ、子プロセスは他のプログラムを実行する場合が多いです。この場合、いくつかの例外を除いて、子プロセスのメモリは単純に新しいプログラムで置き換えられ、新しいプログラムの実行が始まります。このメカニズムを使用して、init プロセス (プロセス番号 1 のプロセス) は追加的サービスを起動し起動シーケンスの全体を実行します。同時に、<code
+              class="command">init</code> の子プロセスの 1 つがログイン機能を提供するユーザ用のグラフィカルインターフェースを開始します(実際のイベントの順番は<a
+              class="xref"
+              href="unix-services.html#sect.system-boot">「システム起動」</a>に詳しく書かれています)。
+			</div><div
+            class="para">
+				プロセスが開始時に設定されたタスクを完了したら、プロセスは終了します。その後、カーネルがこのプロセスに割り当てられたメモリを回収し、カーネルはプロセスに実行時間を与える事を停止します。親プロセスは子プロセスが終了したことについて通知を受けます。このお陰で、親プロセスは子プロセスに委託したタスクの完了を待つ事が可能になります。コマンドラインインタプリタ (<span
+              class="emphasis"><em>シェル</em></span>として知られています) ではこの挙動がはっきりと見えます。コマンドがシェルに入力された場合、コマンドの実行が終了するまでプロンプトは戻って来ません。ほとんどのシェルでは、コマンドをバックグラウンドで実行する事が可能です。これを行うには、コマンドの最後に <strong
+              class="userinput"><code>&amp;</code></strong> を追加するだけです。この場合、プロンプトはすぐに戻ってきます。コマンドからデータが表示される場合、このやり方は問題を引き起こすかもしれません。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.daemons"></a>B.5.2. デーモン</h3></div></div></div><a
+            id="idm140393306800688"
+            class="indexterm"></a><a
+            id="idm140393306799728"
+            class="indexterm"></a><div
+            class="para">
+				「デーモン」は起動シーケンスによって自動的に開始されるプロセスです。「デーモン」はメンテナンス作業を実行したり他のプロセスにサービスを提供するために (バックグラウンドで) 実行され続けます。ここで実際の「バックグラウンドタスク」はどんなものでも構いませんし、システムの観点から何か特別なタスクを意味しているわけではありません。簡単に言って「バックグラウンドタスク」はプロセスで、他のプロセスとよく似ており、自分に割り当てられたタイムスライスが来た時に動きます。プロセスの区別は人間の言葉に過ぎません: ユーザと対話せずに実行される (特にグラフィカルインターフェースを持たない) プロセスは「バックグラウンドで実行される」とか「デーモンとして実行される」などと表現されます。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>VOCABULARY</em></span> Daemon (守り神)、demon (悪魔)、中傷的用語?</strong></p></div></div></div><div
+              class="para">
+				<span
+                class="emphasis"><em>daemon</em></span> という用語はギリシャ神話の <span
+                class="emphasis"><em>demon</em></span> と起源を共にしているにも関わらず、<span
+                class="emphasis"><em>daemon</em></span> は暗に残虐な悪魔を意味しておらず、その代わりに <span
+                class="emphasis"><em>daemon</em></span> は守り神のようなものとして理解されています。この区別は英語ではかなりわかりにくいものです; 両方の意味を同じ言葉で表している他の言語ではもっとわかりにくいです。
+			</div></div><div
+            class="para">
+				このようなデーモンは<a
+              class="xref"
+              href="unix-services.html">9章<em>Unix サービス</em></a>で詳細に説明されています。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ipc"></a>B.5.3. プロセス間通信</h3></div></div></div><a
+            id="idm140393306791376"
+            class="indexterm"></a><a
+            id="idm140393306790416"
+            class="indexterm"></a><div
+            class="para">
+				デーモンでも対話的アプリケーションでも、単独のプロセスは便利ではありません。このため、異なるプロセス同士がデータを交換したり、相互に制御し合うための様々な通信方法があります。これを意味する一般的な用語が <span
+              class="emphasis"><em>プロセス間通信</em></span> 略して IPC です。
+			</div><div
+            class="para">
+				最も簡単な IPC システムではファイルを使います。データ送信側のプロセスが送信内容をファイルに書き込み (事前にファイル名を決めておく必要があります)、受信側はファイルを開いてその内容を読むだけです。
+			</div><a
+            id="idm140393306787472"
+            class="indexterm"></a><div
+            class="para">
+				データをディスクに保存したくないと思っている場合、<span
+              class="emphasis"><em>パイプ</em></span>を使う事が可能です。<span
+              class="emphasis"><em>パイプ</em></span>は 2 つの端を持つ単純なオブジェクトです; 片側に書き込まれたデータを逆側から読み出す事が可能です。パイプの一方の端が別のプロセスによって制御されている場合、これは単純で便利なプロセス間通信チャネルになります。パイプは 2 種類に分類分けされます: 名前付きパイプと無名パイプです。名前付きパイプはファイルシステム上のエントリによって表現されます (転送されたデータは保存されません)。事前に名前付きパイプの場所がわかっていれば、2 つのプロセスが独立に名前付きパイプを開く事が可能です。通信プロセス同士に関連性がある場合 (例えば、親と子プロセス)、親プロセスはフォークの前に無名パイプを作成し、子プロセスがこれを継承するだけで済みます。両方のプロセスはパイプを通じてデータを交換する事が可能です。ファイルシステムは必要ありません。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> 具体例</strong></p></div></div></div><div
+              class="para">
+				それでは、複雑なコマンド (<span
+                class="emphasis"><em>パイプライン</em></span>) がシェルから実行された場合に何が起きるか詳しく説明しましょう。<span
+                class="emphasis"><em>pid</em></span> 4374 の <code
+                class="command">bash</code> プロセス (Debian の標準的なユーザシェル) があると仮定します; このシェルの中で、次のコマンドをタイプします: <code
+                class="command">ls | sort</code> 。
+			</div><div
+              class="para">
+				シェルは最初に入力されたコマンドを解釈します。今回の場合、シェルは 2 種類のプログラム (<code
+                class="command">ls</code> と <code
+                class="command">sort</code>) が存在して、一方からもう一方へ流れるデータストリームがある (<strong
+                class="userinput"><code>|</code></strong> 文字によって表されます。これは<span
+                class="emphasis"><em>パイプ</em></span>としても知られています) と理解します。<code
+                class="command">bash</code> は最初に無名パイプ (これは <code
+                class="command">bash</code> プロセス自身の中だけに存在します) を作成します。
+			</div><div
+              class="para">
+				その後、シェルは自分自身の複製を作ります; これは新しい <code
+                class="command">bash</code> プロセスで <span
+                class="emphasis"><em>pid</em></span> #4521 を持っています (<span
+                class="emphasis"><em>pid</em></span> は抽象的な数で、一般に特別な意味はありません)。プロセス #4521 はパイプを継承します。これは「入力」側に書き込む事が可能という事を意味しています; <code
+                class="command">bash</code> は自分の標準出力ストリームをパイプの入力にリダイレクトします。その後、<code
+                class="command">bash</code> は <code
+                class="command">ls</code> プログラムを実行します (さらに自分自身を置き換えます)。<code
+                class="command">ls</code> は現在のディレクトリの内容をリストします。<code
+                class="command">ls</code> の書き込み先は標準出力で、この出力は予めリダイレクトされていたため、結果はパイプに送られます。
+			</div><div
+              class="para">
+				2 番目のコマンドについても同様の操作が行われます: <code
+                class="command">bash</code> は再度自分自身の複製を作り、これにより pid #4522 の新しい <code
+                class="command">bash</code> プロセスが作成されます。pid #4522 の新しい <code
+                class="command">bash</code> プロセスは #4374 の子プロセスで、パイプを継承します; <code
+                class="command">bash</code> は自分の標準入力をパイプの出力に接続し、その後 <code
+                class="command">sort</code> コマンドを実行します (さらに自分自身を置き換えます)。<code
+                class="command">sort</code> コマンドは自分の入力をソートして結果を表示します。
+			</div><div
+              class="para">
+				これで、パズルのすべてのピースが揃った状態になります: <code
+                class="command">ls</code> は現在のディレクトリを読み込んで、ファイルのリストをパイプに書き込みます; <code
+                class="command">sort</code> はファイルのリストを読み込んで、アルファベット順にソートして、結果を表示します。プロセス番号 #4521 と #4522 は終了し、#4374 (操作中の他プロセスを待っていました) は制御を取り戻し、ユーザが新しいコマンドを入力するためのプロンプトを表示します。
+			</div></div><div
+            class="para">
+				しかしながら、すべてのプロセス間通信がデータを移動させるために使われるわけではありません。多くの状況で、送信する必要のある情報は「実行を一時停止」や「実行を再開」などの制御メッセージです。Unix (と Linux) は <span
+              class="emphasis"><em>シグナル</em></span> として知られているメカニズムを提供します。このメカニズムを使って、あるプロセスは別のプロセスに対して簡単に特定のシグナルを送信する事が可能です (送信するシグナルは事前に定義されたシグナルのリストから選びます)。送信に必要な情報は送信先の <span
+              class="emphasis"><em>pid</em></span> だけです。
+			</div><div
+            class="para">
+				更に複雑な通信を行うには、プロセスが他のプロセスに対して自分が割り当てられたメモリの一部へのアクセスを開放したり、共有するメカニズムを使います。これで、プロセス間で共有されたメモリをデータ交換のために使う事が可能になります。
+			</div><div
+            class="para">
+				最後に、ネットワーク接続を使ってプロセス同士を通信させる事が可能です; 数千キロ離れた異なるコンピュータで動いているプロセス同士でも通信可能です。
+			</div><div
+            class="para">
+				典型的な Unix 系システムでは、様々なレベルでこれらのメカニズムを使っており、かなり標準的な手法になっています。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.libraries"></a>B.5.4. ライブラリ</h3></div></div></div><a
+            id="idm140393306761840"
+            class="indexterm"></a><div
+            class="para">
+				関数ライブラリは Unix 系オペレーティングシステムで重要な役割を果たします。関数ライブラリは厳密な意味でプログラムではありません。なぜなら、関数ライブラリ自体は実行できず、ただのコードの断片に過ぎないからです。しかし、標準的なプログラムは関数ライブラリを使っています。共有ライブラリの中でも特に以下のものが有名です:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						標準 C ライブラリ (<span
+                    class="emphasis"><em>glibc</em></span>)、これにはファイルやネットワーク接続を開く関数やカーネルとの通信を容易にする関数などの基本的な関数が含まれます;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Gtk+ と Qt などのグラフィカルツールキット、これを使うことで、多くのプログラムはツールキットの提供するグラフィカルオブジェクトを再利用する事が可能です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<span
+                    class="emphasis"><em>libpng</em></span> ライブラリ、これを使うことで、PNG フォーマットイメージを読み込み、編集、保存する事が可能になります。
+					</div></li></ul></div><div
+            class="para">
+				これらのライブラリのお陰で、アプリケーションは既存のコードを再利用する事が可能です。多くのアプリケーションが同じ関数を再利用しているため、アプリケーションの開発は単純化されます。通常ライブラリはアプリケーションとは別の人によって開発されているため、システムの大域的な開発は Unix の歴史的哲学に近いものになります。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> Unix 流: 一度に一つの事をせよ</strong></p></div></div></div><div
+              class="para">
+				Unix 系オペレーティングシステムの根底にある基本的概念の一つとして、それぞれのツールがたった 1 つの事を担当し、それを上手くこなす、というものがあります; アプリケーションはこれらのツールを再利用して、より高度な論理をつくり上げる事が可能です。この根本原理は様々な形で具現化されています。シェルスクリプトは最良の例かもしれません: シェルスクリプトは極めて簡単なツール (例えば <code
+                class="command">grep</code>、<code
+                class="command">wc</code>、<code
+                class="command">sort</code>、<code
+                class="command">uniq</code> など) を複雑に並べたものです。コードライブラリも基本的概念を具現化したものとして見る事が可能です: <span
+                class="emphasis"><em>libpng</em></span> ライブラリを使うことで、様々なオプションと様々な方法を使って、PNG イメージの読み込みと書き込みを行う事が可能です。しかし、<span
+                class="emphasis"><em>libpng</em></span> ライブラリはそれ以上の事を行いません; イメージを表示したり編集する関数は含まれません。
+			</div></div><div
+            class="para">
+				さらに、これらのライブラリは「共有ライブラリ」とも呼ばれています。なぜなら、複数のプロセスが同じライブラリを同時に使う場合、カーネルはライブラルの読み込みを一回だけで済ませる事が可能だからです。プロセスが使うライブラリのコードを何度も読み込むような逆の (仮想的) 状況に比べて、これはメモリを節約することになります。
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-role-and-tasks.html"><strong>戻る</strong>B.4. カーネルが担当する一部の操作</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.user-space.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.user-space.html">da-DK</a></li><li><a
+              href="../de-DE/sect.user-space.html">de-DE</a></li><li><a
+              href="../el-GR/sect.user-space.html">el-GR</a></li><li><a
+              href="../en-US/sect.user-space.html">en-US</a></li><li><a
+              href="../es-ES/sect.user-space.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.user-space.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.user-space.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.user-space.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.user-space.html">id-ID</a></li><li><a
+              href="../it-IT/sect.user-space.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.user-space.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.user-space.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.user-space.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.user-space.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.user-space.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.user-space.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.user-space.html">zh-CN</a></li></ul></div></body></html>

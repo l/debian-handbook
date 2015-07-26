@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.6.  inetd 超级服务</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="系统启动, 启动脚本, SSH, Telnet, 权限, 许可, 管理, Inetd, Cron, 备份, 热插拔, PCMCIA接口, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="prev"
+        href="sect.syslog.html"
+        title="9.5. syslog 系统事件" /><link
+        rel="next"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. 使用 cron 和 atd运行计划任务" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.inetd.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.syslog.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.task-scheduling-cron-atd.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.inetd"></a>9.6.  <code
+                  class="command">inetd</code> 超级服务</h2></div></div></div><div
+          class="para">
+			Inetd（常被称为“网络超级服务”）是一个服务器服务。它按需求运行一些不常用的服务，而且不需要连续运行。
+		</div><a
+          id="idm140492733041440"
+          class="indexterm"></a><a
+          id="idm140492733040320"
+          class="indexterm"></a><div
+          class="para">
+			<code
+            class="filename">/etc/inetd.conf</code> 文件列出这些服务和他们常用的端口。 <code
+            class="command">inetd</code> 命令监听列出的所有端口；当探测到任意其中端口的连接，它就运行相应的服务程序。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>DEBIAN 政策</em></span> 在<code
+                      class="filename">inetd.conf</code>中注册服务</strong></p></div></div></div><div
+            class="para">
+			Packages frequently want to register a new server in the <code
+              class="filename">/etc/inetd.conf</code> file, but Debian Policy prohibits any package from modifying a configuration file that it doesn't own. This is why the <code
+              class="command">update-inetd</code> script (in the package with the same name) was created: It manages the configuration file, and other packages can thus use it to register a new server to the super-server's configuration.
+		</div></div><div
+          class="para">
+			<code
+            class="filename">/etc/inetd.conf</code> 文件中每行通过七个区段（有空格分开）描述一个服务：
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					TCP 或者UDP 端口号，或者服务名称（用<code
+                  class="filename">/etc/services</code> 文件中包含的信息映射到标准端口号）。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					套接字类型： <code
+                  class="literal">stream</code> 用于TCP 连接， <code
+                  class="literal">dgram</code> 用于UDP 数据包。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					协议： <code
+                  class="literal">tcp</code> 或 <code
+                  class="literal">udp</code>。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					The options: two possible values: <code
+                  class="literal">wait</code> or <code
+                  class="literal">nowait</code>, to tell <code
+                  class="command">inetd</code> whether it should wait or not for the end of the launched process before accepting another connection. For TCP connections, easily multiplexable, you can usually use <code
+                  class="literal">nowait</code>. For programs responding over UDP, you should use <code
+                  class="literal">nowait</code> only if the server is capable of managing several connections in parallel. You can suffix this field with a period, followed by the maximum number of connections authorized per minute (the default limit is 256).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					用户名，服务将以哪个用户的身份运行。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					要执行程序的完整路径。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					参数：此处是程序的完整参数列表，包括程序名（C中的<code
+                  class="literal">argv[0]</code> ）。
+				</div></li></ul></div><div
+          class="para">
+			下面的例子阐释最常见的情况：
+		</div><div
+          class="example"><a
+            id="example.inetd-conf"></a><p
+            class="title"><strong>例 9.1. 摘自 <code
+                class="filename">/etc/inetd.conf</code></strong></p><div
+            class="example-contents"><pre
+              class="programlisting">talk   dgram  udp wait    nobody.tty /usr/sbin/in.talkd in.talkd
+finger stream tcp nowait  nobody     /usr/sbin/tcpd     in.fingerd
+ident  stream tcp nowait  nobody     /usr/sbin/identd   identd -i
+</pre></div></div><a
+          id="idm140492717080256"
+          class="indexterm"></a><div
+          class="para">
+			The <code
+            class="command">tcpd</code> program is frequently used in the <code
+            class="filename">/etc/inetd.conf</code> file. It allows limiting incoming connections by applying access control rules, documented in the <span
+            class="citerefentry"><span
+              class="refentrytitle">hosts_access</span>(5)</span> manual page, and which are configured in the <code
+            class="filename">/etc/hosts.allow</code> and <code
+            class="filename">/etc/hosts.deny</code> files. Once it has been determined that the connection is authorized, <code
+            class="command">tcpd</code> executes the real server (like <code
+            class="command">in.fingerd</code> in our example). It is worth noting that <code
+            class="command">tcpd</code> relies on the name under which it was invoked (that is the first argument, <code
+            class="literal">argv[0]</code>) to identify the real program to run. So you should not start the arguments list with <code
+            class="literal">tcpd</code> but with the program that must be wrapped.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>社区</em></span> Wietse Venema</strong></p></div></div></div><a
+            id="idm140492717073616"
+            class="indexterm"></a><a
+            id="idm140492717072848"
+            class="indexterm"></a><div
+            class="para">
+			Wietse Venema由于在安全方面的专业使他成了一位很有名望的程序员，他是 <code
+              class="command">tcpd</code> 程序的作者。他也是Postfix，模块电子邮件服务器（SMTP）的主要创建者，该服务要设计的比 <code
+              class="command">sendmail</code>更安全和可靠。
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>另外的选择</em></span> 其他 <code
+                      class="command">inetd</code> 命令</strong></p></div></div></div><div
+            class="para">
+			While Debian installs <span
+              class="pkg pkg">openbsd-inetd</span> by default, there is no lack of alternatives: we can mention <span
+              class="pkg pkg">inetutils-inetd</span>, <span
+              class="pkg pkg">micro-inetd</span>, <span
+              class="pkg pkg">rlinetd</span> and <span
+              class="pkg pkg">xinetd</span>.
+		</div><div
+            class="para">
+			最后的这个超级服务载体提供了很有趣的特性。最引人注目的是，它的配置文件可以分割成几个不同文件（存储在 <code
+              class="filename">/etc/xinetd.d/</code> 目录），让管理员更容易管理。
+		</div><div
+            class="para">
+			It's even possible to emulate <code
+              class="command">inetd</code>'s behaviour with <code
+              class="command">systemd</code>'s socket-activation mechanism (see above).
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.syslog.html"><strong>上一页</strong>9.5. syslog 系统事件</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.task-scheduling-cron-atd.html"><strong>下一页</strong>9.7. 使用 cron 和 atd运行计划任务</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.inetd.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.inetd.html">da-DK</a></li><li><a
+              href="../de-DE/sect.inetd.html">de-DE</a></li><li><a
+              href="../el-GR/sect.inetd.html">el-GR</a></li><li><a
+              href="../en-US/sect.inetd.html">en-US</a></li><li><a
+              href="../es-ES/sect.inetd.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.inetd.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.inetd.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.inetd.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.inetd.html">id-ID</a></li><li><a
+              href="../it-IT/sect.inetd.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.inetd.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.inetd.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.inetd.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.inetd.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.inetd.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.inetd.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.inetd.html">zh-CN</a></li></ul></div></body></html>

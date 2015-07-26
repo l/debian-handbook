@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.6. ドメインネームサーバ (DNS)</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="ネットワーク, ゲートウェイ, TCP/IP, IPv6, DNS, Bind, DHCP, QoS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="第10章 ネットワークインフラ" /><link
+        rel="prev"
+        href="sect.ipv6.html"
+        title="10.5. IPv6" /><link
+        rel="next"
+        href="sect.dhcp.html"
+        title="10.7. DHCP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.domain-name-servers.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ipv6.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dhcp.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.domain-name-servers"></a>10.6. ドメインネームサーバ (DNS)</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dns-principe"></a>10.6.1. 原理とメカニズム</h3></div></div></div><a
+            id="idm140393326315664"
+            class="indexterm"></a><a
+            id="idm140393326314704"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="emphasis"><em>ドメインネームサービス</em></span> (DNS) はインターネットの基礎要素です: DNS はホスト名を IP アドレスに (その逆も) 対応付け、<code
+              class="literal">5.153.231.4</code> や <code
+              class="literal">2001:41c8:1000:21::21:4</code> の代わりに <code
+              class="literal">www.debian.org</code> を使えるようにします。
+			</div><div
+            class="para">
+				DNS レコードはゾーン分けされています; それぞれのゾーンはドメイン (またはサブドメイン) か IP アドレス範囲 (なぜなら、IP アドレスは通常連続した範囲を割り当てられるからです) にマッチします。プライマリサーバはあるゾーンに含まれる内容の情報を提供する権威的なサーバです; セカンダリサーバは、通常別のマシン上でホストされ、定期的にプライマリゾーンのコピーをとります。
+			</div><a
+            id="idm140393326309808"
+            class="indexterm"></a><a
+            id="idm140393326308368"
+            class="indexterm"></a><div
+            class="para">
+				各ゾーンには、様々な種類のレコード (<span
+              class="emphasis"><em>リソースレコード</em></span>) が含まれます:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">A</code>: IPv4 アドレス。<a
+                    id="idm140393326304544"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">CNAME</code>: 別名 (<span
+                    class="emphasis"><em>canonical name</em></span>)。<a
+                    id="idm140393326301984"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MX</code>: <span
+                    class="emphasis"><em>mail exchange</em></span>、電子メールサーバ。MX レコードは他の電子メールサーバが与えられたあるアドレス宛の電子メールの送信先を見つけるために使われます。それぞれの MX レコードには優先順位があります。最も優先順位の高いサーバ (最も低い番号のサーバ) を最初に試行します (傍注<a
+                    class="xref"
+                    href="network-services.html#sidebar.smtp"><span
+                      class="emphasis"><em>BACK TO BASICS</em></span> SMTP</a>参照); 最初のサーバからの応答がなかった場合、他のサーバを優先度の高い順に試行します。<a
+                    id="idm140393326298368"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PTR</code>: ある IP アドレスに対する名前の対応付け。このレコードはある IP アドレス範囲に対して対応付けられた「逆引き DNS」ゾーンに保存されます。例えば、<code
+                    class="literal">1.168.192.in-addr.arpa</code> は <code
+                    class="literal">192.168.1.0/24</code> 範囲に含まれる全アドレスの逆引き対応が保存されているゾーンです。<a
+                    id="idm140393326294736"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">AAAA</code>: IPv6 アドレス。<a
+                    id="idm140393326292656"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">NS</code>: 名前をネームサーバに対応付けます。それぞれのドメインは最低 1 つの NS レコードを持っています。NS レコードでは、このドメインに対する問い合わせに答える事ができる DNS サーバを指定します; これは通常そのドメインに対するプライマリおよびセカンダリサーバです。NS レコードを使って DNS の権限委譲を指定する事も可能です; 例えば、<code
+                    class="literal">falcot.com</code> ゾーンの NS レコードには <code
+                    class="literal">internal.falcot.com</code> が含まれます。これは <code
+                    class="literal">internal.falcot.com</code> ゾーンは別のサーバが担当する事を意味します。もちろん、このサーバは <code
+                    class="literal">internal.falcot.com</code> ゾーンを宣言しなければいけません。<a
+                    id="idm140393326288224"
+                    class="indexterm"></a>
+					</div></li></ul></div><a
+            id="idm140393326287104"
+            class="indexterm"></a><a
+            id="idm140393326285664"
+            class="indexterm"></a><div
+            class="para">
+				標準的なネームサーバである Bind は ISC (<span
+              class="emphasis"><em>Internet Software Consortium</em></span>) によって開発され、保守されています。Debian では、Bind を提供するパッケージは <span
+              class="pkg pkg">bind9</span> です。バージョン 9 では、前のバージョンに比べて 2 種類の大きな変更が導入されました。1 番目は、DNS サーバを非特権ユーザとして実行するという変更です。これにより、サーバのセキュリティ脆弱性によって攻撃者に root 特権を渡してしまう事が無くなりました (バージョン 8.x ではこのような事がよくありました)。
+			</div><div
+            class="para">
+				2 番目は、Bind が DNS レコードの署名 (認証されている) に DNSSEC 標準をサポートするようになった変更です。これにより、中間者攻撃中に DNS レコードがなりすましされても、それを遮る事が可能になりました。
+			</div><a
+            id="idm140393326281680"
+            class="indexterm"></a><a
+            id="idm140393326280256"
+            class="indexterm"></a><a
+            id="idm140393326279296"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> DNSSEC</strong></p></div></div></div><a
+              id="idm140393326277248"
+              class="indexterm"></a><div
+              class="para">
+				DNSSEC の規格はかなり複雑です; DNSSEC はその複雑さにより、まだ広範囲で使われいません (DNSSEC に未対応の DNS サーバと完全に共存するにも関わらず)。一部始終を理解するには、以下の記事を参照してください。<div
+                class="url">→ <a
+                  href="http://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions">http://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions</a></div>
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dns-config"></a>10.6.2. 設定</h3></div></div></div><div
+            class="para">
+				バージョンに依らず <code
+              class="command">bind</code> の設定ファイルは同じ構造をしています。
+			</div><div
+            class="para">
+				Falcot の管理者は、このドメインに関連する情報を保存するためにプライマリ <code
+              class="literal">falcot.com</code> ゾーンを、ローカルネットワーク内の IP アドレスとの逆引き対応を付けるために <code
+              class="literal">168.192.in-addr.arpa</code> ゾーンを、作成しました。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAUTION</em></span> 逆引きゾーンの名前</strong></p></div></div></div><a
+              id="idm140393326269408"
+              class="indexterm"></a><a
+              id="idm140393326267968"
+              class="indexterm"></a><a
+              id="idm140393326267008"
+              class="indexterm"></a><a
+              id="idm140393326265888"
+              class="indexterm"></a><a
+              id="idm140393326264768"
+              class="indexterm"></a><div
+              class="para">
+				逆引きゾーンには特定の名前が付けられています。<code
+                class="literal">192.168.0.0/16</code> ネットワークに対する逆引きゾーンは <code
+                class="literal">168.192.in-addr.arpa</code> のように名付けなければいけません: IP アドレス部分の順序を逆にして、その後ろに <code
+                class="literal">in-addr.arpa</code> サフィックスを付けます。
+			</div><div
+              class="para">
+				IPv6 ネットワークでは、 IP アドレスを完全に 16 進数表記した時の文字を逆順にして、その後ろに <code
+                class="literal">ip6.arpa</code> サフィックスを付けます。つまり、<code
+                class="literal">2001:0bc8:31a0::/48</code> ネットワークはゾーン名として <code
+                class="literal">0.a.1.3.8.c.b.0.1.0.0.2.ip6.arpa</code> を使います。
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> DNS サーバのテスト</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">host</code> コマンド (<span
+                class="pkg pkg">bind9-host</span> パッケージに含まれる) は引数に DNS サーバを与える事ができ、サーバ設定をテストするために使う事も可能です。例えば、<code
+                class="command">host machine.falcot.com localhost</code> を使うと、ローカルサーバに <code
+                class="literal">machine.falcot.com</code> を問い合わせた際の応答を確認する事が可能です。<code
+                class="command">host <em
+                  class="replaceable">ipaddress</em> localhost</code> を使うと逆引きをテストする事が可能です。
+			</div><a
+              id="idm140393326254880"
+              class="indexterm"></a></div><div
+            class="para">
+				以下に Falcot のファイルから抜粋した設定を載せます。これは DNS サーバ設定の足掛かりになります:
+			</div><a
+            id="idm140393326252992"
+            class="indexterm"></a><a
+            id="idm140393326251872"
+            class="indexterm"></a><div
+            class="example"><a
+              id="example.bind-named.conf.local"></a><p
+              class="title"><strong>例10.12 <code
+                  class="filename">/etc/bind/named.conf.local</code> の抜粋</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+zone "falcot.com" {
+        type master;
+        file "/etc/bind/db.falcot.com";
+        allow-query { any; };
+        allow-transfer {
+                195.20.105.149/32 ; // ns0.xname.org
+                193.23.158.13/32 ; // ns1.xname.org
+        };
+};
+
+zone "internal.falcot.com" {
+        type master;
+        file "/etc/bind/db.internal.falcot.com";
+        allow-query { 192.168.0.0/16; };
+};
+
+zone "168.192.in-addr.arpa" {
+        type master;
+        file "/etc/bind/db.192.168";
+        allow-query { 192.168.0.0/16; };
+};</pre></div></div><div
+            class="example"><a
+              id="example.bind-db.falcot.com"></a><p
+              class="title"><strong>例10.13 <code
+                  class="filename">/etc/bind/db.falcot.com</code> の抜粋</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">; falcot.com Zone 
+; admin.falcot.com. =&gt; zone contact: admin@falcot.com
+$TTL    604800
+@       IN      SOA     falcot.com. admin.falcot.com. (
+                        20040121        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+; The @ refers to the zone name ("falcot.com" here)
+; or to $ORIGIN if that directive has been used
+;
+@       IN      NS      ns
+@       IN      NS      ns0.xname.org.
+
+internal IN      NS      192.168.0.2
+
+@       IN      A       212.94.201.10
+@       IN      MX      5 mail
+@       IN      MX      10 mail2
+
+ns      IN      A       212.94.201.10
+mail    IN      A       212.94.201.10
+mail2   IN      A       212.94.201.11
+www     IN      A       212.94.201.11
+
+dns     IN      CNAME   ns</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAUTION</em></span> 名前の構文</strong></p></div></div></div><div
+              class="para">
+				マシン名の構文には厳密なルールがあります。例えば、<code
+                class="literal">machine</code> は <code
+                class="literal">machine.<em
+                  class="replaceable">domain</em></code> を意味します。名前にこのドメイン名を加えるべきでない場合、名前を <code
+                class="literal">machine.</code> のように表記 (ドットを後置) しなければいけません。これは現在のドメインの外部に有る DNS 名を意味します。このため、<code
+                class="literal">machine.otherdomain.com.</code> 等の構文 (最後にドットを後置) が必要です。
+			</div></div><div
+            class="example"><a
+              id="example.bind-db.192.168"></a><p
+              class="title"><strong>例10.14 <code
+                  class="filename">/etc/bind/db.192.168</code> の抜粋</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">; Reverse zone for 192.168.0.0/16
+; admin.falcot.com. =&gt; zone contact: admin@falcot.com
+$TTL    604800
+@       IN      SOA     ns.internal.falcot.com. admin.falcot.com. (
+                        20040121        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+
+        IN      NS      ns.internal.falcot.com.
+
+; 192.168.0.1 -&gt; arrakis
+1.0     IN      PTR     arrakis.internal.falcot.com.
+; 192.168.0.2 -&gt; neptune
+2.0     IN      PTR     neptune.internal.falcot.com.
+
+; 192.168.3.1 -&gt; pau
+1.3     IN      PTR     pau.internal.falcot.com.</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ipv6.html"><strong>戻る</strong>10.5. IPv6</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dhcp.html"><strong>次へ</strong>10.7. DHCP</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.domain-name-servers.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.domain-name-servers.html">da-DK</a></li><li><a
+              href="../de-DE/sect.domain-name-servers.html">de-DE</a></li><li><a
+              href="../el-GR/sect.domain-name-servers.html">el-GR</a></li><li><a
+              href="../en-US/sect.domain-name-servers.html">en-US</a></li><li><a
+              href="../es-ES/sect.domain-name-servers.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.domain-name-servers.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.domain-name-servers.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.domain-name-servers.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.domain-name-servers.html">id-ID</a></li><li><a
+              href="../it-IT/sect.domain-name-servers.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.domain-name-servers.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.domain-name-servers.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.domain-name-servers.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.domain-name-servers.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.domain-name-servers.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.domain-name-servers.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.domain-name-servers.html">zh-CN</a></li></ul></div></body></html>

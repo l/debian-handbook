@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.11. ホットプラグ機能: hotplug</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="システム起動, 初期化スクリプト, SSH, Telnet, 権限, パーミッション, 管理, Inetd, Cron, バックアップ, ホットプラグ, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第9章 Unix サービス" /><link
+        rel="prev"
+        href="sect.backup.html"
+        title="9.10. バックアップ" /><link
+        rel="next"
+        href="sect.power-management.html"
+        title="9.12. 電源管理: Advanced Configuration and Power Interface (ACPI)" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.hotplug.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.backup.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.power-management.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.hotplug"></a>9.11. ホットプラグ機能: <span
+                  class="emphasis"><em>hotplug</em></span></h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393307796000"></a>9.11.1. はじめに</h3></div></div></div><div
+            class="para">
+				<span
+              class="emphasis"><em>hotplug</em></span> カーネルサブシステムはデバイスの追加と削除を、適切なドライバを読み込んだり関連するデバイスファイルを作成する (<code
+              class="command">udevd</code> の助けを借りて) ことで、動的に取り扱います。現代的なハードウェアと仮想化を使えば、ほとんどすべてはホットプラグ対応です: USB/PCMCIA/IEEE 1394 周辺機器から SATA ハードドライブ、さらには CPU やメモリに至るまで。
+			</div><div
+            class="para">
+				カーネルは必要なドライバとデバイス ID を関連付けるデータベースを持っています。このデータベースは、起動中に様々なバスで検出された周辺機器用のすべてのドライバを読み込んだり、追加的なホットプラグデバイスが接続された時に、使われます。デバイスの使用準備が整ったら、メッセージが <code
+              class="command">udevd</code> に送信され、<code
+              class="command">udevd</code> は対応するエントリを <code
+              class="filename">/dev/</code> 内に作成します。
+			</div><a
+            id="idm140393307791744"
+            class="indexterm"></a><a
+            id="idm140393307790848"
+            class="indexterm"></a><a
+            id="idm140393307790080"
+            class="indexterm"></a><a
+            id="idm140393307789312"
+            class="indexterm"></a><a
+            id="idm140393307788544"
+            class="indexterm"></a><a
+            id="idm140393307787776"
+            class="indexterm"></a></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393307786880"></a>9.11.2. 命名問題</h3></div></div></div><div
+            class="para">
+				ホットプラグ接続の出現前、デバイスに固定された名前を割り当てることは簡単でした。名前は単純にデバイスが接続されたバスの位置を基にしていました。しかしこのやり方では、デバイスが接続されるバスの位置が決まっていない場合に、問題です。典型的な例は、コンピュータがディスクドライブとして認識するデジタルカメラや USB メモリを使う場合です。最初に接続されたデバイスは <code
+              class="filename">/dev/sdb</code> 、2 番目に接続されたデバイスは <code
+              class="filename">/dev/sdc</code> と名付けられるかもしれません (<code
+              class="filename">/dev/sda</code> はコンピュータのハードドライブを表します)。デバイスに対するデバイス名は固定されていません; デバイス名はデバイスが接続された順番に依存します。
+			</div><div
+            class="para">
+				さらに、ますます多くのドライバがデバイスのメジャー/マイナー番号に動的な値を使うことで、あるデバイスに対する静的なエントリを持つ事が不可能になります。なぜなら、これらのエントリは再起動の後に変化するかもしれないからです。
+			</div><div
+            class="para">
+				<span
+              class="emphasis"><em>udev</em></span> はまさにこの問題を解決するために作られました。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> ネットワークカード管理</strong></p></div></div></div><div
+              class="para">
+				多くのコンピュータは複数のネットワークカードを持っており (2 つの有線インターフェースと 1 つの wifi インターフェース)、<span
+                class="emphasis"><em>hotplug</em></span> はほとんどのバスタイプをサポートするのでバージョン 2.6 以降のカーネルはもはや名前の固定されたネットワークインターフェースを生成しません。しかし <code
+                class="filename">/etc/network/interfaces</code> の中で自分のネットワークを設定したいユーザは名前を固定しなければいけません!
+			</div><div
+              class="para">
+				この問題を解決する目的で、各ユーザに自分の <span
+                class="emphasis"><em>udev</em></span> ルールを作るようにお願いするのは難しいでしょう。そのため <span
+                class="emphasis"><em>udev</em></span> は比較的独特なやり方で設定されました; 最初の起動時 (より一般的に言えば、新しいネットワークカードが初めて見つかった時) に、<span
+                class="emphasis"><em>udev</em></span> はネットワークインターフェースの名前と MAC アドレスを基にして、2 度目の起動から同じ名前を割り当てられるような新しいルールを作ります。これらのルールは <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> に保存されています。
+			</div><div
+              class="para">
+				このメカニズムには幾つかの副作用がありますので、それについて知っておくべきです。コンピュータが PCI ネットワークカードを 1 つだけ持っている場合について考えましょう。このネットワークインターフェースは必然的に <code
+                class="literal">eth0</code> と名付けられます。カードが壊れて、管理者がそれを交換したとしましょう; 新しいカードは新しい MAC アドレスを持っています。古いカードには <code
+                class="literal">eth0</code> という名前が割り当てられていたため、<code
+                class="literal">eth0</code> カードが完全に消え去っているにも関わらず、新しいカードには <code
+                class="literal">eth1</code> という名前が割り当てられます (ネットワークは機能しません。なぜなら、<code
+                class="filename">/etc/network/interfaces</code> で <code
+                class="literal">eth0</code> インターフェースを設定しているからです)。この場合、コンピュータの再起動前に単純に <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> ファイルを削除すれば十分です。新しいカードはおそらく <code
+                class="literal">eth0</code> という名前を与えられるでしょう。
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393307772496"></a>9.11.3. <span
+                    class="emphasis"><em>udev</em></span> の動作原理</h3></div></div></div><div
+            class="para">
+				<span
+              class="emphasis"><em>udev</em></span> が新しいデバイスの出現についてカーネルから通知を受けると、<code
+              class="filename">/sys/</code> 内の対応するエントリを調べて与えられたデバイスに関する様々な情報、特にデバイスを一意に識別する情報 (ネットワークカードの MAC アドレス、USB デバイスのシリアル番号など) を収集します。
+			</div><div
+            class="para">
+				この情報を武器にして、<span
+              class="emphasis"><em>udev</em></span> は <code
+              class="filename">/etc/udev/rules.d/</code> と <code
+              class="filename">/lib/udev/rules.d/</code> に含まれるすべてのルールを調査します。この過程で <span
+              class="emphasis"><em>udev</em></span> は、どのような名前をデバイスに割り当てるか、どのような名前でシンボリックリンクを作成するか (別名を与えるために)、どのようなコマンドを実行するか、を決定します。これらのファイルすべてが調査され、ルールがすべて順番に評価されます (「GOTO」ディレクティブを使う場合を除いて)。そのため、与えられたイベントに対応する複数のルールが有るかもしれません。
+			</div><div
+            class="para">
+				ルールの構文はとても単純です: 各行には、選択基準と変数代入命令が含まれます。選択基準は反応を必要とするイベントを選ぶのに使われ、変数代入命令はイベントに対して行う動作を定義します。選択基準と変数代入命令は単純にコンマで区切られており、演算子を使って選択基準 (<code
+              class="literal">==</code> または <code
+              class="literal">!=</code> などの比較演算子を付ける) と変数代入命令 (<code
+              class="literal">=</code>、<code
+              class="literal">+=</code>、<code
+              class="literal">:=</code> などの演算子を付ける) を暗黙のうちに区別します。
+			</div><div
+            class="para">
+				比較演算子は以下の変数に使われます:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">KERNEL</code>: カーネルがデバイスに割り当てた名前;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ACTION</code>: イベントに対する動作 (デバイスが追加されたら「add」、デバイスが取り外されたら「remove」);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DEVPATH</code>: デバイスの <code
+                    class="filename">/sys/</code> エントリのパス;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SUBSYSTEM</code>: 要求を生成したカーネルサブシステム (種類は沢山ありますが、「usb」、「ide」、「net」、「firmware」などがその例です);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ATTR{<em
+                      class="replaceable">attribute</em>}</code>: デバイスの <code
+                    class="filename">/sys/<em
+                      class="replaceable">$devpath</em>/</code> ディレクトリ内の <em
+                    class="replaceable">attribute</em> ファイルの内容。これで MAC アドレスやその他のバス固有識別子が判ります;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">KERNELS</code>、<code
+                    class="literal">SUBSYSTEMS</code>、<code
+                    class="literal">ATTRS{<em
+                      class="replaceable">attributes</em>}</code> は対象のデバイスの親デバイスの 1 つに対する様々なオプションに対して一致を検査します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PROGRAM</code>: 指定されたプログラムを使ってテストを実行します (0 が返されたら真、それ以外は偽)。プログラムの標準出力の内容は保存され、<code
+                    class="literal">RESULT</code> テストによって再利用されます;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RESULT</code>: <code
+                    class="literal">PROGRAM</code> が最後に呼び出された時に保存された標準出力に対してテストを実行。
+					</div></li></ul></div><div
+            class="para">
+				演算子の右側引数には、複数の値に同時にマッチするようなパターン式を使う事が可能です。例えば、<code
+              class="literal">*</code> は任意の文字列に (空文字列にも) マッチします; <code
+              class="literal">?</code> は任意の文字にマッチし、<code
+              class="literal">[]</code> は角括弧の間にリストされた文字セットにマッチします (最初の文字が感嘆符の場合は、その否定にマッチします。また、文字の連続範囲は <code
+              class="literal">a-z</code> のように表記します)。
+			</div><div
+            class="para">
+				代入演算子に関して、<code
+              class="literal">=</code> は値を代入します (そして現在の値を入れ替えます); リストに代入する場合、リストを空にした後、割り当てた値だけを代入します。<code
+              class="literal">:=</code> は同じ事をしますが、後から値を変更できなくなります。<code
+              class="literal">+=</code> はリストにアイテムを追加します。代入演算子を使って変更できる変数は以下です:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">NAME</code>: <code
+                    class="filename">/dev/</code> 内に作成するデバイスファイル名。最初に代入された値だけが考慮されます; 他は無視されます;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SYMLINK</code>: 同じデバイスを指すシンボリックリンクのリスト;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OWNER</code>、<code
+                    class="literal">GROUP</code>、<code
+                    class="literal">MODE</code> はデバイスを所有するユーザとグループおよびパーミッション定義します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RUN</code>: イベントに応答する際に実行するプログラムのリスト。
+					</div></li></ul></div><div
+            class="para">
+				これらの変数に割り当てる値に、以下の置換変数を使う事が可能な場合があります:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$kernel</code> または <code
+                    class="literal">%k</code>: <code
+                    class="literal">KERNEL</code> と同じです;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$number</code> または <code
+                    class="literal">%n</code>: デバイスの割り当て番号、例えば、<code
+                    class="literal">sda3</code> の場合「3」です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$devpath</code> または <code
+                    class="literal">%p</code>: <code
+                    class="literal">DEVPATH</code> と同じです;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$attr{<em
+                      class="replaceable">attribute</em>}</code> または <code
+                    class="literal">%s{<em
+                      class="replaceable">attribute</em>}</code>: <code
+                    class="literal">ATTRS{<em
+                      class="replaceable">attribute</em>}</code> と同じです;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$major</code> または <code
+                    class="literal">%M</code>: デバイスのカーネルメジャー番号;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$minor</code> または <code
+                    class="literal">%m</code>: デバイスのカーネルのマイナー番号;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$result</code> または <code
+                    class="literal">%c</code>: <code
+                    class="literal">PROGRAM</code> によって起動された最後のプログラムの出力文字列;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						そして最後に、<code
+                    class="literal">%%</code> と <code
+                    class="literal">$$</code> はそれぞれパーセントとドル記号を意味します。
+					</div></li></ul></div><div
+            class="para">
+				上のリストは完全なものではありません (最も重要なパラメータの抜粋です)。完全なリストは <span
+              class="citerefentry"><span
+                class="refentrytitle">udev</span>(7)</span> マニュアルページをご覧ください。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393307720688"></a>9.11.4. 具体例</h3></div></div></div><div
+            class="para">
+				単純な USB メモリに固定された名前を割り当てる場合を考えましょう。最初に、一意的な方法で USB メモリを識別するために必要な要素を見つけなければいけません。このために、USB メモリを取り付け、<code
+              class="command">udevadm info -a -n /dev/sdc</code> を実行してください (ここで、<em
+              class="replaceable">/dev/sdc</em> は USB メモリに割り当てられた実際のデバイス名で置き換えてください)。
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>udevadm info -a -n /dev/sdc</code></strong>
+<code
+              class="computeroutput">[...]
+  looking at device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2/1-2.2:1.0/host9/target9:0:0/9:0:0:0/block/sdc':
+    KERNEL=="sdc"
+    SUBSYSTEM=="block"
+    DRIVER==""
+    ATTR{range}=="16"
+    ATTR{ext_range}=="256"
+    ATTR{removable}=="1"
+    ATTR{ro}=="0"
+    ATTR{size}=="126976"
+    ATTR{alignment_offset}=="0"
+    ATTR{capability}=="53"
+    ATTR{stat}=="      51      100     1208      256        0        0        0        0        0      192      25        6"
+    ATTR{inflight}=="       0        0"
+[...]
+  looking at parent device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2/1-2.2:1.0/host9/target9:0:0/9:0:0:0':
+    KERNELS=="9:0:0:0"
+    SUBSYSTEMS=="scsi"
+    DRIVERS=="sd"
+    ATTRS{device_blocked}=="0"
+    ATTRS{type}=="0"
+    ATTRS{scsi_level}=="3"
+    ATTRS{vendor}=="I0MEGA  "
+    ATTRS{model}=="UMni64MB*IOM2C4 "
+    ATTRS{rev}=="    "
+    ATTRS{state}=="running"
+[...]
+    ATTRS{max_sectors}=="240"
+[...]
+  looking at parent device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2':
+    KERNELS=="9:0:0:0"
+    SUBSYSTEMS=="usb"
+    DRIVERS=="usb"
+    ATTRS{configuration}=="iCfg"
+    ATTRS{bNumInterfaces}==" 1"
+    ATTRS{bConfigurationValue}=="1"
+    ATTRS{bmAttributes}=="80"
+    ATTRS{bMaxPower}=="100mA"
+    ATTRS{urbnum}=="398"
+    ATTRS{idVendor}=="4146"
+    ATTRS{idProduct}=="4146"
+    ATTRS{bcdDevice}=="0100"
+[...]
+    ATTRS{manufacturer}=="USB Disk"
+    ATTRS{product}=="USB Mass Storage Device"
+    ATTRS{serial}=="M004021000001"
+[...]
+</code></pre><div
+            class="para">
+				新しいルールを作るために、デバイスの変数および親デバイスの変数に対するテストを行います。上の例から、以下の様な 2 つのルールを作成します:
+			</div><pre
+            class="programlisting">KERNEL=="sd?", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/disk"
+KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/part%n"</pre><div
+            class="para">
+				これらのルールを例えば <code
+              class="filename">/etc/udev/rules.d/010_local.rules</code> という 1 つのファイルに書き込んだら、USB メモリを取り外し、再度取り付けてください。この USB キーに関連付けられたディスクを表す <code
+              class="filename">/dev/usb_key/disk</code> と第 1 パーティションを表す <code
+              class="filename">/dev/usb_key/part1</code> が生成されたことと思います。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> <span
+                        class="emphasis"><em>udev</em></span> 設定のデバッグ</strong></p></div></div></div><div
+              class="para">
+				多くのデーモンと同様に、<code
+                class="command">udevd</code> は <code
+                class="filename">/var/log/daemon.log</code> にログを保存します。しかしデフォルトの状態だとログはそれほど詳細でなく、何が起きているかを理解するには不十分な場合が多いです。<code
+                class="command">udevadm control --log-priority=info</code> コマンドを使ってログの詳細度を上げることで、この問題は解決されます。デフォルトの詳細度に戻すには、<code
+                class="command">udevadm control --log-priority=err</code> を使ってください。
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.backup.html"><strong>戻る</strong>9.10. バックアップ</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.power-management.html"><strong>次へ</strong>9.12. 電源管理: Advanced Configuration and Power Inte...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.hotplug.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.hotplug.html">da-DK</a></li><li><a
+              href="../de-DE/sect.hotplug.html">de-DE</a></li><li><a
+              href="../el-GR/sect.hotplug.html">el-GR</a></li><li><a
+              href="../en-US/sect.hotplug.html">en-US</a></li><li><a
+              href="../es-ES/sect.hotplug.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.hotplug.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.hotplug.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.hotplug.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.hotplug.html">id-ID</a></li><li><a
+              href="../it-IT/sect.hotplug.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.hotplug.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.hotplug.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.hotplug.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.hotplug.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.hotplug.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.hotplug.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.hotplug.html">zh-CN</a></li></ul></div></body></html>

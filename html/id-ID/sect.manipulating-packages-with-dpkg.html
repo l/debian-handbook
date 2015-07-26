@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">5.4. Manipulasi Paket dengan dpkg</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-id-ID-1.0-1" /><meta
+        name="keywords"
+        content="Paket biner, Paket sumber, dpkg, ketergantungan, konflik" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="packaging-system.html"
+        title="Bab 5. Sistem Pemaketan: Alat dan Prinsip Dasar" /><link
+        rel="prev"
+        href="sect.source-package-structure.html"
+        title="5.3. Struktur sebuah Paket Sumber" /><link
+        rel="next"
+        href="sect.coexistence-with-other-packaging-systems.html"
+        title="5.5. Kebersamaan dengan Sistem Paket Lain" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/id-ID/sect.manipulating-packages-with-dpkg.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.source-package-structure.html"><strong>Sebelumnya</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.coexistence-with-other-packaging-systems.html"><strong>Lanjut</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.manipulating-packages-with-dpkg"></a>5.4. Manipulasi Paket dengan <code
+                  class="command">dpkg</code></h2></div></div></div><a
+          id="idm140170071322656"
+          class="indexterm"></a><div
+          class="para">
+			<code
+            class="command">dpkg</code> adalah perintah dasar untuk menangani paket Debian pada sistem. Jika Anda memiliki paket <code
+            class="filename">.deb</code>, adalah <code
+            class="command">dpkg</code> yang mengizinkan instalasi atau analisa isinya. Namun program ini hanya memiliki sebagaian pandangan pada dunia Debian: dia tau apa yang terinstall di sistem, dan apapun yang diberikan di baris perintah, namun tidak mengetahui paket lain yang tersedia. Dengan demikian, dia akan gagal jika ketergantungan tidak dipenuhi. Alat semacam <code
+            class="command">apt-get</code>, sebaliknya, akan membuat daftar ketergantungan untuk menginstall apapun seotomatis mungkin.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>CATATAN</em></span> <code
+                      class="command">dpkg</code> atau <code
+                      class="command">apt-get</code>?</strong></p></div></div></div><div
+            class="para">
+			<code
+              class="command">dpkg</code> harus dilihat sebagai alat sistem (backend&gt;, dan <code
+              class="command">apt-get</code> sebagai sebuah alat yang paling dekat dengan pengguna, yang mengatasi batasan sebelumnya. Alat-alat ini bekerja bersama-sama, setiap kekhasannya, berlaku untuk tugas khusus.
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140170071314848"></a>5.4.1. Menginstall Paket</h3></div></div></div><a
+            id="idm140170071314048"
+            class="indexterm"></a><a
+            id="idm140170071312608"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">dpkg</code> ialah, semua yang di atas, alat untuk menginstall paket Debian yang telah ada (karena dia tidak mengunduh apapun). Untuk melakukannya, kita menggunakan pilihan <code
+              class="literal">-i</code> atau <code
+              class="literal">--install</code>.
+			</div><div
+            class="example"><a
+              id="idm140170071309104"></a><p
+              class="title"><strong>Contoh 5.2. Instalasi sebuah paket dengan <code
+                  class="command">dpkg</code></strong></p><div
+              class="example-contents"><pre
+                class="screen scale">
+<code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>dpkg -i man-db_2.7.0.2-5_amd64.deb</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 86425 files and directories currently installed.)
+Preparing to unpack man-db_2.7.0.2-5_amd64.deb ...
+Unpacking man-db (2.7.0.2-5) over (2.7.0.2-4) ...
+Setting up man-db (2.7.0.2-5) ...
+Updating database of manual pages ...
+Processing triggers for mime-support (3.58) ...</code></pre></div></div><div
+            class="para">
+				Kita dapat melihat perbedaan langkah yang dilakukan oleh <code
+              class="command">dpkg</code>; kita tahu, pada titik apa kerusakan akan terjadi. Instalasi juga dapat berakibat pada dua langkah: pertama pembongkaran, kemudian konfigurasi. <code
+              class="command">apt-get</code> mengambil manfaat ini, membatasi jumlah panggilan ke <code
+              class="command">dpkg</code> (karena setiap panggilan itu berharga, disebabkan oleh pemuatan basisdata di memori, khususnya daftar paket yang telah terinstall).
+			</div><div
+            class="example"><a
+              id="idm140170071303520"></a><p
+              class="title"><strong>Contoh 5.3. Memisahkan unpacking dan konfigurasi</strong></p><div
+              class="example-contents"><pre
+                class="screen scale">
+<code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>dpkg --unpack man-db_2.7.0.2-5_amd64.deb</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 86425 files and directories currently installed.)
+Preparing to unpack man-db_2.7.0.2-5_amd64.deb ...
+Unpacking man-db (2.7.0.2-5) over (2.7.0.2-5) ...
+Processing triggers for mime-support (3.58) ...
+# </code><strong
+                  class="userinput"><code>dpkg --configure man-db</code></strong>
+<code
+                  class="computeroutput">Setting up man-db (2.7.0.2-5) ...
+Updating database of manual pages ...
+</code></pre></div></div><a
+            id="idm140170071299744"
+            class="indexterm"></a><a
+            id="idm140170071298304"
+            class="indexterm"></a><div
+            class="para">
+				Terkadang <code
+              class="command">dpkg</code> gagal menginstall paket dan menghasilkan error; jika pengguna memerintahkan untuk mengabaikannya, ini hanya akan menghasilkan peringatan; untuk alasan inilah kita memiliki pilihan <code
+              class="literal">--force-*</code> yang berbeda. Perintah <code
+              class="command">dpkg --force-help</code>, atau dokumentasi perintah ini, akan memberikan daftar lengkap pilihan tersebut. Error yang sering, yang akan Anda temukan cepat atau lambat, ialah tabrakan berkas. Ketika sebuah paket berisi berkas yang telah terinstall oleh paket lain, <code
+              class="command">dpkg</code> akan menolak menginstallnya. Persan berikut kemudian akan nampak:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">Unpacking libgdm (from .../libgdm_3.8.3-2_amd64.deb) ...
+dpkg: error processing /var/cache/apt/archives/libgdm_3.8.3-2_amd64.deb (--unpack):
+ trying to overwrite '/usr/bin/gdmflexiserver', which is also in package gdm3 3.4.1-9</code></pre><div
+            class="para">
+				Dalam kasus ini, jika Anda merasa bahwa mengganti berkas ini bukan resiko yang signifikan pada stabilitas sistem Anda (yang merupakan kasus umumnya), Anda dapat menggunakan pilihan <code
+              class="literal">--force-overwrite</code>, meminta <code
+              class="command">dpkg</code> untuk mengabaikan kesalahan dan meng-overwrite berkas tersebut.
+			</div><div
+            class="para">
+				Ada banyak pilihan <code
+              class="literal">--force-*</code> yang tersedia, hanya <code
+              class="literal">--force-overwrite</code> yang mungkin paling sering digunakan. Pilihan ini hanya ada untuk situasi khusus, dan sebaiknya mengabaikannya sebisa mungkin untuk menghormati peraturan yang dibuat oleh mekanisme paket. Jangan lupa, peraturan ini untuk memastikan konsistensi dan stabilitas sistem Anda.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>PERHATIAN</em></span> Efektivitas penggunaan <code
+                        class="literal">--force-*</code></strong></p></div></div></div><a
+              id="idm140170071288320"
+              class="indexterm"></a><div
+              class="para">
+				Jika Anda tidak berhati-hati, penggunaan pilihan <code
+                class="literal">--force-*</code> dapat berakibat ke sistem di mana perintah dari keluarta APT tidak akan berfungsi. Efeknya, beberapa pilihan ini mengizinkan instalasi sebuah paket ketika ketergantungan tidak dipenuhi, atau ketika ada konflik. Hasilnya ialah sistem yang tak konsisten dari sudut pandang ketergantungan, dan perintah APT tidak akan mengeksekusi aksi kecuali yang akan mengembalikan sistem kembali ke kondisi konsisten (hal in sering berupa instalasi ketergantungan yang hilang atau menghapus paket bermasalah). Hal ini sering menghasilkan pesan seperti yang satu ini, didapatkan setelah instalasi versi baru <span
+                class="pkg pkg">rdesktop</span> ketika mengabaikan ketergantungannya pada versi baru <span
+                class="pkg pkg">libc6</span>:
+			</div><pre
+              class="programlisting"># apt-get dist-upgrade
+[...]
+You can run "apt-get -f install" to correct these problems.
+The following packages contain unmet dependencies:
+  rdesktop: Depends on: libc6 (&gt;= 2.5) but 2.3.6.ds1-13etch7 is installed
+E: missing dependencies. Try to use the option -f.
+</pre><div
+              class="para">
+				Seorang administrator yang berani yakin akan kebenaran analisanya mungkin akan memilih untuk mengabaikan ketergantungan atau konflik dan menggunakan pilihan <code
+                class="literal">--fore-*</code>. Dalam kasus ini, jika meraka ingin dapat melanjutkan menggunakan <code
+                class="command">apt-get</code> atau <code
+                class="command">aptitude</code>, mereka harus menyunting <code
+                class="filename">/var/lib/dpkg/status</code> untuk menghapus/memodifikasi ketergantungan, atau konflik, yang mereka pilih untuk dikesampingkan.
+			</div><div
+              class="para">
+				Manipulasi ini ialah hacking yang buruk, dan sebaiknya tidak pernah digunakan, kecuali pada kasus keadaan yang paling ekstrim. Cukup sering, solusi yang paling tepat adalah mengompilasi ulang paket yang menyebabkan masalah (lihat <a
+                class="xref"
+                href="debian-packaging.html#sect.rebuilding-package">Bagian 15.1, “Membangun ulang sebuah Paket dari Source-nya”</a>) atau gunakan versi terbaru (kemungkinan telah diperbaiki) dari repositori seperti salah satunya <code
+                class="literal">stable-backports</code> (lihat <a
+                class="xref"
+                href="apt.html#sect.backports">Bagian 6.1.2.4, “Backport Stable”</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140170071278112"></a>5.4.2. Penghapusan Paket</h3></div></div></div><a
+            id="idm140170071277312"
+            class="indexterm"></a><a
+            id="idm140170071276352"
+            class="indexterm"></a><a
+            id="idm140170071275392"
+            class="indexterm"></a><a
+            id="idm140170071273952"
+            class="indexterm"></a><div
+            class="para">
+				Menjalankan <code
+              class="command">dpkg</code> dengan pilihan <code
+              class="literal">-r</code> atau <code
+              class="literal">--remove</code>, diikuti dengan nama paket, menghapus paket tersebut. Akan tetapi, penghapusan ini tidak lengkap: seluruh berkas konfigurasi, skrip maintainer, berkas-berkas log (sistem log) dan data pengguna lain ditangani oleh paket tertinggal. Oleh sebab itu, menonaktifkan program dapat dilakukan dengan meng-uninstall-nya, dan masih memungkinkan menginstall ulangnya dengan cepat menggunakan konfigurasi yang sama. Untuk menghapus apapun yang berhubungan dengan sebuah paket, gunakan pilihan <code
+              class="literal">-P</code> or <code
+              class="literal">--purge</code>, diikuti dengan nama paket.
+			</div><div
+            class="example"><a
+              id="idm140170071269200"></a><p
+              class="title"><strong>Contoh 5.4. Removal and purge of the <span
+                  class="pkg pkg">debian-cd</span> package</strong></p><div
+              class="example-contents"><pre
+                class="screen"><code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>dpkg -r debian-cd</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 97747 files and directories currently installed.)
+Removing debian-cd ...
+# </code><strong
+                  class="userinput"><code>dpkg -P debian-cd</code></strong>
+<code
+                  class="computeroutput">(Reading database ... 97401 files and directories currently installed.)
+Removing debian-cd ...
+Purging configuration files for debian-cd ...</code></pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140170071264880"></a>5.4.3. Melakukan Queri ke Basisdata <code
+                    class="command">dpkg</code> dan Memeriksa Berkas <code
+                    class="filename">.deb</code></h3></div></div></div><a
+            id="idm140170071263312"
+            class="indexterm"></a><a
+            id="idm140170071261872"
+            class="indexterm"></a><a
+            id="idm140170071260432"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>KEMBALI KE DASAR</em></span> Syntax pilihan</strong></p></div></div></div><div
+              class="para">
+				Kebanyakan pilihan tersedia dalam versi “panjang” (satu atau lebih kata yang sesuai, didahului oleh dua tanda hubung) dan versi “pendek” (satu huruf, seringkali berupa awalan huruf dari versi panjangnya, didahului oleh satu tanda hubung). Ini meruupakan kaidah umum yang berupa standar POSIX.
+			</div></div><div
+            class="para">
+				Sebelum menyimpulkan bagian ini, kita akan memelajari pilihan <code
+              class="command">dpkg</code> yang melakukan query ke basisdata internal agar mendapatkan informasi. Pertama memberikan pilihan panjang dan kemudian pilihan pendeknya yang sesuai (yang pastinya akan memiliki argumen yang sama) kita kutip <code
+              class="literal">--listfiles <em
+                class="replaceable">paket</em></code> (atau <code
+              class="literal">-L</code>), menampilkan daftar berkas yang terinstall oleh paket tersebut; <code
+              class="literal">--search <em
+                class="replaceable">berkas</em></code> (atau <code
+              class="literal">-S</code>), mencari paket yang berisi berkas tersebut; <code
+              class="literal">--status <em
+                class="replaceable">paket</em></code> (atau <code
+              class="literal">-s</code>), menampilkan header sebuah paket yang terinstall; <code
+              class="literal">--list</code> (atau <code
+              class="literal">-l</code>), menampilkan daftar paket yang diketahui sistem dan status instalasinya; <code
+              class="literal">--contents <em
+                class="replaceable">berkas.deb</em></code> (atau <code
+              class="literal">-c</code>), menampilkan daftar berkas dalam paket Debian yang ditentukan; <code
+              class="literal">--info<em
+                class="replaceable"> berkas.deb </em></code> (atau <code
+              class="literal">-I</code>), menampilkan header paket Debian tersebut.
+			</div><div
+            class="example"><a
+              id="idm140170071248416"></a><p
+              class="title"><strong>Contoh 5.5. Berbagai queri dengan <code
+                  class="command">dpkg</code></strong></p><div
+              class="example-contents"><pre
+                class="screen scale"
+                width="80">
+<code
+                  class="computeroutput">$ </code><strong
+                  class="userinput"><code>dpkg -L base-passwd</code></strong>
+<code
+                  class="computeroutput">/.
+/usr
+/usr/sbin
+/usr/sbin/update-passwd
+/usr/share
+/usr/share/lintian
+/usr/share/lintian/overrides
+/usr/share/lintian/overrides/base-passwd
+/usr/share/doc-base
+/usr/share/doc-base/users-and-groups
+/usr/share/base-passwd
+/usr/share/base-passwd/group.master
+/usr/share/base-passwd/passwd.master
+/usr/share/man
+/usr/share/man/pl
+/usr/share/man/pl/man8
+/usr/share/man/pl/man8/update-passwd.8.gz
+/usr/share/man/ru
+/usr/share/man/ru/man8
+/usr/share/man/ru/man8/update-passwd.8.gz
+/usr/share/man/ja
+/usr/share/man/ja/man8
+/usr/share/man/ja/man8/update-passwd.8.gz
+/usr/share/man/fr
+/usr/share/man/fr/man8
+/usr/share/man/fr/man8/update-passwd.8.gz
+/usr/share/man/es
+/usr/share/man/es/man8
+/usr/share/man/es/man8/update-passwd.8.gz
+/usr/share/man/de
+/usr/share/man/de/man8
+/usr/share/man/de/man8/update-passwd.8.gz
+/usr/share/man/man8
+/usr/share/man/man8/update-passwd.8.gz
+/usr/share/doc
+/usr/share/doc/base-passwd
+/usr/share/doc/base-passwd/users-and-groups.txt.gz
+/usr/share/doc/base-passwd/changelog.gz
+/usr/share/doc/base-passwd/copyright
+/usr/share/doc/base-passwd/README
+/usr/share/doc/base-passwd/users-and-groups.html
+$ </code><strong
+                  class="userinput"><code>dpkg -S /bin/date</code></strong>
+<code
+                  class="computeroutput">coreutils: /bin/date
+$ </code><strong
+                  class="userinput"><code>dpkg -s coreutils</code></strong>
+<code
+                  class="computeroutput">Package: coreutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 13855
+Maintainer: Michael Stone &lt;mstone@debian.org&gt;
+Architecture: amd64
+Multi-Arch: foreign
+Version: 8.23-3
+Replaces: mktemp, realpath, timeout
+Pre-Depends: libacl1 (&gt;= 2.2.51-8), libattr1 (&gt;= 1:2.4.46-8), libc6 (&gt;= 2.17), libselinux1 (&gt;= 2.1.13)
+Conflicts: timeout
+Description: GNU core utilities
+ This package contains the basic file, shell and text manipulation
+ utilities which are expected to exist on every operating system.
+ .
+ Specifically, this package includes:
+ arch base64 basename cat chcon chgrp chmod chown chroot cksum comm cp
+ csplit cut date dd df dir dircolors dirname du echo env expand expr
+ factor false flock fmt fold groups head hostid id install join link ln
+ logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt
+ od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm
+ rmdir runcon sha*sum seq shred sleep sort split stat stty sum sync tac
+ tail tee test timeout touch tr true truncate tsort tty uname unexpand
+ uniq unlink users vdir wc who whoami yes
+Homepage: http://gnu.org/software/coreutils
+$ </code><strong
+                  class="userinput"><code>dpkg -l 'b*'</code></strong>
+<code
+                  class="computeroutput">Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                    Version          Architecture     Description
++++-=======================-================-================-====================================================
+un  backupninja             &lt;none&gt;           &lt;none&gt;           (no description available)
+ii  backuppc                3.3.0-2          amd64            high-performance, enterprise-grade system for backin
+un  base                    &lt;none&gt;           &lt;none&gt;           (no description available)
+un  base-config             &lt;none&gt;           &lt;none&gt;           (no description available)
+ii  base-files              8                amd64            Debian base system miscellaneous files
+ii  base-passwd             3.5.37           amd64            Debian base system master password and group files
+[...]
+$ </code><strong
+                  class="userinput"><code>dpkg -c /var/cache/apt/archives/gnupg_1.4.18-6_amd64.deb</code></strong>
+<code
+                  class="computeroutput">drwxr-xr-x root/root         0 2014-12-04 23:03 ./
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./lib/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./lib/udev/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./lib/udev/rules.d/
+-rw-r--r-- root/root      2711 2014-12-04 23:03 ./lib/udev/rules.d/60-gnupg.rules
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/lib/
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/lib/gnupg/
+-rwxr-xr-x root/root     39328 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_ldap
+-rwxr-xr-x root/root     92872 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_hkp
+-rwxr-xr-x root/root     47576 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_finger
+-rwxr-xr-x root/root     84648 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_curl
+-rwxr-xr-x root/root      3499 2014-12-04 23:03 ./usr/lib/gnupg/gpgkeys_mailto
+drwxr-xr-x root/root         0 2014-12-04 23:03 ./usr/bin/
+-rwxr-xr-x root/root     60128 2014-12-04 23:03 ./usr/bin/gpgsplit
+-rwxr-xr-x root/root   1012688 2014-12-04 23:03 ./usr/bin/gpg
+[...]
+$ </code><strong
+                  class="userinput"><code>dpkg -I /var/cache/apt/archives/gnupg_1.4.18-6_amd64.deb</code></strong>
+<code
+                  class="computeroutput"> new debian package, version 2.0.
+ size 1148362 bytes: control archive=3422 bytes.
+    1264 bytes,    26 lines      control              
+    4521 bytes,    65 lines      md5sums              
+     479 bytes,    13 lines   *  postinst             #!/bin/sh
+     473 bytes,    13 lines   *  preinst              #!/bin/sh
+ Package: gnupg
+ Version: 1.4.18-6
+ Architecture: amd64
+ Maintainer: Debian GnuPG-Maintainers &lt;pkg-gnupg-maint@lists.alioth.debian.org&gt;
+ Installed-Size: 4888
+ Depends: gpgv, libbz2-1.0, libc6 (&gt;= 2.15), libreadline6 (&gt;= 6.0), libusb-0.1-4 (&gt;= 2:0.1.12), zlib1g (&gt;= 1:1.1.4)
+ Recommends: gnupg-curl, libldap-2.4-2 (&gt;= 2.4.7)
+ Suggests: gnupg-doc, libpcsclite1, parcimonie, xloadimage | imagemagick | eog
+ Section: utils
+ Priority: important
+ Multi-Arch: foreign
+ Homepage: http://www.gnupg.org
+ Description: GNU privacy guard - a free PGP replacement
+  GnuPG is GNU's tool for secure communication and data storage.
+  It can be used to encrypt data and to create digital signatures.
+  It includes an advanced key management facility and is compliant
+  with the proposed OpenPGP Internet standard as described in RFC 4880.
+[...]</code></pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>LEBIH JAUH</em></span> Perbandingan versi</strong></p></div></div></div><a
+              id="idm140170071234304"
+              class="indexterm"></a><a
+              id="idm140170071233344"
+              class="indexterm"></a><div
+              class="para">
+				Karena <code
+                class="command">dpkg</code> merupakan program untuk menangani paket Debian, program ini juga menyediakan referensi implementasi logika perbandingan nomor versi. Oleh karena itu, program ini memiliki pilihan <code
+                class="literal">--compare-versions</code>, dapat digunakan oleh program eksternal (khususnya skrip konfigurasi yang dieksekusi oleh <code
+                class="command">dpkg</code> itu sendiri). Pilihan ini memerlukan tiga parameter: nomor versi, operator perbandingan, dan nomor versi kedua. Perbedaan operasi yang mungkin ialah <code
+                class="literal">lt</code> (kurang dari), <code
+                class="literal">le</code> (kurang dari atau sama dengan), <code
+                class="literal">eq</code> (sama dengan), <code
+                class="literal">ne</code> (tidak sama dengan), <code
+                class="literal">ge</code> (lebih besar atau sama dengan), dan <code
+                class="literal">gt</code> (lebih besar dari). Jika perbandingan benar, <code
+                class="command">dpkg</code> menghasilkan 0 (sukses); jika tidak, akan menghasilkan nilai non-zero (menandakan kegagalan).
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 1.2-3 gt 1.1-4</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">0
+$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 1.2-3 lt 1.1-4</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">1
+$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 2.6.0pre3-1 lt 2.6.0-1</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">1</code></pre><div
+              class="para">
+				Catat kesalahan yang tidak diinginkan pada perbandingan terakhir: untuk <code
+                class="command">dpkg</code>, <code
+                class="literal">pre</code>, biasanya menandakan pre-release, tidak memiliki makna khusus, program ini membandingkan karakter alfabetis dengan cara yang sama dengan angka (a &lt; b &lt; c ...), dalam urutan alfabet. Karenanya “<code
+                class="literal">0pre3</code>” lebih besar dari “<code
+                class="literal">0</code>”. Ketika kita ingin nomor versi paket menunjukkan bahwa pre-release, kita menggunakan karakter tilde, “<code
+                class="literal">~</code>”:
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>dpkg --compare-versions 2.6.0~pre3-1 lt 2.6.0-1</code></strong>
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>echo $?</code></strong>
+<code
+                class="computeroutput">0</code></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140170071215472"></a>5.4.4. Berkas Log <code
+                    class="command">dpkg</code></h3></div></div></div><div
+            class="para">
+				<code
+              class="command">dpkg</code> menyimpan semua log aksi-aksinya di <code
+              class="filename">/var/log/dpkg.log</code>. Log ini sangat ramai, mendetail setiap langkah melalui setiap paket yang ditangai oleh <code
+              class="command">dpkg</code>. Menawarkan sebuah cara untuk melacak tingkah lagu dpkg, membantu, seluruhnya di atas, untuk menyimpan sejarah pengembangan sistem: salah satunya dapat menemukan momen yang tepat ketika setiap paket terinstall atau diperbaharui, dan informasi ini dapat menjadi sangat berguna dalam memahami perubahan terakhir dalam tingkah lakunya. Dan lagi, semua versi sedang direkam, sangat mudah untuk cross-check informasi dengan <code
+              class="filename">changelog.Debian.gz</code> untuk paket yang diminta, atau bahkan dengan laporan kutu daring.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.multi-arch"></a>5.4.5. Dukungan Multi-Arch</h3></div></div></div><a
+            id="idm140170071210128"
+            class="indexterm"></a><a
+            id="idm140170071209168"
+            class="indexterm"></a><div
+            class="para">
+				Semua paket Debian memiliki sebuah field <code
+              class="literal">Architecture</code> dalam informasi control mereka. Field ini dapat berisi antara “<code
+              class="literal">all</code>” (untuk paket yang arsitekturnya independen) atau nama arsitektur targetnya (seperti “amd64”, “armhf”, …). Dalam kasus terakhir, secara bawaan, <code
+              class="command">dpkg</code> hanya akan menerima untuk menginstall paket jika arsitekturnya cocok dengan arsitektur host sebagaimana yang dihasilkan oleh <code
+              class="command">dpkg --print-architecture</code>.
+			</div><div
+            class="para">
+				Batasan ini memastikan bahwa pengguna tidak berakhir dengan berkas biner yang dikompilasi untuk arsitektur yang salah. Segalanya akan menjadi sempurna kecuali (beberapa) komputer dapat menjalankan berkas biner untuk arsitektur yang bermacam-macam, atau secara native (sebuah sistem “amd64“ dapat menjalankan biner “i386”) atau melalui emulator.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140170071995344"></a>5.4.5.1. Mengaktifkan Multi-Arch</h4></div></div></div><div
+              class="para">
+					Dukungan multi-arch <code
+                class="command">dpkg</code> mengizinkan pengguna untuk menentukan “arsitektur asing” yang dapat diinstall pada sistem terkini. Hal ini dapat dengan mudah dilakukan dengan <code
+                class="command">dpkg --add-architecture</code> seperti contoh di bawah ini. Ada <code
+                class="command">dpkg --remove-architecture</code> yang sesuai untuk menghilangkah dukungan ke arsitektur asing, namun hanya dapat digunakan ketika tidak ada paket dengan arsitektur ini.
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --print-architecture</code></strong>
+<code
+                class="computeroutput">amd64
+# </code><strong
+                class="userinput"><code>dpkg --print-foreign-architectures</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg -i gcc-4.9-base_4.9.1-19_armhf.deb</code></strong>
+<code
+                class="computeroutput">dpkg: error processing archive gcc-4.9-base_4.9.1-19_armhf.deb (--install):
+ package architecture (armhf) does not match system (amd64)
+Errors were encountered while processing:
+ gcc-4.9-base_4.9.1-19_armhf.deb
+# </code><strong
+                class="userinput"><code>dpkg --add-architecture armhf</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --add-architecture armel</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --print-foreign-architectures</code></strong>
+<code
+                class="computeroutput">armhf
+armel
+# </code><strong
+                class="userinput"><code>dpkg -i gcc-4.9-base_4.9.1-19_armhf.deb</code></strong>
+<code
+                class="computeroutput">Selecting previously unselected package gcc-4.9-base:armhf.
+(Reading database ... 86425 files and directories currently installed.)
+Preparing to unpack gcc-4.9-base_4.9.1-19_armhf.deb ...
+Unpacking gcc-4.9-base:armhf (4.9.1-19) ...
+Setting up gcc-4.9-base:armhf (4.9.1-19) ...
+# </code><strong
+                class="userinput"><code>dpkg --remove-architecture armhf</code></strong>
+<code
+                class="computeroutput">dpkg: error: cannot remove architecture 'armhf' currently in use by the database
+# </code><strong
+                class="userinput"><code>dpkg --remove-architecture armel</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg --print-foreign-architectures</code></strong>
+<code
+                class="computeroutput">armhf</code></pre><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>CATATAN</em></span> Dukungan multi-arch APT</strong></p></div></div></div><div
+                class="para">
+					APT akan secara otomatis mendeteksi ketika dpkg telah dikonfigurasi untuk mendukung arsitektur asing dan akan memulai mengunduh berkas <code
+                  class="filename">Paket</code> yang sesuai selama proses pembaharuannya.
+				</div><div
+                class="para">
+					Paket asing kemudian dapat diinstall dengan <code
+                  class="command">apt-get install <em
+                    class="replaceable">paket</em>:<em
+                    class="replaceable">arsitektur</em></code>.
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DALAM PRAKTEKNYA</em></span> Menggunakan biner i386 proprietary pada amd64</strong></p></div></div></div><div
+                class="para">
+					Ada banyak kasus penggunaan multi-arch, namun yang paling umum ialah kemungkinan untuk mengeksekusi biner 32 bit (i386) pada sistem 64 bit (amd64), seringkali karena beberapa aplikasi proprietary populer (seperti Skype) hanya disediakan dalam versi 43 bit.
+				</div><div
+                class="para">
+					Sebelum multi-arch, ketika Anda ingin menggunakan aplikasi 32 bit pada sebuah sistem 64 bit, Anda harus menginstall <span
+                  class="pkg pkg">ia32-libs</span> untuk mendapatkan versi 32 bit pustaka yang paling populer. Paket tersebut merupakan usaha yang besar memaketkan ulang pustaka 32 bit dalam paket “amd64”.
+				</div><a
+                id="idm140170071976192"
+                class="indexterm"></a></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140170071974448"></a>5.4.5.2. Perubahan Terkait Multi-Arch</h4></div></div></div><div
+              class="para">
+					To make multi-arch actually useful and usable, libraries had to be repackaged and moved to an architecture-specific directory so that multiple copies (targeting different architectures) can be installed alongside. Such updated packages contain the “<code
+                class="literal">Multi-Arch: same</code>” header field to tell the packaging system that the various architectures of the package can be safely co-installed (and that those packages can only satisfy dependencies of packages of the same architecture). Since multi-arch made its debut in Debian <span
+                class="distribution distribution">Wheezy</span>, not all libraries have been converted yet (but all libraries which were embedded in <span
+                class="pkg pkg">ia32-libs</span> do!).
+				</div><pre
+              class="screen">
+$ <strong
+                class="userinput"><code>dpkg -s gcc-4.9-base</code></strong>
+dpkg-query: error: --status needs a valid package name but 'gcc-4.9-base' is not: ambiguous package name 'gcc-4.9-base' with more than one installed instance
+
+Use --help for help about querying packages.
+$ <strong
+                class="userinput"><code>dpkg -s gcc-4.9-base:amd64 gcc-4.9-base:armhf | grep ^Multi</code></strong>
+Multi-Arch: same
+Multi-Arch: same
+$ <strong
+                class="userinput"><code>dpkg -L libgcc1:amd64 |grep .so</code></strong>
+/lib/x86_64-linux-gnu/libgcc_s.so.1
+$ <strong
+                class="userinput"><code>dpkg -S /usr/share/doc/gcc-4.9-base/copyright</code></strong>
+gcc-4.9-base:amd64, gcc-4.9-base:armhf: /usr/share/doc/gcc-4.9-base/copyright
+</pre><div
+              class="para">
+					Tidak pantas bahwa paket <code
+                class="literal">Multi-Arch: same</code> harus memiliki nama yang dipenuhi dengan arsitekturnya dapat diidentifikasi tak membingungkan. Mereka juga memiliki kemungkinan untuk berbagi berkas dengan instance lain dari paket yang sama; <code
+                class="command">dpkg</code> memastikan bahwa seluruh paket memiliki bit-untuk-bit berkas-berkas identik ketika mereka berbagi. Tidak kurang pentingnya, seluruh instance paket harus memiliki versi yang sama. Mereka harus diperbaharui bersama-sama.
+				</div><div
+              class="para">
+					Dukungan Multi-Arch juga membawa beberapa tantangan yang menarik dalam cara ketergantungan ditangani. Memenuhi ketergantungan memerlukan antara paket yang ditandai “<code
+                class="literal">Multi-Arch: foreign</code>” atau paket yang arsitekturnya cocok dengan salah satu paket yang menyatakan ketergantungannya (dalam proses pemenuhan ketergantungan ini, paket independen-arsitektur diasumsikan sama dengan arsitektur host). Ketergantungan juga dapat dilemahkan untuk mengizinkan berbagai arsitektur untuk memenuhinya, dengan siktaks <code
+                class="literal"><em
+                  class="replaceable">package</em>:any</code>, namun paket asing hanya dapat memenuhi sebuah ketergantungan jika mereka ditandai “<code
+                class="literal">Multi-Arch: allowed</code>”.
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.source-package-structure.html"><strong>Sebelumnya</strong>5.3. Struktur sebuah Paket Sumber</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Induk</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Depan</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.coexistence-with-other-packaging-systems.html"><strong>Lanjut</strong>5.5. Kebersamaan dengan Sistem Paket Lain</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.manipulating-packages-with-dpkg.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.manipulating-packages-with-dpkg.html">da-DK</a></li><li><a
+              href="../de-DE/sect.manipulating-packages-with-dpkg.html">de-DE</a></li><li><a
+              href="../el-GR/sect.manipulating-packages-with-dpkg.html">el-GR</a></li><li><a
+              href="../en-US/sect.manipulating-packages-with-dpkg.html">en-US</a></li><li><a
+              href="../es-ES/sect.manipulating-packages-with-dpkg.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.manipulating-packages-with-dpkg.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.manipulating-packages-with-dpkg.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.manipulating-packages-with-dpkg.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.manipulating-packages-with-dpkg.html">id-ID</a></li><li><a
+              href="../it-IT/sect.manipulating-packages-with-dpkg.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.manipulating-packages-with-dpkg.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.manipulating-packages-with-dpkg.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.manipulating-packages-with-dpkg.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.manipulating-packages-with-dpkg.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.manipulating-packages-with-dpkg.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.manipulating-packages-with-dpkg.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.manipulating-packages-with-dpkg.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.2. Сборка вашего первого пакета</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ru-RU-1.0-1" /><meta
+        name="keywords"
+        content="Бэкпортирование, Пересборка, Пакет с исходным кодом, Архив, Метапакет, Разработчик Debian, Сопровождающий" /><link
+        rel="home"
+        href="index.html"
+        title="Настольная книга администратора Debian" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="Глава 15. Создание пакета Debian" /><link
+        rel="prev"
+        href="debian-packaging.html"
+        title="Глава 15. Создание пакета Debian" /><link
+        rel="next"
+        href="sect.setup-apt-package-repository.html"
+        title="15.3. Создание репозитория пакетов для APT" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ru-RU/sect.building-first-package.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>Пред.</strong></a></li><li
+          class="home">Настольная книга администратора Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>След.</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.building-first-package"></a>15.2. Сборка вашего первого пакета</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139917852195264"></a>15.2.1. Метапакеты или пакеты-пустышки</h3></div></div></div><div
+            class="para">
+				Пакеты-пустышки и метапакеты схожи тем, что являются пустыми оболочками, существующими лишь ради эффектов, которые их метаданные оказывают на стек работы с пакетами.
+			</div><div
+            class="para">
+				Назначение пакета-пустышки состоит в том, чтобы хитрым образом заставить <code
+              class="command">dpkg</code> и <code
+              class="command">apt</code> поверить в то, что какой-либо пакет установлен, даже если он пуст. Это позволяет удовлетворить зависимость от пакета, когда соответствующее программное обеспечение было установлено в обход системы управления пакетами. Хотя такой способ работает, его следует по возможности избегать, ведь нет никакой гарантии, что установленное вручную программное обеспечение ведет себя точно так же, как соответствующий пакет, и зависящие от него пакеты могут работать некоректно.
+			</div><div
+            class="para">
+				Наоборот, метапакет представляет собой прежде всего набор зависимостей, так что установка метапакета в действительности предоставит целый набор других пакетов разом.
+			</div><div
+            class="para">
+				Оба эти типа пакетов могут быть созданы командами <code
+              class="command">equivs-control</code> и <code
+              class="command">equivs-build</code> (из пакета <span
+              class="pkg pkg">equivs</span>). Команда <code
+              class="command">equivs-control <em
+                class="replaceable">файл</em></code> создает заголовочный файл пакета Debian, который следует отредактировть таким образом, чтобы в нём содержалось название неоходимого пакета, номер его версии, имя сопровождающего, зависимости и описание. Прочие поля без значения по умолчанию являются необязательными и их можно удалить. Поля <code
+              class="literal">Copyright</code>, <code
+              class="literal">Changelog</code>, <code
+              class="literal">Readme</code> и <code
+              class="literal">Extra-Files</code> являются нестандартными в пакетах Debian; они имеют смысл только в рамках <code
+              class="command">equivs-build</code> и не будут сохранены в заголовках созданного пакета.
+			</div><div
+            class="example"><a
+              id="idm139917851221104"></a><p
+              class="title"><strong>Пример 15.2. Заголовочный файл пакета-пустышки <span
+                  class="emphasis"><em>libxml-libxml-perl</em></span></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Section: perl
+Priority: optional
+Standards-Version: 3.8.4
+
+Package: libxml-libxml-perl
+Version: 1.57-1
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Depends: libxml2 (&gt;= 2.6.6)
+Architecture: all
+Description: Fake package - module manually installed in site_perl
+ This is a fake package to let the packaging system
+ believe that this Debian package is installed. 
+ .
+ In fact, the package is not installed since a newer version
+ of the module has been manually compiled &amp; installed in the
+ site_perl directory.
+</pre></div></div><div
+            class="para">
+				Следующий шаг состоит в том, чтобы создать пакет Debian с помощью команды <code
+              class="command">equivs-build <em
+                class="replaceable">файл</em></code>. Voilà: пакет создан в текущем каталоге и с ним можно работать, как с любым другим пакетом Debian.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139917851217168"></a>15.2.2. Простое файловое хранилище</h3></div></div></div><div
+            class="para">
+				Администраторам Falcot Corp необходимо создать пакет для того, чтобы облегчить развёртывание набора документов на большом количестве машин. Администратор, отвечающий за эту задачу, сперва читает «Руководство начинающего разработчика Debian», после чего начинает работать над своим первым пакетом. <div
+              class="url">→ <a
+                href="http://www.debian.org/doc/maint-guide/">http://www.debian.org/doc/maint-guide/</a></div>
+			</div><div
+            class="para">
+				Первым шагом является создание каталога <code
+              class="filename">falcot-data-1.0</code> для целевого пакета исходного кода. Пакет, логично, будет называться <code
+              class="literal">falcot-data</code> и иметь номер версии <code
+              class="literal">1.0</code>. Затем администратор размещает файлы документов в подкаталоге <code
+              class="filename">data</code>. После этого вызывается команда <code
+              class="command">dh_make</code> (из пакета <span
+              class="pkg pkg">dh-make</span>) для того, чтобы добавить файлы, необходимые для создания пакета, которые будут сохранены в подкаталоге <code
+              class="filename">debian</code>:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd falcot-data-1.0</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>dh_make --native</code></strong>
+<code
+              class="computeroutput">
+Type of package: single binary, indep binary, multiple binary, library, kernel module, kernel patch or cdbs?
+ [s/i/m/l/k/n/b] </code><strong
+              class="userinput"><code>i</code></strong>
+<code
+              class="computeroutput">
+Maintainer name : Raphael Hertzog
+Email-Address   : hertzog@debian.org
+Date            : Mon, 11 Apr 2011 15:11:36 +0200
+Package Name    : falcot-data
+Version         : 1.0
+License         : blank
+Usind dpatch    : no
+Type of Package : Independent
+Hit &lt;enter&gt; to confirm:
+Currently there is no top level Makefile. This may require additional tuning.
+Done. Please edit the files in the debian/ subdirectory now. You should also
+check that the falcot-data Makefiles install into $DESTDIR and not in / .
+$</code></pre><div
+            class="para">
+				Выбранный тип пакета (<span
+              class="emphasis"><em>single binary</em></span>) указывает на то,что из этого пакета исходного кода будет создан единственный двоичный пакет, зависящий от архитектуры (<code
+              class="literal">Architecture: any</code>). <span
+              class="emphasis"><em>indep binary</em></span> аналогичен, но соответствует единичному двоичному пакету, не зависящему от целевой архитектуры (<code
+              class="literal">Architecture: all</code>). В этом случае последний выбор более актуален, поскольку пакет содержит только документы и никаких двоичных программ, так что он может быть с одинаковым успехом использован на компьютерах всех архитектур.
+			</div><div
+            class="para">
+				Тип <span
+              class="emphasis"><em>multiple binary</em></span> соответствует пакету исходного кода, из которого получается несколько двоичных пакетов. Как частный случай, <span
+              class="emphasis"><em>library</em></span> полезен для разделяемых библиотек, так как они должны следовать строгим правилам пакетирования. Аналогичным образом, <span
+              class="emphasis"><em>kernel module</em></span> следует использовать только для пакетов, содержащих модули ядра. Наконец, <span
+              class="emphasis"><em>cdbs</em></span> является специфической системой сборки пакетов; она довольно гибкая, но требует некоторого обучения. <a
+              id="idm139917851200560"
+              class="indexterm"></a> <a
+              id="idm139917851199920"
+              class="indexterm"></a>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>СОВЕТ</em></span> Имя и электронный адрес сопровождающего</strong></p></div></div></div><div
+              class="para">
+				Большинство программ, участвующих в сопровождении пакета, будет искать ваше имя и адрес электронной почты в переменных окружения <code
+                class="varname">DEBFULLNAME</code> и <code
+                class="varname">DEBEMAIL</code> или <code
+                class="varname">EMAIL</code>. Их определение раз и навсегда избавит вас от необходимости многократно вводить их. Если вашей обычной оболочкой является <code
+                class="command">bash</code>, просто добавьте следующие две строки в файлы <code
+                class="filename">~/.bashrc</code> и <code
+                class="filename">~/.bash_profile</code> (вам, разумеется, стоит заменить значения на более актуальные!):
+			</div><pre
+              class="programlisting">
+export EMAIL="hertzog@debian.org"
+export DEBFULLNAME="Raphael Hertzog"
+</pre></div><div
+            class="para">
+				Команда <code
+              class="command">dh_make</code> создала подкаталог <code
+              class="filename">debian</code> со множеством файлов. Некоторые из них являются обязательными, в частности, <code
+              class="filename">rules</code>, <code
+              class="filename">control</code>, <code
+              class="filename">changelog</code> и <code
+              class="filename">copyright</code>. Файлы с расширением <code
+              class="filename">.ex</code> — это примеры файлов, которые могут быть использованы путем их модификации (и удаления расширения) при необходимости. Когда они не нужны, рекомендуется удалить их. Файл <code
+              class="filename">compat</code> следует оставить, так как требуется для корректного функционирования набора программ <span
+              class="emphasis"><em>debhelper</em></span> (все они начинаются с префикса <code
+              class="command">dh_</code>), используемого на различных этапах процесса сборки пакета.
+			</div><div
+            class="para">
+				Файл <code
+              class="filename">copyright</code> должен содержать информацию об авторах документов, включенных в пакет, а также соответствующих лицензиях. В нашем случае это внутренние документы, и их использование ограничено пределами компании Falcot Corp. Файл <code
+              class="filename">changelog</code> по умолчанию в целом нам подходит; замены «Initial release» на более многословное объяснение и изменение дистрибутива с <code
+              class="literal">unstable</code> на <code
+              class="literal">internal</code> вполне достаточно. Файл <code
+              class="filename">control</code> также был изменён: раздел был изменён на <span
+              class="emphasis"><em>misc</em></span>, а поля <code
+              class="literal">Homepage</code>, <code
+              class="literal">Vcs-Git</code> и <code
+              class="literal">Vcs-Browser</code> были удалены. В поле <code
+              class="literal">Depends</code> было указано <code
+              class="literal">iceweasel | www-browser</code> чтобы обеспечить наличие веб-браузера, способного отображать документы, поставляемые в пакете.
+			</div><div
+            class="example"><a
+              id="idm139917851181040"></a><p
+              class="title"><strong>Пример 15.3. Файл <code
+                  class="filename">control</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Source: falcot-data
+Section: misc
+Priority: optional
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Build-Depends: debhelper (&gt;= 7.0.50~)
+Standards-Version: 3.8.4
+
+Package: falcot-data
+Architecture: all
+Depends: iceweasel | www-browser, ${misc:Depends}
+Description: Internal Falcot Corp Documentation
+ This package provides several documents describing the internal
+ structure at Falcot Corp.  This includes:
+  - organization diagram
+  - contacts for each department.
+ .
+ These documents MUST NOT leave the company.
+ Their use is INTERNAL ONLY.
+</pre></div></div><div
+            class="example"><a
+              id="idm139917851178752"></a><p
+              class="title"><strong>Пример 15.4. Файл <code
+                  class="filename">changelog</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+falcot-data (1.0) internal; urgency=low
+
+  * Initial Release.
+  * Let's start with few documents:
+    - internal company structure;
+    - contacts for each department.
+
+ -- Raphael Hertzog &lt;hertzog@debian.org&gt;  Mon, 11 Apr 2011 20:46:33 +0200
+</pre></div></div><div
+            class="example"><a
+              id="idm139917851176768"></a><p
+              class="title"><strong>Пример 15.5. Файл <code
+                  class="filename">copyright</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+This work was packaged for Debian by Raphael Hertzog &lt;hertzog@debian.org&gt;
+on Mon, 11 Apr 2011 20:46:33 +0200
+
+Copyright:
+
+    Copyright (C) 2004-2011 Falcot Corp
+
+License:
+
+    All rights reserved.
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>К ОСНОВАМ</em></span> Файл <code
+                        class="filename">Makefile</code></strong></p></div></div></div><a
+              id="idm139917851173392"
+              class="indexterm"></a><div
+              class="para">
+				Файл <code
+                class="filename">Makefile</code> является сценарием, используемым программой <code
+                class="command">make</code>; он описывает правила для сборки набора файлов один из другого в соответствии с деревом зависимостей (к примеру, программа может быть собрана из набора файлов с исходным кодом). Файл <code
+                class="filename">Makefile</code> описывает эти правила в следующем формате:
+			</div><pre
+              class="programlisting">
+target: source1 source2 ...
+        command1
+        command2
+</pre><div
+              class="para">
+				Интерпретация такого правила заключается в следующем: если один из файлов <code
+                class="literal">source*</code> новее, чем файл <code
+                class="literal">target</code>, то цель должна быть создана с помощью <code
+                class="command">command1</code> и <code
+                class="command">command2</code>.
+			</div><div
+              class="para">
+				Обратите внимание, что строки команд должны начинаться с символа табуляции; также стоит отметить, что когда командная строка начинается с дефиса (<code
+                class="literal">-</code>), неудачное завершение команды не прерывает весь процесс.
+			</div></div><div
+            class="para">
+				Файл <code
+              class="filename">rules</code> обычно содержит набор правил, используемых для конфигурирования, сборки и установки программного обеспечения в выделенный подкаталог (названный именем собранного двоичного пакета). Содержимое этого подкаталога затем архивируется в пакет Debian, как если бы это был корневой каталог файловой системы. В нашем случае файлы будут установлены в подкаталог <code
+              class="filename">debian/falcot-data/usr/share/falcot-data/</code>, чтобы установка созданного пакета развернула файлы в <code
+              class="filename">/usr/share/falcot-data/</code>. Файл <code
+              class="filename">rules</code> используется в качестве <code
+              class="filename">Makefile</code> с несколькими стандартными целями (включая <code
+              class="literal">clean</code> и <code
+              class="literal">binary</code>, используемые соответственно для очистки каталога с исходным кодом и создания двоичного пакета).
+			</div><div
+            class="para">
+				Хотя этот файл является центральным во всём процессе, он содержит лишь самый минимум для запуска стандартного набора команд, предоставляемых инструментом <code
+              class="command">debhelper</code>. Так обстоит дело с файлами, созданными с помощью <code
+              class="command">dh_make</code>. Чтобы установить наши файлы, мы просто настроим поведение команды <code
+              class="command">dh_install</code>, создав следующий файл <code
+              class="filename">debian/falcot-data.install</code>:
+			</div><pre
+            class="programlisting">
+data/* usr/share/falcot-data/
+</pre><div
+            class="para">
+				Теперь пакет может быть создан. Однако мы добавим несколько косметических штрихов. Поскольку администраторы хотят, чтобы документы были легко доступны из меню справки графического рабочего стола, мы создадим запись в меню Debian. Достаточно переименовать <code
+              class="filename">debian/menu.ex</code>, удалив расширение, и отредактировать его следующим образом:
+			</div><div
+            class="example"><a
+              id="idm139917849337008"></a><p
+              class="title"><strong>Пример 15.6. Файл <code
+                  class="filename">menu</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+?package(falcot-data):needs=X11|wm section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/x-www-browser /usr/share/falcot-data/index.html"
+?package(falcot-data):needs=text section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/www-browser /usr/share/falcot-data/index.html"
+</pre></div></div><div
+            class="para">
+				Поле <code
+              class="literal">needs</code> со значением <code
+              class="literal">X11|wm</code> указывает, что эта запись имеет смысл только в графическом интерфейсе. Поэтому она будет добавлена только в меню графических (X11) приложений и оконных менеджеров (<code
+              class="literal">wm</code>). Поле <code
+              class="literal">section</code> определяет, где именно в меню запись должна отображаться. В нашем случае запись будет в меню Справка. Поле <code
+              class="literal">title</code> содержит текст, который будет отображаться в меню. Наконец, в поле <code
+              class="literal">command</code> указывается команда, запускаемая, когда пользователь выбирает пункт меню.
+			</div><div
+            class="para">
+				Вторая запись соответствует первой с небольшими изменениями, адаптированной к текстовому режиму консоли Linux.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ПОЛИТИКА DEBIAN</em></span> Устройство меню </strong></p></div></div></div><div
+              class="para">
+				Меню Debian организованы в виде формальной структуры, описанной в следующем тексте: <div
+                class="url">→ <a
+                  href="http://www.debian.org/doc/packaging-manuals/menu-policy/">http://www.debian.org/doc/packaging-manuals/menu-policy/</a></div>
+			</div><div
+              class="para">
+				Поле <code
+                class="literal">section</code> в файле <code
+                class="filename">menu</code> должно быть взято из списка, приведённого в этом документе.
+			</div></div><div
+            class="para">
+				Простого создания файла <code
+              class="filename">debian/menu</code> достаточно, чтобы включить меню в пакете, так как команда <code
+              class="command">dh_installmenu</code> автоматически вызывается через <code
+              class="command">dh</code> в процессе сборки пакета.
+			</div><div
+            class="para">
+				Наш пакет исходного кода теперь готов. Все, что осталось сделать, это создать двоичный пакет тем же методом, который мы использовали ранее для пересборки пакетов: мы запускаем команду <code
+              class="command">dpkg-buildpackage -us -uc</code> в каталоге <code
+              class="filename">falcot-data-1.0</code>.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>Пред.</strong>Глава 15. Создание пакета Debian</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Наверх</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Начало</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>След.</strong>15.3. Создание репозитория пакетов для APT</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.building-first-package.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.building-first-package.html">da-DK</a></li><li><a
+              href="../de-DE/sect.building-first-package.html">de-DE</a></li><li><a
+              href="../el-GR/sect.building-first-package.html">el-GR</a></li><li><a
+              href="../en-US/sect.building-first-package.html">en-US</a></li><li><a
+              href="../es-ES/sect.building-first-package.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.building-first-package.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.building-first-package.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.building-first-package.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.building-first-package.html">id-ID</a></li><li><a
+              href="../it-IT/sect.building-first-package.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.building-first-package.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.building-first-package.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.building-first-package.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.building-first-package.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.building-first-package.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.building-first-package.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.building-first-package.html">zh-CN</a></li></ul></div></body></html>

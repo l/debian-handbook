@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.9. 配额</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="系统启动, 启动脚本, SSH, Telnet, 权限, 许可, 管理, Inetd, Cron, 备份, 热插拔, PCMCIA接口, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="prev"
+        href="sect.asynchronous-task-scheduling-anacron.html"
+        title="9.8. 调度异步任务：anacron" /><link
+        rel="next"
+        href="sect.backup.html"
+        title="9.10. 备份" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.quotas.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.backup.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.quotas"></a>9.9. 配额</h2></div></div></div><a
+          id="idm140492716962768"
+          class="indexterm"></a><div
+          class="para">
+			The quota system allows limiting disk space allocated to a user or group of users. To set it up, you must have a kernel that supports it (compiled with the <code
+            class="varname">CONFIG_QUOTA</code> option) — as is the case with Debian kernels. The quota management software is found in the <span
+            class="pkg pkg">quota</span> Debian package.
+		</div><div
+          class="para">
+			To activate quota in a filesystem, you have to indicate the <code
+            class="literal">usrquota</code> and <code
+            class="literal">grpquota</code> options in <code
+            class="filename">/etc/fstab</code> for the user and group quotas, respectively. Rebooting the computer will then update the quotas in the absence of disk activity (a necessary condition for proper accounting of already used disk space).
+		</div><div
+          class="para">
+			<code
+            class="command">edquota <em
+              class="replaceable">user</em></code> （或者 <code
+            class="command">edquota -g <em
+              class="replaceable">group</em></code>）命令允许在检查目前磁盘空间使用情况时，改变配额限制。
+		</div><a
+          id="idm140492716956800"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>进阶</em></span> 使用脚本定义配额</strong></p></div></div></div><a
+            id="idm140492716955008"
+            class="indexterm"></a><div
+            class="para">
+			可以在脚本中使用 <code
+              class="command">setquota</code> 程序自动更改配额。<span
+              class="citerefentry"><span
+                class="refentrytitle">setquota</span>(8)</span> 手册列出了详细的使用语法。
+		</div></div><div
+          class="para">
+			配额系统允许设置四个限制：
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					两种限制（称为“软的”和“硬的”）使用消耗的块数表示。如果文件系统使用１Ｋ的块创建，相同文件的每个块包含１０２４字节。不饱和的块会减少磁盘空间。１００个块的配额，理论上允许存储１０２４００字节，然而，它们有可能被１００个每个包含５００字节的文件填充，总数仅仅是５００００字节。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					两种限制（软的和硬的）使用的节点（inode）数限制。每个文件至少需要一个包含存储信息（许可权限，所有者，最后读取时间，等）的节点。因此，它实际上是限制了用户文件的数量。
+				</div></li></ul></div><div
+          class="para">
+			“软”限制可以被临时超越；当用户超过 <code
+            class="command">warnquota</code> 命令指定的配额，只是给出警告，通常有 <code
+            class="command">cron</code>唤起该命令。“硬”限制不允许被超出：系统将会拒绝任何超出硬配额的操作。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>词汇</em></span> 块和节点（inodes）</strong></p></div></div></div><a
+            id="idm140492716946960"
+            class="indexterm"></a><a
+            id="idm140492716946192"
+            class="indexterm"></a><div
+            class="para">
+			文件系统将硬盘分成块－一些连续的小区域。这些块的大小在创建文件系统时定义，一般在１Ｋ到８Ｋ字节之间。
+		</div><div
+            class="para">
+			块可用来存储文件中的真实数据，也可用于文件系统的元数据。在元数据中，就会找到节点。一个节点使用硬盘上的一个块（但是该块并不会计入块配额，只用于节点配额），包含了节点对应哪个文件（名称，所有者，许可权限，等）和实际使用数据块的指针。对于那些大文件，占用的块数已经超出单个指针的索引范围，还存在一个间接块系统；其中的节点参考一个块列表，该列表中的块不直接包含数据而是包含另一个块列表。
+		</div></div><a
+          id="idm140492716943760"
+          class="indexterm"></a><div
+          class="para">
+			使用命令 <code
+            class="command">edquota -t</code> ，可以设定超过软限制的“宽限期”时长。宽限期之后，软限制将作为硬限制处理，要将数据写入硬盘，用户必须减少磁盘使用量至配额之内。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>进阶</em></span> 给新用户设定默认配额</strong></p></div></div></div><div
+            class="para">
+			要给新用户自动设定配额，需要配置用户模板（使用 <code
+              class="command">edquota</code> 或者 <code
+              class="command">setquota</code>）并在 <code
+              class="filename">/etc/adduser.conf</code> 文件的 <code
+              class="varname">QUOTAUSER</code> 变量中指明用户名。该配额配置会自动应用于 <code
+              class="command">adduser</code> 命令创建的新用户。
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>上一页</strong>9.8. 调度异步任务：anacron</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.backup.html"><strong>下一页</strong>9.10. 备份</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.quotas.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.quotas.html">da-DK</a></li><li><a
+              href="../de-DE/sect.quotas.html">de-DE</a></li><li><a
+              href="../el-GR/sect.quotas.html">el-GR</a></li><li><a
+              href="../en-US/sect.quotas.html">en-US</a></li><li><a
+              href="../es-ES/sect.quotas.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.quotas.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.quotas.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.quotas.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.quotas.html">id-ID</a></li><li><a
+              href="../it-IT/sect.quotas.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.quotas.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.quotas.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.quotas.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.quotas.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.quotas.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.quotas.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.quotas.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.4. المراقبة</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, تغذية, المراقبة, الحوسبة الظاهرية, ‏Xen, ‏LXC " /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="فصل 12. الإدارة المتقدمة" /><link
+        rel="prev"
+        href="sect.automated-installation.html"
+        title="12.3. التثبيت المؤتمت" /><link
+        rel="next"
+        href="workstation.html"
+        title="فصل 13. محطات العمل" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.monitoring.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.automated-installation.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="workstation.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.monitoring"></a>12.4. المراقبة</h2></div></div></div><div
+          class="para">
+			المراقبة هي مصطلح عام، ونشاطات المراقبة المتنوعة لها أهداف عدة: فمن ناحية أولى، تسمح متابعة استهلاك موارد الحاسب بتوقع الإشباع والتطويرات اللاحقة له؛ ومن ناحية أخرى، فإن تنبيه مدير النظام فور خروج إحدى الخدمات عن العمل أو عدم عملها بشكل صحيح يعني أن إصلاح المشاكل التي تحدث قد يتم أبكر.
+		</div><div
+          class="para">
+			يغطي <span
+            class="emphasis"><em>Munin</em></span> الناحية الأولى، من خلال عرض مخططات بيانية للقيم التاريخية لعدد من المتغيرات (الذاكرة المستخدمة، مساحة القرص المحجوزة، حمل المعالج، نشاط الشبكة، حمل Apache/MySQL، وهكذا). أما <span
+            class="emphasis"><em>Nagios</em></span> فيغطي الناحية الأخرى، من خلال التحقق المنتظم من عمل الخدمات وتوفرها، وإرسال تنبيهات عبر القنوات المناسبة (بريد إلكتروني، رسائل نصية، وهكذا). لكل منهما تصميم تجزيئي يسهل إنشاء إضافات جديدة لمراقبة متغيرات أو خدمات محددة.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>بدائل</em></span> Zabbix، أداة مراقبة متكاملة</strong></p></div></div></div><a
+            id="idm140225820975216"
+            class="indexterm"></a><div
+            class="para">
+			رغم أن استخدام Munin و Nagios شائع جداً، إلا أنهما ليسا اللاعبين الوحيدين في مجال المراقبة، كما أن كل منهما يعالج نصف المهمة فقط (الأول يتولى الرسوم البيانية، والثاني التنبيهات). أما Zabbix فيجمع بين الاثنتين؛ كما أن له واجهة وب لضبط النواحي الأكثر استخداماً. لقد تطور Zabbix في قفزات كبيرة خلال السنوات القليلة الماضية، ويمكن اعتباره منافسًا حقيقيًا؛ لكن لسوء الحظ، Zabbix غير متوفر في دبيان <span
+              class="distribution distribution">ويزي</span> نتيجة مشاكل في توقيت عملية الإصدار، لكن الحزمة ستتوفر كمنقول خلفي أو عبر مستودع غير رسمي. <div
+              class="url">→ <a
+                href="http://www.zabbix.org/">http://www.zabbix.org/</a></div>
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>بدائل</em></span> Icinga، مشتق من Nagios</strong></p></div></div></div><a
+            id="idm140225820970800"
+            class="indexterm"></a><div
+            class="para">
+			اشتق عدد من المطورين Nagios نتيجة تباين الآراء بخصوص نموذج تطوير Nagios (الذي تتحكم به شركة)، واختاروا Icinga كاسم لهم. لا يزال Icinga متوافقاً مع إعدادات Nagios وإضافاته —حتى الآن— إلا أنه يضيف بعض المزايا الخاصة أيضاً. <div
+              class="url">→ <a
+                href="http://www.icinga.org/">http://www.icinga.org/</a></div>
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.munin"></a>12.4.1. إعداد Munin</h3></div></div></div><a
+            id="idm140225820967504"
+            class="indexterm"></a><div
+            class="para">
+				يهدف Munin لمراقبة العديد من الأجهزة؛ وبالتالي، من الطبيعي أن يعتمد بنية مخدم/عميل. يجمع المستضيف المركزي –راسم البيانات (the grapher)– المعطيات من جميع حواسيب المراقبة، ويولد المخططات البيانية الزمنية.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225820965968"></a>12.4.1.1. إعداد الأجهزة للمراقبة</h4></div></div></div><div
+              class="para">
+					الخطوة الأولى هي تثبيت الحزمة <span
+                class="pkg pkg">munin-node</span>. تنصت الخدمة التي تثبتها هذه الحزمة إلى المنفذ 4949 وترد بإرسال البيانات التي تجمعها كافة الملحقات الفعالة. كل ملحق هو برنامج بسيط يعيد وصفاً للبيانات التي يجمعها بالإضافة إلى آخر قيمة مقاسة. تخزن الملحقات في <code
+                class="filename">/usr/share/munin/plugins/</code>، لكن لا تستخدم منها إلا التي لها رابط رمزي في المجلد <code
+                class="filename">/etc/munin/plugins/</code>.
+				</div><div
+              class="para">
+					عند تثبيت الحزمة، تعرف مجموعة من الملحقات الفعالة اعتماداً على البرمجيات المتوفرة والإعداد الحالي للمستضيف. لكن هذا الإعداد الآلي يعتمد على ميزة يجب أن يوفرها كل ملحق، ولذلك كان من المستحسن مراجعة وتعديل النتائج يدويًا. لو كان هناك توثيق شامل لكل ملحق لأفادنا في معرفة عمله، لكن للأسف لا يوجد أي توثيق رسمي. على أي حال، جميع الملحقات هي سكربتات ومعظمها بسيط جداً وفيه تعليقات توضيحية جيدة. إن تصفح <code
+                class="filename">/etc/munin/plugins/</code> إذن هو طريق جيدة لأخذ فكرة عن مهمة كل ملحق وتحديد الملحقات التي يجب إزالتها. كما أن تفعيل ملحق مفيد تجده في <code
+                class="filename">/usr/share/munin/plugins/</code> لا يحتاج إلا إنشاء رابط رمزي بالأمر <code
+                class="command">ln -sf /usr/share/munin/plugins/<em
+                  class="replaceable">plugin</em> /etc/munin/plugins/</code>‎. لاحظ أنه عندما ينتهي اسم الملحق بشرطة منخفضة ”_“ (underscore)، فهذا يعني أن الملحق يحتاج متغيراً حتى يعمل. يجب تخزين قيمة هذا المتغير في اسم الرابط الرمزي؛ مثلاً، يجب تفعيل الملحق ”if_‎“ بالرابط <code
+                class="filename">if_eth0</code>، وعندها سيراقب نشاط الشبكة على الواجهة الشبكية eth0.
+				</div><div
+              class="para">
+					بعد إعداد جميع الملحقات بشكل صحيح، يجب تغيير إعدادات الخدمة لتحديد صلاحيات الوصول للبيانات المجموعة. يتم هذا من خلال استخدام تعليمة التوجيه <code
+                class="literal">allow</code> في الملف <code
+                class="filename">/etc/munin/munin-node.conf</code> الإعداد الافتراضي هو <code
+                dir="ltr"
+                class="literal">allow ^127\.0\.0\.1$</code>، وهو يسمح بالوصول فقط للمستضيف المحلي. في العادة سيضيف مدير النظام سطراً مشابهاً يحوي عنوان IP للمستضيف راسم البيانات، وبعدها يعيد تشغيل الخدمة بالأمر <code
+                class="command">invoke-rc.d munin-node restart</code>.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>التعمق أكثر</em></span> إنشاء ملحقات محلية</strong></p></div></div></div><div
+                class="para">
+					رغم عدم توفر وثائق رسمية للملحقات القياسية، إلا أن Munin يحوي توثيقاً مفصلاً عن أسلوب عمل الملحقات، وكيفية تطوير الملحقات الجديدة. <div
+                  class="url">→ <a
+                    href="http://munin-monitoring.org/wiki/Documentation">http://munin-monitoring.org/wiki/Documentation</a></div>
+				</div><div
+                class="para">
+					أفضل اختبار للملحق هو عند تشغيله في الظروف نفسها التي يعمل فيها عندما تستدعيه الخدمة munin-node؛ ويمكن محاكاة هذا باستدعاء الأمر <code
+                  class="command">munin-run <em
+                    class="replaceable">plugin</em></code> بصلاحيات الجذر. إذا تم تمرير متغير ثان لهذا الأمر (مثل <code
+                  class="literal">config</code>) فسوف يعطى للملحق كمتغير.
+				</div><div
+                class="para">
+					عند استدعاء الملحق مع المتغير <code
+                  class="literal">config</code>، عليه توصيف نفسه عبر إعادة زمرة من الحقول:
+				</div><pre
+                class="screen"><code
+                  class="computeroutput">$ </code><strong
+                  class="userinput"><code>sudo munin-run load config
+</code></strong><code
+                  class="computeroutput">graph_title Load average
+graph_args --base 1000 -l 0
+graph_vlabel load
+graph_scale no
+graph_category system
+load.label load
+graph_info The load average of the machine describes how many processes are in the run-queue (scheduled to run "immediately").
+load.info 5 minute load average
+</code></pre><div
+                class="para">
+					تعرَّف مختلف الحقول المتوفرة في مواصفات ”بروتوكول الإعداد—configuration protocol“ المتوفر على موقع Munin. <div
+                  class="url">→ <a
+                    href="http://munin-monitoring.org/wiki/protocol-config">http://munin-monitoring.org/wiki/protocol-config</a></div>
+				</div><div
+                class="para">
+					عند استدعاء الملحلق دون أي متغيرات، سوف يعيد آخر قيمة مقاسة ببساطة؛ مثلاً، تنفيذ <code
+                  class="command">sudo munin-run load</code> سوف يعيد القيمة <code
+                  class="literal">load.value 0.12</code>.
+				</div><div
+                class="para">
+					أخيراً، عند استدعاء الملحق مع المتغير <code
+                  class="literal">autoconf</code>، عليه أن يعيد ”yes“ (مع حالة الخروج—exit status ‏0) إذا كان تفعيل الملحق واجباً على هذا المستضيف، أو ”no“ (مع حالة الخروج 1) في الحالة المعاكسة.
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225820946064"></a>12.4.1.2. إعداد راسم البيانات</h4></div></div></div><div
+              class="para">
+					”راسم البيانات“ هو ببساطة حاسوب يجمع البيانات ويولد الرسوم البيانية الموافقة. البرنامج المطلوب متوفر في الحزمة <span
+                class="pkg pkg">munin</span>. يشغل الإعداد الافتراضي <code
+                class="command">munin-cron</code> (مرة كل 5 دقائق)، الذي يجمع البيانات من كافة الأجهزة المذكورة في <code
+                dir="ltr"
+                class="filename">/etc/munin/munin.conf</code> (المستضيف المحلي هو الوحيد المذكور افتراضيًا)، ويحفظ البيانات التاريخية في ملفات RRD (‏<span
+                class="emphasis"><em>Round Robin Database</em></span>، وهي صيغة ملفات مصممة لحفظ البيانات التي تتغير مع الزمن) محفوظة في <code
+                class="filename">/var/lib/munin/</code> ويولد صفحة HTML تحوي المخططات البيانية في المجلد <code
+                class="filename">/var/cache/munin/www/</code>.
+				</div><div
+              class="para">
+					يجب إذن ذكر جميع الأجهزة المراقبة في ملف الضبط <code
+                dir="ltr"
+                class="filename">/etc/munin/munin.conf</code>. كل جهاز يذكر في قسم كامل مع اسم يقابل الجهاز ومدخلة <code
+                class="literal">address</code> واحدة على الأقل هي مدخلة العنوان التي تعطي عنوان IP المناسب.
+				</div><pre
+              class="programlisting">[ftp.falcot.com]
+    address 192.168.0.12
+    use_node_name yes
+</pre><div
+              class="para">
+					يمكن أن تصبح الأقسام معقدة أكثر وتضاف إليها معلومات وصف مخططات بيانية إضافية لتوليدها بجمع البيانات من عدة أجهزة. العينات الموفرة في ملف الضبط هي نقاط بدء جيدة للتخصيص.
+				</div><div
+              class="para">
+					آخر خطوة هي نشر الصفحات المولدة؛ وهذا يحتاج إعداد مخدم وب حتى تتاح محتويات <code
+                class="filename">/var/cache/munin/www/</code> على موقع وب. سيكون الوصول لهذا الموقع مقيَّداً غالباً، إما باستخدام نظام مصادقة أو بتقييد الوصول حسب عناوين IP. انظر <a
+                class="xref"
+                href="sect.http-web-server.html">قسم 11.2, “مخدم الوب (HTTP)”</a> لمزيد من التفاصيل.
+				</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.nagios"></a>12.4.2. إعداد Nagios</h3></div></div></div><a
+            id="idm140225820935776"
+            class="indexterm"></a><div
+            class="para">
+				لا يشترط Nagios تثبيت أي شيء على الأجهزة المراقبة بخلاف Munin؛ بل يستخدم Nagios –معظم الأحيان– للتحقق من توفر الخدمات الشبكية. مثلاً، يمكن أن يتصل Nagios بمخدم الوب ويتحقق أنه يستطيع الحصول على صفحة وب معينة خلال مدة زمنية محددة.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225820934208"></a>12.4.2.1. التثبيت</h4></div></div></div><div
+              class="para">
+					أول خطوة في إعداد Nagios هي تثبيت الحزم <span
+                class="pkg pkg">nagios3</span>، و<span
+                class="pkg pkg">nagios-plugins</span>، و<span
+                class="pkg pkg">nagios3-doc</span>. عملية التثبيت لهذه الحزم تتضمن إعداد واجهة وب وإنشاء مستخدم أولي باسم <code
+                class="literal">nagiosadmin</code> (ويطلب منك تحديد كلمة السر لهذا الحساب). يمكن إضافة مستخدمين آخرين بسهولة بإضافتهم إلى ملف <code
+                dir="ltr"
+                class="filename">/etc/nagios3/htpasswd.users</code> بالأمر <code
+                class="command">htpasswd</code> الذي يوفره مخدم الوب أباتشي. إذا لم يظهر سؤال Debconf عن كلمة السر أثناء التثبيت، فيمكن استخدام <code
+                class="command">dpkg-reconfigure nagios3-cgi</code> لتعريف كلمة السر لحساب <code
+                class="literal">nagiosadmin</code>.
+				</div><div
+              class="para">
+					تفتح واجهة الوب بتوجيه مستعرض الوب إلى العنوان <code
+                dir="ltr"
+                class="literal">http://<em
+                  class="replaceable">server</em>/nagios3/</code>؛ لاحظ أن Nagios يراقب وحده بعض المتغيرات للجهاز الذي يعمل عليه. لكن لا تعمل بعض المزايا التفاعلية مثل إضافة التعليقات إلى المستضيف. هذه المزايا معطلة في إعدادات Nagios الافتراضية، إذ أن هذه الإعدادات مقيدة جداً لأسباب أمنية.
+				</div><div
+              class="para">
+					كما هو موثق في <code
+                dir="ltr"
+                class="filename">/usr/share/doc/nagios3/README.Debian</code>، لتفعيل بعض المزايا يجب تعديل <code
+                dir="ltr"
+                class="filename">/etc/nagios3/nagios.cfg</code> وتغيير قيمة المتغير <code
+                class="literal">check_external_commands</code> إلى ”1“. كما نحتاج ضبط صلاحيات الكتابة للمجلدات التي يستخدمها Nagios، بأوامر تشبه ما يلي:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>/etc/init.d/nagios3 stop</code></strong>
+<code
+                class="computeroutput">[...]
+# </code><strong
+                class="userinput"><code>dpkg-statoverride --update --add nagios www-data 2710 /var/lib/nagios3/rw
+</code></strong><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg-statoverride --update --add nagios nagios 751 /var/lib/nagios3
+</code></strong><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>/etc/init.d/nagios3 start</code></strong>
+<code
+                class="computeroutput">[...]</code></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225820921232"></a>12.4.2.2. الضبط</h4></div></div></div><div
+              class="para">
+					واجهة الوب في Nagios جميلة نسبيًا، لكنها لا تسمح بتغيير الإعدادات، ولا يمكن استخدامها لإضافة أجهزة أو خدمات لمراقبتها. كل الإعداد تديره ملفات يشير إليها ملف الإعداد المركزي، وهو <code
+                dir="ltr"
+                class="filename">/etc/nagios3/nagios.cfg</code>.
+				</div><div
+              class="para">
+					قبل الغوص في هذه الملفات، يجب فهم بعض مفاهيم Nagios. يشمل الإعداد مجموعة من الأنواع المختلفة من الكائنات:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>host</em></span> (المستضيف) هو الجهاز الذي ستتم مراقبته؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>hostgroup</em></span> هي مجموعة من المستضيفين يجب تجميعهم معاً عند العرض، أو لتجميع بعض الإعدادات المشتركة؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>service</em></span> (الخدمة) هي عنصر قابل للقياس متعلق بمستضيف أو بمجموعة من المستضيفين. الغالب أنها فحص لخدمة شبكية ما، لكن يمكن أن تشمل اختبار متغيرات أخرى أيضًا والتحقق أن قيمها ضمن مجال مقبول (مثلاً، مساحة القرص الحرة أو حمل المعالج)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>servicegroup</em></span> هي مجموعة من الخدمات التي يجب تجميعها معاً عند العرض؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>contact</em></span> هو شخص يتلقى التنبيهات؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>contactgroup</em></span> مجموعة من الأشخاص الذين يتلقون التنبيهات؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>timeperiod</em></span> الفاصل الزمني بين كل عملية تحقق من بعض الخدمات؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<span
+                      class="emphasis"><em>command</em></span> هو سطر من الأوامر يستدعى للتحقق من خدمة معينة.
+						</div></li></ul></div><div
+              class="para">
+					لكل كائن عدد من الخصائص (تختلف حسب نوعه) التي يمكن تعديلها. لا يمكن أن نضع قائمة كاملة بها لكثرتها، لكن أهم الخصائص هي العلاقات بين الكائنات.
+				</div><div
+              class="para">
+					تستخدم الخدمة (<span
+                class="emphasis"><em>service</em></span>) أمراً (<span
+                class="emphasis"><em>command</em></span>) للتحقق من حالة ميزة على مستضيف (<span
+                class="emphasis"><em>host</em></span>) معين (أو مجموعة <span
+                class="emphasis"><em>hostgroup</em></span>) خلال فاصل زمني (<span
+                class="emphasis"><em>timeperiod</em></span>). في حال حدوث مشكلة، يرسل Nagios تنبيهاً لجميع أعضاء <span
+                class="emphasis"><em>contactgroup</em></span> المرتبطة بتلك الخدمة. يرسل التنبيه لكل عضو وفقاً لقناة الاتصال المحددة في كائن <span
+                class="emphasis"><em>contact</em></span> المقابل له.
+				</div><div
+              class="para">
+					يسمح نظام الوراثة بتشارك مجموعة من الخصائص بين العديد من الكائنات دون تكرار المعلومات. كما يتمضمن الإعداد الأولي عدد من الكائنات القياسية؛ إن تعريف مستضيف جديد أو خدمة أو جهة اتصال في معظم الأحيان هو مجرد اشتقاق للكائنات العامة المعرفة مسبقًا. الملفات في <code
+                class="filename">/etc/nagios3/conf.d/</code> هي مصدر جيد لتعلم طريقة عمل هذه الكائنات.
+				</div><div
+              class="para">
+					يستخدم مديرو النظم في شركة فلكوت الإعداد التالي:
+				</div><div
+              class="example"><a
+                id="idm140225820901984"></a><p
+                class="title"><strong>مثال 12.3. الملف <code
+                    dir="ltr"
+                    class="filename">/etc/nagios3/conf.d/falcot.cfg</code></strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">define contact{
+    name                            generic-contact
+    service_notification_period     24x7
+    host_notification_period        24x7
+    service_notification_options    w,u,c,r
+    host_notification_options       d,u,r
+    service_notification_commands   notify-service-by-email
+    host_notification_commands      notify-host-by-email
+    register                        0 ; Template only
+}
+define contact{
+    use             generic-contact
+    contact_name    rhertzog
+    alias           Raphael Hertzog
+    email           hertzog@debian.org
+}
+define contact{
+    use             generic-contact
+    contact_name    rmas
+    alias           Roland Mas
+    email           lolando@debian.org
+}
+
+define contactgroup{
+    contactgroup_name     falcot-admins
+    alias                 Falcot Administrators
+    members               rhertzog,rmas
+}
+
+define host{
+    use                   generic-host ; Name of host template to use
+    host_name             www-host
+    alias                 www.falcot.com
+    address               192.168.0.5
+    contact_groups        falcot-admins
+    hostgroups            debian-servers,ssh-servers
+}
+define host{
+    use                   generic-host ; Name of host template to use
+    host_name             ftp-host
+    alias                 ftp.falcot.com
+    address               192.168.0.6
+    contact_groups        falcot-admins
+    hostgroups            debian-servers,ssh-servers
+}
+
+# 'check_ftp' command with custom parameters
+define command{
+    command_name          check_ftp2
+    command_line          /usr/lib/nagios/plugins/check_ftp -H $HOSTADDRESS$ -w 20 -c 30 -t 35
+}
+
+# Generic Falcot service
+define service{
+    name                  falcot-service
+    use                   generic-service
+    contact_groups        falcot-admins
+    register              0
+}
+
+# Services to check on www-host
+define service{
+    use                   falcot-service
+    host_name             www-host
+    service_description   HTTP
+    check_command         check_http
+}
+define service{
+    use                   falcot-service
+    host_name             www-host
+    service_description   HTTPS
+    check_command         check_https
+}
+define service{
+    use                   falcot-service
+    host_name             www-host
+    service_description   SMTP
+    check_command         check_smtp
+}
+
+# Services to check on ftp-host
+define service{
+    use                   falcot-service
+    host_name             ftp-host
+    service_description   FTP
+    check_command         check_ftp2
+}
+</pre></div></div><div
+              class="para">
+					This configuration file describes two monitored hosts. The first one is the web server, and the checks are made on the HTTP (80) and secure-HTTP (443) ports. Nagios also checks that an SMTP server runs on port 25. The second host is the FTP server, and the check includes making sure that a reply comes within 20 seconds. Beyond this delay, a <span
+                class="emphasis"><em>warning</em></span> is emitted; beyond 30 seconds, the alert is deemed critical. The Nagios web interface also shows that the SSH service is monitored: this comes from the hosts belonging to the <code
+                class="literal">ssh-servers</code> hostgroup. The matching standard service is defined in <code
+                class="filename">/etc/nagios3/conf.d/services_nagios2.cfg</code>.
+				</div><div
+              class="para">
+					لاحظ استخدام الوراثة: يرث الكائن من كائن آخر باستخدام ”use <em
+                class="replaceable">parent-name</em>“. يجب أن يكون الكائن الأب قابلاً للتعرف، عبر إسناد اسم له في خاصية ”name <em
+                class="replaceable">identifier</em>“. إذا كان الهدف من الكائن الأب أن يستعمل في الوراثة فقط دون أن يكون كائناً حقيقياً، عندها يعطى الخاصية ”register 0“ حتى لا يأخذه Nagios بعين الاعتبار، وبالتالي يتجاهل نقصان بعض المتغيرات المطلوبة في الحالة الطبيعية.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>توثيق</em></span> قائمة بخصائص الكائنات</strong></p></div></div></div><div
+                class="para">
+					يمكن التعمق في فهم الطرق المختلفة لإعداد Nagios من الوثائق المتاحة في حزمة <span
+                  class="pkg pkg">nagios3-doc</span>. يمكن الوصول لهذه الوثائق مباشرة عبر واجهة الوب، من خلال وصلة ”Documentation“ في الزاوية اليسرى العليا. يتضمن التوثيق قائمة بأنواع الكائنات، مع جميع الخصائص التي يمكن أن تملكها. كما يشرح كيفية إنشاء ملحقات جديدة.
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>التعمق أكثر</em></span> الاختبار عن بعد باستخدام NRPE</strong></p></div></div></div><div
+                class="para">
+					العديد من ملحقات Nagios تسمح باختبار بعض المتغيرات المحلية على المستضيف؛ إذا كانت هناك حاجة لإجراء مثل هذه الاختبارات مع تجميع نتائجها في مكان واحد، فيجب نشر الملحق NPRE‏ (<span
+                  class="emphasis"><em>Nagios Remote Plugin Executor</em></span>). يجب تثبيت الحزمة <span
+                  class="pkg pkg">nagios-nrpe-plugin</span> على مخدم Nagios، والحزمة <span
+                  class="pkg pkg">nagios-nrpe-server</span> على الأجهزة التي يراد إجراء الاختبارات عليها. تأخذ الأخيرة إعداداتها من <code
+                  dir="ltr"
+                  class="filename">/etc/nagios/nrpe.cfg</code>. يجب أن يحدد هذا الملف الاختبارات التي يمكن تنفيذها عن بعد، وعناوين IP للأجهزة التي يسمح لها بطلب هذه الاختبارات. تفعيل هذه الاختبارات البعيدة على طرف Nagios يتم ببساطة بإضافة الخدمات المقابلة لها باستخدام الأمر الجديد <span
+                  class="emphasis"><em>check_nrpe</em></span>.
+				</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.automated-installation.html"><strong>السابق</strong>12.3. التثبيت المؤتمت</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="workstation.html"><strong>التالي</strong>فصل 13. محطات العمل</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.monitoring.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.monitoring.html">da-DK</a></li><li><a
+              href="../de-DE/sect.monitoring.html">de-DE</a></li><li><a
+              href="../el-GR/sect.monitoring.html">el-GR</a></li><li><a
+              href="../en-US/sect.monitoring.html">en-US</a></li><li><a
+              href="../es-ES/sect.monitoring.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.monitoring.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.monitoring.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.monitoring.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.monitoring.html">id-ID</a></li><li><a
+              href="../it-IT/sect.monitoring.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.monitoring.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.monitoring.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.monitoring.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.monitoring.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.monitoring.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.monitoring.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.monitoring.html">zh-CN</a></li></ul></div></body></html>

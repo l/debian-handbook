@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.5. أحداث syslog</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="إقلاع النظام, سكربتات Init, SSH , Telnet, حقوق, صلاحيات, إشراف, Inetd, Cron, النسخ الاحتياطي, توصيل ساخن, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="unix-services.html"
+        title="فصل 9. خدمات يونكس" /><link
+        rel="prev"
+        href="sect.administration-interfaces.html"
+        title="9.4. واجهات الإدارة" /><link
+        rel="next"
+        href="sect.inetd.html"
+        title="9.6. المخدم الفائق inetd" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.syslog.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.syslog"></a>9.5. أحداث <code
+                  class="command">syslog</code></h2></div></div></div><a
+          id="idm140225826276976"
+          class="indexterm"></a><a
+          id="idm140225826275856"
+          class="indexterm"></a><a
+          id="idm140225826274448"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-principe"></a>9.5.1. المبدأ والآلية</h3></div></div></div><div
+            class="para">
+				خدمة <code
+              class="command">rsyslogd</code> مسؤولة عن جمع رسائل الخدمات الواردة من التطبيقات ومن النواة، ثم إرسالها إلى ملفات السجلات (التي تخزن عادة في المجلد <code
+              class="filename">/var/log/</code>). تطيع هذه الخدمة التعليمات في ملف الضبط <code
+              dir="ltr"
+              class="filename">/etc/rsyslog.conf</code>.
+			</div><div
+            class="para">
+				كل رسالة سجل ترتبط مع نظام فرعي لتطبيق ما (يدعى ”facility“ في الوثائق):
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">auth</code> و<code
+                    class="literal">authpriv</code>: للمصادقة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">cron</code>: تأتي من خدمات الجدولة، <code
+                    class="command">cron</code> و<code
+                    class="command">atd</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">daemon</code>: تتعلق بخدمة ليس لها تصنيف خاص (DNS، ‏NTP، الخ)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ftp</code>: تتعلق بمخدم FTP؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">kern</code>: رسائل واردة من النواة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">lpr</code>: تأتي من النظام الفرعي الخاص بالطباعة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">mail</code>: تأتي من النظام الفرعي الخاص بالبريد الإلكتروني؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">news</code>: رسائل النظام الفرعي Usenet (خصوصاً من مخدم NNTP‏ –Network News Transfer Protocol، أو بروتوكول نقل الأخبار عبر الشبكة– الذي يدير المجموعات الإخبارية)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">syslog</code>: رسائل من المخدم <code
+                    class="command">syslogd</code> نفسه؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">user</code>: رسائل المستخدم (عامة)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">uucp</code>: رسائل من مخدم UUCP ‏(Unix to Unix Copy Program، أو برنامج النسخ من يونكس إلى يونكس، بروتوكول قديم كان يستخدم لتوزيع رسائل البريد الإلكتروني)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">local0</code> حتى <code
+                    class="literal">local7</code>: محجوزة للاستخدامات المحلية.
+					</div></li></ul></div><div
+            class="para">
+				تعطى كل رسالة أولوية أيضاً. هذه قائمة الأولويات مرتبة تنازلياً:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">emerg</code>: ”النجدة!“ هناك حالة طارئة، النظام غير قابل للاستخدام على الأرجح.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">alert</code>: أسرِع، أي تأخير قد يكون خطيراً، يجب اتخاذ إجراء فوراً؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">crit</code>: الحالة حرجة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">err</code>: خطأ؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">warn</code>: تحذير (يحتمل أن يكون خطأ)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">notice</code>: الحالة طبيعية، لكن الرسالة مهمة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">info</code>: رسالة إعلامية؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">debug</code>: رسالة تستخدم في التنقيح.
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-config"></a>9.5.2. ملف الإعداد</h3></div></div></div><div
+            class="para">
+				صيغة الملف <code
+              class="filename">/etc/rsyslog.conf</code> مفصلة في صفحة الدليل <span
+              class="citerefentry"><span
+                class="refentrytitle">rsyslog.conf</span>(5)</span>‎، لكن هناك أيضاً توثيق بصيغة HTML متوفر في الحزمة <span
+              class="pkg pkg">rsyslog-doc</span> ‏(<code
+              class="filename">/usr/share/doc/rsyslog-doc/html/index.html</code>). المبدأ العام هو كتابة زوج يتألف من ”مُنتخِب selector“ و ”فعل action“. يعرف المنتخب جميع الرسائل المطلوبة، أما الفعل فيصف طريقة التعامل معها.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-selector-syntax"></a>9.5.2.1. صيغة المنتخب</h4></div></div></div><div
+              class="para">
+					المُنتخِب هو لائحة تُفصَل عناصرها بفواصل منقوطة تتألف من أزواج من <code
+                class="literal"><em
+                  class="replaceable">subsystem</em>.<em
+                  class="replaceable">priority</em></code> (أزواج من نظام فرعي.أولوية، مثال: <code
+                class="literal">auth.notice;mail.info</code>). يمكن استخدام النجمة لتعبر عن جميع النظم الفرعية أو جميع مستويات الأولوية (مثال: <code
+                dir="ltr"
+                class="literal">*.alert</code> أو <code
+                dir="ltr"
+                class="literal">mail.*</code>). يمكن جمع عدة نظم فرعية، عبر استخدام الفاصلة (مثال: <code
+                class="literal">auth,mail.info</code>). كما أن الأولوية المذكورة تغطي الرسائل ذات الأولوية نفسها أو الأولويات أعلى؛ أي أن <code
+                class="literal">auth.alert</code> يشير إلى رسائل النظام الفرعي <code
+                class="literal">auth</code> ذات الأولوية <code
+                class="literal">alert</code> أو <code
+                class="literal">emerg</code>. إذا سبقت الأولوية بعلامة التعجب (!)، فسوف تشير إلى نقيضها، أي إلى الأولويات الأقل منها حصراً؛ أي أن <code
+                class="literal">auth.!notice</code> يشير إلى الرسائل الصادرة عن <code
+                class="literal">auth</code>، بأولوية <code
+                class="literal">info</code> أو <code
+                class="literal">debug</code>. وإذا سبقت بإشارة المساواة (=)، فسوف تقابل الأولوية المحددة وحدها فقط (<code
+                class="literal">auth.=notice</code> يشير إلى رسائل <code
+                class="literal">auth</code> ذات الأولوية <code
+                class="literal">notice</code> فقط).
+				</div><div
+              class="para">
+					كل عنصر في لائحة المنتخب أقوى من العناصر السابقة له. لذلك يمكن حصر مجموعة من الأولويات أو استثناء عناصر محددة منها. مثلاً، <code
+                class="literal">kern.info;kern.!err</code> يعني الرسائل من النواة التي تتراوح أولويتها بين <code
+                class="literal">info</code> و <code
+                class="literal">warn</code>. تشير الأولوية <code
+                class="literal">none</code> إلى المجموعة الخالية (لا تشير لأي أولوية)، ويمكن استخدامها لاستثناء نظام فرعي من مجموعة من الرسائل. بالتالي، <code
+                dir="ltr"
+                class="literal">*.crit;kern.none</code> يشير إلى جميع الرسائل ذات الأولوية <code
+                class="literal">crit</code> أو أعلى عدا التي ترد من النواة.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-action-syntax"></a>9.5.2.2. صيغة الأفعال</h4></div></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>أساسيات</em></span> الأنبوب المسمّى، أنبوب دائم</strong></p></div></div></div><a
+                id="idm140225826213168"
+                class="indexterm"></a><a
+                id="idm140225826212240"
+                class="indexterm"></a><div
+                class="para">
+					الأنبوب المسمّى هو نوع خاص من الملفات يعمل مثل الأنابيب التقليدية (الأنابيب التي تنشأ بكتابة الرمز ”|“ في سطر الأوامر)، ولكن باستخدام ملف. تتميز هذه الآلية بقدرتها على ربط عمليتين غير متعلقتين ببعضهما. أي شيء يُكتَب إلى أنبوب مسمى يُوقِف تنفيذ العملية التي تكتب حتى تحاول عملية أخرى قراءة البيانات المكتوبة. تقرأ العملية الثانية البيانات التي كتبتها الأولى، التي تستطيع بعد ذلك متابعة التنفيذ.
+				</div><div
+                class="para">
+					يُنشَأ هذا النوع من الملفات باستخدام الأمر <code
+                  class="command">mkfifo</code>.
+				</div></div><div
+              class="para">
+					الأفعال المختلفة المتوفرة هي:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							إضافة الرسالة إلى ملف (مثال: <code
+                      dir="ltr"
+                      class="filename">/var/log/messages</code>)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							إرسال الرسالة إلى مخدم <code
+                      class="command">syslog</code> بعيد (مثال: <code
+                      dir="ltr"
+                      class="literal">@log.falcot.com</code>)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							إرسال الرسالة إلى أنبوب مسمّى سابق (مثال: <code
+                      dir="ltr"
+                      class="literal">|/dev/xconsole</code>)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							إرسال الرسالة إلى مستخدم واحد أو أكثر، إذا كانوا مسجلي دخولهم (مثال: <code
+                      class="literal">root,rhertzog</code>)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							إرسال الرسالة إلى جميع المستخدمين المسجلي دخولهم (مثال: <code
+                      class="literal">*</code>)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							كتابة الرسالة في طرفية نصية (مثال: <code
+                      dir="ltr"
+                      class="literal">/dev/tty8</code>).
+						</div></li></ul></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>أمن</em></span> توجيه السجلات</strong></p></div></div></div><a
+                id="idm140225826196320"
+                class="indexterm"></a><div
+                class="para">
+					إن تسجيل أهم الرسائل على جهاز منفصل (ربما كان جهازاً مخصصاً لهذا الغرض) فكرة سديدة، بما أن هذا سيمنع أي متطفل محتمل من إزالة آثار تطفله (ما لم يخترق الجهاز الآخر أيضاً، طبعاً). بالإضافة لذلك، في حال حدوث مشكلة كبيرة (مثل انهيار النواة)، ستبقى السجلات متاحة على الجهاز الآخر، وهذا يزيد فرص التعرف على سلسلة الأحداث التي سببت الخلل.
+				</div><div
+                class="para">
+					لقبول الرسائل السجلية التي ترسلها الأجهزة الأخرى، عليك إعادة ضبط <span
+                  class="emphasis"><em>rsyslog</em></span>: عملياً، يكفي تفعيل المدخلات الجاهزة للاستخدام في الملف <code
+                  dir="ltr"
+                  class="filename">/etc/rsyslog.conf</code> ‏(<code
+                  dir="ltr"
+                  class="literal">$ModLoad imudp</code> و<code
+                  dir="ltr"
+                  class="literal">$UDPServerRun 514</code>).
+				</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>السابق</strong>9.4. واجهات الإدارة</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>التالي</strong>9.6. المخدم الفائق inetd</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.syslog.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.syslog.html">da-DK</a></li><li><a
+              href="../de-DE/sect.syslog.html">de-DE</a></li><li><a
+              href="../el-GR/sect.syslog.html">el-GR</a></li><li><a
+              href="../en-US/sect.syslog.html">en-US</a></li><li><a
+              href="../es-ES/sect.syslog.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.syslog.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.syslog.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.syslog.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.syslog.html">id-ID</a></li><li><a
+              href="../it-IT/sect.syslog.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.syslog.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.syslog.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.syslog.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.syslog.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.syslog.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.syslog.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.syslog.html">zh-CN</a></li></ul></div></body></html>

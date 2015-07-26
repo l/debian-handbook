@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">B.5. فضاء المستخدم</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="بيوس, نواة, يونكس, عملية, بنية شجرية, الأوامر الأساسية" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="short-remedial-course.html"
+        title="ملحق B. دورة تذكيرية قصيرة" /><link
+        rel="prev"
+        href="sect.kernel-role-and-tasks.html"
+        title="B.4. بعض المهام التي تتحكم بها النواة" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.user-space.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-role-and-tasks.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.user-space"></a>B.5. فضاء المستخدم</h2></div></div></div><a
+          id="idm140225821379776"
+          class="indexterm"></a><a
+          id="idm140225821378848"
+          class="indexterm"></a><div
+          class="para">
+			“User-space” refers to the runtime environment of normal (as opposed to kernel) processes. This does not necessarily mean these processes are actually started by users because a standard system normally has several “daemon” (or background) processes running before the user even opens a session. Daemon processes are also considered user-space processes.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.process-basics"></a>B.5.1. عملية</h3></div></div></div><a
+            id="idm140225821376000"
+            class="indexterm"></a><div
+            class="para">
+				When the kernel gets past its initialization phase, it starts the very first process, <code
+              class="command">init</code>. Process #1 alone is very rarely useful by itself, and Unix-like systems run with many additional processes.
+			</div><a
+            id="idm140225821373856"
+            class="indexterm"></a><div
+            class="para">
+				First of all, a process can clone itself (this is known as a <span
+              class="emphasis"><em>fork</em></span>). The kernel allocates a new (but identical) process memory space, and another process to use it. At this time, the only difference between these two processes is their <span
+              class="emphasis"><em>pid</em></span>. The new process is usually called a child process, and the original process whose <span
+              class="emphasis"><em>pid</em></span> doesn't change, is called the parent process.
+			</div><div
+            class="para">
+				Sometimes, the child process continues to lead its own life independently from its parent, with its own data copied from the parent process. In many cases, though, this child process executes another program. With a few exceptions, its memory is simply replaced by that of the new program, and execution of this new program begins. This is the mechanism used by the init process (with process number 1) to start additional services and execute the whole startup sequence. At some point, one process among <code
+              class="command">init</code>'s offspring starts a graphical interface for users to log in to (the actual sequence of events is described in more details in <a
+              class="xref"
+              href="unix-services.html#sect.system-boot">قسم 9.1, “إقلاع النظام”</a>).
+			</div><div
+            class="para">
+				عندما تنهي العملية المهمة التي بدأت لأجلها، تنتهي العملية. بعدها تستعيد النواة الذاكرة المخصصة لهذه العملية، وتقطع عنها شرائح التشغيل الزمنية. يتم إعلام العملية الأم عن انتهاء عمليتها الابن، ما يسمح لعملية ما أن تنتظر إنهاء مهمة فوضت أحد أبنائها بها. هذا السلوك واضح للعين المجردة في مفسرات سطر الأوامر (تعرف باسم <span
+              class="emphasis"><em>الأصداف shells</em></span>). عند كتابة أمر في الصَدَفَة، لا تعود إشارة الإدخال قبل انتهاء تنفيذ الأمر. تسمح معظم الأصداف بتشغيل الأوامر في الخلفية، يكون ذلك بسهولة بإضافة <strong
+              class="userinput"><code>&amp;</code></strong> إلى نهاية الأمر. بعدها تظهر إشارة الإدخال مجددًا مباشرة، وهذا قد يسبب مشاكل إذا كان الأمر يحتاج لإظهار بيانات خاصة به.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.daemons"></a>B.5.2. الجن</h3></div></div></div><a
+            id="idm140225821365008"
+            class="indexterm"></a><a
+            id="idm140225821364048"
+            class="indexterm"></a><div
+            class="para">
+				”الجني daemon“ هو عملية تُشغِّلها متتالية الإقلاع آلياً. يبقى نشطاً (في الخلفية) لتنفيذ مهام صيانة أو تقديم خدمات للعمليات الأخرى. هذه ”المهمة في الخلفية“ عشوائية في الحقيقة، ولا تقابل أي شيء محدد من وجهة نظر النظام. هي مجرد عمليات، شبيهة بالعمليات الأخرى تماماً، التي تعمل بدورها عندما تحين حصتها من الوقت. هذا التمييز موجود في لغة البشر فقط: أية عملية تعمل بدون أي تفاعل مع المستخدم (على الأخص، بدون واجهة رسومية) يقال أنها تعمل ”في الخلفية“ أو أنها ”جني“.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>مصطلحات</em></span> جني، شيطان، مصطلح ازدرائي؟</strong></p></div></div></div><div
+              class="para">
+				بالرغم من أن مصطلح <span
+                class="emphasis"><em>daemon</em></span> (جني) يتشاطر أصله اليوناني مع <span
+                class="emphasis"><em>demon</em></span> (شيطان)، إلا أن الأول لا يتضمن شراً شيطانياً، بالعكس، يجب التفكير به على أنه نوع من الأرواح المساعدة. هذا التفريق معقّد بما يكفي في الإنكليزية، بل هو أسوأ في لغات أخرى حيث تستخدم الكلمة نفسها للدلالة على المعنيين.
+			</div></div><div
+            class="para">
+				هناك شرح مفصل لمجموعة من الجن أمثال هؤلاء في <a
+              class="xref"
+              href="unix-services.html">فصل 9, <em>خدمات يونكس</em></a>.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ipc"></a>B.5.3. التواصل بين العمليات</h3></div></div></div><a
+            id="idm140225821356656"
+            class="indexterm"></a><a
+            id="idm140225821355696"
+            class="indexterm"></a><div
+            class="para">
+				إن العملية المعزولة، سواء كانت خدمة أو تطبيقًا تفاعليًا، نادراً ما تكون مفيدة بحد ذاتها، وهو السبب وراء وجود العديد من أساليب التواصل بين العمليات المنفصلة، سواء لتبادل البيانات أو لتتحكم واحدتها بالأخرى. المصطلح العام للتعبير عن هذا المفهوم هو <span
+              class="emphasis"><em>التواصل بين العمليات inter-process communication</em></span>، أو IPC اختصاراً.
+			</div><div
+            class="para">
+				أبسط نظام IPC هو استخدام الملفات. تكتب العملية التي ترغب بإرسال البيانات بياناتها في ملف (له اسم معروف مسبقًا)، في حين تحتاج العملية المتلقية إلى فتح الملف وقراءة محتوياته فقط.
+			</div><a
+            id="idm140225821352656"
+            class="indexterm"></a><div
+            class="para">
+				In the case where you do not wish to store data on disk, you can use a <span
+              class="emphasis"><em>pipe</em></span>, which is simply an object with two ends; bytes written in one end are readable at the other. If the ends are controlled by separate processes, this leads to a simple and convenient inter-process communication channel. Pipes can be classified into two categories: named pipes, and anonymous pipes. A named pipe is represented by an entry on the filesystem (although the transmitted data is not stored there), so both processes can open it independently if the location of the named pipe is known beforehand. In cases where the communicating processes are related (for instance, a parent and its child process), the parent process can also create an anonymous pipe before forking, and the child inherits it. Both processes will then be able to exchange data through the pipe without needing the filesystem.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ممارسة عملية</em></span> مثال شامل</strong></p></div></div></div><div
+              class="para">
+				دعنا نناقش ما يحدث عند تنفيذ أمر معقد (<span
+                class="emphasis"><em>خط أنابيب</em></span>) من الصَدَفة بشيء من التفصيل. نحن نفترض أن لدينا عملية <code
+                class="command">bash</code> (صَدَفة المستخدم القياسية على دبيان)، لها <span
+                class="emphasis"><em>pid</em></span> يساوي4374؛ وفي هذه الصدفة، سنكتب الأمر : <code
+                class="command">ls | sort</code> .
+			</div><div
+              class="para">
+				تُفَسِّر الصدفة أولاً الأمر المكتوب فيها. في حالتنا، ستفهم أن هناك برنامجين (<code
+                class="command">ls</code> و <code
+                class="command">sort</code>)، مع مجرى بيانات يتدفق من أحدهما إلى الآخر (ممثل بالمحرف <strong
+                class="userinput"><code>|</code></strong>، الذي يدعى <span
+                class="emphasis"><em>بالأنبوب</em></span>). تنشئ <code
+                class="command">bash</code> أولاً أنبوبًا مجهولاً (الذي يكون مبدئيًا ضمن عملية <code
+                class="command">bash</code> نفسها).
+			</div><div
+              class="para">
+				تستنسخ الصدفة نفسها؛ هذا يؤدي إلى عملية <code
+                class="command">bash</code> جديدة، لها <span
+                class="emphasis"><em>pid</em></span> رقمه 4521 (<span
+                class="emphasis"><em>pid</em></span> هي مجرد أرقام، وعادة لا يكون لها أي معنى محدد). ترث العملية #4521 الأنبوب، ما يعني أنها قادرة على الكتابة في نهاية ”الإدخال“ الخاصة به؛ تُعيد <code
+                class="command">bash</code> توجيه مجرى خرجها القياسي إلى دخل هذا الأنبوب. بعدها تنفذ البرنامج <code
+                class="command">ls</code> (وتستبدل نفسها به)، الذي يسرد محتويات المجلد الحالي. نظراً لأن <code
+                class="command">ls</code> يكتب على مجرى خرجه القياسي، وقد أعيد توجيه هذا المجرى مسبقًا، سيتم إرسال النتائج عمليًا إلى الأنبوب.
+			</div><div
+              class="para">
+				تحدث عملية مشابهة للأمر الثاني حيث تستنسخ <code
+                class="command">bash</code> نفسها ثانية، منتجة عملية <code
+                class="command">bash</code> جديدة لها pid يساوي 4522. ولأنها أيضًا ابنة للعملية #4374، فسوف ترث الأنبوب؛ بعدها تربط <code
+                class="command">bash</code> دخلها القياسي إلى خرج الأنبوب، بعدها تنفذ الأمر <code
+                class="command">sort</code> (وتستبدل نفسها به)، الذي يرتب دخله ويعرض النتائج.
+			</div><div
+              class="para">
+				الآن اكتملت قطع الأحجية كلها: يكتب <code
+                class="command">ls</code> قائمة الملفات الموجودة في المجلد الحالي في الأنبوب؛ يقرأ <code
+                class="command">sort</code> هذه القائمة، يرتبها أبجديًا، ويعرض النتائج. تنتهي العمليات ذات الأرقام #4521 و #4522 بعدها، والعملية #4374 (التي كانت تنتظرهم أثناء الحدث)، تتابع التحكم وتعرض إشارة الإدخال للسماح للمستخدم بكتابة أمر جديد.
+			</div></div><div
+            class="para">
+				Not all inter-process communications are used to move data around, though. In many situations, the only information that needs to be transmitted are control messages such as “pause execution” or “resume execution”. Unix (and Linux) provides a mechanism known as <span
+              class="emphasis"><em>signals</em></span>, through which a process can simply send a specific signal (chosen from a predefined list of signals) to another process. The only requirement is to know the <span
+              class="emphasis"><em>pid</em></span> of the target.
+			</div><div
+            class="para">
+				For more complex communications, there are also mechanisms allowing a process to open access, or share, part of its allocated memory to other processes. Memory now shared between them can be used to move data between the processes.
+			</div><div
+            class="para">
+				أخيرًا، يمكن أن تساعد الاتصالات الشبكية بالتواصل بين العمليات؛ يمكن أن توجد هذه العمليات على حواسيب مختلفة، وقد تبعد عن بعضها آلاف الكيلومترات.
+			</div><div
+            class="para">
+				من العادي جداً لأي نظام نموذجي مشابه لنظام يونكس أن يستخدم جميع هذه الآليات بدرجات متفاوتة.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.libraries"></a>B.5.4. المكتبات</h3></div></div></div><a
+            id="idm140225821329328"
+            class="indexterm"></a><div
+            class="para">
+				تلعب مكتبات الدوال دوراً حيويًا في نظم التشغيل المشابه لنظام يونكس. ليست هذه المكتبات برامج تامة، نظرًا لعدم إمكانية تنفيذها منفردة، لكنها مجموعة من فتات الكود التي يمكن للبرامج القياسية استخدامه. من المكتبات الشائعة، نذكر ما يلي:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						مكتبة C القياسية (<span
+                    class="emphasis"><em>glibc</em></span>)، التي تحوي الوظائف الأساسية مثل دوال فتح الملفات أو الاتصالات الشبكية، وغيرها مما يسهل التفاعل مع النواة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						المكتبات الرسومية، Gtk+‎ وQt، تسمح للعديد من البرامج بإعادة استخدام العناصر الرسومية التي توفرها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						مكتبة <span
+                    class="emphasis"><em>libpng</em></span>، التي تسمح بتحميل، وتفسير وحفظ الصور بصيغة PNG.
+					</div></li></ul></div><div
+            class="para">
+				Thanks to those libraries, applications can reuse existing code. Application development is simplified since many applications can reuse the same functions. With libraries often developed by different persons, the global development of the system is closer to Unix's historical philosophy.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ثقافة</em></span> أسلوب يونكس: مهمة واحدة في الوقت الواحد</strong></p></div></div></div><div
+              class="para">
+				One of the fundamental concepts that underlies the Unix family of operating systems is that each tool should only do one thing, and do it well; applications can then reuse these tools to build more advanced logic on top. This philosophy can be seen in many incarnations. Shell scripts may be the best example: they assemble complex sequences of very simple tools (such as <code
+                class="command">grep</code>, <code
+                class="command">wc</code>, <code
+                class="command">sort</code>, <code
+                class="command">uniq</code> and so on). Another implementation of this philosophy can be seen in code libraries: the <span
+                class="emphasis"><em>libpng</em></span> library allows reading and writing PNG images, with different options and in different ways, but it does only that; no question of including functions that display or edit images.
+			</div></div><div
+            class="para">
+				بالإضافة إلى ذلك، غالباً ما يُشَار إلى هذه المكتبات على أنها ”مكتبات مشتركة“، لأن النواة تستطيع تحميلها إلى الذاكرة مرة واحدة فقط، حتى لو كانت عدة عمليات تستخدم المكتبة نفسها في الوقت ذاته. يسمح هذا بتوفير الذاكرة، مقارنة مع الحالة (النظرية) النقيضة لها حيث يتم تحميل كود المكتبة بعدد العمليات التي تستخدمها.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-role-and-tasks.html"><strong>السابق</strong>B.4. بعض المهام التي تتحكم بها النواة</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.user-space.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.user-space.html">da-DK</a></li><li><a
+              href="../de-DE/sect.user-space.html">de-DE</a></li><li><a
+              href="../el-GR/sect.user-space.html">el-GR</a></li><li><a
+              href="../en-US/sect.user-space.html">en-US</a></li><li><a
+              href="../es-ES/sect.user-space.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.user-space.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.user-space.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.user-space.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.user-space.html">id-ID</a></li><li><a
+              href="../it-IT/sect.user-space.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.user-space.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.user-space.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.user-space.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.user-space.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.user-space.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.user-space.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.user-space.html">zh-CN</a></li></ul></div></body></html>

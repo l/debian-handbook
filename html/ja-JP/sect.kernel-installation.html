@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.11. カーネルのインストール</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="設定, 地域化, ロケール, ネットワーク, 名前解決, ユーザ, グループ, アカウント, コマンドラインインタプリタ, シェル, 印刷, ブートローダ, カーネルのコンパイル" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="第8章 基本設定: ネットワーク、アカウント、印刷..." /><link
+        rel="prev"
+        href="sect.kernel-compilation.html"
+        title="8.10. カーネルのコンパイル" /><link
+        rel="next"
+        href="unix-services.html"
+        title="第9章 Unix サービス" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.kernel-installation.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-compilation.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="unix-services.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.kernel-installation"></a>8.11. カーネルのインストール</h2></div></div></div><a
+          id="idm140393324249248"
+          class="indexterm"></a><a
+          id="idm140393324247808"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-package"></a>8.11.1. Debian カーネルパッケージの特徴</h3></div></div></div><a
+            id="idm140393324245232"
+            class="indexterm"></a><div
+            class="para">
+				Debian カーネルパッケージはカーネルイメージ (<code
+              class="filename">vmlinuz-<em
+                class="replaceable">version</em></code>) をインストールします。カーネルの設定 (<code
+              class="filename">config-<em
+                class="replaceable">version</em></code>) とシンボルテーブル (<code
+              class="filename">System.map-<em
+                class="replaceable">version</em></code>) は <code
+              class="filename">/boot/</code> に置かれます。シンボルテーブルが無ければ、開発者はカーネルエラーメッセージの意味を理解できません; シンボルテーブルが無ければ、カーネルの「oops」(「oops」とはカーネル空間で起こるユーザ空間プログラムのセグメンテーション違反に相当するエラーです。言い換えれば、不正なポインタを参照して値を取得したことで生成されるメッセージです) に含まれる情報は、数字で表したメモリアドレスだけです。アドレスとシンボルや関数名を対応付けるテーブルが無ければ、この情報は役に立ちません。モジュールは <code
+              class="filename">/lib/modules/<em
+                class="replaceable">version</em>/</code> ディレクトリにインストールされます。
+			</div><div
+            class="para">
+				パッケージの設定スクリプトは自動的に initrd イメージを生成します。initrd はブートローダによってメモリに読み込まれる小さなシステムで (このためその名前は「init RAM ディスク」です)、Linux カーネルは initrd を使って完全な Debian システムを含むデバイス (例えば、IDE ディスクのドライバ) にアクセスするために必要なモジュールを読み込みます。最後に、post-installation スクリプトは <code
+              class="filename">/vmlinuz</code>、<code
+              class="filename">/vmlinuz.old</code>、<code
+              class="filename">/initrd.img</code>、<code
+              class="filename">/initrd.img.old</code> のシンボリックリンクを更新します。これらはそれぞれインストールされた最新の 2 つのカーネルと、カーネル対応する initrd イメージを指します。
+			</div><div
+            class="para">
+				これらの作業のほとんどは <code
+              class="filename">/etc/kernel/*.d/</code> ディレクトリの中にあるフックスクリプトが担っています。例えば、<code
+              class="command">grub</code> との統合は、カーネルがインストールまたは削除された際に <code
+              class="command">update-grub</code> を呼び出す <code
+              class="filename">/etc/kernel/postinst.d/zz-update-grub</code> と <code
+              class="filename">/etc/kernel/postrm.d/zz-update-grub</code> が担っています。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-installation-with-dpkg"></a>8.11.2. <code
+                    class="command">dpkg</code> を使ったインストール</h3></div></div></div><div
+            class="para">
+				<code
+              class="command">apt-get</code> はとても便利なので、簡単に低レベルツールについて忘てしまいます。しかし、コンパイルされたカーネルをインストールする最も簡単な方法は <code
+              class="command">dpkg -i <em
+                class="replaceable">package</em>.deb</code> などのコマンドを使うやり方です。ここで <code
+              class="literal"><em
+                class="replaceable">package</em>.deb</code> は <span
+              class="pkg pkg">linux-image</span> パッケージの名前で、例えば <code
+              class="filename">linux-image-3.16.7-ckt4-falcot_1_amd64.deb</code> です。
+			</div><div
+            class="para">
+				この章で説明された設定手順は基本であり、サーバシステムにもワークステーションにも適用でき、半自動化された方法で広く複製できます。しかしながら、この設定手順だけで完全に設定されたシステムを十分に提供することはできません。「Unix サービス」として知られている低レベルプログラムを初めとする、幾つかの要素に対する設定がまだ必要です。
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-compilation.html"><strong>戻る</strong>8.10. カーネルのコンパイル</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="unix-services.html"><strong>次へ</strong>第9章 Unix サービス</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.kernel-installation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.kernel-installation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.kernel-installation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.kernel-installation.html">el-GR</a></li><li><a
+              href="../en-US/sect.kernel-installation.html">en-US</a></li><li><a
+              href="../es-ES/sect.kernel-installation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.kernel-installation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.kernel-installation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.kernel-installation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.kernel-installation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.kernel-installation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.kernel-installation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.kernel-installation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.kernel-installation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.kernel-installation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.kernel-installation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.kernel-installation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.kernel-installation.html">zh-CN</a></li></ul></div></body></html>

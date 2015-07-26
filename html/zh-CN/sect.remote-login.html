@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.2. 远程登录</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="系统启动, 启动脚本, SSH, Telnet, 权限, 许可, 管理, Inetd, Cron, 备份, 热插拔, PCMCIA接口, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="prev"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="next"
+        href="sect.rights-management.html"
+        title="9.3. 管理权限" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.remote-login.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="unix-services.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.rights-management.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.remote-login"></a>9.2. 远程登录</h2></div></div></div><div
+          class="para">
+			对于管理员来说有必要远程连接电脑。位于单独房间的服务器，很少配置固定的键盘和显示器－但是他们都会接到网络。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>回到基础</em></span> 客户，服务器</strong></p></div></div></div><a
+            id="idm140492734096448"
+            class="indexterm"></a><a
+            id="idm140492734095040"
+            class="indexterm"></a><div
+            class="para">
+			拥有多个相互通信进程的系统常常被比作“客户／服务器”。服务器是获取客户请求并执行的程序。由客户来控制操作，服务器自身不会发起任何行动。
+		</div></div><a
+          id="idm140492734092800"
+          class="indexterm"></a><a
+          id="idm140492734091360"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ssh"></a>9.2.1. 安全远程登录：SSH</h3></div></div></div><a
+            id="idm140492734089264"
+            class="indexterm"></a><a
+            id="idm140492734088304"
+            class="indexterm"></a><div
+            class="para">
+				The <span
+              class="emphasis"><em>SSH</em></span> (Secure SHell) protocol was designed with security and reliability in mind. Connections using SSH are secure: the partner is authenticated and all data exchanges are encrypted.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> Telnet and RSH are obsolete</strong></p></div></div></div><a
+              id="idm140492734085136"
+              class="indexterm"></a><a
+              id="idm140492734084016"
+              class="indexterm"></a><div
+              class="para">
+				Before SSH, <span
+                class="emphasis"><em>Telnet</em></span> and <span
+                class="emphasis"><em>RSH</em></span> were the main tools used to login remotely. They are now largely obsolete and should no longer be used even if Debian still provides them.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>词汇</em></span> 授权，加密</strong></p></div></div></div><div
+              class="para">
+				当你需要赋给客户在服务器执行或发起行动的能力时，安全是很重要的。必须确定客户的身份；这就是授权。授权通常包含隐秘的口令，否则其他客户很容易获得口令。这是加密的主要目的，这种编码形式可以让两个系统通过公共渠道传递机密信息而不被其他人读到。
+			</div><div
+              class="para">
+				授权和加密经常被同时提及，而且也频频同时使用，因为他们通常使用相似的数学算法概念实现。
+			</div></div><div
+            class="para">
+				SSH 还涉及两个文件传输服务。 <code
+              class="command">scp</code> 是一个可以像<code
+              class="command">cp</code>命令一样使用的命令行工具，除了指向其他机器的路径需要加机器名冒号前缀。
+			</div><pre
+            class="screen"><code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>scp file machine:/tmp/</code></strong></pre><div
+            class="para">
+				<code
+              class="command">sftp</code> 是一个交互命令，类似于 <code
+              class="command">ftp</code>。在一个单独会话中， <code
+              class="command">sftp</code> 可以传输多个文件，并且可以远程操作文件（删除，重命名，更改许可，等等）。
+			</div><a
+            id="idm140492734074032"
+            class="indexterm"></a><a
+            id="idm140492734072912"
+            class="indexterm"></a><div
+            class="para">
+				Debian 使用 OpenSSH，一个由 <code
+              class="command">OpenBSD</code> 项目（注重安全，基于 BSD 内核的自由操作系统）维护的自由版本，它效仿了芬兰 SSH Communications Security Corp 公司开发的原始 SSH 软件。该公司最初将 SSH 作为自由软件开发，但是最终决定在专有许可下继续开发。然后，OpenBSD 项目创建了 OpenSSH 维护 SSH 的自由版本。
+			</div><a
+            id="idm140492734070528"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>回到基础</em></span> <span
+                        class="foreignphrase"><em
+                          class="foreignphrase">岔（Fork）</em></span></strong></p></div></div></div><a
+              id="idm140492734068128"
+              class="indexterm"></a><div
+              class="para">
+				一个“岔”，在软件领域，意味着克隆已有项目的新项目，并将与之竞争。从此，两个软件通常会迅速发散开发。岔通常由开发团队内部的分歧产生。
+			</div><div
+              class="para">
+				项目分岔也是自由软件本身特性产生的结果；如果能使自由软件继续发展，那么分岔也是一种好事（例如万一软件许可证变化）。源自技术或者个人意见不统一的分岔常常是浪费资源；推荐其他的解决方案。之前分岔的项目再次合并也不是未曾听说。
+			</div></div><div
+            class="para">
+				OpenSSH is split into two packages: the client part is in the <span
+              class="pkg pkg">openssh-client</span> package, and the server is in the <span
+              class="pkg pkg">openssh-server</span> package. The <span
+              class="pkg pkg">ssh</span> meta-package depends on both parts and facilitates installation of both (<code
+              class="command">apt-get install ssh</code>).
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.ssh-key-based-auth"></a>9.2.1.1. 基于密钥的认证</h4></div></div></div><div
+              class="para">
+					每次有人通过 SSH 登入，远程服务器询问密码来授权用户。如果想要自动连接或者使用需要频繁通过 SSH 连接的工具，这就会产生问题。这就是为什么 SSH 提供一种基于密钥的认证系统。
+				</div><div
+              class="para">
+					户在客户机上用 <code
+                class="command">ssh-keygen -t rsa</code> 产生密钥对；公共密钥存储在<code
+                class="filename">~/.ssh/id_rsa.pub</code>中，而对应的私有密钥存储在<code
+                class="filename">~/.ssh/id_rsa</code>中。然后，用户使用<code
+                class="command">ssh-copy-id <em
+                  class="replaceable">server</em></code> 将他们的公共密钥添加到服务器上的 <code
+                class="filename">~/.ssh/authorized_keys</code> 文件中。如果私有密钥在创建的时候没有“口令密语”保护，随后所有在服务器上的登录将不需要口令。然而，私有密钥在每次输入口令时都必须被解密。幸运的是， <code
+                class="command">ssh-agent</code> 允许我们把私有密钥放在内存中而不必频繁重新输入口令。为此，可以简单的使用 <code
+                class="command">ssh-add</code> （每个工作会话一次）来指明该会话已经和 <code
+                class="command">ssh-agent</code>功能实例相关联。Debian 在图形界面会话中默认激活这一特性，也可以通过改变 <code
+                class="filename">/etc/X11/Xsession.options</code>来停用。对于控制台会话，可以使用 <code
+                class="command">eval $(ssh-agent)</code>手动启动。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>安全</em></span> 保护私有密钥</strong></p></div></div></div><div
+                class="para">
+					任何拥有私有密钥的人都可以登录已经配置的账户。这是私有密钥要使用“口令密码”保护的原因。某些获得了私有密钥文件（例如 <code
+                  class="filename">~/.ssh/id_rsa</code>）副本的人，要使用这个文件仍然需要密码。然而，这种额外的保护措施并不是万全的，如果觉得文件被破解，最好在所安装的计算机上禁用该密钥（通过从文件 <code
+                  class="filename">authorized_keys</code> 移除）并使用新生成的密钥取代它。
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>文化</em></span> OpenSSL 在 Debian <span
+                          class="distribution distribution">Etch</span>上的缺陷</strong></p></div></div></div><div
+                class="para">
+					The OpenSSL library, as initially provided in Debian <span
+                  class="distribution distribution">Etch</span>, had a serious problem in its random number generator (RNG). Indeed, the Debian maintainer had made a change so that applications using it would no longer generate warnings when analyzed by memory testing tools like <code
+                  class="command">valgrind</code>. Unfortunately, this change also meant that the RNG was employing only one source of entropy corresponding to the process number (PID) whose 32,000 possible values do not offer enough randomness. <div
+                  class="url">→ <a
+                    href="http://www.debian.org/security/2008/dsa-1571">http://www.debian.org/security/2008/dsa-1571</a></div>
+				</div><div
+                class="para">
+					特别是当OpenSSL 用于产生密钥，它总是生成一个在已知几百万值集合范围内的密钥（32000乘上密钥长度中的小数字）。这会影响SSH 密钥，SSL 密钥，和X.509认证，他们被大量程序使用，例如OpenVPN。骇客只能尝试所有的密钥来取得未授权的读取。为了减小问题的影响，SSH 守护进程会拒绝使用 <span
+                  class="pkg pkg">openssh-blacklist</span> 和 <span
+                  class="pkg pkg">openssh-blacklist-extra</span> 软件包中列出的有问题密钥。另外， <code
+                  class="command">ssh-vulnkey</code> 命令允许在系统中使用某些折中密钥。
+				</div><div
+                class="para">
+					A more thorough analysis of this incident brings to light that it is the result of multiple (small) problems, both within the OpenSSL project and with the Debian package maintainer. A widely used library like OpenSSL should — without modifications — not generate warnings when tested by <code
+                  class="command">valgrind</code>. Furthermore, the code (especially the parts as sensitive as the RNG) should be better commented to prevent such errors. On Debian's side, the maintainer wanted to validate the modifications with the OpenSSL developers, but simply explained the modifications without providing the corresponding patch to review and failed to mention his role within Debian. Finally, the maintenance choices were sub-optimal: the changes made to the original code were not clearly documented; all the modifications were effectively stored in a Subversion repository, but they ended up all lumped into one single patch during creation of the source package.
+				</div><div
+                class="para">
+					在这种情况下，很难找到纠正措施来阻止类似事件再次发生。这里应该吸取的教训是：Debian 引入的任何对上游软件的演变都必须验证，归档，有可能的话提交到上游项目，并广泛公开。由此，新的源代码软件包格式（“3.0 (quilt)”）和Debian 补丁追踪器被开发出来。 <div
+                  class="url">→ <a
+                    href="http://patch-tracker.debian.org">http://patch-tracker.debian.org</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.ssh-x11"></a>9.2.1.2. 使用远程 X11 应用程序</h4></div></div></div><div
+              class="para">
+					SSH 协议允许转发图形数据（“X11”会话，源于最广泛传播Unix图形系统的名字）；然后，服务器为这些数据保留固定通道。特别地，远程执行的图形程序可以在本地系统X.org 服务器屏幕上显示，并且整个会话（输入和显示）都是安全的。由于该特性允许远程应用与本地系统交互，因此默认是关闭的。可以通过在服务配置文件（<code
+                class="filename">/etc/ssh/sshd_config</code>）中指明 <code
+                class="literal">X11Forwarding yes</code> 来打开。最后，用户必须通过添加 <code
+                class="literal">-X</code> 选项到 <code
+                class="command">ssh</code> 命令行中提出请求。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.ssh-port-forwarding"></a>9.2.1.3. 通过端口转发建立加密通道</h4></div></div></div><a
+              id="idm140492734034608"
+              class="indexterm"></a><div
+              class="para">
+					Its <code
+                class="literal">-R</code> and <code
+                class="literal">-L</code> options allow <code
+                class="command">ssh</code> to create “encrypted tunnels” between two machines, securely forwarding a local TCP port (see sidebar <a
+                class="xref"
+                href="network-infrastructure.html#sidebar.tcp-udp"><span
+                  class="emphasis"><em>BACK TO BASICS</em></span> TCP/UDP</a>) to a remote machine or vice versa.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>词汇</em></span> 隧道</strong></p></div></div></div><a
+                id="idm140492734029920"
+                class="indexterm"></a><a
+                id="idm140492734028480"
+                class="indexterm"></a><div
+                class="para">
+					大多数局域网通过数据包模式而不是连接模式接入互联网，意味着：由一个计算机发送到另一个计算机的数据包要找到目的地会在几个间歇路由之间停顿。仍然可以通过数据流IP 数据包封装模拟连接操作。这些数据包流过路由，但是数据流在目的地不加改变重新构造。我们称之为“隧道”，类比为机动车从入口（输入）直接开向出口（输出）的公路通道，期间不会碰到任何交汇，与在表面可能交叉和变向的路径相对。
+				</div><div
+                class="para">
+					可以利用这个机会给隧道加密：流过的数据在外面不能被辨认，但是在隧道的出口解密恢复。
+				</div></div><div
+              class="para">
+					运行<code
+                class="command">ssh -L 8000:server:25 intermediary</code> 命令，将会建立同服务器主机<em
+                class="replaceable">intermediary</em> 的SSH 会话，并侦听本地端口8000 ¼参考see <a
+                class="xref"
+                href="sect.remote-login.html#figure.ssh-L">图 9.3 “使用SSH转发本地端口”</a>）。对于任何建立在该端口的连接， <code
+                class="command">ssh</code> 将会发起从电脑<em
+                class="replaceable">intermediary</em> 到 <em
+                class="replaceable">server</em> 端口25 的连接，并将两个连接绑定。
+				</div><div
+              class="para">
+					命令<code
+                class="command">ssh -R 8000:server:25 intermediary</code>也会建立电脑 <em
+                class="replaceable">intermediary</em> 的SSH 会话，但是在本机 <code
+                class="command">ssh</code> 侦听端口8000 （参考 <a
+                class="xref"
+                href="sect.remote-login.html#figure.ssh-R">图 9.4 “使用SSH转发远程端口”</a>）。在该端口建立的连接将<code
+                class="command">ssh</code> 打开本机到 <em
+                class="replaceable">server</em>25 端口的连接，并将两个连接绑定。
+				</div><div
+              class="para">
+					两种情况下，连接建立在<em
+                class="replaceable">server</em> 主机的25 端口，它会透过SSH 隧道建立本地机器和中介机器的连接。在头一种情况下，到该隧道的入口是本地端口8000，数据在定向到公共网络的<em
+                class="replaceable">server</em> 之前，流向 <em
+                class="replaceable">intermediary</em> 。在第二种情况下，隧道输入输出被保留；入口是 <em
+                class="replaceable">intermediary</em> 的8000 端口，输出在本地主机，然后数据被定向到 <em
+                class="replaceable">server</em>。实际上，服务器不是本地机器就是中介机器。这样SSH 保护了一端到另一端的连接。
+				</div><div
+              class="figure"><a
+                id="figure.ssh-L"></a><div
+                class="figure-contents"><div
+                  class="mediaobject"><img
+                    src="images/ssh-L.png"
+                    alt="使用SSH转发本地端口" /></div></div><p
+                class="title"><strong>图 9.3. 使用SSH转发本地端口</strong></p></div><div
+              class="figure"><a
+                id="figure.ssh-R"></a><div
+                class="figure-contents"><div
+                  class="mediaobject"><img
+                    src="images/ssh-R.png"
+                    alt="使用SSH转发远程端口" /></div></div><p
+                class="title"><strong>图 9.4. 使用SSH转发远程端口</strong></p></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.remote-desktops"></a>9.2.2. 使用远程图形桌面</h3></div></div></div><div
+            class="para">
+				VNC （Virtual Network Computing）允许远程接入图形桌面
+			</div><a
+            id="idm140492734006400"
+            class="indexterm"></a><a
+            id="idm140492734005440"
+            class="indexterm"></a><a
+            id="idm140492734004512"
+            class="indexterm"></a><a
+            id="idm140492734003072"
+            class="indexterm"></a><a
+            id="idm140492734002112"
+            class="indexterm"></a><div
+            class="para">
+				该工具主要用于技术支持；管理员可以看到用户面临的错误，并演示正确的操作而不必待在他们旁边。
+			</div><a
+            id="idm140492734000576"
+            class="indexterm"></a><a
+            id="idm140492733999152"
+            class="indexterm"></a><a
+            id="idm140492733997728"
+            class="indexterm"></a><div
+            class="para">
+				First, the user must authorize sharing their session. The GNOME graphical desktop environment in <span
+              class="distribution distribution">Jessie</span> includes that option in its configuration panel (contrary to previous versions of Debian, where the user had to install and run <code
+              class="command">vino</code>). KDE still requires using <code
+              class="command">krfb</code> to allow sharing an existing session over VNC. For other graphical desktop environments, the <code
+              class="command">x11vnc</code> command (from the Debian package of the same name) serves the same purpose; you can make it available to the user with an explicit icon.
+			</div><a
+            id="idm140492733993232"
+            class="indexterm"></a><a
+            id="idm140492733991808"
+            class="indexterm"></a><a
+            id="idm140492733990384"
+            class="indexterm"></a><a
+            id="idm140492733988960"
+            class="indexterm"></a><div
+            class="para">
+				When the graphical session is made available by VNC, the administrator must connect to it with a VNC client. GNOME has <code
+              class="command">vinagre</code> and <code
+              class="command">remmina</code> for that, while KDE includes <code
+              class="command">krdc</code> (in the menu at <span
+              class="guimenu"><strong>K</strong></span> → <span
+              class="guisubmenu"><strong>Internet</strong></span> → <span
+              class="guimenuitem"><strong>Remote Desktop Client</strong></span>). There are other VNC clients that use the command line, such as <code
+              class="command">xvnc4viewer</code> in the Debian package of the same name. Once connected, the administrator can see what's going on, work on the machine remotely, and show the user how to proceed.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>安全</em></span> VNC 使用 SSH</strong></p></div></div></div><a
+              id="idm140492733981984"
+              class="indexterm"></a><div
+              class="para">
+				If you want to connect by VNC, and you don't want your data sent in clear text on the network, it is possible to encapsulate the data in an SSH tunnel (see <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-port-forwarding">第 9.2.1.3 节 “通过端口转发建立加密通道”</a>). You simply have to know that VNC uses port 5900 by default for the first screen (called “localhost:0”), 5901 for the second (called “localhost:1”), etc.
+			</div><div
+              class="para">
+				<code
+                class="command">ssh -L localhost:5901:localhost:5900 -N -T <em
+                  class="replaceable">machine</em></code>命令创建本地端口5901 和 <em
+                class="replaceable">machine</em> 5900 端口的隧道。第一个“localhost”要求SSH 仅侦听本地机器接口。第二个“localhost”指示远程机器上的接口接收进入“localhost:5901”的网络数据。因此， <code
+                class="command">vncviewer localhost:1</code> 会把VNC 客户连到远程屏幕。
+			</div><div
+              class="para">
+				当VNC 会话关闭时，记得退出相应的SSH 会话来关闭隧道。
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>回到基础</em></span> 显示管理器</strong></p></div></div></div><a
+              id="idm140492733975120"
+              class="indexterm"></a><a
+              id="idm140492733974000"
+              class="indexterm"></a><a
+              id="idm140492733972880"
+              class="indexterm"></a><a
+              id="idm140492733971760"
+              class="indexterm"></a><a
+              id="idm140492733970640"
+              class="indexterm"></a><a
+              id="idm140492733969200"
+              class="indexterm"></a><div
+              class="para">
+				<code
+                class="command">gdm3</code>, <code
+                class="command">kdm</code>, <code
+                class="command">lightdm</code>, and <code
+                class="command">xdm</code> are Display Managers. They take control of the graphical interface shortly after boot in order to provide the user a login screen. Once the user has logged in, they execute the programs needed to start a graphical work session.
+			</div></div><div
+            class="para">
+				VNC also works for mobile users, or company executives, who occasionally need to login from their home to access a remote desktop similar to the one they use at work. The configuration of such a service is more complicated: you first install the <span
+              class="pkg pkg">vnc4server</span> package, change the configuration of the display manager to accept <code
+              class="literal">XDMCP Query</code> requests (for <code
+              class="command">gdm3</code>, this can be done by adding <code
+              class="literal">Enable=true</code> in the “xdmcp” section of <code
+              class="filename">/etc/gdm3/daemon.conf</code>), and finally, start the VNC server with <code
+              class="command">inetd</code> so that a session is automatically started when a user tries to login. For example, you may add this line to <code
+              class="filename">/etc/inetd.conf</code>:
+			</div><pre
+            class="programlisting">5950  stream  tcp  nowait  nobody.tty  /usr/bin/Xvnc Xvnc -inetd -query localhost -once -geometry 1024x768 -depth 16 securitytypes=none
+</pre><div
+            class="para">
+				Redirecting incoming connections to the display manager solves the problem of authentication, because only users with local accounts will pass the <code
+              class="command">gdm3</code> login screen (or equivalent <code
+              class="command">kdm</code>, <code
+              class="command">xdm</code>, etc.). As this operation allows multiple simultaneous logins without any problem (provided the server is powerful enough), it can even be used to provide complete desktops for mobile users (or for less powerful desktop systems, configured as thin clients). Users simply login to the server's screen with <code
+              class="command">vncviewer <em
+                class="replaceable">server</em>:50</code>, because the port used is 5950.
+			</div><a
+            id="idm140492733258208"
+            class="indexterm"></a></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="unix-services.html"><strong>上一页</strong>第 9 章 Unix 服务</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.rights-management.html"><strong>下一页</strong>9.3. 管理权限</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.remote-login.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.remote-login.html">da-DK</a></li><li><a
+              href="../de-DE/sect.remote-login.html">de-DE</a></li><li><a
+              href="../el-GR/sect.remote-login.html">el-GR</a></li><li><a
+              href="../en-US/sect.remote-login.html">en-US</a></li><li><a
+              href="../es-ES/sect.remote-login.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.remote-login.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.remote-login.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.remote-login.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.remote-login.html">id-ID</a></li><li><a
+              href="../it-IT/sect.remote-login.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.remote-login.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.remote-login.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.remote-login.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.remote-login.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.remote-login.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.remote-login.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.remote-login.html">zh-CN</a></li></ul></div></body></html>

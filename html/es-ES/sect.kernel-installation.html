@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.11. Instalación de un núcleo</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-es-ES-1.0-1" /><meta
+        name="keywords"
+        content="Configuración, Localización, Locales, Red, Resolución de nombres, Usuarios, Grupos, Cuentas, Intérprete de línea de órdenes, Consola, Impresión, Gestor de arranque, Compilación de núcleo" /><link
+        rel="home"
+        href="index.html"
+        title="El libro del administrador de Debian" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="Capítulo 8. Configuración básica: red, cuentas, impresión..." /><link
+        rel="prev"
+        href="sect.kernel-compilation.html"
+        title="8.10. Compilación de un núcleo" /><link
+        rel="next"
+        href="unix-services.html"
+        title="Capítulo 9. Servicios Unix" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/es-ES/sect.kernel-installation.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-compilation.html"><strong>Anterior</strong></a></li><li
+          class="home">El libro del administrador de Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="unix-services.html"><strong>Siguiente</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.kernel-installation"></a>8.11. Instalación de un núcleo</h2></div></div></div><a
+          id="idm140447099705136"
+          class="indexterm"></a><a
+          id="idm140447099703696"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-package"></a>8.11.1. Características de un paquete Debian del núcleo</h3></div></div></div><a
+            id="idm140447099701120"
+            class="indexterm"></a><div
+            class="para">
+				Un paquete Debian del núcleo instala la imagen del núcleo (<code
+              class="filename">vmlinuz-<em
+                class="replaceable">versión</em></code>), su configuración (<code
+              class="filename">config-<em
+                class="replaceable">versión</em></code>) y su tabla de símbolos (<code
+              class="filename">System.map-<em
+                class="replaceable">versión</em></code>) en <code
+              class="filename">/boot/</code>. La tabla de símbolos ayuda a los desarrolladores a entender el significado de un mensaje de error del núcleo; sin ella, los «oops» del núcleo (un «oops» es el equivalente del núcleo de un fallo de segmento en programas en espacio de usuario, en otras palabras, los mensajes generados luego de desreferenciar un puntero de forma inválida) sólo contienen direcciones de memoria numéricas, que es información inútil sin la tabla que enlaza estas direcciones con símbolos y nombres de función. Se instalan los módulos en el directorio <code
+              class="filename">/lib/modules/<em
+                class="replaceable">versión</em>/</code>.
+			</div><div
+            class="para">
+				Los scripts de configuración del paquete generan automáticamente una imagen initrd, que es un minisistema diseñado para ser cargado en memoria (de allí el nombre, que significa «disco ram de inicio»: «init ramdisk») por el gestor de arranque y utilizado por el núcleo Linux sólo para cargar los módulos necesarios para acceder a los dispositivos que contienen el sistema Debian completo (por ejemplo, los controladores de discos IDE). Finalmente, los scripts postinstalación actualizan los enlaces simbólicos <code
+              class="filename">/vmlinuz</code>, <code
+              class="filename">/vmlinux.old</code>, <code
+              class="filename">/initrd.img</code> y <code
+              class="filename">/initrd.img.old</code> para que apunten a los dos últimos núcleos instalados, respectivamente, así como también a las imágenes initrd correspondientes.
+			</div><div
+            class="para">
+				Se encargan la mayoría de estas tareas a scripts de activación en los directorios <code
+              class="filename">/etc/kernel/*.d/</code>. Por ejemplo, la integración con <code
+              class="command">grub</code> está basada en <code
+              class="filename">/etc/kernel/postinst.d/zz-update-grub</code> y <code
+              class="filename">/etc/kernel/postrm.d/zz-update-grub</code> para ejecutar <code
+              class="command">update-grub</code> cuando se instalan o eliminan núcleos.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-installation-with-dpkg"></a>8.11.2. Instalación con <code
+                    class="command">dpkg</code></h3></div></div></div><div
+            class="para">
+				Using <code
+              class="command">apt-get</code> is so convenient that it makes it easy to forget about the lower-level tools, but the easiest way of installing a compiled kernel is to use a command such as <code
+              class="command">dpkg -i <em
+                class="replaceable">package</em>.deb</code>, where <code
+              class="literal"><em
+                class="replaceable">package</em>.deb</code> is the name of a <span
+              class="pkg pkg">linux-image</span> package such as <code
+              class="filename">linux-image-3.16.7-ckt4-falcot_1_amd64.deb</code>.
+			</div><div
+            class="para">
+				Los pasos de configuración descriptos en este capítulos son básicos y sirven tanto para un servidor como para una estación de trabajo y pueden ser duplicados masivamente de formas semiautomáticas. Sin embargo, no son suficientes por sí mismas para proveer un sistema completamente configurado. Todavía necesita algunas piezas de configuración, comenzando con programas de bajo nivel conocidas como «servicios Unix».
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-compilation.html"><strong>Anterior</strong>8.10. Compilación de un núcleo</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Subir</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Inicio</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="unix-services.html"><strong>Siguiente</strong>Capítulo 9. Servicios Unix</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.kernel-installation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.kernel-installation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.kernel-installation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.kernel-installation.html">el-GR</a></li><li><a
+              href="../en-US/sect.kernel-installation.html">en-US</a></li><li><a
+              href="../es-ES/sect.kernel-installation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.kernel-installation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.kernel-installation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.kernel-installation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.kernel-installation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.kernel-installation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.kernel-installation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.kernel-installation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.kernel-installation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.kernel-installation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.kernel-installation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.kernel-installation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.kernel-installation.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,835 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.4. Introduction à SELinux</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Pare-feu, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="security.html"
+        title="Chapitre 14. Sécurité" /><link
+        rel="prev"
+        href="sect.supervision.html"
+        title="14.3. Supervision : prévention, détection, dissuasion" /><link
+        rel="next"
+        href="sect.other-security-considerations.html"
+        title="14.5. Autres considérations sur la sécurité" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.selinux.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.selinux"></a>14.4. Introduction à SELinux</h2></div></div></div><a
+          id="idm140565666073200"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-principles"></a>14.4.1. Les principes</h3></div></div></div><div
+            class="para">
+				SELinux (<span
+              class="foreignphrase"><em
+                class="foreignphrase">Security Enhanced Linux</em></span>) est un système de contrôle d'accès obligatoire (<span
+              class="foreignphrase"><em
+                class="foreignphrase">Mandatory Access Control</em></span>) qui s'appuie sur l'interface <span
+              class="foreignphrase"><em
+                class="foreignphrase">Linux Security Modules</em></span> fournie par le noyau Linux. Concrètement, le noyau interroge SELinux avant chaque appel système pour savoir si le processus est autorisé à effectuer l'opération concernée.
+			</div><div
+            class="para">
+				SELinux s'appuie sur un ensemble de règles (<span
+              class="foreignphrase"><em
+                class="foreignphrase">policy</em></span>) pour autoriser ou interdire une opération. Ces règles sont assez délicates à créer, mais heureusement deux jeux de règles standards (<span
+              class="foreignphrase"><em
+                class="foreignphrase">targeted</em></span> et <span
+              class="foreignphrase"><em
+                class="foreignphrase">strict</em></span>) sont fournies pour éviter le plus gros du travail de configuration.
+			</div><div
+            class="para">
+				Le système de permissions de SELinux est totalement différent de ce qu'offre un système Unix traditionnel. Les droits d'un processus dépendent de son <span
+              class="emphasis"><em>contexte de sécurité</em></span>. Le contexte est défini par l'<span
+              class="emphasis"><em>identité</em></span> de celui qui a démarré le processus, le <span
+              class="emphasis"><em>rôle</em></span> et le <span
+              class="emphasis"><em>domaine</em></span> qu'il avait à ce moment. Les permissions proprement dites dépendent du domaine, mais les transitions entre les domaines sont contrôlées par les rôles. Enfin, les transitions autorisées entre rôles dépendent de l'identité.
+			</div><div
+            class="figure"><a
+              id="idm140565666064400"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-context.png"
+                  alt="Contextes de sécurité et utilisateurs Unix" /></div></div><p
+              class="title"><strong>Figure 14.3. Contextes de sécurité et utilisateurs Unix</strong></p></div><div
+            class="para">
+				En pratique, au moment de la connexion, l'utilisateur se voit attribuer un contexte de sécurité par défaut (en fonction des rôles qu'il a le droit d'assumer). Cela fixe le domaine dans lequel il évolue. S'il veut changer de rôle et de domaine associé, il doit employer la commande <code
+              class="command">newrole -r <em
+                class="replaceable">role_r</em> -t <em
+                class="replaceable">domaine_t</em></code> (il n'y a généralement qu'un seul domaine possible pour un rôle donné et le paramètre <code
+              class="literal">-t</code> est donc souvent inutile). Cette commande demande à l'utilisateur son mot de passe afin de l'authentifier. Cette caractéristique empêche tout programme de pouvoir changer de rôle de manière automatique. De tels changements ne peuvent avoir lieu que s'ils sont prévus dans l'ensemble de règles.
+			</div><div
+            class="para">
+				Bien entendu, les droits ne s'appliquent pas universellement à tous les <span
+              class="emphasis"><em>objets</em></span> (fichiers, répertoires, sockets, périphériques, etc.), ils peuvent varier d'un objet à l'autre. Pour cela, chaque objet est associé à un <span
+              class="emphasis"><em>type</em></span> (on parle d'étiquetage). Les droits des domaines s'expriment donc en termes d'opérations autorisées (ou non) sur ces types (donc implicitement sur tous les objets qui sont marqués avec le type correspondant).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>COMPLÉMENTS</em></span> Domaine et type sont équivalents</strong></p></div></div></div><div
+              class="para">
+				En interne, un domaine n'est qu'un type, mais un type qui ne s'applique qu'aux processus. C'est pour cela que les domaines sont suffixés par <code
+                class="literal">_t</code> tout comme le sont les types affectés aux objets.
+			</div></div><div
+            class="para">
+				Par défaut, un programme exécuté hérite du domaine de l'utilisateur qui l'a démarré. Mais pour la plupart des programmes importants, les règles SELinux standard prévoient de les faire fonctionner dans un domaine dédié. Pour cela, ces exécutables sont étiquetés avec un type dédié (par exemple <code
+              class="command">ssh</code> est étiqueté avec <code
+              class="literal">ssh_exec_t</code> et lorsque le programme est démarré, il bascule automatiquement dans le domaine <code
+              class="literal">ssh_t</code>). Ce mécanisme de changement automatique de domaine permet de ne donner que les droits nécessaires au bon fonctionnement de chaque programme et est à la base de SELinux.
+			</div><div
+            class="figure"><a
+              id="idm140565666051728"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-transitions.png"
+                  alt="Transitions automatiques entre domaines" /></div></div><p
+              class="title"><strong>Figure 14.4. Transitions automatiques entre domaines</strong></p></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EN PRATIQUE</em></span> Connaître le contexte de sécurité</strong></p></div></div></div><a
+              id="idm140565666047248"
+              class="indexterm"></a><a
+              id="idm140565666046288"
+              class="indexterm"></a><a
+              id="idm140565666045328"
+              class="indexterm"></a><div
+              class="para">
+				Pour connaître le contexte de sécurité appliqué à un processus, il faut employer l'option <code
+                class="literal">Z</code> de <code
+                class="command">ps</code>.
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ps axZ | grep vstfpd</code></strong>
+<code
+                class="computeroutput">system_u:system_r:ftpd_t:s0   2094 ?    Ss  0:00 /usr/sbin/vsftpd</code></pre><div
+              class="para">
+				Le premier champ contient l'identité, le rôle, le domaine et le niveau MCS, séparés par des deux-points. Le niveau MCS (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">Multi-Category Security</em></span>) est un paramètre intervenant dans la mise en place d'une politique de protection de la confidentialité, laquelle restreint l'accès aux fichiers selon leur degré de confidentialité. Cette fonctionnalité ne sera pas abordée dans ce livre.
+			</div><div
+              class="para">
+				Pour connaître le contexte de sécurité actuellement actif dans un terminal de commande, il faut invoquer <code
+                class="command">id -Z</code>.
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>id -Z</code></strong>
+<code
+                class="computeroutput">unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre><div
+              class="para">
+				Enfin, pour connaître le type affecté à un fichier, on peut employer <code
+                class="command">ls -Z</code>.
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ls -Z test /usr/bin/ssh</code></strong>
+<code
+                class="computeroutput">unconfined_u:object_r:user_home_t:s0 test
+     system_u:object_r:ssh_exec_t:s0 /usr/bin/ssh</code></pre><div
+              class="para">
+				Signalons que l'identité et le rôle associé à un fichier n'ont pas d'importance particulière, ils n'interviennent jamais. Mais par souci d'uniformisation, tous les objets se voient attribuer un contexte de sécurité complet.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-setup"></a>14.4.2. La mise en route</h3></div></div></div><div
+            class="para">
+				Le code de SELinux est intégré dans les noyaux standards fournis par Debian et les programmes Unix de base le gèrent sans modification. Il est donc relativement simple d'activer SELinux.
+			</div><div
+            class="para">
+				La commande <code
+              class="command">aptitude install selinux-basics selinux-policy-default</code> installera automatiquement les paquets nécessaires pour configurer un système SELinux.
+			</div><div
+            class="para">
+				Le paquet <code
+              class="command">selinux-policy-default</code> contient un ensemble de règles standard. Par défaut, l'ensemble de règles ne restreint les accès que pour certains services très exposés. Les sessions utilisateur ne sont pas restreintes et il n'y a donc que peu de risques que SELinux bloque des opérations légitimes des utilisateurs. En revanche, cela permet d'apporter un surcroît de sécurité pour les services système fonctionnant sur la machine. Pour obtenir l'équivalent des anciennes règles « strictes », il faut simplement désactiver le module <code
+              class="literal">unconfined</code> (la gestion des modules est détaillée plus loin).
+			</div><div
+            class="para">
+				Une fois les règles installées, il reste à étiqueter tous les fichiers disponibles (il s'agit de leur affecter un type). C'est une opération qu'il faut déclencher manuellement avec <code
+              class="command">fixfiles relabel</code>.
+			</div><div
+            class="para">
+				Le système SELinux est prêt, il ne reste plus qu'à l'activer. Pour cela il faut passer le paramètre <code
+              class="literal">selinux=1</code> au noyau Linux. Le paramètre <code
+              class="literal">audit=1</code> active les traces SELinux qui enregistrent les différentes opérations qui ont été refusées. Enfin le paramètre <code
+              class="literal">enforcing=1</code> permet de mettre en application l'ensemble des règles : en effet, par défaut SELinux fonctionne en mode <span
+              class="foreignphrase"><em
+                class="foreignphrase">permissive</em></span> où les actions interdites sont tracées mais malgré tout autorisées. Il faut donc modifier le fichier de configuration du chargeur de démarrage GRUB pour ajouter les paramètres désirés. Le plus simple pour cela est de modifier la variable <code
+              class="literal">GRUB_CMDLINE_LINUX</code> dans <code
+              class="filename">/etc/default/grub</code> et d'exécuter <code
+              class="command">update-grub</code>. Au démarrage suivant, SELinux sera actif.
+			</div><div
+            class="para">
+				Signalons que le script <code
+              class="command">selinux-activate</code> automatise ces opérations et permet de forcer un étiquetage au prochain redémarrage, ce qui évite d'avoir des fichiers non étiquetés créés alors que SELinux n'était pas encore actif et que l'étiquetage était en cours.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-management"></a>14.4.3. La gestion d'un système SELinux</h3></div></div></div><a
+            id="idm140565666020928"
+            class="indexterm"></a><a
+            id="idm140565666019808"
+            class="indexterm"></a><div
+            class="para">
+				L'ensemble de règles SELinux est modulaire et son installation détecte et active automatiquement tous les modules pertinents en fonction des services déjà installés. Ainsi, le système est immédiatement fonctionnel. Toutefois, lorsqu'un service est installé après les règles SELinux, il faut pouvoir activer manuellement un module de règles. C'est le rôle de la commande <code
+              class="command">semodule</code>. En outre, il faut pouvoir définir les rôles accessibles à chaque utilisateur ; pour cela c'est la commande <code
+              class="command">semanage</code> qu'il faudra utiliser.
+			</div><div
+            class="para">
+				Ces deux commandes modifient donc la configuration SELinux courante qui est stockée dans <code
+              class="filename">/etc/selinux/default/</code>. Contrairement à ce qui se pratique d'habitude avec les fichiers de configuration de <code
+              class="filename">/etc/</code>, ces fichiers ne doivent pas être modifiés manuellement. Il faut les manipuler en utilisant les programmes prévus pour cela.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Plus de documentation</strong></p></div></div></div><div
+              class="para">
+				SELinux ne disposant d'aucune documentation officielle rédigée par la NSA, la communauté a mis en place un wiki pour combler ce manque criant. Il rassemble beaucoup d'informations mais il faut tenir compte du fait que la majorité des contributeurs utilisant SELinux sont utilisateurs de Fedora (où SELinux est activé par défaut). La documentation a donc tendance à traiter du cas de cette distribution. <div
+                class="url">→ <a
+                  href="http://www.selinuxproject.org">http://www.selinuxproject.org</a></div>
+			</div><div
+              class="para">
+				On consultera donc également la page dédiée à SELinux du wiki Debian ainsi que le blog de Russelll Coker, un des développeurs Debian les plus actifs sur SELinux. <div
+                class="url">→ <a
+                  href="http://wiki.debian.org/SELinux">http://wiki.debian.org/SELinux</a></div> <div
+                class="url">→ <a
+                  href="http://etbe.coker.com.au/tag/selinux/">http://etbe.coker.com.au/tag/selinux/</a></div>
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565666009728"></a>14.4.3.1. Gestion des modules SELinux</h4></div></div></div><div
+              class="para">
+					Les modules SELinux disponibles sont stockés dans le répertoire <code
+                class="filename">/usr/share/selinux/default/</code>. Pour activer un de ces modules dans la configuration courante, il faut employer <code
+                class="command">semodule -i <em
+                  class="replaceable">module.pp</em></code>. L'extension <code
+                class="literal">pp</code> signifie <span
+                class="foreignphrase"><em
+                  class="foreignphrase">policy package</em></span> que l'on pourrait traduire par « paquet de règles ».
+				</div><div
+              class="para">
+					À l'inverse, la commande <code
+                class="command">semodule -r <em
+                  class="replaceable">module</em></code> retire un module de la configuration courante. Enfin, la commande <code
+                class="command">semodule -l</code> liste les modules qui sont actuellement activés. La commande inclut également le numéro de version du module activé.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -i /usr/share/selinux/default/aide.pp</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">aide    1.4.0
+apache  1.10.0
+apm     1.7.0
+[...]</code>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -r aide</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">apache  1.10.0
+apm     1.7.0
+[...]</code></pre><div
+              class="para">
+					<code
+                class="command">semodule</code> recharge immédiatement la nouvelle configuration, sauf si l'on utilise l'option <code
+                class="literal">-n</code>. Signalons également que le programme modifie par défaut la configuration courante (celle indiquée par la variable <code
+                class="literal">SELINUXTYPE</code> dans <code
+                class="filename">/etc/selinux/config</code>) mais qu'on peut en modifier une autre grâce à l'option <code
+                class="literal">-s</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565665997024"></a>14.4.3.2. Gestion des identités</h4></div></div></div><div
+              class="para">
+					Chaque fois qu'un utilisateur se connecte, il se voit attribuer une identité SELinux, qui va définir les rôles qu'il va pouvoir assumer. Ces deux correspondances (de l'utilisateur vers l'identité SELinux et de cette identité vers les rôles) se configurent grâce à la commande <code
+                class="command">semanage</code>.
+				</div><div
+              class="para">
+					La lecture de la page de manuel <span
+                class="citerefentry"><span
+                  class="refentrytitle">semanage</span>(8)</span> est indispensable, même si la syntaxe de cette commande ne varie guère selon les concepts manipulés. On retrouvera des options communes aux différentes sous-commandes : <code
+                class="literal">-a</code> pour ajouter, <code
+                class="literal">-d</code> pour supprimer, <code
+                class="literal">-m</code> pour modifier, <code
+                class="literal">-l</code> pour lister et <code
+                class="literal">-t</code> pour indiquer un type (ou domaine).
+				</div><div
+              class="para">
+					<code
+                class="command">semanage login -l</code> liste les correspondances existantes entre identifiants d'utilisateurs et identités SELinux. Si un utilisateur n'a pas de correspondance explicite, il aura l'identité indiquée en face de <code
+                class="literal">__default__</code>. La commande <code
+                class="command">semanage login -a -s user_u <em
+                  class="replaceable">utilisateur</em></code> va associer l'identité <span
+                class="emphasis"><em>user_u</em></span> à l'utilisateur. Enfin, <code
+                class="command">semanage login -d <em
+                  class="replaceable">utilisateur</em></code> va retirer la correspondance affectée à l'utilisateur.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -a -s user_u rhertzog</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -l</code></strong>
+<code
+                class="computeroutput">
+Login Name                SELinux User              MLS/MCS Range
+
+__default__               unconfined_u              s0-s0:c0.c1023
+rhertzog                  user_u                    None
+root                      unconfined_u              s0-s0:c0.c1023
+system_u                  system_u                  s0-s0:c0.c1023
+# </code><strong
+                class="userinput"><code>semanage login -d rhertzog</code></strong></pre><div
+              class="para">
+					<code
+                class="command">semanage user -l</code> liste les correspondances entre identité SELinux et rôles possibles. Ajouter une nouvelle identité nécessite de préciser d'une part les rôles correspondants et d'autre part un préfixe d'étiquetage qui définira le type affecté aux fichiers personnels (<code
+                class="filename">/home/<em
+                  class="replaceable">utilisateur</em>/*</code>). Le préfixe est à choisir entre <code
+                class="literal">user</code>, <code
+                class="literal">staff</code> et <code
+                class="literal">sysadm</code>. Un préfixe « <code
+                class="literal">staff</code> » donnera des fichiers typés <code
+                class="literal">staff_home_dir_t</code>. La commande créant une identité est <code
+                class="command">semanage user -a -R <em
+                  class="replaceable">rôles</em> -P <em
+                  class="replaceable">préfixe</em> <em
+                  class="replaceable">identité</em></code>. Enfin, une identité peut être supprimée avec <code
+                class="command">semanage user -d <em
+                  class="replaceable">identité</em></code>.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -a -R 'staff_r user_r' -P staff test_u</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -l</code></strong>
+<code
+                class="computeroutput">
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range        SELinux Roles
+
+root            sysadm     s0         s0-s0:c0.c1023   staff_r sysadm_r system_r
+staff_u         staff      s0         s0-s0:c0.c1023   staff_r sysadm_r
+sysadm_u        sysadm     s0         s0-s0:c0.c1023   sysadm_r
+system_u        user       s0         s0-s0:c0.c1023   system_r
+test_u          staff      s0         s0               staff_r user_r
+unconfined_u    unconfined s0         s0-s0:c0.c1023   system_r unconfined_r
+user_u          user       s0         s0               user_r
+# </code><strong
+                class="userinput"><code>semanage user -d test_u</code></strong></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565665974160"></a>14.4.3.3. Gestion des contextes de fichiers, des ports et des booléens</h4></div></div></div><div
+              class="para">
+					Chaque module SELinux fournit un ensemble de règles d'étiquetage des fichiers, mais il est également possible de rajouter des règles d'étiquetage spécifiques afin de les adapter à un cas particulier. Ainsi, pour rendre toute l'arborescence <code
+                class="filename">/srv/www/</code> accessible au serveur web, on pourrait exécuter <code
+                class="command">semanage fcontext -a -t httpd_sys_content_t "/srv/www(/.*)?"</code> puis <code
+                class="command">restorecon -R /srv/www/</code>. La première commande enregistre la nouvelle règle d'étiquetage et la deuxième restaure les bonnes étiquettes en fonction des règles enregistrées.
+				</div><div
+              class="para">
+					Similarly, TCP/UDP ports are labeled in a way that ensures that only the corresponding daemons can listen to them. For instance, if you want the web server to be able to listen on port 8080, you should run <code
+                class="command">semanage port -m -t http_port_t -p tcp 8080</code>.
+				</div><div
+              class="para">
+					Les modules SELinux exportent parfois des options booléennes qui influencent le comportement des règles. L'utilitaire <code
+                class="command">getsebool</code> permet de consulter l'état de ces options (<code
+                class="command">getsebool <em
+                  class="replaceable">booléen</em></code> affiche une option et <code
+                class="command">getsebool -a</code> les affiche toutes). La commande <code
+                class="command">setsebool <em
+                  class="replaceable">booléen</em> <em
+                  class="replaceable">valeur</em></code> change la valeur courante d'une option. L'option <code
+                class="literal">-P</code> rend le changement permanent, autrement dit la nouvelle valeur sera celle par défaut et sera conservée au prochain redémarrage. L'exemple ci-dessous permet au serveur web d'accéder aux répertoires personnels des utilisateurs (utile dans le cas où ils ont des sites web personnels dans <code
+                class="filename">~/public_html/</code> par exemple).
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong>
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; off
+# </code><strong
+                class="userinput"><code>setsebool -P httpd_enable_homedirs on</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong> 
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; on</code></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-custom-rules"></a>14.4.4. L'adaptation des règles</h3></div></div></div><div
+            class="para">
+				Puisque l'ensemble des règles (que l'on nomme <span
+              class="foreignphrase"><em
+                class="foreignphrase">policy</em></span>) est modulaire, il peut être intéressant de développer de nouveaux modules pour les applications (éventuellement spécifiques) qui n'en disposent pas encore, ces nouveaux modules venant alors compléter la <span
+              class="foreignphrase"><em
+                class="foreignphrase">reference policy</em></span>.
+			</div><div
+            class="para">
+				Le paquet <span
+              class="pkg pkg">selinux-policy-dev</span> sera nécessaire, ainsi que <span
+              class="pkg pkg">selinux-policy-doc</span>. Ce dernier contient la documentation des règles standard (<code
+              class="filename">/usr/share/doc/selinux-policy-doc/html/</code>) et des fichiers exemples permettant de créer de nouveaux modules. Installons ces fichiers pour les étudier de plus près :
+			</div><pre
+            class="screen"><code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/Makefile.example.gz &gt;Makefile</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.fc.gz &gt;example.fc</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.if.gz &gt;example.if</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cp /usr/share/doc/selinux-policy-doc/example.te ./</code></strong></pre><div
+            class="para">
+				Le fichier <code
+              class="filename">.te</code> est le plus important : il définit les règles à proprement parler. Le fichier <code
+              class="filename">.fc</code> définit les « contextes des fichiers », autrement dit les types affectés aux fichiers relatifs à ce module. Les informations du <code
+              class="filename">.fc</code> sont utilisées lors de l'étiquetage des fichiers sur le disque. Enfin, le fichier <code
+              class="filename">.if</code> définit l'interface du module ; il s'agit d'un ensemble de « fonctions publiques » qui permettent à d'autres modules de s'interfacer proprement avec celui en cours de création.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565665950528"></a>14.4.4.1. Rédiger un fichier <code
+                      class="filename">.fc</code></h4></div></div></div><div
+              class="para">
+					La lecture de l'exemple qui suit suffit à comprendre la structure d'un tel fichier. Il est possible d'employer une expression rationnelle pour affecter le même contexte à plusieurs fichiers, voire à toute une arborescence.
+				</div><div
+              class="example"><a
+                id="idm140565665948704"></a><p
+                class="title"><strong>Exemple 14.2. Fichier <code
+                    class="filename">example.fc</code></strong></p><div
+                class="example-contents"><pre
+                  class="programlisting scale"># myapp executable will have:
+# label: system_u:object_r:myapp_exec_t
+# MLS sensitivity: s0
+# MCS categories: &lt;none&gt;
+
+/usr/sbin/myapp         --      gen_context(system_u:object_r:myapp_exec_t,s0)
+</pre></div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565665946304"></a>14.4.4.2. Rédiger un fichier <code
+                      class="filename">.if</code></h4></div></div></div><div
+              class="para">
+					Dans l'exemple ci-dessous, la première interface (<code
+                class="literal">myapp_domtrans</code>) sert à contrôler qui a le droit d'exécuter l'application et la seconde (<code
+                class="literal">myapp_read_log</code>) fournit un droit de lecture sur les fichiers de logs de l'application.
+				</div><div
+              class="para">
+					Chaque interface doit générer un ensemble correct de règles comme s'il était directement placé dans un fichier <code
+                class="filename">.te</code>. Il faut donc déclarer tous les types employés (avec la macro <code
+                class="literal">gen_require</code>) et employer les directives standard pour attribuer des droits. Notons toutefois qu'il est possible d'employer des interfaces fournies par d'autres modules. La prochaine section en dévoilera plus sur la manière d'exprimer ces droits.
+				</div><div
+              class="example"><a
+                id="idm140565665941936"></a><p
+                class="title"><strong>Exemple 14.3. Fichier <code
+                    class="filename">example.if</code></strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">## &lt;summary&gt;Myapp example policy&lt;/summary&gt;
+## &lt;desc&gt;
+##      &lt;p&gt;
+##              More descriptive text about myapp.  The &lt;desc&gt;
+##              tag can also use &lt;p&gt;, &lt;ul&gt;, and &lt;ol&gt;
+##              html tags for formatting.
+##      &lt;/p&gt;
+##      &lt;p&gt;
+##              This policy supports the following myapp features:
+##              &lt;ul&gt;
+##              &lt;li&gt;Feature A&lt;/li&gt;
+##              &lt;li&gt;Feature B&lt;/li&gt;
+##              &lt;li&gt;Feature C&lt;/li&gt;
+##              &lt;/ul&gt;
+##      &lt;/p&gt;
+## &lt;/desc&gt;
+#
+
+########################################
+## &lt;summary&gt;
+##      Execute a domain transition to run myapp.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to transition.
+## &lt;/param&gt;
+#
+interface(`myapp_domtrans',`
+        gen_require(`
+                type myapp_t, myapp_exec_t;
+        ')
+
+        domtrans_pattern($1,myapp_exec_t,myapp_t)
+')
+
+########################################
+## &lt;summary&gt;
+##      Read myapp log files.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to read the log files.
+## &lt;/param&gt;
+#
+interface(`myapp_read_log',`
+        gen_require(`
+                type myapp_log_t;
+        ')
+
+        logging_search_logs($1)
+        allow $1 myapp_log_t:file r_file_perms;
+')
+</pre></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DOCUMENTATION</em></span> Explications sur la <span
+                          class="foreignphrase"><em
+                            class="foreignphrase">reference policy</em></span></strong></p></div></div></div><div
+                class="para">
+					La <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">reference policy</em></span> évolue comme un projet libre au gré des contributions. Le projet est hébergé sur le site de Tresys, une des sociétés les plus actives autour de SELinux. Leur wiki contient des explications sur la structure des règles et sur la manière d'en créer de nouvelles. <div
+                  class="url">→ <a
+                    href="http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted">http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565665935024"></a>14.4.4.3. Rédiger un fichier <code
+                      class="filename">.te</code></h4></div></div></div><div
+              class="para">
+					Analysons le contenu du fichier <code
+                class="filename">example.te</code> :
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Langage de macro <code
+                          class="command">m4</code></strong></p></div></div></div><div
+                class="para">
+					Pour structurer proprement l'ensemble des règles, les développeurs de SELinux se sont appuyés sur un langage de création de macro-commandes. Au lieu de répéter à l'infini des directives <span
+                  class="emphasis"><em>allow</em></span> très similaires, la création de fonctions « macro » permet d'utiliser une logique de plus haut niveau et donc de rendre l'ensemble de règles plus lisible.
+				</div><div
+                class="para">
+					Dans la pratique, la compilation des règles va faire appel à l'outil <code
+                  class="command">m4</code> pour effectuer l'opération inverse : à partir des directives de haut niveau, il va reconstituer une grande base de données de directives <span
+                  class="emphasis"><em>allow</em></span>.
+				</div><div
+                class="para">
+					Ainsi, les « interfaces » ne sont rien que des fonctions macro qui vont être remplacées par un ensemble de règles au moment de la compilation. De même, certaines permissions sont en réalité des ensembles de permissions qui sont remplacées par leur valeur au moment de la compilation.
+				</div></div><pre
+              class="programlisting">policy_module(myapp,1.0.0) <span
+                id="example.te.module"><img
+                  class="callout"
+                  src="Common_Content/images/1.png"
+                  alt="1" /></span>
+
+########################################
+#
+# Declarations
+#
+
+type myapp_t; <span
+                id="example.te.type"><img
+                  class="callout"
+                  src="Common_Content/images/2.png"
+                  alt="2" /></span>
+type myapp_exec_t;
+domain_type(myapp_t)
+domain_entry_file(myapp_t, myapp_exec_t) <span
+                id="example.te.domain"><img
+                  class="callout"
+                  src="Common_Content/images/3.png"
+                  alt="3" /></span>
+
+type myapp_log_t;
+logging_log_file(myapp_log_t) <span
+                id="example.te.interface"><img
+                  class="callout"
+                  src="Common_Content/images/4.png"
+                  alt="4" /></span>
+
+type myapp_tmp_t;
+files_tmp_file(myapp_tmp_t)
+
+########################################
+#
+# Myapp local policy
+#
+
+allow myapp_t myapp_log_t:file { read_file_perms append_file_perms }; <span
+                id="example.te.allow"><img
+                  class="callout"
+                  src="Common_Content/images/5.png"
+                  alt="5" /></span>
+
+allow myapp_t myapp_tmp_t:file manage_file_perms;
+files_tmp_filetrans(myapp_t,myapp_tmp_t,file)
+</pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.module"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Le module doit être identifié par son nom et par son numéro de version. Cette directive est requise.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Si le module introduit de nouveaux types, il doit les déclarer avec des directives comme celle-ci. Il ne faut pas hésiter à créer autant de types que nécessaires, plutôt que distribuer trop de droits inutiles.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.domain"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Ces interfaces précisent que le type <code
+                        class="literal">myapp_t</code> est prévu pour être un domaine de processus et qu'il doit être employé pour tout exécutable étiqueté par <code
+                        class="literal">myapp_exec_t</code>. Implicitement, cela ajoute un attribut <code
+                        class="literal">exec_type</code> sur ces objets. Sa présence permet à d'autres modules de donner le droit d'exécuter ces programmes : ainsi, le module <code
+                        class="literal">userdomain</code> va permettre aux processus de domaine <code
+                        class="literal">user_t</code>, <code
+                        class="literal">staff_t</code> et <code
+                        class="literal">sysadm_t</code> de les exécuter. Les domaines d'autres applications confinées n'auront pas le droit de l'exécuter, sauf si les règles prévoient des droits similaires (c'est le cas par exemple pour <code
+                        class="command">dpkg</code> avec le domaine <code
+                        class="literal">dpkg_t</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.interface"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">logging_log_file</code> est une interface fournie par la <span
+                        class="foreignphrase"><em
+                          class="foreignphrase">reference policy</em></span> qui sert à indiquer que les fichiers étiquetés avec le type précisé en paramètre sont des fichiers de logs et doivent bénéficier des droits associés (par exemple ceux permettant à <code
+                        class="command">logrotate</code> de les manipuler).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.allow"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							La directive <code
+                        class="literal">allow</code> est la directive de base qui permet d'autoriser une opération. Le premier paramètre est le domaine du processus qui sera autorisé à effectuer l'opération. Le second décrit l'objet qu'un processus du domaine aura le droit de manipuler. Ce paramètre prend la forme « <em
+                        class="replaceable">type</em>:<em
+                        class="replaceable">genre</em> » où <em
+                        class="replaceable">type</em> est son type SELinux et où <em
+                        class="replaceable">genre</em> décrit la nature de l'objet (fichier, répertoire, socket, fifo, etc.). Enfin, le dernier paramètre décrit les permissions (les opérations qui sont autorisées).
+						</div><div
+                      class="para">
+							Les permissions se définissent comme des ensembles d'opérations autorisées et prennent la forme <code
+                        class="literal">{ <em
+                          class="replaceable">operation1</em> <em
+                          class="replaceable">operation2</em> }</code>. Il est également possible d'employer des macros qui correspondent aux ensembles de permissions les plus utiles. Le fichier <code
+                        class="filename">/usr/share/selinux/default/include/support/obj_perm_sets.spt</code> permet de les découvrir.
+						</div><div
+                      class="para">
+							La page web suivante fournit une liste relativement exhaustive des genres d'objet (<span
+                        class="foreignphrase"><em
+                          class="foreignphrase">object classes</em></span>) et des permissions que l'on peut accorder : <div
+                        class="url">→ <a
+                          href="http://www.selinuxproject.org/page/ObjectClassesPerms">http://www.selinuxproject.org/page/ObjectClassesPerms</a></div>
+						</div></td></tr></table></div><div
+              class="para">
+					Il ne reste plus qu'à trouver l'ensemble minimal des règles nécessaires au bon fonctionnement du service ou de l'application ciblé(e) par le module. Pour cela, il est préférable de bien connaître le fonctionnement de l'application et d'avoir une idée claire des flux de données qu'elle gère et/ou génère.
+				</div><div
+              class="para">
+					Toutefois, une approche empirique est possible. Une fois les différents objets impliqués correctement étiquetés, on peut utiliser l'application en mode permissif : les opérations normalement interdites sont tracées mais réussissent tout de même. Il suffit alors d'analyser ces traces pour identifier les opérations qu'il faut autoriser. Voici à quoi peut ressembler une de ces traces :
+				</div><pre
+              class="programlisting">avc:  denied  { read write } for  pid=1876 comm="syslogd" name="xconsole" dev=tmpfs ino=5510 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=fifo_file
+</pre><div
+              class="para">
+					Pour mieux comprendre ce message, analysons-le bout par bout.
+				</div><div
+              class="table"><a
+                id="idm140565665900400"></a><p
+                class="title"><strong>Tableau 14.1. Analyse d'une trace SELinux</strong></p><div
+                class="table-contents"><table
+                  xmlns:d="http://docbook.org/ns/docbook"
+                  class="lt-4-cols gt-7-rows"
+                  summary="Analyse d'une trace SELinux"><colgroup><col /><col /></colgroup><thead><tr><th>Message</th><th>Description</th></tr></thead><tbody><tr><td><code
+                          class="computeroutput">avc: denied</code></td><td>Une opération a été refusée.</td></tr><tr><td><code
+                          class="computeroutput">{ read write }</code></td><td>Cette opération requérait les permissions <code
+                          class="literal">read</code> et <code
+                          class="literal">write</code>.</td></tr><tr><td><code
+                          class="computeroutput">pid=1876</code></td><td>Le processus ayant le PID 1876 a exécuté l'opération (ou essayé de l'exécuter).</td></tr><tr><td><code
+                          class="computeroutput">comm="syslogd"</code></td><td>Le processus était une instance de la commande <code
+                          class="literal">syslogd</code>.</td></tr><tr><td><code
+                          class="computeroutput">name="xconsole"</code></td><td>L'objet cible portait le nom de <code
+                          class="literal">xconsole</code>.</td></tr><tr><td><code
+                          class="computeroutput">dev=tmpfs</code></td><td>Le périphérique stockant l'objet est de type <code
+                          class="literal">tmpfs</code>. Pour un disque réel, nous pourrions voir la partition contenant l'objet (exemple : « hda3 »).</td></tr><tr><td><code
+                          class="computeroutput">ino=5510</code></td><td>L'objet est identifié par le numéro d'inode 5510.</td></tr><tr><td><code
+                          class="computeroutput">scontext=system_u:system_r:syslogd_t:s0</code></td><td>C'est le contexte de sécurité courant du processus qui a exécuté l'opération.</td></tr><tr><td><code
+                          class="computeroutput">tcontext=system_u:object_r:device_t:s0</code></td><td>C'est le contexte de sécurité de l'objet cible.</td></tr><tr><td><code
+                          class="computeroutput">tclass=fifo_file</code></td><td>L'objet cible est un fichier FIFO.</td></tr></tbody></table></div></div><div
+              class="para">
+					Ainsi, il est possible de fabriquer une règle qui va autoriser cette opération cela donnerait par exemple <code
+                class="literal">allow syslogd_t device_t:fifo_file { read write }</code>. Ce processus est automatisable et c'est ce que propose la commande <code
+                class="command">audit2allow</code> du paquet <span
+                class="pkg pkg">policycoreutils</span>. Une telle démarche ne sera utile que si les objets impliqués sont déjà correctement étiquetés selon ce qu'il est souhaitable de cloisonner. Dans tous les cas, il faudra relire attentivement les règles pour les vérifier et les valider par rapport à votre connaissance de l'application. En effet, bien souvent cette démarche donnera des permissions plus larges que nécessaires. La bonne solution est souvent de créer de nouveaux types et d'attribuer des permissions sur ces types uniquement. Il arrive également qu'un échec sur une opération ne soit pas fatal à l'application, auquel cas il peut être préférable d'ajouter une règle <code
+                class="literal">dontaudit</code> qui supprime la génération de la trace malgré le refus effectif.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>COMPLÉMENTS</em></span> Pas de rôle dans les règles</strong></p></div></div></div><div
+                class="para">
+					On peut s'étonner que les rôles n'interviennent à aucun moment dans la création des règles. SELinux emploie uniquement les domaines pour savoir quelles opérations sont permises. Le rôle n'intervient qu'indirectement en permettant à l'utilisateur d'accéder à un autre domaine. SELinux en tant que tel est basé sur une théorie connue sous le nom de <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">Type Enforcement</em></span> (Application de types) et le type (ou domaine) est le seul élément qui compte dans l'attribution des droits. <a
+                  id="idm140565663128000"
+                  class="indexterm"></a> <a
+                  id="idm140565663127488"
+                  class="indexterm"></a> <a
+                  id="idm140565663126976"
+                  class="indexterm"></a>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565663126080"></a>14.4.4.4. Compilation des fichiers</h4></div></div></div><div
+              class="para">
+					Une fois que les trois fichiers (<code
+                class="filename">example.if</code>, <code
+                class="filename">example.fc</code> et <code
+                class="filename">example.te</code>) sont conformes aux règles que l'on veut créer, il suffit d'invoquer <code
+                class="command">make</code> pour générer un module dans le fichier <code
+                class="filename">example.pp</code> (que l'on peut immédiatement charger avec <code
+                class="command">semodule -i example.pp</code>). Si plusieurs modules sont définis, <code
+                class="command">make</code> créera tous les fichiers <code
+                class="filename">.pp</code> correspondants.
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>Précédent</strong>14.3. Supervision : prévention, détection, dissua...</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>Suivant</strong>14.5. Autres considérations sur la sécurité</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.selinux.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.selinux.html">da-DK</a></li><li><a
+              href="../de-DE/sect.selinux.html">de-DE</a></li><li><a
+              href="../el-GR/sect.selinux.html">el-GR</a></li><li><a
+              href="../en-US/sect.selinux.html">en-US</a></li><li><a
+              href="../es-ES/sect.selinux.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.selinux.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.selinux.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.selinux.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.selinux.html">id-ID</a></li><li><a
+              href="../it-IT/sect.selinux.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.selinux.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.selinux.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.selinux.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.selinux.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.selinux.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.selinux.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.selinux.html">zh-CN</a></li></ul></div></body></html>

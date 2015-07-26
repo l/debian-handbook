@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.6. HTTP/FTP プロキシ</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="network-services.html"
+        title="第11章 ネットワークサービス: Postfix、Apache、NFS、Samba、Squid、LDAP" /><link
+        rel="prev"
+        href="sect.windows-file-server-with-samba.html"
+        title="11.5. Samba を使った Windows 共有のセットアップ" /><link
+        rel="next"
+        href="sect.ldap-directory.html"
+        title="11.7. LDAP ディレクトリ" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.http-ftp-proxy.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.windows-file-server-with-samba.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ldap-directory.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.http-ftp-proxy"></a>11.6. HTTP/FTP プロキシ</h2></div></div></div><div
+          class="para">
+			HTTP/FTP プロキシは HTTP または FTP 接続の仲介者として機能します。HTTP/FTP プロキシの役割は 2 種類あります:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					キャッシュ: 最近ダウンロードされた文書をローカルにコピーします。これはダウンロード重複して行う事を避ける役割を果たします。
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					サーバのフィルタリング: プロキシの利用が強制されている場合 (そしてプロキシを介さない外部への接続がブロックされる場合)、プロキシは接続要求を許可するか否かを決定する事が可能です。
+				</div></li></ul></div><a
+          id="idm140393306335616"
+          class="indexterm"></a><a
+          id="idm140393306334848"
+          class="indexterm"></a><div
+          class="para">
+			Falcot Corp はプロキシサーバとして Squid を選びました。
+		</div><a
+          id="idm140393306333600"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393306332832"></a>11.6.1. インストール</h3></div></div></div><div
+            class="para">
+				<span
+              class="pkg pkg">squid3</span> Debian パッケージには、モジュール式 (キャッシュ) プロキシだけが含まれます。Squid をフィルタリングサーバとして使うには、追加で <span
+              class="pkg pkg">squidguard</span> パッケージをインストールする必要があります。加えて、<span
+              class="pkg pkg">squid-cgi</span> には、Squid プロキシ用の問い合わせおよび管理インターフェースが含まれます。
+			</div><div
+            class="para">
+				インストールの前に、システムが自分の完全な名前を識別できるか確認する事を忘れないで下さい。<code
+              class="command">hostname -f</code> は完全修飾名 (ドメイン名を含むホスト名) を返します。これに失敗した場合、<code
+              class="filename">/etc/hosts</code> ファイルを編集して、システムの完全な名前 (例えば <code
+              class="literal">arrakis.falcot.com</code> など) を書き込むべきです。潜在的な名前の衝突を避けるには、ネットワーク管理者に公認のコンピュータの名前の妥当性を確認するべきです。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393306327264"></a>11.6.2. キャッシュの設定</h3></div></div></div><div
+            class="para">
+				キャッシュサーバを有効化するには、<code
+              class="filename">/etc/squid3/squid.conf</code> 設定ファイルを編集し、ローカルネットワークからのマシンがプロキシを介して問い合わせを実行する事を許可するだけで簡単に可能です。以下の例は Falcot Corp 管理者の行った変更を表わしています:
+			</div><div
+            class="example"><a
+              id="idm140393306325488"></a><p
+              class="title"><strong>例11.30 <code
+                  class="filename">/etc/squid3/squid.conf</code> ファイル (抜粋)</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+
+# Example rule allowing access from your local networks. Adapt
+# to list your (internal) IP networks from where browsing should
+# be allowed
+acl our_networks src 192.168.1.0/24 192.168.2.0/24
+http_access allow our_networks
+http_access allow localhost
+# And finally deny all other access to this proxy
+http_access deny all</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393306323552"></a>11.6.3. フィルタの設定</h3></div></div></div><div
+            class="para">
+				<code
+              class="command">squid</code> 自身はフィルタリングを実行しません; フィルタリング作業は <code
+              class="command">squidGuard</code> に委任されています。<code
+              class="command">squid</code> を設定して <code
+              class="command">squidGuard</code> と協力するようにしなければいけません。これを行うには、以下の指示文を <code
+              class="filename">/etc/squid/squid.conf</code> ファイルに追加します:
+			</div><a
+            id="idm140393306320384"
+            class="indexterm"></a><pre
+            class="programlisting">
+redirect_program /usr/bin/squidGuard -c /etc/squid/squidGuard.conf</pre><div
+            class="para">
+				<code
+              class="filename">/usr/share/doc/squidguard/examples/squidGuard.cgi.gz</code> をたたき台として使い、<code
+              class="filename">/usr/lib/cgi-bin/squidGuard.cgi</code> CGI プログラムをインストールする事が必要です。このスクリプトの <code
+              class="varname">$proxy</code> と <code
+              class="varname">$proxymaster</code> 変数 (それぞれプロキシの名前と管理者の連絡用電子メールアドレスです) を変更する必要があります。<code
+              class="varname">$image</code> と <code
+              class="varname">$redirect</code> 変数は問い合わせが拒否された事を表現する既存の画像を設定します。
+			</div><div
+            class="para">
+				このフィルタを有効化するには、<code
+              class="command">/etc/init.d/squid reload</code> コマンドを使います。しかしながら、<span
+              class="pkg pkg">squidguard</span> パッケージはデフォルトで何もフィルタリングしません。フィルタリングポリシーを定義するのは管理者の仕事です。これを行うには、<code
+              class="filename">/etc/squid/squidGuard.conf</code> ファイルを作成します (必要ならば <code
+              class="filename">/etc/squidguard/squidGuard.conf.default</code> をテンプレートとして使います)。
+			</div><div
+            class="para">
+				<code
+              class="command">squidGuard</code> 設定ファイル (またはその中で言及しているドメインまたは URL のリストの 1 つ) を変更したら、毎回 <code
+              class="command">update-squidguard</code> を使って作業データベースを再生成しなければいけません。設定ファイルの構文は以下のウェブサイトで説明されています: <div
+              class="url">→ <a
+                href="http://www.squidguard.org/Doc/configure.html">http://www.squidguard.org/Doc/configure.html</a></div>
+			</div><a
+            id="idm140393306311344"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ALTERNATIVE</em></span> DansGuardian</strong></p></div></div></div><a
+              id="idm140393306309552"
+              class="indexterm"></a><a
+              id="idm140393306308416"
+              class="indexterm"></a><div
+              class="para">
+				<span
+                class="pkg pkg">dansguardian</span> パッケージは <span
+                class="emphasis"><em>squidguard</em></span> の代替品です。dansguardian は単純に禁止された URL のブラックリストを取り扱うだけではありません。PICS システム (<span
+                class="emphasis"><em>Platform for Internet Content Selection</em></span>) の利点を駆使して、ページ内容を動的に解析することで、ページを許可するか否かを判断する事が可能です。
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.windows-file-server-with-samba.html"><strong>戻る</strong>11.5. Samba を使った Windows 共有のセットアップ</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ldap-directory.html"><strong>次へ</strong>11.7. LDAP ディレクトリ</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.http-ftp-proxy.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.http-ftp-proxy.html">da-DK</a></li><li><a
+              href="../de-DE/sect.http-ftp-proxy.html">de-DE</a></li><li><a
+              href="../el-GR/sect.http-ftp-proxy.html">el-GR</a></li><li><a
+              href="../en-US/sect.http-ftp-proxy.html">en-US</a></li><li><a
+              href="../es-ES/sect.http-ftp-proxy.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.http-ftp-proxy.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.http-ftp-proxy.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.http-ftp-proxy.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.http-ftp-proxy.html">id-ID</a></li><li><a
+              href="../it-IT/sect.http-ftp-proxy.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.http-ftp-proxy.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.http-ftp-proxy.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.http-ftp-proxy.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.http-ftp-proxy.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.http-ftp-proxy.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.http-ftp-proxy.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.http-ftp-proxy.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.5. syslog 系统事件</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="系统启动, 启动脚本, SSH, Telnet, 权限, 许可, 管理, Inetd, Cron, 备份, 热插拔, PCMCIA接口, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="prev"
+        href="sect.administration-interfaces.html"
+        title="9.4. 管理员介面" /><link
+        rel="next"
+        href="sect.inetd.html"
+        title="9.6.  inetd 超级服务" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.syslog.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.syslog"></a>9.5. <code
+                  class="command">syslog</code> 系统事件</h2></div></div></div><a
+          id="idm140492733124800"
+          class="indexterm"></a><a
+          id="idm140492733123680"
+          class="indexterm"></a><a
+          id="idm140492733122240"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-principe"></a>9.5.1. 原则和机制</h3></div></div></div><div
+            class="para">
+				The <code
+              class="command">rsyslogd</code> daemon is responsible for collecting service messages coming from applications and the kernel, then dispatching them into log files (usually stored in the <code
+              class="filename">/var/log/</code> directory). It obeys the <code
+              class="filename">/etc/rsyslog.conf</code> configuration file.
+			</div><div
+            class="para">
+				每个日志信息都和应用子系统相关联（文档中称为“facility”）：
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">auth</code> 和 <code
+                    class="literal">authpriv</code>：用于授权；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">cron</code>：源于任务调度服务， <code
+                    class="command">cron</code> 和 <code
+                    class="command">atd</code>；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">daemon</code>：影响未分类的守护进程（DNS， NTP，等）；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ftp</code>：涉及FTP 服务器；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">kern</code>：源于内核的消息
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">lpr</code>：源于打印子系统；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">mail</code>：源于电子邮件子系统；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">news</code>：Usenet 子系统消息（主要源自NNTP －网络消息传输协议－管理新闻组的服务器）；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">syslog</code>：源于 <code
+                    class="command">syslogd</code> 服务自身的消息；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">user</code>：用户消息；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">uucp</code>：源于UUCP（Unix to Unix Copy Program，一种老式的分发电子邮件消息的协议）服务的消息；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">local0</code> 到 <code
+                    class="literal">local7</code>：保留本地使用。
+					</div></li></ul></div><div
+            class="para">
+				每种消息都有其优先级。下面按降序列出：
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">emerg</code>：求助！情况紧急，系统不能用了。
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">alert</code>赶快，任何推迟都是危险的，必须马上采取行动；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">crit</code>：情况很严苛；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">err</code>：错误；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">warn</code>：警告（潜在的错误）；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">notice</code>：正常情况，但是该消息很重要；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">info</code>：提供信息；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">debug</code>：调试消息。
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-config"></a>9.5.2. 配置文件</h3></div></div></div><div
+            class="para">
+				<code
+              class="filename">/etc/rsyslog.conf</code> 文件的详细语法在 <span
+              class="citerefentry"><span
+                class="refentrytitle">rsyslog.conf</span>(5)</span> 手册中，在 <span
+              class="pkg pkg">rsyslog-doc</span> 软件包中也有一份 HTML 文档（<code
+              class="filename">/usr/share/doc/rsyslog-doc/html/index.html</code>）。总的原则是要写“选择器（selector）”和“行为（action）”配对。选择器定义所有相关消息，行为描述如何处理。
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-selector-syntax"></a>9.5.2.1. 选择器语法</h4></div></div></div><div
+              class="para">
+					选择器是由分号分隔的 <code
+                class="literal"><em
+                  class="replaceable">子系统</em>清单。<em
+                  class="replaceable">优先级</em></code> 配对（例如： <code
+                class="literal">auth.notice;mail.info</code>）。星号代表所有的子系统和优先级（例如： <code
+                class="literal">*.alert</code> 或者 <code
+                class="literal">mail.*</code>）。几个子系统可以通过逗号合并成组（例如： <code
+                class="literal">auth,mail.info</code>）。优先级指明相同或更高优先级的消息；因此 <code
+                class="literal">auth.alert</code> 指具有 <code
+                class="literal">alert</code> 和 <code
+                class="literal">emerg</code> 优先级的<code
+                class="literal">auth</code> 子系统消息。惊叹号（！）前缀表示求反，换句话说指低等级的优先级；因此 <code
+                class="literal">auth.!notice</code>指有 <code
+                class="literal">auth</code>产生的具有 <code
+                class="literal">info</code> 或 <code
+                class="literal">debug</code> 优先级的消息。等号（＝）前缀表示精确指定某种优先级（<code
+                class="literal">auth.=notice</code> 只关心具有 <code
+                class="literal">notice</code> 优先级的 <code
+                class="literal">auth</code> 消息）。优先级依次为：debug, info, notice, warning/warn, err/error , crit, alert, emerg/panic。
+				</div><div
+              class="para">
+					列在选择器中的元素会覆盖先前的元素。因此可以限定一个集合或者排除一些元素。例如， <code
+                class="literal">kern.info;kern.!err</code> 表示源于内核优先级在 <code
+                class="literal">info</code> 和 <code
+                class="literal">warn</code>之间的消息。 <code
+                class="literal">none</code> 优先级指示空集（无优先级），可用于从集合中排除一个子系统消息。于是， <code
+                class="literal">*.crit;kern.none</code> 指所有优先级等于或高于 <code
+                class="literal">crit</code> 但不是来自内核的消息。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-action-syntax"></a>9.5.2.2. 行为的语法</h4></div></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>回到基础</em></span> 命名管道，持续管道</strong></p></div></div></div><a
+                id="idm140492733064000"
+                class="indexterm"></a><a
+                id="idm140492733063040"
+                class="indexterm"></a><div
+                class="para">
+					命名管道是一种特殊类型的文件，可以像传统管道一样操作（通过在命令行中使用“｜”符号），但是命名管道通过文件。这种机制的优点是可以关联两个不相干的进程。任何对命名管道的写操作会阻塞该进程直到另一个进程试图读数据。第二个进程读出第一个进程写的数据，第一个进程恢复执行。
+				</div><div
+                class="para">
+					这种文件由 <code
+                  class="command">mkfifo</code> 命令创建
+				</div></div><div
+              class="para">
+					各种可能的行为包括：
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							添加信息到文件（例如： <code
+                      class="filename">/var/log/messages</code>）；
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							将消息发送到 <code
+                      class="command">syslog</code> 远程服务器（例如： <code
+                      class="literal">@log.falcot.com</code>）；
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							将消息发送至已有的命名管道（例如： <code
+                      class="literal">|/dev/xconsole</code>）；
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							将消息发给一个或多个已经登录的用户（如： <code
+                      class="literal">root,rhertzog</code>）；
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							将消息发给所有登录用户（如： <code
+                      class="literal">*</code>）；
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							将消息写入文本控制台（如： <code
+                      class="literal">/dev/tty8</code>）。
+						</div></li></ul></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>安全</em></span> 转发日志</strong></p></div></div></div><a
+                id="idm140492733048992"
+                class="indexterm"></a><div
+                class="para">
+					将一些重要日志保存在单独的机器（可能是日志专用）是很好的主意，这样可以防止侵入者移除他们的入侵痕迹（除非，他们也入侵了该日志服务器）。另外，碰到一些重要问题（像内核崩溃），日志变量都在另外的机器上，就更有机会确定导致崩溃的事件顺序。
+				</div><div
+                class="para">
+					要接受其他机器发来的消息，必须配置 <span
+                  class="emphasis"><em>rsyslog</em></span>：实际上，只要激活 <code
+                  class="filename">/etc/rsyslog.conf</code> 中已有的选项就足够了（<code
+                  class="literal">$ModLoad imudp</code> and <code
+                  class="literal">$UDPServerRun 514</code>）。
+				</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>上一页</strong>9.4. 管理员介面</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>下一页</strong>9.6.  inetd 超级服务</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.syslog.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.syslog.html">da-DK</a></li><li><a
+              href="../de-DE/sect.syslog.html">de-DE</a></li><li><a
+              href="../el-GR/sect.syslog.html">el-GR</a></li><li><a
+              href="../en-US/sect.syslog.html">en-US</a></li><li><a
+              href="../es-ES/sect.syslog.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.syslog.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.syslog.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.syslog.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.syslog.html">id-ID</a></li><li><a
+              href="../it-IT/sect.syslog.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.syslog.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.syslog.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.syslog.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.syslog.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.syslog.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.syslog.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.syslog.html">zh-CN</a></li></ul></div></body></html>

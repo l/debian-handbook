@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.5. إعداد مشاركات ويندوز باستخدام سامبا</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="network-services.html"
+        title="فصل 11. خدمات الشبكة: Postfix،‏ Apache،‏ NFS،‏ Samba،‏ Squid،‏ LDAP" /><link
+        rel="prev"
+        href="sect.nfs-file-server.html"
+        title="11.4. مخدم الملفات NFS" /><link
+        rel="next"
+        href="sect.http-ftp-proxy.html"
+        title="11.6. بروكسي HTTP/FTP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.windows-file-server-with-samba.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.nfs-file-server.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.http-ftp-proxy.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.windows-file-server-with-samba"></a>11.5. إعداد مشاركات ويندوز باستخدام سامبا</h2></div></div></div><div
+          class="para">
+			سامبا هي مجموعة أدوات تدعم بروتوكول SMB (يُعرَف أيضاً باسم ”CIFS“) على لينكس. يستخدم ويندوز هذا البروتوكول لمشاركة الملفات والطابعات على الشبكة.
+		</div><a
+          id="idm140225821885120"
+          class="indexterm"></a><a
+          id="idm140225821884352"
+          class="indexterm"></a><a
+          id="idm140225821883584"
+          class="indexterm"></a><a
+          id="idm140225821882816"
+          class="indexterm"></a><a
+          id="idm140225821882048"
+          class="indexterm"></a><div
+          class="para">
+			تستطيع سامبا أيضاً العمل كمتحكم نطاق ويندوز. وهي أداة ممتازة لضمان التكامل السلس بين مخدمات لينكس والحواسيب المكتبية التي لا تزال تعمل بنظام ويندوز.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821880224"></a>11.5.1. مخدم سامبا</h3></div></div></div><div
+            class="para">
+				The <span
+              class="pkg pkg">samba</span> package contains the main two servers of Samba 4, <code
+              class="command">smbd</code> and <code
+              class="command">nmbd</code>.
+			</div><a
+            id="idm140225821877808"
+            class="indexterm"></a><a
+            id="idm140225821876912"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>توثيق</em></span> التعمق أكثر</strong></p></div></div></div><div
+              class="para">
+				مخدم سامبا استعمالاته متنوعة جداً وقابل للضبط بشكل كبير، ويستطيع معالجة حالات استخدام عديدة جداً تلبي احتياجات مختلفة كثيراً وبُنَى شبكات متنوعة. يُركّز هذا الكتاب على الحالة التي يستخدم فيها سامبا كمتحكم رئيسي، لكنه يستطيع أن يعمل أيضاً كمخدم بسيط في النطاق ويوكّل المصادقة إلى المتحكم الرئيسي (الذي قد يكون مخدم ويندوز).
+			</div><a
+              id="idm140225821874128"
+              class="indexterm"></a><a
+              id="idm140225821873360"
+              class="indexterm"></a><div
+              class="para">
+				The <span
+                class="pkg pkg">samba-doc</span> package contains a wealth of commented example files in <code
+                class="filename">/usr/share/doc/samba-doc/examples/</code>.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>أدوات</em></span> المصادقة مع مخدم ويندوز</strong></p></div></div></div><div
+              class="para">
+				تعطي Winbind مدير النظام إمكانية استخدام مخدم ويندوز كمخدم مصادقة. كما تتكامل Winbind بسلاسة مع PAM و NSS. يسمح هذا بإعداد أجهزة لينكس حيث يستطيع جميع مستخدمي نطاق ويندوز الحصول على حساب آلياً.
+			</div><a
+              id="idm140225821869440"
+              class="indexterm"></a><div
+              class="para">
+				More information can be found in the <code
+                class="filename">/usr/share/doc/samba-doc/examples/pam_winbind/</code> directory.
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821867776"></a>11.5.1.1. الإعداد باستخدام <code
+                      class="command">debconf</code></h4></div></div></div><div
+              class="para">
+					تُعدُّ الحزمة إعداداً مصغراً اعتماداً على إجابات بضعة أسئلة Debconf تطرحها أثناء التثبيت الأولي؛ يمكن تكرار خطوة الإعداد هذه لاحقاً باستخدام <code
+                class="command">dpkg-reconfigure samba-common samba</code>.
+				</div><div
+              class="para">
+					المعلومة المطلوبة الأولى هي اسم مجموعة العمل (workgroup) التي سوف ينتمي لها مخدم سامبا (الإجابة في حالتنا هي <code
+                class="literal">FALCOTNET</code>). يسأل سؤال ثانٍ عن رغبتك بتشفير كلمات السر. سيكون الرد بالإيجاب، لأن التشفير إلزامي مع عملاء ويندوز الأحدث؛ بالإضافة إلى أنه يزيد الأمن. لكن في المقابل سيفرض هذا إدارة كلمات سر سامبا بشكل مستقل عن كلمات سر يونكس.
+				</div><div
+              class="para">
+					كما تقترح الحزمة التعرّف على مخدم WINS من المعلومات التي تقدمها خدمة DHCP. رفض مديرو النظم في شركة فلكوت هذا الخيار، لأنهم ينوون استخدام مخدم سامبا نفسه كمخدم WINS.
+				</div><a
+              id="idm140225821863760"
+              class="indexterm"></a></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821862864"></a>11.5.1.2. الإعداد اليدوي</h4></div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140225821862224"></a>11.5.1.2.1. التعديلات على <code
+                        class="filename">smb.conf</code></h5></div></div></div><div
+                class="para">
+						تتطلب احتياجات شركة فلكوت تعديل خيارات أخرى من الملف <code
+                  dir="ltr"
+                  class="filename">/etc/samba/smb.conf</code>. تلخص المقتطفات التالية التعديلات التي أجروها في قسم <code
+                  class="literal">[global]</code>.
+					</div><pre
+                class="programlisting">
+[global]
+
+## Browsing/Identification ###
+
+# Change this to the workgroup/NT-domain name your Samba server will part of
+   workgroup = FALCOTNET
+
+# server string is the equivalent of the NT Description field
+   server string = %h server (Samba %v)
+
+# Windows Internet Name Serving Support Section:
+# WINS Support - Tells the NMBD component of Samba to enable its WINS Server
+   wins support = yes <span
+                  id="smb.conf.wins"><img
+                    class="callout"
+                    src="Common_Content/images/1.png"
+                    alt="1" /></span>
+
+[...]
+
+####### Authentication #######
+
+# "security = user" is always a good idea. This will require a Unix account
+# in this server for every user accessing the server. See
+# /usr/share/doc/samba-doc/htmldocs/Samba3-HOWTO/ServerType.html 
+# in the samba-doc package for details.
+   security = user <span
+                  id="smb.conf.security"><img
+                    class="callout"
+                    src="Common_Content/images/2.png"
+                    alt="2" /></span>
+
+# You may wish to use password encryption.  See the section on
+# 'encrypt passwords' in the smb.conf(5) manpage before enabling.
+   encrypt passwords = true
+
+# If you are using encrypted passwords, Samba will need to know what
+# password database type you are using.
+   passdb backend = tdbsam
+
+[...]
+
+########## Printing ##########
+
+# If you want to automatically load your printer list rather
+# than setting them up individually then you'll need this
+   load printers = yes <span
+                  id="smb.conf.loadprinters"><img
+                    class="callout"
+                    src="Common_Content/images/3.png"
+                    alt="3" /></span>
+
+# lpr(ng) printing. You may wish to override the location of the
+# printcap file
+;   printing = bsd
+;   printcap name = /etc/printcap
+
+# CUPS printing.  See also the cupsaddsmb(8) manpage in the
+# cups-client package.
+   printing = cups <span
+                  id="smb.conf.printing"><img
+                    class="callout"
+                    src="Common_Content/images/4.png"
+                    alt="4" /></span>
+   printcap name = cups
+</pre><div
+                class="calloutlist"><table
+                  border="0"
+                  summary="Callout list"><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.wins"><img
+                            class="callout"
+                            src="Common_Content/images/1.png"
+                            alt="1" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								يشير إلى ضرورة استخدام سامبا كمخدم أسماء Netbios‏ (WINS) للشبكة المحلية.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.security"><img
+                            class="callout"
+                            src="Common_Content/images/2.png"
+                            alt="2" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								هذه هي القيمة الافتراضية لهذا المتغير؛ لكن بما أنها مركزية في إعدادات سامبا، فيفضّل إعادة ضبطها صراحة. كل مستخدم يحتاج المصادقة قبل أن يصل لأي مشاركة.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.loadprinters"><img
+                            class="callout"
+                            src="Common_Content/images/3.png"
+                            alt="3" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								يطلب من سامبا مشاركة جميع الطابعات المحلية الموجودة في إعدادات CUPS تلقائياً. لا يزال تقييد الوصول لهذه الطابعات ممكناً، بإضافة أقسام مناسبة.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.printing"><img
+                            class="callout"
+                            src="Common_Content/images/4.png"
+                            alt="4" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								يحدد نوع نظام الطباعة المستخدم؛ وهو CUPS في حالتنا.
+							</div></td></tr></table></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140225821850416"></a>11.5.1.2.2. إضافة المستخدمين</h5></div></div></div><div
+                class="para">
+						يحتاج كل مستخدم سامبا حساباً على المخدم؛ يجب إنشاء حسابات يونكس أولاً، بعدها يجب تسجيل المستخدم في قاعدة بيانات سامبا. خطوة إضافة مستخدم يونكس تتم حسب الطريقة المعتادة (باستخدام <code
+                  class="command">adduser</code> مثلاً).
+					</div><div
+                class="para">
+						أما لإضافة مستخدم حالي إلى قاعدة بيانات سامبا فيكفي تشغيل الأمر <code
+                  class="command">smbpasswd -a <em
+                    class="replaceable">user</em></code>؛ سيطلب هذا الأمر إدخال كلمة السر.
+					</div><div
+                class="para">
+						يمكن حذف المستخدم بالأمر <code
+                  class="command">smbpasswd -x <em
+                    class="replaceable">user</em></code>. كما يمكن تعطيل حسابات سامبا مؤقتاً (باستخدام <code
+                  class="command">smbpasswd -d <em
+                    class="replaceable">user</em></code>) وإعادة تفعيلها لاحقاً (باستخدام <code
+                  class="command">smbpasswd -e <em
+                    class="replaceable">user</em></code>).
+					</div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140225821845056"></a>11.5.1.2.3. التحويل إلى متحكم نطاق</h5></div></div></div><div
+                class="para">
+						يشرح هذا القسم كيف ذهب مديرو النظم في فلكوت إلى ما هو أبعد من ذلك حتى، إذ حوّلوا مخدم سامبا إلى متحكم نطاق يوفر بروفايلات عائمة (roaming profiles، التي تسمح للمستخدمين بالدخول إلى سطح مكتبهم بغض النظر عن الجهاز الذي يستخدمونه للاتصال).
+					</div><a
+                id="idm140225821843584"
+                class="indexterm"></a><a
+                id="idm140225821842816"
+                class="indexterm"></a><div
+                class="para">
+						أضافوا في البداية بضعة تعليمات إضافية في قسم <code
+                  class="literal">[global]</code> في ملف الإعداد:
+					</div><pre
+                class="programlisting">
+domain logons = yes              <span
+                  id="smb.conf.domainlogons"><img
+                    class="callout"
+                    src="Common_Content/images/1.png"
+                    alt="1" /></span>
+preferred master = yes           
+logon path = \\%L\profiles\%U    <span
+                  id="smb.conf.logonpath"><img
+                    class="callout"
+                    src="Common_Content/images/2.png"
+                    alt="2" /></span>
+logon script = scripts/logon.bat <span
+                  id="smb.conf.logonscript"><img
+                    class="callout"
+                    src="Common_Content/images/3.png"
+                    alt="3" /></span></pre><div
+                class="calloutlist"><table
+                  border="0"
+                  summary="Callout list"><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.domainlogons"><img
+                            class="callout"
+                            src="Common_Content/images/1.png"
+                            alt="1" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								يُفعّل وظيفة متحكم النطاق.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.logonpath"><img
+                            class="callout"
+                            src="Common_Content/images/2.png"
+                            alt="2" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								يحدد موقع مجلدات بيوت المستخدمين. تُخزّن هذه المجلدات على مشاركة خاصة بها، تسمح بتفعيل خيارات معينة (خصوصاً <code
+                          class="literal">profile acls</code> المطلوب للتوافق مع ويندوز 2000، و XP و Vista).
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="right"><p><a
+                          href="#smb.conf.logonscript"><img
+                            class="callout"
+                            src="Common_Content/images/3.png"
+                            alt="3" /></a> </p></td><td
+                      valign="top"
+                      align="right"><div
+                        class="para">
+								يحدد الملف <span
+                          class="emphasis"><em>الدفعي</em></span> (غير التفاعلي، <span
+                          class="emphasis"><em>batch</em></span>) الذي سيستدعى على جهاز ويندوز العميل كلما فتحت جلسة عمل جديدة. كان الملف في هذه الحالة <code
+                          dir="ltr"
+                          class="filename">/var/lib/samba/netlogon/scripts/logon.bat</code>. يجب كتابة السكربت بصيغة DOS، حيث تُفصل السطور عن بعضها بمحرف carriage-return ومحرف line-feed؛ إذا أنشأت الملف على لينكس، فاستخدم <code
+                          class="command">unix2dos</code> لتحويله.
+							</div><div
+                        class="para">
+								أكثر الأوامر استخداماً في هذه السكربتات إنشاء السواقات الشبكية آلياً ومزامنة ساعة النظام.
+							</div><div
+                        class="example"><a
+                          id="idm140225821832656"></a><p
+                          class="title"><strong>مثال 11.28. الملف <code
+                              class="filename">logon.bat</code></strong></p><div
+                          class="example-contents"><pre
+                            class="programlisting">
+net time \\ARRAKIS /set /yes
+net use H: /home
+net use U: \\ARRAKIS\utils
+</pre></div></div></td></tr></table></div><div
+                class="para">
+						كما أنشئت مشاركتان إضافيتان، والمجلدان المرتبطان بهما:
+					</div><pre
+                class="programlisting">
+[netlogon]
+comment = Network Logon Service
+path = /var/lib/samba/netlogon
+guest ok = yes
+writable = no
+share modes = no
+
+[profiles]
+comment = Profile Share
+path = /var/lib/samba/profiles
+read only = No
+profile acls = Yes
+</pre><div
+                class="para">
+						كما يجب إنشاء مجلد بيت لكل واحد من المستخدمين (بالاسم <code
+                  dir="ltr"
+                  class="filename">/var/lib/samba/profiles/<em
+                    class="replaceable">user</em></code>)، ويجب أن يملك كل مستخدم المجلد الموافق له.
+					</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821827888"></a>11.5.2. عميل سامبا</h3></div></div></div><div
+            class="para">
+				تسمح ميزة العميل في سامبا لأجهزة لينكس بالوصول لمشاركات ويندوز والطابعات المشتركة. تتوفر البرامج المطلوبة في الحزمتين <span
+              class="pkg pkg">cifs-utils</span> و <span
+              class="pkg pkg">smbclient</span>.
+			</div><a
+            id="idm140225821825376"
+            class="indexterm"></a><a
+            id="idm140225821824480"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821823584"></a>11.5.2.1. البرنامج <code
+                      class="command">smbclient</code></h4></div></div></div><div
+              class="para">
+					يستعلم البرنامج <code
+                class="command">smbclient</code> عن مخدمات SMB. وهو يقبل الخيار <code
+                class="literal">-U <em
+                  class="replaceable">user</em></code>، للاتصال بالمخدم بالهوية المحددة. يتصل الأمر <code
+                class="command">smbclient //<em
+                  class="replaceable">server</em>/<em
+                  class="replaceable">share</em></code> بالمشاركة بطريقة تفاعلية تشابه استخدام عميل FTP نصي. يسرد <code
+                class="command">smbclient -L <em
+                  class="replaceable">server</em></code> جميع المشاركات المتاحة (والمرئية) على المخدم.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821819152"></a>11.5.2.2. ربط مشاركات ويندوز</h4></div></div></div><div
+              class="para">
+					يسمح الأمر <code
+                class="command">mount</code> بربط مشاركة ويندوز مع شجرة نظام ملفات لينكس (بمساعدة الأمر <code
+                class="command">mount.cifs</code> المتوفر في <span
+                class="pkg pkg">cifs-utils</span>).
+				</div><a
+              id="idm140225821816608"
+              class="indexterm"></a><a
+              id="idm140225821815712"
+              class="indexterm"></a><div
+              class="example"><a
+                id="idm140225821814944"></a><p
+                class="title"><strong>مثال 11.29. ربط مشاركات ويندوز</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+mount -t cifs //arrakis/shared /shared \
+      -o credentials=/etc/smb-credentials
+</pre></div></div><div
+              class="para">
+					صيغة الملف <code
+                dir="ltr"
+                class="filename">/etc/smb-credentials</code> (الذي يجب ألا تعطى صلاحية قراءته للمستخدمين) كالتالي:
+				</div><pre
+              class="programlisting">
+username = <em
+                class="replaceable">user</em>
+password = <em
+                class="replaceable">password</em></pre><div
+              class="para">
+					يمكن تحديد خيارات أخرى من سطر الأوامر؛ تتوفر قائمة كاملة بهذه الخيارات في صفحة الدليل <span
+                class="citerefentry"><span
+                  class="refentrytitle">mount.cifs</span>(1)</span>‎. هناك خيارات بالذات قد يهمانك: <code
+                class="literal">uid</code> و<code
+                class="literal">gid</code> اللذان يسمحان بفرض مالك ومجموعة للملفات المتاحة على المشاركة، حتى لا تنحصر صلاحيات الوصول بالمستخدم الجذر.
+				</div><div
+              class="para">
+					كما يمكن ضبط عملية ربط مشاركة ويندوز في الملف <code
+                dir="ltr"
+                class="filename">/etc/fstab</code>:
+				</div><pre
+              class="programlisting">
+//<em
+                class="replaceable">server</em>/shared /shared cifs credentials=/etc/smb-credentials
+</pre><div
+              class="para">
+					أما فك ربط مشاركة SMB/CIFS فعبر أمر <code
+                class="command">umount</code> القياسي.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821806160"></a>11.5.2.3. الطباعة على طابعة مشتركة</h4></div></div></div><div
+              class="para">
+					CUPS هو حل أنيق للطباعة من محطة عمل لينكس على طابعة يشاركها جهاز ويندوز. عند تثبيت الحزمة <span
+                class="pkg pkg">smbclient</span>، يسمح CUPS بثبيت طابعات ويدوز المشتركة تلقائياً.
+				</div><a
+              id="idm140225821804224"
+              class="indexterm"></a><div
+              class="para">
+					إليك الخطوات اللازمة:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							ادخل إلى واجهة إعداد CUPS: ‏<code
+                      class="literal">http://localhost:631/admin</code>
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							انقر على ”إضافة طابعة“.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							اختر الطابعة، انتق ”طابعة ويندوز عبر سامبا“.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							أدخل عنوان URI للاتصال بالطابعة الشبكية. يجب أن يشبه ما يلي:
+						</div><div
+                    class="para">
+							<code
+                      class="literal">smb://<em
+                        class="replaceable">user</em>:<em
+                        class="replaceable">password</em>@<em
+                        class="replaceable">server</em>/<em
+                        class="replaceable">printer</em></code>.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							أدخل الاسم الذي سيعرف هذه الطابعة بشكل فريد. بعدها أدخل وصف الطابعة ومكانها. سوف تُعرَض هذه المعلومات للمستخدمين النهائيين لمساعدتهم على تمييز الطابعات.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							حدد الشركة الصانعة للطابعة وطرازها، أو فوراً قدّم ملف وصف طابعة مناسب (PPD).
+						</div></li></ul></div><div
+              class="para">
+					تهانينا! الطابعة تعمل!
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.nfs-file-server.html"><strong>السابق</strong>11.4. مخدم الملفات NFS</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.http-ftp-proxy.html"><strong>التالي</strong>11.6. بروكسي HTTP/FTP</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.windows-file-server-with-samba.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.windows-file-server-with-samba.html">da-DK</a></li><li><a
+              href="../de-DE/sect.windows-file-server-with-samba.html">de-DE</a></li><li><a
+              href="../el-GR/sect.windows-file-server-with-samba.html">el-GR</a></li><li><a
+              href="../en-US/sect.windows-file-server-with-samba.html">en-US</a></li><li><a
+              href="../es-ES/sect.windows-file-server-with-samba.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.windows-file-server-with-samba.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.windows-file-server-with-samba.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.windows-file-server-with-samba.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.windows-file-server-with-samba.html">id-ID</a></li><li><a
+              href="../it-IT/sect.windows-file-server-with-samba.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.windows-file-server-with-samba.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.windows-file-server-with-samba.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.windows-file-server-with-samba.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.windows-file-server-with-samba.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.windows-file-server-with-samba.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.windows-file-server-with-samba.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.windows-file-server-with-samba.html">zh-CN</a></li></ul></div></body></html>

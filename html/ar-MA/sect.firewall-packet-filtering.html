@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.2. الجدار الناري أو ترشيح الرزم</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="الجدار الناري, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="security.html"
+        title="فصل 14. الأمن" /><link
+        rel="prev"
+        href="security.html"
+        title="فصل 14. الأمن" /><link
+        rel="next"
+        href="sect.supervision.html"
+        title="14.3. الإشراف: المنع، والاكتشاف، والردع" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.firewall-packet-filtering.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="security.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.supervision.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.firewall-packet-filtering"></a>14.2. الجدار الناري أو ترشيح الرزم</h2></div></div></div><a
+          id="idm140225821977312"
+          class="indexterm"></a><a
+          id="idm140225821976352"
+          class="indexterm"></a><a
+          id="idm140225821975392"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>أساسيات</em></span> الجدار الناري</strong></p></div></div></div><a
+            id="idm140225821973344"
+            class="indexterm"></a><div
+            class="para">
+			<span
+              class="emphasis"><em>الجدار الناري</em></span> هو نوع من المعدات يتألف من عتاد خاص و (أو) برمجيات تنظم رزم الشبكة الواردة أو الصادرة (الداخلة إلى الشبكة المحلية أو الخارجة منها) ولا تسمح إلا بمرور الرزم التي تطابق شروطاً معينة محددة مسبقاً.
+		</div></div><div
+          class="para">
+			الجدار الناري هو بوابة ترشيح شبكية وهو فعال فقط مع الرزم التي تضطر للمرور عبره. بالتالي، لا يمكن أن يفيد الجدار الناري إلا إذا كان المرور عبره هو الطريق الوحيد المتاح أمام هذه الرزم.
+		</div><div
+          class="para">
+			لا يوجد حل جاهز بسبب عدم وجود إعداد قياسي (وبسبب شعار ”عملية، وليست منتج“). لكن هناك، على أي حال، أدوات تبسط إعداد الجدار الناري <span
+            class="emphasis"><em>netfilter</em></span>، مع تمثيل رسومي لقواعد الترشيح. <code
+            class="command">fwbuilder</code> هي إحدى أفضل هذه الأدوات بلا شك.
+		</div><a
+          id="idm140225828807504"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>حالة خاصة</em></span> الجدار الناري المحلي</strong></p></div></div></div><div
+            class="para">
+			يمكن أن ينحصر مدى الجدار الناري بجهاز واحد بعينه (بدلاً من حماية شبكة كاملة)، وفي تلك الحالة يتمثل دوره بترشيح أو تقييد الوصول إلى بعض الخدمات، أو ربما منع الاتصالات الصادرة الناتجة عن برمجيات خبيثة التي قد يُثبِّتها المستخدم –بدراية او عن غير قصد–.
+		</div></div><div
+          class="para">
+			تتضمن النواة لينكس الجدار الناري <span
+            class="emphasis"><em>netfilter</em></span>. يمكن التحكم به من ساحة المستخدم عبر الأمرين <code
+            class="command">iptables</code> و <code
+            class="command">ip6tables</code>. الفرق بين هذين الأمرين هو أن الأول يعمل مع شبكات IPv4، بينما يعمل الثاني مع شبكات IPv6. بما أن كلاً من هذين البروتوكولين سيبقى لعديد من السنوات القادمة على الأغلب، فيجب استخدام الأداتين على التوازي.
+		</div><a
+          id="idm140225828802016"
+          class="indexterm"></a><a
+          id="idm140225828800896"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.netfilter"></a>14.2.1. عمل Netfilter</h3></div></div></div><div
+            class="para">
+				يستخدم <span
+              class="emphasis"><em>netfilter</em></span> أربعة جداول مختلفة تُخزِّن قواعداً تنظم ثلاثة أنواع من العمليات على الرزم:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						يختص <code
+                    class="literal">filter</code> بقواعد الترشيح (قبول أو رفض أو تجاهل رزمة)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						يختص <code
+                    class="literal">nat</code> بترجمة عنوان المصدر أو الوجهة وأرقام المنافذ الخاصة بالرزمة؛ لاحظ أن هذا الجدول متاح فقط لبروتوكول IPv4؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						يختص <code
+                    class="literal">mangle</code> بالتعديلات الأخرى التي تجرى على رزم IP (بما فيها حقل ToS — <span
+                    class="emphasis"><em>نوع الخدمة Type of Service</em></span> — وخياراته)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						يسمح <code
+                    class="literal">raw</code> بإجراء تعديلات يدوية أخرى على الرزم قبل وصولها لنظام تتبع الاتصال.
+					</div></li></ul></div><div
+            class="para">
+				يحوي كل جدول قوائم من القواعد تدعى <span
+              class="emphasis"><em>السلاسل chains</em></span>. يستخدم الجدار الناري السلاسل القياسية لمعالجة الرزم بناء على حالات معرّفة مسبقاً. يستطيع مدير النظام إنشاء سلاسل أخرى، تُستَخدم فقط إذا أشارت لها إحدى السلاسل القياسية (إما بشكل مباشر أو غير مباشر).
+			</div><a
+            id="idm140225826432976"
+            class="indexterm"></a><a
+            id="idm140225826432016"
+            class="indexterm"></a><div
+            class="para">
+				يحوي الجدول <code
+              class="literal">filter</code> ثلاث سلاسل قياسية:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">INPUT</code>: تختص بالرزم التي وجهتها هي الجدار الناري نفسه؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OUTPUT</code>: تختص بالرزم التي يَبثُّها الجداري الناري؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">FORWARD</code>: تختص بالرزم التي تنتقل عبر الجدار الناري (حيث لا يكون الجدار الناري مصدرها ولا وجهتها).
+					</div></li></ul></div><div
+            class="para">
+				كما يحوي الجدول <code
+              class="literal">nat</code> أيضاً ثلاث سلاسل قياسية:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PREROUTING</code>: لتعديل الرزم فور وصولها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">POSTROUTING</code>: لتعديل الرزم عندما تجهز للانطلاق في طريقها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OUTPUT</code>: لتعديل الرزم التي يولدها الجدار الناري نفسه.
+					</div></li></ul></div><div
+            class="figure"><a
+              id="figure.chaines-netfilter"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/netfilter.png"
+                  alt="طريقة استدعاء سلاسل netfilter" /></div></div><p
+              class="title"><strong>شكل 14.1. طريقة استدعاء سلاسل <span
+                  class="emphasis"><em>netfilter</em></span></strong></p></div><div
+            class="para">
+				كل سلسلة عبارة عن لائحة من القواعد؛ وكل قاعدة عبارة عن مجموعة من الشروط، وإجراءٌ يجب تنفيذه عند تحقق هذه الشروط. عند معالجة رزمة، يفحص الجدار الناري السلسلة المناسبة، قاعدة تلو أخرى؛ وعند تحقق شروط إحدى القواعد، ”يقفز“ (jump، ومن هنا جاء <code
+              dir="ltr"
+              class="literal">-j</code> في الأوامر) إلى الإجراء المحدد لمتابعة المعالجة. أكثر التصرفات شيوعاً مُقيَّسَة، وهناك إجراءات خاصة لها. يقاطع تنفيذ إحدى هذه الإجراءات معالجة السلسلة، لأن مصير الرزمة قد حسم أصلاً (إلا في حالة استثنائية مذكورة أدناه):
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>أساسيات</em></span> ICMP</strong></p></div></div></div><div
+              class="para">
+				بروتوكول ICMP‏ (<span
+                class="emphasis"><em>Internet Control Message Protocol</em></span>) هو البروتوكول المستخدم لإرسال معلومات مكمّلة عن الاتصالات. يسمح هذه البروتوكول بفحص اتصال الشبكة بالأمر <code
+                class="command">ping</code> (الذي يرسل رزمة ICMP هي <span
+                class="emphasis"><em>echo request</em></span>، التي يفترض أن يرد عليها المستقبل برسالة ICMP هي <span
+                class="emphasis"><em>echo reply</em></span>). يشير هذا البروتوكول إلى رفض الجدار الناري لرزمة ما، أو يشير لطفحان في buffer الاستقبال، أو يقترح مساراً أفضل للرزم التالية في الاتصال، وهكذا. يُعرّف هذا البروتوكول في عدة وثائق RFC؛ لكن سرعان ما أُكمِلَت ووسِّعَت الوثيقتين الأوليتين RFC777 و RFC792. <div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc777.html">http://www.faqs.org/rfcs/rfc777.html</a></div><div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc792.html">http://www.faqs.org/rfcs/rfc792.html</a></div>
+			</div><div
+              class="para">
+				تذكر أن buffer الاستقبال هو منطقة صغيرة من الذاكرة تُخزِّن البيانات عند وصولها من الشبكة وأثناء معالجة النواة للبيانات. إذا امتلأت المنطقة، لا يمكن استقبال بيانات جديدة، ويشير ICMP للمشكلة، بحيث يخفف المرسل من معدل الإرسال (الذي يجب أن يتوازن نظرياً بعد بعض الوقت).
+			</div><a
+              id="idm140225827359824"
+              class="indexterm"></a><a
+              id="idm140225827358864"
+              class="indexterm"></a><a
+              id="idm140225827357936"
+              class="indexterm"></a><a
+              id="idm140225827356976"
+              class="indexterm"></a><a
+              id="idm140225827355536"
+              class="indexterm"></a><div
+              class="para">
+				لاحظ أنه بالرغم من إمكانية تشغيل شبكات IPv4 دون ICMP، إلا أن ICMP6 ضروري حتماً لشبكات IPv6، لأنه يجمع وظائف عديدة كانت، في زمن IPv4، متفرقة بين ICMPv4، وIGMP‏ (<span
+                class="emphasis"><em>Internet Group Membership Protocol</em></span>) و ARP‏ (<span
+                class="emphasis"><em>Address Resolution Protocol</em></span>). يُعرَّف ICMPv6 في RFC4443. <div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc4443.html">http://www.faqs.org/rfcs/rfc4443.html</a></div>
+			</div></div><div
+            class="para">
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ACCEPT</code>: يسمح للرزمة بالذهاب في سبيلها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">REJECT</code>: يرفض الرزمة مع الرد برزمة ICMP تبيّن الخطأ (يمكن تحديد نوع الخطأ باستخدام الخيار <code
+                    dir="ltr"
+                    class="literal">--reject-with <em
+                      class="replaceable">type</em></code> التابع للأمر <code
+                    class="command">iptables</code>)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DROP</code>: حذف (تجاهل) الرزمة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">LOG</code>: تسجيل رسالة (عبر <code
+                    class="command">syslogd</code>) فيها وصف الرزمة، لاحظ أن هذا الإجراء لا يقاطع المعالجة، ويستمر تنفيذ السلسلة عند القاعدة التالية، لذلك تحتاج عملية تسجيل الرزم المرفوضة قاعدة LOG وقاعدة REJECT/DROP؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ULOG</code>: تسجيل رسالة عبر <code
+                    class="command">ulogd</code>، الذي قد يكون أكثر تكيفاً وفعالية من <code
+                    class="command">syslogd</code> عند معالجة أعداد كبيرة من الرسائل؛ لاحظ أن هذا الإجراء، مثله مثل LOG، يعيد المعالجة للمتابعة عند القاعدة التالية من السلسلة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<em
+                    class="replaceable">chain_name</em>: يقفز إلى سلسلة معينة ويقيّم قواعدها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RETURN</code>: يقاطع معالجة السلسلة الحالية، ويعود إلى السلسلة التي استدعتها؛ وفي حال كانت السلسلة الحالية قياسية، فلا توجد سلسلة مستدعية، وبالتالي يتم اتخاذ الإجراء الافتراضي (المعرّف بالخيار <code
+                    dir="ltr"
+                    class="literal">-P</code> الخاص بالأمر <code
+                    class="command">iptables</code>) بدلاً من ذلك؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SNAT</code> (في جدول <code
+                    class="literal">nat</code> فقط، أي فقط مع IPv4 في <span
+                    class="distribution distribution">ويزي</span> — ظهر دعم NAT لبروتوكول IPv6 في النواة لينكس 3.7): تطبيق <span
+                    class="emphasis"><em>Source NAT</em></span> (هناك خيارات إضافية تعرف التغييرات الدقيقة الواجب تطبيقها)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DNAT</code> (في جدول <code
+                    class="literal">nat</code> فقط، بالتالي فقط مع IPv4 في <span
+                    class="distribution distribution">ويزي</span>): تطبيق <span
+                    class="emphasis"><em>Destination NAT</em></span> (تحدد الخيارات الأخرى التعديلات الفعلية التي ستُطبَّق)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MASQUERADE</code> (في جدول <code
+                    class="literal">nat</code> فقط، بالتالي فقط مع IPv4 في <span
+                    class="distribution distribution">ويزي</span>): تطبيق <span
+                    class="emphasis"><em>التنكر</em></span> (حالة خاصة من <span
+                    class="emphasis"><em>Source NAT</em></span>)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">REDIRECT</code> (في جدول <code
+                    class="literal">nat</code> فقط، بالتالي فقط مع IPv4 في <span
+                    class="distribution distribution">ويزي</span>): إعادة توجيه رزمة إلى منفذ معين من الجدار الناري نفسه؛ يمكن استخدام هذا لإعداد بروكسي وب شفاف يعمل دون إعداد عند العميل، بما أن العميل يظن أنه يتصل مع المتلقي بينما تمر الاتصالات في الحقيقة عبر البروكسي.
+					</div></li></ul></div><div
+            class="para">
+				الإجراءات الأخرى، وخصوصاً تلك التي تخص الجدول <code
+              class="literal">mangle</code>، تقع خارج مدى هذا النص. هناك قائمة شاملة في<span
+              class="citerefentry"><span
+                class="refentrytitle">iptables</span>(8)</span>‎ و <span
+              class="citerefentry"><span
+                class="refentrytitle">ip6tables</span>(8)</span>‎.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.iptables"></a>14.2.2. صيغة <code
+                    class="command">iptables</code> و <code
+                    class="command">ip6tables</code></h3></div></div></div><div
+            class="para">
+				يسمح الأمران <code
+              class="command">iptables</code> و <code
+              class="command">ip6tables</code> بتعديل الجداول والسلاسل والقواعد. يشير الخيار <code
+              dir="ltr"
+              class="literal">-t <em
+                class="replaceable">table</em></code> التابع لهما إلى الجدول الذي ستجرى التعديلات عليه (<code
+              class="literal">filter</code> افتراضياً).
+			</div><a
+            id="idm140225822849264"
+            class="indexterm"></a><a
+            id="idm140225822848144"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.iptables-command"></a>14.2.2.1. الأوامر</h4></div></div></div><div
+              class="para">
+					ينشئ الخيار <code
+                dir="ltr"
+                class="literal">-N <em
+                  class="replaceable">chain</em></code> سلسلة جديدة. ويحذف <code
+                dir="ltr"
+                class="literal">-X <em
+                  class="replaceable">chain</em></code> سلسلة فارغة وغير مستخدمة. يضيف الخيار <code
+                dir="ltr"
+                class="literal">-A <em
+                  class="replaceable">chain</em><em
+                  class="replaceable">rule</em></code> قاعدة إلى نهاية السلسلة المحددة. يُدخِل الخيار <code
+                dir="ltr"
+                class="literal">-I <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">rule_num</em> <em
+                  class="replaceable">rule</em></code> قاعدة قبل القاعدة ذات الرقم <em
+                class="replaceable">rule_num</em>. يحذف الخيار <code
+                dir="ltr"
+                class="literal">-D <em
+                  class="replaceable">chain</em><em
+                  class="replaceable">rule_num</em></code> أو (<code
+                dir="ltr"
+                class="literal">-D <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">rule</em></code>) قاعدة من السلسلة؛ تحدد الصيغة الأولى القاعدة المحذوفة برقمها، أما الصيغة الثانية فتحددها بمحتوياتها. الخيار <code
+                dir="ltr"
+                class="literal">-F <em
+                  class="replaceable">chain</em></code> يُفرّغ السلسلة (يحذف جميع قواعدها)؛ وإذا لم تذكر له أي سلسلة، سيحذف جميع القواعد في الجدول. يسرد الخيار <code
+                dir="ltr"
+                class="literal">-L <em
+                  class="replaceable">chain</em></code> القواعد في السلسلة. وأخيراً، يعرّف الخيار <code
+                dir="ltr"
+                class="literal">-P <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">action</em></code> الإجراء الافتراضي، أو ”السياسة“، للسلسلة المعطاة؛ لاحظ أن السلاسل القياسية فقط هي التي تملك سياسات كهذه.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.iptables-rules"></a>14.2.2.2. القواعد</h4></div></div></div><a
+              id="idm140225822831968"
+              class="indexterm"></a><div
+              class="para">
+					تُمثَّل كل قاعدة بالشكل: <code
+                class="literal"><em
+                  class="replaceable">conditions</em> -j <em
+                  class="replaceable">action</em> <em
+                  class="replaceable">action_options</em></code>. إذا كان هناك شروط في القاعدة نفسها، فالمعيار عندئذ هو جمع (<span
+                class="emphasis"><em>and</em></span> منطقية) هذه الشروط، وسيكون تقييد الناتج الشرط الناتج بنفس تقييد كل واحد من الشروط المستقلة على الأقل.
+				</div><div
+              class="para">
+					يطابق الشرط <code
+                dir="ltr"
+                class="literal">-p <em
+                  class="replaceable">protocol</em></code> حقل البروتوكول لرزمة IP. أكثر القيم شيوعاً هي <code
+                class="literal">tcp</code>، و<code
+                class="literal">udp</code>، و<code
+                class="literal">icmp</code>، و<code
+                class="literal">icmp6</code>. يمكن نفي الشرط إذا سبق بعلامة التعجب (وعندها سيطابق أي رزمة يختلف بروتوكولها عن البروتوكول المحدد). لا ينحصر استخدام آلية النفي هذه مع الخيار <code
+                dir="ltr"
+                class="literal">-p</code> فقط، بل يمكن تطبيقه على جميع الشروط الأخرى أيضاً.
+				</div><div
+              class="para">
+					يطابق الشرط <code
+                dir="ltr"
+                class="literal">-s <em
+                  class="replaceable">address</em></code> أو <code
+                dir="ltr"
+                class="literal">-s <em
+                  class="replaceable">network/mask</em></code> عنوان مصدر الرزمة. في المقابل، يطابق <code
+                dir="ltr"
+                class="literal">-d <em
+                  class="replaceable">address</em></code> أو <code
+                dir="ltr"
+                class="literal">-d <em
+                  class="replaceable">network/mask</em></code> عنوان الوجهة.
+				</div><div
+              class="para">
+					ينتخب الشرط <code
+                dir="ltr"
+                class="literal">-i <em
+                  class="replaceable">interface</em></code> الرزم الواردة من الواجهة الشبكية المحددة. أما <code
+                dir="ltr"
+                class="literal">-o <em
+                  class="replaceable">interface</em></code> فينتخب الرزم التي ستخرج على واجهة معينة.
+				</div><div
+              class="para">
+					هناك شروط أخرى أكثر تحديداً مقارنة بالشروط العامة المذكورة أعلاه. مثلاً، يمكن إكمال الخيار <code
+                dir="ltr"
+                class="literal">-p tcp</code> بشروط عن منافذ TCP، باستخدام تعبير مثل <code
+                dir="ltr"
+                class="literal">--source-port <em
+                  class="replaceable">port</em></code> و <code
+                dir="ltr"
+                class="literal">--destination-port <em
+                  class="replaceable">port</em></code>.
+				</div><div
+              class="para">
+					يطابق الشرط <code
+                dir="ltr"
+                class="literal">--state <em
+                  class="replaceable">state</em></code> حالة الرزمة في الاتصال (هذا يحتاج وحدة النواة <code
+                class="command">ipt_conntrack</code>، لتتبع الاتصال). تُبيّن الحالة <code
+                class="literal">NEW</code> أن الرزمة تبدأ اتصالاً جديداً؛ وتدل <code
+                class="literal">ESTABLISHED</code> على الرزم التي تنتمي لاتصال منشئ مسبقاً، وتطابق الحالة <code
+                class="literal">RELATED</code> الرزم التي تبدأ اتصالاً جديداً متعلقٌ باتصال موجود من قبل (يفيد هذا في اتصالات <code
+                class="literal">ftp-data</code> في الوضع ”النشط active“ لبروتوكول FTP).
+				</div><div
+              class="para">
+					يذكر القسم السابق الإجراءات المتاحة، لكنه لا يذكر خياراتها. فإجراء <code
+                class="literal">LOG</code>، على سبيل المثال، له الخيارات التالية:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							يدل <code
+                      dir="ltr"
+                      class="literal">--log-priority</code> على أولوية رسالة <code
+                      class="command">syslog</code>، وقيمته الافتراضية <code
+                      class="literal">warning</code>.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							يسمح <code
+                      dir="ltr"
+                      class="literal">--log-prefix</code> بتحديد سابقة نصية للتمييز بين رسائل السجل؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							تدل الخيارات <code
+                      dir="ltr"
+                      class="literal">--log-tcp-sequence</code> و <code
+                      dir="ltr"
+                      class="literal">--log-tcp-options</code> و <code
+                      dir="ltr"
+                      class="literal">--log-ip-options</code> على بيانات إضافية لتضمينها في الرسالة: وهي، على التوالي، رقم تسلسل TCP، خيارات TCP، وخيارات IP.
+						</div></li></ul></div><div
+              class="para">
+					يوفر الإجراء <code
+                class="literal">DNAT</code> الخيار <code
+                dir="ltr"
+                class="literal">--to-destination <em
+                  class="replaceable">address</em>:<em
+                  class="replaceable">port</em></code> للدلالة على عنوان IP الجديد للوجهة و (أو) رقم المنفذ. كما يوفر <code
+                class="literal">SNAT</code> خيار <code
+                dir="ltr"
+                class="literal">--to-source <em
+                  class="replaceable">address</em>:<em
+                  class="replaceable">port</em></code> للدلالة على عنوان IP الجديد للمصدر والمنفذ.
+				</div><div
+              class="para">
+					يوفر الإجراء <code
+                class="literal">REDIRECT</code> (المتاح فقط إذا كان NAT متوفراً — هذا يعني أنه متاح مع IPv4 فقط على <span
+                class="distribution distribution">ويزي</span>) الخيار <code
+                dir="ltr"
+                class="literal">--to-ports <em
+                  class="replaceable">port(s)</em></code> للدلالة على المنفذ، أو مجال المنافذ، الذي يجب إعادة توجيه الرزم إليه.
+				</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.creating-rules"></a>14.2.3.  إنشاء قواعد</h3></div></div></div><div
+            class="para">
+				يحتاج إنشاء كل قاعدة إلى استدعاء واحد للأمر <code
+              class="command">iptables</code>/<code
+              class="command">ip6tables</code>. طباعة هذه الأوامر يدوياً قد تكون مملة، لذلك تُخزَّن الاستدعاءات عادة في سكربت بحيث تُضبَط نفس الإعدادات تلقائياً في كل مرة يقلع فيها الجهاز. يمكن كتابة هذا السكربت يدوياً، لكن قد ترغب باستخدام أداة عالية المستوى لتجهيزه مثل <code
+              class="command">fwbuilder</code>.
+			</div><div
+            class="para">
+				المبدأ بسيط. في الخطوة الأولى، عليك تحديد جميع العناصر التي ستدخل في القواعد ذاتها:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						الجدار الناري نفسه، مع واجهاته الشبكية؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						الشبكات، مع مجالات عناوين IP الخاصة بها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						المخدمات؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						المنافذ التي تنتمي للخدمات المستضافة على المخدمات.
+					</div></li></ul></div><div
+            class="para">
+				بعدها تُنشَأ القواعد بإجراء عمليات سحب وإفلات بسيطة على الكائنات. هناك بضعة قوائم سياق يمكنها تغيير الشروط (نفيها مثلاً). بعدها يجب تحديد الإجراء وضبطه.
+			</div><div
+            class="para">
+				فيما يتعلق ببروتوكول IPv6، فيمكن إنشاء مجموعتين منفصلتين من القواعد واحدة لبروتوكول IPv4 والأخرى لبروتوكول IPv6، أو إنشاء مجموعة واحدة فقط وترك <code
+              class="command">fwbuilder</code> يتولى ترجمة القواعد حسب العناوين المسندة للكائنات.
+			</div><div
+            class="figure"><a
+              id="figure.fwbuilder"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/fwbuilder.png"
+                  alt="نافذة fwbuilder الرئيسية" /></div></div><p
+              class="title"><strong>شكل 14.2. نافذة fwbuilder الرئيسية</strong></p></div><a
+            id="idm140225821556896"
+            class="indexterm"></a><div
+            class="para">
+				يمكن بعدها أن يولّد <code
+              class="command">fwbuilder</code> سكربتاً يضبط الجدار الناري وفق القواعد المُعرّفة. تسمح بنية هذا البرنامج التجزيئية بتوليد سكربتات تستهدف نظماً مختلفة (<code
+              class="command">iptables</code> على لينكس، <code
+              class="command">ipf</code> على FreeBSD، و <code
+              class="command">pf</code> على OpenBSD).
+			</div><div
+            class="para">
+				تحوي إصدارات حزمة <span
+              class="pkg pkg">fwbuilder</span> منذ <span
+              class="distribution distribution">سكويز</span> كلاً من الواجهة الرسومية ووحدات كل نظام من نظم الجدران النارية (كانت مقسمة سابقاً إلى عدة حزم، كل واحدة لنظام مختلف):
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aptitude install fwbuilder</code></strong></pre></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.install-rules-at-boot"></a>14.2.4. تثبيت القواعد عند كل إقلاع</h3></div></div></div><div
+            class="para">
+				إذا كان يفترض أن يحمي الجدار الناري اتصال شبكة PPP مُتقطّع، أبسط طريقة هي تثبيته بالاسم <code
+              dir="ltr"
+              class="filename">/etc/ppp/ip-up.d/0iptables</code> (لاحظ أنه لا يؤخذ بعين الاعتبار إلا الملفات التي لا تحوي أسماؤها نقطة). بالتالي، سيعاد تحميل الجدار الناري عند كل مرة ينشأ فيها اتصال PPP.
+			</div><div
+            class="para">
+				في الحالات الأخرى، الطريقة المفضلة هي تسجيل سكربت الإعداد في تعليمة <code
+              class="literal">up</code> توجيهية في الملف <code
+              dir="ltr"
+              class="filename">/etc/network/interfaces</code>. لقد حفظنا السكربت في المثال التالي في ملف اسمه <code
+              dir="ltr"
+              class="filename">/usr/local/etc/arrakis.fw</code>.
+			</div><div
+            class="example"><a
+              id="example.network-interfaces-firewall"></a><p
+              class="title"><strong>مثال 14.1. ملف <code
+                  class="filename">interfaces</code> يستدعي سكربت إعداد الجدار الناري</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">auto eth0
+iface eth0 inet static
+    address 192.168.0.1
+    network 192.168.0.0
+    netmask 255.255.255.0
+    broadcast 192.168.0.255
+    up /usr/local/etc/arrakis.fw
+</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="security.html"><strong>السابق</strong>فصل 14. الأمن</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.supervision.html"><strong>التالي</strong>14.3. الإشراف: المنع، والاكتشاف، والردع</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.firewall-packet-filtering.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.firewall-packet-filtering.html">da-DK</a></li><li><a
+              href="../de-DE/sect.firewall-packet-filtering.html">de-DE</a></li><li><a
+              href="../el-GR/sect.firewall-packet-filtering.html">el-GR</a></li><li><a
+              href="../en-US/sect.firewall-packet-filtering.html">en-US</a></li><li><a
+              href="../es-ES/sect.firewall-packet-filtering.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.firewall-packet-filtering.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.firewall-packet-filtering.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.firewall-packet-filtering.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.firewall-packet-filtering.html">id-ID</a></li><li><a
+              href="../it-IT/sect.firewall-packet-filtering.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.firewall-packet-filtering.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.firewall-packet-filtering.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.firewall-packet-filtering.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.firewall-packet-filtering.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.firewall-packet-filtering.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.firewall-packet-filtering.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.firewall-packet-filtering.html">zh-CN</a></li></ul></div></body></html>

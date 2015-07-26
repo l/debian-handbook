@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.11. Hot Plugging: hotplug</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="Inicialização do Sistema, Initscripts, SSH, Telnet, Direitos, Permissões, Supervisão, Inetd, Cron, Backup, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Capítulo 9. Serviços Unix" /><link
+        rel="prev"
+        href="sect.backup.html"
+        title="9.10. Backup" /><link
+        rel="next"
+        href="sect.power-management.html"
+        title="9.12. Gerenciamento de Energia: Advanced Configuration and Power Interface (ACPI)" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.hotplug.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.backup.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.power-management.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.hotplug"></a>9.11. Hot Plugging: <span
+                  class="emphasis"><em>hotplug</em></span></h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035051602288"></a>9.11.1. Introdução</h3></div></div></div><div
+            class="para">
+				O subsistema do núcleo <span
+              class="emphasis"><em>hotplug</em></span> dinamicamente lida com a adição e remoção de dispositivos carregando os drives apropriados e criando os arquivos de dispositivos correspondentes (com a ajuda do <code
+              class="command">udevd</code>). Com hardware e virtualização modernos, quase tudo pode ser adicionado/removido dinamicamente (hotplugged): dos usuais periféricos 1394 USB/PCMCIA/IEEE até discos rígidos SATA, mas também a CPU e a memória.
+			</div><div
+            class="para">
+				O núcleo tem um banco de dados que associa cada ID de dispositivo com o driver necessário. Esse banco de dados é usado durante a inicialização para carregar todos os drivers para dispositivos detectados nos diferentes barramentos, mas também quando um dispositivo hotplug adicional é conectado. Uma vez que o dispositivo esteja pronto para uso, uma mensagem é enviada para o <code
+              class="command">udevd</code> para que ele seja capaz de criar a entrada correspondente em <code
+              class="filename">/dev/</code>.
+			</div><a
+            id="idm140035051598448"
+            class="indexterm"></a><a
+            id="idm140035051597552"
+            class="indexterm"></a><a
+            id="idm140035051596784"
+            class="indexterm"></a><a
+            id="idm140035051596016"
+            class="indexterm"></a><a
+            id="idm140035051595248"
+            class="indexterm"></a><a
+            id="idm140035051594480"
+            class="indexterm"></a></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035051593584"></a>9.11.2. O Problema da nomeação</h3></div></div></div><div
+            class="para">
+				Antes do aparecimento das conexões hotplug, era fácil determinar um nome fixo para um dispositivo. Isso era baseado simplesmente na posição dos dispositivos em seu respectivo barramento. Mas isso não é possível quando dispositivos deste tipo podem ir e vir no barramento. O típico caso é o uso de uma câmera digital e um pendrive, os dois aparecem para o computador como discos. O primeiro conectado pode ser <code
+              class="filename">/dev/sdb</code> e o segundo <code
+              class="filename">/dev/sdc</code> (com <code
+              class="filename">/dev/sda</code> representando o próprio disco rígido do computador). O nome do dispositivo não é fixo; ele depende da ordem na qual o dispositivo é conectado.
+			</div><div
+            class="para">
+				Adicionalmente, mais e mais drivers usam valores dinâmicos para os números principal/secundário de dispositivos, o que torna impossível ter entradas estáticas para determinados dispositivos, já que essas características essenciais podem variar após uma reinicialização.
+			</div><div
+            class="para">
+				O <span
+              class="emphasis"><em>udev</em></span> foi criado precisamente para resolver esse problema.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NA PRÁTICA</em></span> Gestão de placa de rede</strong></p></div></div></div><div
+              class="para">
+				Many computers have multiple network cards (sometimes two wired interfaces and a wifi interface), and with <span
+                class="emphasis"><em>hotplug</em></span> support on most bus types, kernel versions later than 2.6 no longer guarantee fixed naming of network interfaces. But a user who wants to configure their network in <code
+                class="filename">/etc/network/interfaces</code> needs a fixed name!
+			</div><div
+              class="para">
+				Seria difícil pedir a todos os usuários que eles criassem suas próprias regras <span
+                class="emphasis"><em>udev</em></span> para resolver esse problema. É por isso que o <span
+                class="emphasis"><em>udev</em></span> foi configurado de uma maneira mais peculiar; na primeira inicialização (e, mais geralmente, cada vez que uma nova placa de rede apareça) ele usa o nome da interface de rede e seu endereço MAC para criar novas regras que irão redesignar o mesmo nome nas inicializações subsequentes. Essas regras são armazenadas em <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code>.
+			</div><div
+              class="para">
+				This mechanism has some side effects that you should know about. Let's consider the case of a computer that has only one PCI network card. The network interface is named <code
+                class="literal">eth0</code>, logically. Now say the card breaks down, and the administrator replaces it; the new card will have a new MAC address. Since the old card was assigned the name, <code
+                class="literal">eth0</code>, the new one will be assigned <code
+                class="literal">eth1</code>, even though the <code
+                class="literal">eth0</code> card is gone for good (and the network will not be functional because <code
+                class="filename">/etc/network/interfaces</code> likely configures an <code
+                class="literal">eth0</code> interface). In this case, it is enough to simply delete the <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> file before rebooting the computer. The new card will then be given the expected <code
+                class="literal">eth0</code> name.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035051580592"></a>9.11.3. Como o <span
+                    class="emphasis"><em>udev</em></span> Funciona</h3></div></div></div><div
+            class="para">
+				Quando o <span
+              class="emphasis"><em>udev</em></span> é notificado pelo núcleo do aparecimento de um novo dispositivo, ele coleta várias informações do referido dispositivo consultando as entradas correspondentes em <code
+              class="filename">/sys/</code>, especialmente aquelas que o identificam como único (endereço MAC para uma placa de rede, número serial para alguns dispositivos USB, etc.).
+			</div><div
+            class="para">
+				Armado com toda essa informação, o <span
+              class="emphasis"><em>udev</em></span> então consulta todas as regras contidas em <code
+              class="filename">/etc/udev/rules.d/</code> e <code
+              class="filename">/lib/udev/rules.d/</code>. Neste processo ele decide como nomear o dispositivo, quais ligações simbólicas criar (para dar nomes alternativos), e quais comandos executar. Todos esses arquivos são consultados, e as regras são todas avaliadas sequencialmente (exceto quando um arquivo usa a diretiva “GOTO”). Assim, pode haver várias regras que correspondem a um determinado evento.
+			</div><div
+            class="para">
+				A sintaxe dos arquivos de regras é bem simples: cada linha contém critérios de seleção e atribuições de variáveis. Os primeiros são usados para selecionar eventos para os quais existe uma necessidade de reagir, e os últimos definem a ação a ser tomada. Todos são simplesmente separados com vírgulas, e o operador implicitamente diferencia entre um critério de seleção (com operadores de comparação, como <code
+              class="literal">==</code> ou <code
+              class="literal">!=</code>) ou uma diretiva de atribuição (com operadores como <code
+              class="literal">=</code>, <code
+              class="literal">+=</code> ou <code
+              class="literal">:=</code>).
+			</div><div
+            class="para">
+				Operadores de comparação são usados nas seguintes variáveis:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">KERNEL</code>: o nome que o núcleo atribui ao dispositivo;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ACTION</code>: a ação correspondente ao evento (“add” quando o dispositivo tiver sido adicionado, "remove” quando ele tiver sido removido);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DEVPATH</code>: o caminho da entrada <code
+                    class="filename">/sys/</code> do dispositivo;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SUBSYSTEM</code>: o subsistema do núcleo que gerou a requisição (existem muitos, mas alguns exemplos são “usb”, “ide”, “net”, “firmware”, etc.);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ATTR{<em
+                      class="replaceable">attribute</em>}</code>: file contents of the <em
+                    class="replaceable">attribute</em> file in the <code
+                    class="filename">/sys/<em
+                      class="replaceable">$devpath</em>/</code> directory of the device. This is where you find the MAC address and other bus specific identifiers;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">KERNELS</code>, <code
+                    class="literal">SUBSYSTEMS</code> e <code
+                    class="literal">ATTRS{<em
+                      class="replaceable">attributes</em>}</code> são variações que irão tentar combinar as diferentes opções sobre um dos dispositivos pai do atual dispositivo;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PROGRAM</code>: delega o teste ao programa indicado (verdadeiro se retorna 0, falso caso não). O conteúdo da saída padrão do programa é armazenado para que ele possa ser reusado pelo teste <code
+                    class="literal">RESULT</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RESULT</code>: executa testes na saída padrão armazenada durante a última chamada ao <code
+                    class="literal">PROGRAM</code>.
+					</div></li></ul></div><div
+            class="para">
+				Os operadores da direita podem usar expressões padrão para casar com vários valores ao mesmo tempo. Por exemplo, <code
+              class="literal">*</code> casa com qualquer cadeia de caracteres (mesmo uma vazia); <code
+              class="literal">?</code> casa com qualquer caractere, e <code
+              class="literal">[]</code> casa com um conjunto de caracteres listados entre o par de colchetes (ou o oposto do mesmo se o primeiro caractere for um ponto de exclamação, e intervalos contíguos de caracteres são indicados como <code
+              class="literal">a-z</code>).
+			</div><div
+            class="para">
+				Em consideração aos operadores de atribuição, <code
+              class="literal">=</code> atribui um valor (e substitui o valor corrente); no caso de uma lista, ela é esvaziada e contém apenas o valor atribuído. <code
+              class="literal">:=</code> faz o mesmo, mas previne alterações posteriores a mesma variável. Quanto a <code
+              class="literal">+=</code>, ele adiciona um item a lista. As seguintes variáveis podem ser alteradas:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">NAME</code>: o nome de arquivo do dispositivo a ser criado em <code
+                    class="filename">/dev/</code>. Apenas a primeira atribuição conta; as outras são ignoradas;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SYMLINK</code>: a lista de ligações simbólicas que irão apontar para o mesmo dispositivo;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OWNER</code>, <code
+                    class="literal">GROUP</code> e <code
+                    class="literal">MODE</code> definem o usuário e grupo a quem pertence o dispositivo, assim como as permissões associadas;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RUN</code>: a lista de programas a executar em resposta a este evento.
+					</div></li></ul></div><div
+            class="para">
+				Os valores atribuídos a essas variáveis podem usar um número de substituições:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$kernel</code> ou <code
+                    class="literal">%k</code>: equivalente a <code
+                    class="literal">KERNEL</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$number</code> ou <code
+                    class="literal">%n</code>: o número de ordem do dispositivo, por exemplo, para <code
+                    class="literal">sda3</code>, ele seria “3”;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$devpath</code> ou <code
+                    class="literal">%p</code>: equivalente a <code
+                    class="literal">DEVPATH</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$attr{<em
+                      class="replaceable">attribute</em>}</code> or <code
+                    class="literal">%s{<em
+                      class="replaceable">attribute</em>}</code>: equivalent to <code
+                    class="literal">ATTRS{<em
+                      class="replaceable">attribute</em>}</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$major</code> or <code
+                    class="literal">%M</code>: the kernel major number of the device;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$minor</code> or <code
+                    class="literal">%m</code>: the kernel minor number of the device;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">$result</code> or <code
+                    class="literal">%c</code>: the string output by the last program invoked by <code
+                    class="literal">PROGRAM</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						e, finalmente, <code
+                    class="literal">%%</code> e <code
+                    class="literal">$$</code> para os sinais de porcento e dólar, respectivamente.
+					</div></li></ul></div><div
+            class="para">
+				The above lists are not complete (they include only the most important parameters), but the <span
+              class="citerefentry"><span
+                class="refentrytitle">udev</span>(7)</span> manual page should be exhaustive.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035051529984"></a>9.11.4. Um exemplo concreto</h3></div></div></div><div
+            class="para">
+				Vamos considerar o caso de uma simples chave USB e tentar atribuir um nome fixo para ela. Primeiro, você tem que encontrar os elementos que iram identificar ela de uma maneira única. Para isso, conecte ela e rode <code
+              class="command">udevadm info -a -n /dev/sdc</code> (substituindo <em
+              class="replaceable">/dev/sdc</em> pelo real nome atribuído a chave).
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>udevadm info -a -n /dev/sdc</code></strong>
+<code
+              class="computeroutput">[...]
+  looking at device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2/1-2.2:1.0/host9/target9:0:0/9:0:0:0/block/sdc':
+    KERNEL=="sdc"
+    SUBSYSTEM=="block"
+    DRIVER==""
+    ATTR{range}=="16"
+    ATTR{ext_range}=="256"
+    ATTR{removable}=="1"
+    ATTR{ro}=="0"
+    ATTR{size}=="126976"
+    ATTR{alignment_offset}=="0"
+    ATTR{capability}=="53"
+    ATTR{stat}=="      51      100     1208      256        0        0        0        0        0      192      25        6"
+    ATTR{inflight}=="       0        0"
+[...]
+  looking at parent device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2/1-2.2:1.0/host9/target9:0:0/9:0:0:0':
+    KERNELS=="9:0:0:0"
+    SUBSYSTEMS=="scsi"
+    DRIVERS=="sd"
+    ATTRS{device_blocked}=="0"
+    ATTRS{type}=="0"
+    ATTRS{scsi_level}=="3"
+    ATTRS{vendor}=="I0MEGA  "
+    ATTRS{model}=="UMni64MB*IOM2C4 "
+    ATTRS{rev}=="    "
+    ATTRS{state}=="running"
+[...]
+    ATTRS{max_sectors}=="240"
+[...]
+  looking at parent device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2':
+    KERNELS=="9:0:0:0"
+    SUBSYSTEMS=="usb"
+    DRIVERS=="usb"
+    ATTRS{configuration}=="iCfg"
+    ATTRS{bNumInterfaces}==" 1"
+    ATTRS{bConfigurationValue}=="1"
+    ATTRS{bmAttributes}=="80"
+    ATTRS{bMaxPower}=="100mA"
+    ATTRS{urbnum}=="398"
+    ATTRS{idVendor}=="4146"
+    ATTRS{idProduct}=="4146"
+    ATTRS{bcdDevice}=="0100"
+[...]
+    ATTRS{manufacturer}=="USB Disk"
+    ATTRS{product}=="USB Mass Storage Device"
+    ATTRS{serial}=="M004021000001"
+[...]
+</code></pre><div
+            class="para">
+				To create a new rule, you can use tests on the device's variables, as well as those of one of the parent devices. The above case allows us to create two rules like these:
+			</div><pre
+            class="programlisting">KERNEL=="sd?", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/disk"
+KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/part%n"
+</pre><div
+            class="para">
+				Uma vez que essas regras estejam definidas em um arquivo, nomeado por exemplo como <code
+              class="filename">/etc/udev/rules.d/010_local.rules</code>, você pode simplesmente remover e reconectar o dispositivo USB. Você pode então ver que <code
+              class="filename">/dev/usb_key/disk</code> representa o disco associado ao dispositivo USB, e <code
+              class="filename">/dev/usb_key/part1</code> é sua primeira partição.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>INDO ALÉM</em></span> Depurando a configuração do <span
+                        class="emphasis"><em>udev</em></span></strong></p></div></div></div><div
+              class="para">
+				Como muitos daemons, o <code
+                class="command">udevd</code> armazena os seus logs em <code
+                class="filename">/var/log/daemon.log</code>. Mas ele não é muito detalhado por padrão, e sendo assim, geralmente não é suficiente para se entender o que está acontecendo. O comando <code
+                class="command">udevadm control --log-priority=info</code> incrementa o nível de detalhamento e resolve esse problema. <code
+                class="command">udevadm control --log-priority=err</code> retorna ao nível de detalhamento padrão.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.backup.html"><strong>Anterior</strong>9.10. Backup</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.power-management.html"><strong>Próxima</strong>9.12. Gerenciamento de Energia: Advanced Configur...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.hotplug.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.hotplug.html">da-DK</a></li><li><a
+              href="../de-DE/sect.hotplug.html">de-DE</a></li><li><a
+              href="../el-GR/sect.hotplug.html">el-GR</a></li><li><a
+              href="../en-US/sect.hotplug.html">en-US</a></li><li><a
+              href="../es-ES/sect.hotplug.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.hotplug.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.hotplug.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.hotplug.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.hotplug.html">id-ID</a></li><li><a
+              href="../it-IT/sect.hotplug.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.hotplug.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.hotplug.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.hotplug.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.hotplug.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.hotplug.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.hotplug.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.hotplug.html">zh-CN</a></li></ul></div></body></html>

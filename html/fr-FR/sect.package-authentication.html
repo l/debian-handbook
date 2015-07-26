@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">6.5. Vérification d'authenticité des paquets</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="apt-get, apt-cache, aptitude, synaptic, sources.list, apt-cdrom" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="apt.html"
+        title="Chapitre 6. Maintenance et mise à jour : les outils APT" /><link
+        rel="prev"
+        href="sect.apt-frontends.html"
+        title="6.4. Frontaux : aptitude, synaptic" /><link
+        rel="next"
+        href="sect.dist-upgrade.html"
+        title="6.6. Mise à jour d'une distribution à la suivante" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.package-authentication.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.apt-frontends.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dist-upgrade.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.package-authentication"></a>6.5. Vérification d'authenticité des paquets</h2></div></div></div><a
+          id="idm140565686517552"
+          class="indexterm"></a><a
+          id="idm140565686516144"
+          class="indexterm"></a><a
+          id="idm140565686514704"
+          class="indexterm"></a><a
+          id="idm140565686513264"
+          class="indexterm"></a><a
+          id="idm140565686511824"
+          class="indexterm"></a><div
+          class="para">
+			Étant donné l'importance qu'accordent les administrateurs de Falcot SA à la sécurité, ils veulent s'assurer de n'installer que des paquets garantis provenant de Debian et non altérés en cours de route. En effet, un pirate pourrait tenter d'agir indirectement sur des machines en modifiant un paquet Debian diffusé afin d'y ajouter les instructions de son choix. Si un paquet ainsi modifié est installé, ces instructions agiront, par exemple afin de dérober les mots de passe. C'est pourquoi Debian offre un moyen de s'assurer que le paquet installé provient bien de son mainteneur et qu'il n'a subi aucune modification par un tiers : il existe un mécanisme de scellement des paquets.
+		</div><div
+          class="para">
+			Cette signature n'est pas directe : le fichier signé est un fichier <code
+            class="filename">Release</code> placé sur les miroirs Debian et qui donne la liste des différents fichiers <code
+            class="filename">Packages</code> (y compris sous leurs formes compressées <code
+            class="filename">Packages.gz</code> et <code
+            class="filename">Packages.bz2</code> et les versions incrémentales), accompagnés de leurs sommes de contrôle MD5, SHA1 et SHA256 (pour vérifier que leur contenu n'a pas été altéré). Ces fichiers <code
+            class="filename">Packages</code> renferment à leur tour une liste de paquets Debian et leurs sommes de contrôle, afin de garantir que leur contenu n'a pas lui non plus été altéré.
+		</div><a
+          id="idm140565686506144"
+          class="indexterm"></a><a
+          id="idm140565686505024"
+          class="indexterm"></a><a
+          id="idm140565686503600"
+          class="indexterm"></a><a
+          id="idm140565686502480"
+          class="indexterm"></a><div
+          class="para">
+			La gestion des clés de confiance se fait grâce au programme <code
+            class="command">apt-key</code>, fourni par le paquet <span
+            class="pkg pkg">apt</span>. Ce programme maintient à jour un trousseau de clés publiques GnuPG, qui sont utilisées pour vérifier les signatures des fichiers <code
+            class="filename">Release.gpg</code> obtenus depuis les miroirs Debian. Il est possible de l'utiliser pour ajouter manuellement des clés supplémentaires (si l'on souhaite ajouter des miroirs autres que les miroirs officiels) ; mais dans le cas le plus courant, on n'a besoin que des clés officielles Debian, qui sont automatiquement maintenues à jour par le paquet <span
+            class="pkg pkg">debian-archive-keyring</span> (qui installe les trousseaux de clés dans <code
+            class="filename">/etc/apt/trusted.gpg.d</code>). Cependant, la première installation de ce paquet est également sujette à caution, car même s'il est signé comme les autres paquets, cette signature ne peut pas être vérifiée extérieurement. On s'attachera donc à vérifier les empreintes (<span
+            class="foreignphrase"><em
+              class="foreignphrase">fingerprints</em></span>) des clés importées, avant de leur faire confiance pour installer de nouveaux paquets :
+		</div><pre
+          class="screen scale"># <strong
+            class="userinput"><code>apt-key fingerprint</code></strong>
+/etc/apt/trusted.gpg.d/debian-archive-jessie-automatic.gpg
+----------------------------------------------------------
+pub   4096R/2B90D010 2014-11-21 [expires: 2022-11-19]
+      Key fingerprint = 126C 0D24 BD8A 2942 CC7D  F8AC 7638 D044 2B90 D010
+uid                  Debian Archive Automatic Signing Key (8/jessie) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-jessie-security-automatic.gpg
+-------------------------------------------------------------------
+pub   4096R/C857C906 2014-11-21 [expires: 2022-11-19]
+      Key fingerprint = D211 6914 1CEC D440 F2EB  8DDA 9D6D 8F6B C857 C906
+uid                  Debian Security Archive Automatic Signing Key (8/jessie) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-jessie-stable.gpg
+-------------------------------------------------------
+pub   4096R/518E17E1 2013-08-17 [expires: 2021-08-15]
+      Key fingerprint = 75DD C3C4 A499 F1A1 8CB5  F3C8 CBF8 D6FD 518E 17E1
+uid                  Jessie Stable Release Key &lt;debian-release@lists.debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-squeeze-automatic.gpg
+-----------------------------------------------------------
+pub   4096R/473041FA 2010-08-27 [expires: 2018-03-05]
+      Key fingerprint = 9FED 2BCB DCD2 9CDF 7626  78CB AED4 B06F 4730 41FA
+uid                  Debian Archive Automatic Signing Key (6.0/squeeze) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-squeeze-stable.gpg
+--------------------------------------------------------
+pub   4096R/B98321F9 2010-08-07 [expires: 2017-08-05]
+      Key fingerprint = 0E4E DE2C 7F3E 1FC0 D033  800E 6448 1591 B983 21F9
+uid                  Squeeze Stable Release Key &lt;debian-release@lists.debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-wheezy-automatic.gpg
+----------------------------------------------------------
+pub   4096R/46925553 2012-04-27 [expires: 2020-04-25]
+      Key fingerprint = A1BD 8E9D 78F7 FE5C 3E65  D8AF 8B48 AD62 4692 5553
+uid                  Debian Archive Automatic Signing Key (7.0/wheezy) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-wheezy-stable.gpg
+-------------------------------------------------------
+pub   4096R/65FFB764 2012-05-08 [expires: 2019-05-07]
+      Key fingerprint = ED6D 6527 1AAC F0FF 15D1  2303 6FB2 A1C2 65FF B764
+uid                  Wheezy Stable Release Key &lt;debian-release@lists.debian.org&gt;
+</pre><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>EN PRATIQUE</em></span> Ajouter des clés de confiance</strong></p></div></div></div><a
+            id="idm140565686491920"
+            class="indexterm"></a><a
+            id="idm140565686490960"
+            class="indexterm"></a><div
+            class="para">
+			Lorsqu'une source de paquets tierce est ajoutée au fichier <code
+              class="filename">sources.list</code>, il faut désormais porter à la connaissance de APT la clé de confiance correspondante (sans quoi il se plaindra constamment qu'il ne peut pas vérifier l'authenticité des paquets contenus dans le dépôt concerné). Pour cela, il faut avant tout récupérer la clé publique en question : la plupart du temps, elle sera fournie sous la forme d'un petit fichier texte (qui sera nommé <code
+              class="filename">cle.asc</code> dans les exemples ci-dessous).
+		</div><div
+            class="para">
+			On peut alors ajouter cette clé de confiance par la commande <code
+              class="command">apt-key add &lt; cle.asc</code> (à exécuter avec les droits administrateurs). Une autre manière de procéder existe avec l'interface graphique <code
+              class="command">synaptic</code> : l'onglet « Authentification » dans le menu <span
+              class="guimenu"><strong>Configuration</strong></span> → <span
+              class="guisubmenu"><strong>Dépôts</strong></span> permet d'importer le fichier <code
+              class="filename">cle.asc</code> préalablement récupéré.
+		</div><a
+            id="idm140565686484640"
+            class="indexterm"></a><div
+            class="para">
+			Pour ceux qui préfèrent une application dédiée et veulent plus de détails sur les clés de confiance, il est possible d'employer le programme <code
+              class="command">gui-apt-key</code> (du paquet éponyme). Il s'agit d'une petite interface graphique qui gère le trousseau de clés de confiance.
+		</div></div><div
+          class="para">
+			Une fois ces clés placées dans le trousseau, APT effectuera systématiquement les vérifications des signatures avant toute opération risquée ; les frontaux sont alors en mesure d'afficher un avertissement si l'on demande à installer un paquet dont l'authenticité n'a pu être vérifiée.
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.apt-frontends.html"><strong>Précédent</strong>6.4. Frontaux : aptitude, synaptic</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dist-upgrade.html"><strong>Suivant</strong>6.6. Mise à jour d'une distribution à la suivante</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.package-authentication.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.package-authentication.html">da-DK</a></li><li><a
+              href="../de-DE/sect.package-authentication.html">de-DE</a></li><li><a
+              href="../el-GR/sect.package-authentication.html">el-GR</a></li><li><a
+              href="../en-US/sect.package-authentication.html">en-US</a></li><li><a
+              href="../es-ES/sect.package-authentication.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.package-authentication.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.package-authentication.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.package-authentication.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.package-authentication.html">id-ID</a></li><li><a
+              href="../it-IT/sect.package-authentication.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.package-authentication.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.package-authentication.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.package-authentication.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.package-authentication.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.package-authentication.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.package-authentication.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.package-authentication.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">6.5. Checking Package Authenticity</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-en-US-1.0-1" /><meta
+        name="keywords"
+        content="apt-get, apt-cache, aptitude, synaptic, sources.list, apt-cdrom" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="apt.html"
+        title="Chapter 6. Maintenance and Updates: The APT Tools" /><link
+        rel="prev"
+        href="sect.apt-frontends.html"
+        title="6.4. Frontends: aptitude, synaptic" /><link
+        rel="next"
+        href="sect.dist-upgrade.html"
+        title="6.6. Upgrading from One Stable Distribution to the Next" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/en-US/sect.package-authentication.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.apt-frontends.html"><strong>Prev</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dist-upgrade.html"><strong>Next</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.package-authentication"></a>6.5. Checking Package Authenticity</h2></div></div></div><a
+          id="idm139739561962272"
+          class="indexterm"></a><a
+          id="idm139739561960832"
+          class="indexterm"></a><a
+          id="idm139739561959392"
+          class="indexterm"></a><a
+          id="idm139739561957952"
+          class="indexterm"></a><a
+          id="idm139739561956512"
+          class="indexterm"></a><div
+          class="para">
+			Security is very important for Falcot Corp administrators. Accordingly, they need to ensure that they only install packages which are guaranteed to come from Debian with no tampering on the way. A computer cracker could try to add malicious code to an otherwise legitimate package. Such a package, if installed, could do anything the cracker designed it to do, including for instance disclosing passwords or confidential information. To circumvent this risk, Debian provides a tamper-proof seal to guarantee — at install time — that a package really comes from its official maintainer and hasn't been modified by a third party.
+		</div><div
+          class="para">
+			The seal works with a chain of cryptographical hashes and a signature. The signed file is the <code
+            class="filename">Release</code> file, provided by the Debian mirrors. It contains a list of the <code
+            class="filename">Packages</code> files (including their compressed forms, <code
+            class="filename">Packages.gz</code> and <code
+            class="filename">Packages.bz2</code>, and the incremental versions), along with their MD5, SHA1 and SHA256 hashes, which ensures that the files haven't been tampered with. These <code
+            class="filename">Packages</code> files contain a list of the Debian packages available on the mirror, along with their hashes, which ensures in turn that the contents of the packages themselves haven't been altered either.
+		</div><a
+          id="idm139739561950688"
+          class="indexterm"></a><a
+          id="idm139739561949568"
+          class="indexterm"></a><a
+          id="idm139739561948144"
+          class="indexterm"></a><a
+          id="idm139739561947024"
+          class="indexterm"></a><div
+          class="para">
+			The trusted keys are managed with the <code
+            class="command">apt-key</code> command found in the <span
+            class="pkg pkg">apt</span> package. This program maintains a keyring of GnuPG public keys, which are used to verify signatures in the <code
+            class="filename">Release.gpg</code> files available on the mirrors. It can be used to add new keys manually (when non-official mirrors are needed). Generally however, only the official Debian keys are needed. These keys are automatically kept up-to-date by the <span
+            class="pkg pkg">debian-archive-keyring</span> package (which puts the corresponding keyrings in <code
+            class="filename">/etc/apt/trusted.gpg.d</code>). However, the first installation of this particular package requires caution: even if the package is signed like any other, the signature cannot be verified externally. Cautious administrators should therefore check the fingerprints of imported keys before trusting them to install new packages:
+		</div><pre
+          class="screen scale"># <strong
+            class="userinput"><code>apt-key fingerprint</code></strong>
+/etc/apt/trusted.gpg.d/debian-archive-jessie-automatic.gpg
+----------------------------------------------------------
+pub   4096R/2B90D010 2014-11-21 [expires: 2022-11-19]
+      Key fingerprint = 126C 0D24 BD8A 2942 CC7D  F8AC 7638 D044 2B90 D010
+uid                  Debian Archive Automatic Signing Key (8/jessie) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-jessie-security-automatic.gpg
+-------------------------------------------------------------------
+pub   4096R/C857C906 2014-11-21 [expires: 2022-11-19]
+      Key fingerprint = D211 6914 1CEC D440 F2EB  8DDA 9D6D 8F6B C857 C906
+uid                  Debian Security Archive Automatic Signing Key (8/jessie) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-jessie-stable.gpg
+-------------------------------------------------------
+pub   4096R/518E17E1 2013-08-17 [expires: 2021-08-15]
+      Key fingerprint = 75DD C3C4 A499 F1A1 8CB5  F3C8 CBF8 D6FD 518E 17E1
+uid                  Jessie Stable Release Key &lt;debian-release@lists.debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-squeeze-automatic.gpg
+-----------------------------------------------------------
+pub   4096R/473041FA 2010-08-27 [expires: 2018-03-05]
+      Key fingerprint = 9FED 2BCB DCD2 9CDF 7626  78CB AED4 B06F 4730 41FA
+uid                  Debian Archive Automatic Signing Key (6.0/squeeze) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-squeeze-stable.gpg
+--------------------------------------------------------
+pub   4096R/B98321F9 2010-08-07 [expires: 2017-08-05]
+      Key fingerprint = 0E4E DE2C 7F3E 1FC0 D033  800E 6448 1591 B983 21F9
+uid                  Squeeze Stable Release Key &lt;debian-release@lists.debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-wheezy-automatic.gpg
+----------------------------------------------------------
+pub   4096R/46925553 2012-04-27 [expires: 2020-04-25]
+      Key fingerprint = A1BD 8E9D 78F7 FE5C 3E65  D8AF 8B48 AD62 4692 5553
+uid                  Debian Archive Automatic Signing Key (7.0/wheezy) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-wheezy-stable.gpg
+-------------------------------------------------------
+pub   4096R/65FFB764 2012-05-08 [expires: 2019-05-07]
+      Key fingerprint = ED6D 6527 1AAC F0FF 15D1  2303 6FB2 A1C2 65FF B764
+uid                  Wheezy Stable Release Key &lt;debian-release@lists.debian.org&gt;
+</pre><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>IN PRACTICE</em></span> Adding trusted keys</strong></p></div></div></div><a
+            id="idm139739561937152"
+            class="indexterm"></a><a
+            id="idm139739561936192"
+            class="indexterm"></a><div
+            class="para">
+			When a third-party package source is added to the <code
+              class="filename">sources.list</code> file, APT needs to be told to trust the corresponding GPG authentication key (otherwise it will keep complaining that it can't ensure the authenticity of the packages coming from that repository). The first step is of course to get the public key. More often than not, the key will be provided as a small text file, which we'll call <code
+              class="filename">key.asc</code> in the following examples.
+		</div><div
+            class="para">
+			To add the key to the trusted keyring, the administrator can run <code
+              class="command">apt-key add &lt; key.asc</code>. Another way is to use the <code
+              class="command">synaptic</code> graphical interface: its “Authentication” tab in the <span
+              class="guimenu"><strong>Settings</strong></span> → <span
+              class="guisubmenu"><strong>Repositories</strong></span> menu gives the possibility of importing a key from the <code
+              class="filename">key.asc</code> file.
+		</div><a
+            id="idm139739561929936"
+            class="indexterm"></a><div
+            class="para">
+			For people who would want a dedicated application and more details on the trusted keys, it is possible to use <code
+              class="command">gui-apt-key</code> (in the package of the same name), a small graphical user interface which manages the trusted keyring.
+		</div></div><div
+          class="para">
+			Once the appropriate keys are in the keyring, APT will check the signatures before any risky operation, so that front-ends will display a warning if asked to install a package whose authenticity can't be ascertained.
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.apt-frontends.html"><strong>Prev</strong>6.4. Frontends: aptitude, synaptic</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Up</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Home</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dist-upgrade.html"><strong>Next</strong>6.6. Upgrading from One Stable Distribution to th...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.package-authentication.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.package-authentication.html">da-DK</a></li><li><a
+              href="../de-DE/sect.package-authentication.html">de-DE</a></li><li><a
+              href="../el-GR/sect.package-authentication.html">el-GR</a></li><li><a
+              href="../en-US/sect.package-authentication.html">en-US</a></li><li><a
+              href="../es-ES/sect.package-authentication.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.package-authentication.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.package-authentication.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.package-authentication.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.package-authentication.html">id-ID</a></li><li><a
+              href="../it-IT/sect.package-authentication.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.package-authentication.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.package-authentication.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.package-authentication.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.package-authentication.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.package-authentication.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.package-authentication.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.package-authentication.html">zh-CN</a></li></ul></div></body></html>

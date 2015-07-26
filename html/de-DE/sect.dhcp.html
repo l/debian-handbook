@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.7. DHCP</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Netzwerk, Gateway, TCP/IP, IPv6, DNS, Bind, DHCP, QoS" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="Kapitel 10. Netzwerk-Infrastruktur" /><link
+        rel="prev"
+        href="sect.domain-name-servers.html"
+        title="10.6. Domain Name Server (DNS)" /><link
+        rel="next"
+        href="sect.network-diagnosis-tools.html"
+        title="10.8. Werkzeuge für die Netzwerk-Diagnose" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.dhcp.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.domain-name-servers.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.network-diagnosis-tools.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.dhcp"></a>10.7. DHCP</h2></div></div></div><div
+          class="para">
+			DHCP (für <span
+            class="emphasis"><em>Dynamic Host Configuration Protocol</em></span>) ist ein Protokoll mit dem ein Rechner seine Netzwerkkonfiguration beim Hochfahren automatisch beziehen kann. Dies macht es möglich, die Verwaltung der Netzwerkkonfigurationen zu zentralisieren und sicherzustellen, dass alle Arbeitsplatzrechner ähnliche Einstellungen erhalten.
+		</div><a
+          id="idm139686930989984"
+          class="indexterm"></a><a
+          id="idm139686930989024"
+          class="indexterm"></a><a
+          id="idm139686930988096"
+          class="indexterm"></a><div
+          class="para">
+			Ein DHCP-Server stellt zahlreiche Netzwerk-Parameter bereit. Die häufigsten sind IP-Adressen und das Netzwerk, zu dem der Rechner gehört, aber er kann auch andere Informationen bereitstellen, wie DNS-Server, WINS-Server, NTP-Server und so weiter.
+		</div><div
+          class="para">
+			Das Internet Software Consortium (das auch mit der Entwicklung von <code
+            class="command">bind</code> befasst ist) ist der Hauptverfasser des DHCP-Servers. Das hierzu passende Debian-Paket ist <span
+            class="pkg pkg">isc-dhcp-server</span>.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dhcp-config"></a>10.7.1. Konfigurieren</h3></div></div></div><div
+            class="para">
+				Die ersten Elemente, die in der Konfigurationsdatei des DHCP-Servers (<code
+              class="filename">/etc/dhcp/dhcpd.conf</code>) editiert werden müssen, sind der Domain-Name und die DNS-Server. Falls dieser Server im lokalen Netzwerk der einzige ist (in Übereinstimmung mit der Broadcast-Einstellung), muss die Anweisung <code
+              class="literal">authoritative</code> ebenfalls aktiviert (oder auskommentiert) sein. Außerdem muss ein <code
+              class="literal">subnet</code>-Abschnitt erstellt werden, der das lokale Netzwerk und die bereitzustellenden Konfigurationsinformationen beschreibt. Das folgende Beispiel passt zu einem lokalen <code
+              class="literal">192.168.0.0/24</code>-Netzwerk mit einem als Gateway dienenden Router an <code
+              class="literal">192.168.0.1</code>. Verfügbare IP-Adressen liegen im Bereich von <code
+              class="literal">192.168.0.128</code> bis <code
+              class="literal">192.168.0.254</code>.
+			</div><div
+            class="example"><a
+              id="example.dhcp-dhcpd.conf"></a><p
+              class="title"><strong>Beispiel 10.15. Auszug aus der Datei <code
+                  class="filename">/etc/dhcp/dhcpd.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+#
+# Sample configuration file for ISC dhcpd for Debian
+#
+
+# The ddns-updates-style parameter controls whether or not the server will
+# attempt to do a DNS update when a lease is confirmed. We default to the
+# behavior of the version 2 packages ('none', since DHCP v2 didn't
+# have support for DDNS.)
+ddns-update-style interim;
+
+# option definitions common to all supported networks...
+option domain-name "internal.falcot.com";
+option domain-name-servers ns.internal.falcot.com;
+
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+# My subnet
+subnet 192.168.0.0 netmask 255.255.255.0 {
+    option routers 192.168.0.1;
+    option broadcast-address 192.168.0.255;
+    range 192.168.0.128 192.168.0.254;
+    ddns-domainname "internal.falcot.com";
+}
+</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dhcp-dns"></a>10.7.2. DHCP und DNS</h3></div></div></div><a
+            id="idm139686930974304"
+            class="indexterm"></a><div
+            class="para">
+				Eine angenehme Eigenschaft von DHCP-Clients ist das automatisierte Registrieren in der DNS-Zone, so dass jeder Rechner einen aussagekräftigen Namen erhält (statt etwas Unpersönlichem wie <code
+              class="literal">rechner-192-168-0-131.internal.falcot.com</code>). Um diese Möglichkeit zu nutzen, muss der DNS-Server so konfiguriert werden, dass er Aktualisierungen der DNS-Zone <code
+              class="literal">internal.falcot.com</code> vom DHCP-Server akzeptiert, und letzterer so, dass er Aktualisierungen für jede Registrierung einreicht.
+			</div><div
+            class="para">
+				Im Fall von <code
+              class="command">bind</code> muss die Anweisung <code
+              class="literal">allow-update</code> zu jeder Zone, die der DHCP-Server editieren wird, hinzugefügt werden (die für die <code
+              class="literal">internal.falcot.com</code>-Domain und die umgekehrte Zone). Diese Anweisung listet die IP-Adressen auf, denen die Aktualisierungen erlaubt sind; sie sollten daher die möglichen Adressen des DHCP-Servers enthalten (sowohl die lokale und, falls zutreffend, auch die öffentliche Adresse).
+			</div><pre
+            class="programlisting">
+allow-update { 127.0.0.1 192.168.0.1 212.94.201.10 !any };
+</pre><div
+            class="para">
+				Vorsicht! Eine modifizierbare Zone <span
+              class="emphasis"><em>wird</em></span> von <code
+              class="command">bind</code> abgeändert, und ihre Konfigurationsdateien wird in regelmäßigen Abständen überschrieben. Da dieser automatisierte Vorgang Dateien erzeugt, die von Menschen weniger leicht zu lesen sind als manuell geschriebene, betreiben die Falcot-Administratoren die <code
+              class="literal">internal.falcot.com</code>-Domain mit einem hierfür abgeordneten DNS-Server; dies bedeutet, dass die Datei der <code
+              class="literal">falcot.com</code>-Zone fest unter ihrer manuellen Kontrolle bleibt.
+			</div><div
+            class="para">
+				Der obenstehende Auszug einer DHCP-Serverkonfiguration enthält bereits die für Aktualisierungen der DNS-Zone erforderlichen Anweisungen: dies sind die Zeilen <code
+              class="literal">ddns-update-style interim;</code> und <code
+              class="literal">ddns-domain-name "internal.falcot.com";</code> in dem Abschnitt, der das Subnetz beschreibt.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.domain-name-servers.html"><strong>Zurück</strong>10.6. Domain Name Server (DNS)</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.network-diagnosis-tools.html"><strong>Weiter</strong>10.8. Werkzeuge für die Netzwerk-Diagnose</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.dhcp.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.dhcp.html">da-DK</a></li><li><a
+              href="../de-DE/sect.dhcp.html">de-DE</a></li><li><a
+              href="../el-GR/sect.dhcp.html">el-GR</a></li><li><a
+              href="../en-US/sect.dhcp.html">en-US</a></li><li><a
+              href="../es-ES/sect.dhcp.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.dhcp.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.dhcp.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.dhcp.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.dhcp.html">id-ID</a></li><li><a
+              href="../it-IT/sect.dhcp.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.dhcp.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.dhcp.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.dhcp.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.dhcp.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.dhcp.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.dhcp.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.dhcp.html">zh-CN</a></li></ul></div></body></html>

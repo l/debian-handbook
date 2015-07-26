@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.7. cron と atd を使ったスケジューリングタスク</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="システム起動, 初期化スクリプト, SSH, Telnet, 権限, パーミッション, 管理, Inetd, Cron, バックアップ, ホットプラグ, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第9章 Unix サービス" /><link
+        rel="prev"
+        href="sect.inetd.html"
+        title="9.6. inetd スーパーサーバ" /><link
+        rel="next"
+        href="sect.asynchronous-task-scheduling-anacron.html"
+        title="9.8. 非同期タスクのスケジューリング: anacron" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.task-scheduling-cron-atd.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.inetd.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.task-scheduling-cron-atd"></a>9.7. <code
+                  class="command">cron</code> と <code
+                  class="command">atd</code> を使ったスケジューリングタスク</h2></div></div></div><a
+          id="idm140393308000320"
+          class="indexterm"></a><a
+          id="idm140393307999424"
+          class="indexterm"></a><a
+          id="idm140393307998528"
+          class="indexterm"></a><a
+          id="idm140393307997760"
+          class="indexterm"></a><div
+          class="para">
+			<code
+            class="command">cron</code> は定期的に (毎日、毎週、など) 実行するよう予定されたコマンドの実行を担当するデーモンです; <code
+            class="command">atd</code> は未来の特定の時間に 1 回だけ実行するよう予定されたコマンドの実行を担当するデーモンです。
+		</div><div
+          class="para">
+			Unix システムでは、多くのタスクがは定期的に実行されるよう予定されています:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					ログの循環;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">locate</code> プログラムの使うデータベースの更新;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					バックアップ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					メンテナンススクリプト (一時ファイルの掃除など)。
+				</div></li></ul></div><div
+          class="para">
+			デフォルトで、すべてのユーザはタスク実行の予定を入れる事が可能です。各ユーザは自分専用の <span
+            class="emphasis"><em>crontab</em></span> を持っており、これを使ってコマンド実行の予定を登録する事が可能です。<span
+            class="emphasis"><em>crontab</em></span> を編集するには <code
+            class="command">crontab -e</code>を実行します (<code
+            class="filename">/var/spool/cron/crontabs/<em
+              class="replaceable">user</em></code> ファイルに保存されます)。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SECURITY</em></span> <code
+                      class="command">cron</code> または <code
+                      class="command">atd</code> の使用制限</strong></p></div></div></div><div
+            class="para">
+			実行を許可するユーザを明示するファイル (ホワイトリスト) <code
+              class="filename">/etc/cron.allow</code> の中にコマンドの予定を入れる事を許可するユーザを書けば、<code
+              class="command">cron</code> へのアクセスを制限する事が可能です。その他のユーザは自動的にこの機能を使えなくなります。反対に、実行を禁止するユーザを明示するファイル (ブラックリスト) <code
+              class="filename">/etc/cron.deny</code> の中にユーザ名を書けば、1 人か 2 人の問題児だけをブロックする事が可能です。<code
+              class="command">atd</code> に対しても <code
+              class="filename">/etc/at.allow</code> と <code
+              class="filename">/etc/at.deny</code> ファイルを使って同等の機能が利用可能です。
+		</div></div><div
+          class="para">
+			root ユーザは自分専用の <span
+            class="emphasis"><em>crontab</em></span> を持っていますが、<code
+            class="filename">/etc/crontab</code> ファイルを使ったり、追加的な <span
+            class="emphasis"><em>crontab</em></span> ファイルを <code
+            class="filename">/etc/cron.d</code> ディレクトリに置く事が可能です。最後の 2 つの解決策には、コマンドを実行する際に実行するユーザを明示できるという利点があります。
+		</div><div
+          class="para">
+			デフォルトで <span
+            class="emphasis"><em>cron</em></span> パッケージには、幾つかのスケジュールされたコマンドが含まれています:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="filename">/etc/cron.hourly/</code> ディレクトリ内のプログラムは 1 時間に 1 回実行されます;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="filename">/etc/cron.daily/</code> ディレクトリ内のプログラムは 1 日に 1 回実行されます;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="filename">/etc/cron.weekly/</code> ディレクトリ内のプログラムは 1 週間に 1 回実行されます;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="filename">/etc/cron.monthly/</code> ディレクトリ内のプログラムは 1 ヶ月に 1 回実行されます。
+				</div></li></ul></div><div
+          class="para">
+			多くの Debian パッケージはこのサービスに頼っています: メンテナンススクリプトをこれらのディレクトリに入れて、サービスの最適な動作を保証しています。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.format-crontab"></a>9.7.1. <code
+                    class="filename">crontab</code> ファイルの書式</h3></div></div></div><a
+            id="idm140393307973280"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> <code
+                        class="command">cron</code> のテキストショートカット</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">cron</code> は幾つかの略語を認識します。略語は <code
+                class="filename">crontab</code> エントリの最初の 5 つのフィールドを置き換えます。略語は最も古典的なスケジュール化オプションに対応します:
+			</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@yearly</code>: 1 年に 1 回 (1 月 1 日の 00:00);
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@monthly</code>: 1 ヶ月に 1 回 (毎月 1 日の 00:00);
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@weekly</code>: 1 週間に 1 回 (日曜日の 00:00);
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@daily</code>: 1 日 1 回 (00:00);
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@hourly</code>: 1 時間に 1 回 (毎時 0 分)。
+					</div></li></ul></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>SPECIAL CASE</em></span> <code
+                        class="command">cron</code> と夏時間。</strong></p></div></div></div><div
+              class="para">
+				Debian では、<code
+                class="command">cron</code> は可能な限り正確に時刻変化 (夏時間、もっと言えば、ローカル時間の大幅な変更) に追従します。このため、決して存在しない 1 時間内に実行されるべきコマンド (例えば、フランスで春に午前 2:30 に予定されているタスクです。夏時間に切り替わると標準時の午前 2:00 は夏時間の午後 3:00 になります) は時刻が変わった後すぐに実行されます (つまり夏時間で午前 3:00 頃)。一方で、秋に複数回実行されると思われるコマンド (夏時間の午前 2:30 とその 1 時間後の標準時の午前 2:30。標準時に戻ると夏時間の午前 3:00 は標準時の午前 2:00 になります) は 1 回だけ実行されます。
+			</div><div
+              class="para">
+				しかしながら気を付けてください、別にスケジュールされたタスクとの順番とそれぞれの実行間の遅延が重要な問題の場合、それらの制約の互換性と <code
+                class="command">cron</code> の挙動を照合するべきです。必要ならは、1 年に 2 回の問題の夜用に特別なスケジュールを用意する事も可能です。
+			</div></div><div
+            class="para">
+				<span
+              class="emphasis"><em>crontab</em></span> の有効な各行は以下の 6 つ (または 7 つ) のフィールドを含むスケジュールされたコマンド表します:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						分 (0 から 59 までの数字);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						時間 (0 から 23 までの数字);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						月の日付 (1 から 31 までの数字);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						月 (1 から 12 までの数字);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						曜日 (0 から 7 までの数字、月曜日は 1、日曜日は 0 と 7 の両方; 英語で書いた曜日の最初の 3 文字 <code
+                    class="literal">Sun</code>、<code
+                    class="literal">Mon</code> などを使う事も可能です);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						コマンドを実行するユーザ名 (<code
+                    class="filename">/etc/crontab</code> ファイルと <code
+                    class="filename">/etc/cron.d/</code> にある分割されたファイルでは必要。各ユーザ専用のファイルでは不要);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						実行するコマンド (最初の 5 つのフィールドで定義された条件が満足されたら実行します)。
+					</div></li></ul></div><div
+            class="para">
+				すべての詳細は <span
+              class="citerefentry"><span
+                class="refentrytitle">crontab</span>(5)</span> man ページに書かれています。
+			</div><div
+            class="para">
+				各値は設定可能な値の (コンマ区切り) リストの形で表現する事が可能です。<code
+              class="literal">a-b</code> 構文は <code
+              class="literal">a</code> と <code
+              class="literal">b</code> の間にあるすべての値を表現します。<code
+              class="literal">a-b/c</code> 構文は <code
+              class="literal">a</code> から <code
+              class="literal">c</code> づつ増加させて <code
+              class="literal">b</code> までのすべての値を表現します (例: <code
+              class="literal">0-10/2</code> は <code
+              class="literal">0,2,4,6,8,10</code> を意味します)。アスタリスク <code
+              class="literal">*</code> はワイルドカードで、とり得るすべての値を意味します。
+			</div><div
+            class="example"><a
+              id="example.crontab"></a><p
+              class="title"><strong>例9.2 単純な <code
+                  class="filename">crontab</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">#Format
+#min hour day mon dow  command
+
+# Download data every night at 7:25 pm
+ 25  19   *   *   *    $HOME/bin/get.pl
+
+# 8:00 am, on weekdays (Monday through Friday)
+ 00  08   *   *   1-5  $HOME/bin/dosomething
+
+# Restart the IRC proxy after each reboot
+@reboot /usr/bin/dircproxy</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> 起動時のコマンド実行</strong></p></div></div></div><div
+              class="para">
+				コンピュータを起動した後に、毎回コマンドを実行するためには、<code
+                class="literal">@reboot</code> マクロを使ってください (<code
+                class="command">cron</code> を単純に再起動しただけでは <code
+                class="literal">@reboot</code> でスケジュールされたコマンドは実行されません)。このマクロを使うには <span
+                class="emphasis"><em>crontab</em></span> 内の最初の 5 つのフィールドを置換してください。
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ALTERNATIVE</em></span> <code
+                        class="command">systemd</code> を使った <code
+                        class="command">cron</code> のエミュレート</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">systemd</code> のタイマメカニズムを使えば <code
+                class="command">crond</code> の挙動の一部をエミュレートする事が可能です (上記参照)。
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.at-command"></a>9.7.2. <code
+                    class="command">at</code> コマンドの利用</h3></div></div></div><a
+            id="idm140393307935232"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">at</code> は未来の特定の時点にコマンドを実行します。<code
+              class="command">at</code> は時刻と日付をコマンドラインパラメータで受け取り、実行するコマンドを標準入力で受け取ります。このコマンドは、あたかも現在のシェルで実行されたかの如く実行されます。<code
+              class="command">at</code> はコマンドを実行する際に現在と同じ状況を再現するために、現在の環境を保存するように気を付けます。時刻は以下のように普通の慣例に従って表現されます: <code
+              class="literal">16:12</code> または <code
+              class="literal">4:12pm</code> は午後 4:12 を意味します。日付はヨーロッパと西洋で使われる幾つかの書式で指定します。<code
+              class="literal">DD.MM.YY</code> (<code
+              class="literal">27.07.15</code> は 2015 年 7 月 27 日を意味します)、<code
+              class="literal">YYYY-MM-DD</code> (<code
+              class="literal">2012-07-27</code> は上と同じ日付を意味します)、<code
+              class="literal">MM/DD/[CC]YY</code> (<code
+              class="literal">12/25/15</code> や <code
+              class="literal">12/25/2015</code> は 2015 年 12 月 25 日を意味します)、または単純な <code
+              class="literal">MMDD[CC]YY</code> (<code
+              class="literal">122515</code> や <code
+              class="literal">12252012</code> は同様に 2015 年 12 月 25 日を意味します) などです。日付の指定がなければ、コマンドは最も早く到達した指定時刻に実行されます (当日中、または、指定時刻が既に過ぎていれば明日)。読んで字の通り「today」、「tomorrow」などと簡単に書く事も可能です。
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>at 09:00 27.07.15 &lt;&lt;END</code></strong>
+<code
+              class="computeroutput">&gt; </code><strong
+              class="userinput"><code>echo "Don't forget to wish a Happy Birthday to Raphaël!" \</code></strong>
+<code
+              class="computeroutput">&gt; </code><strong
+              class="userinput"><code>  | mail lolando@debian.org</code></strong>
+<code
+              class="computeroutput">&gt; </code><strong
+              class="userinput"><code>END</code></strong>
+<code
+              class="computeroutput">warning: commands will be executed using /bin/sh
+job 31 at Mon Jul 27 09:00:00 2015</code></pre><div
+            class="para">
+				与えられた期間だけ実行を延期する構文もあります: <code
+              class="command">at now + <em
+                class="replaceable">number</em> <em
+                class="replaceable">period</em></code> です。<em
+              class="replaceable">period</em> には <code
+              class="literal">minutes</code>、<code
+              class="literal">hours</code>、<code
+              class="literal">days</code>、<code
+              class="literal">weeks</code> を指定する事が可能です。<em
+              class="replaceable">number</em> は単純に <em
+              class="replaceable">period</em> で指定した単位の量を表し、この量だけコマンドの実行が延期されます。
+			</div><div
+            class="para">
+				<code
+              class="command">cron</code> でスケジュールされたタスクを中止するには、単純に <code
+              class="command">crontab -e</code>を実行し、<span
+              class="emphasis"><em>crontab</em></span> ファイルから対応する行を削除してください。<code
+              class="command">at</code> タスクの場合、削除はとても簡単です: <code
+              class="command">atrm <em
+                class="replaceable">task-number</em></code> を実行してください。タスク番号は <code
+              class="command">at</code> コマンドで予定を登録した際に表示されたものです。改めて確認するには <code
+              class="command">atq</code> コマンドを実行してください。これはスケジュールされたタスクの現在のリストを表示します。
+			</div><a
+            id="idm140393307915568"
+            class="indexterm"></a><a
+            id="idm140393307914672"
+            class="indexterm"></a></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.inetd.html"><strong>戻る</strong>9.6. inetd スーパーサーバ</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>次へ</strong>9.8. 非同期タスクのスケジューリング: anacron</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.task-scheduling-cron-atd.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.task-scheduling-cron-atd.html">da-DK</a></li><li><a
+              href="../de-DE/sect.task-scheduling-cron-atd.html">de-DE</a></li><li><a
+              href="../el-GR/sect.task-scheduling-cron-atd.html">el-GR</a></li><li><a
+              href="../en-US/sect.task-scheduling-cron-atd.html">en-US</a></li><li><a
+              href="../es-ES/sect.task-scheduling-cron-atd.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.task-scheduling-cron-atd.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.task-scheduling-cron-atd.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.task-scheduling-cron-atd.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.task-scheduling-cron-atd.html">id-ID</a></li><li><a
+              href="../it-IT/sect.task-scheduling-cron-atd.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.task-scheduling-cron-atd.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.task-scheduling-cron-atd.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.task-scheduling-cron-atd.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.task-scheduling-cron-atd.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.task-scheduling-cron-atd.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.task-scheduling-cron-atd.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.task-scheduling-cron-atd.html">zh-CN</a></li></ul></div></body></html>

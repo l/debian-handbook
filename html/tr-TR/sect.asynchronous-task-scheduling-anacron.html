@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.8. Scheduling Asynchronous Tasks: anacron</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-tr-TR-1.0-1" /><meta
+        name="keywords"
+        content="System boot, Initscripts, SSH, Telnet, Rights, Permissions, Supervision, Inetd, Cron, Backup, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Bölüm 9. Unix Services" /><link
+        rel="prev"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. Scheduling Tasks with cron and atd" /><link
+        rel="next"
+        href="sect.quotas.html"
+        title="9.9. Quotas" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/tr-TR/sect.asynchronous-task-scheduling-anacron.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>Önceki</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>Sonraki</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.asynchronous-task-scheduling-anacron"></a>9.8. Scheduling Asynchronous Tasks: <code
+                  class="command">anacron</code></h2></div></div></div><div
+          class="para">
+			<code
+            class="command">anacron</code> is the daemon that completes <code
+            class="command">cron</code> for computers that are not on at all times. Since regular tasks are usually scheduled for the middle of the night, they will never be executed if the computer is off at that time. The purpose of <code
+            class="command">anacron</code> is to execute them, taking into account periods in which the computer is not working.
+		</div><a
+          id="idm139840241253552"
+          class="indexterm"></a><div
+          class="para">
+			Please note that <code
+            class="command">anacron</code> will frequently execute such activity a few minutes after booting the machine, which can render the computer less responsive. This is why the tasks in the <code
+            class="filename">/etc/anacrontab</code> file are started with the <code
+            class="command">nice</code> command, which reduces their execution priority and thus limits their impact on the rest of the system. Beware, the format of this file is not the same as that of <code
+            class="filename">/etc/crontab</code>; if you have particular needs for <code
+            class="command">anacron</code>, see the <span
+            class="citerefentry"><span
+              class="refentrytitle">anacrontab</span>(5)</span> manual page.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>BACK TO BASICS</em></span> Priorities and <code
+                      class="command">nice</code></strong></p></div></div></div><div
+            class="para">
+			Unix systems (and thus Linux) are multi-tasking and multi-user systems. Indeed, several processes can run in parallel, and be owned by different users: the kernel mediates access to the resources between the different processes. As a part of this task, it has a concept of priority, which allows it to favor certain processes over others, as needed. When you know that a process can run in low priority, you can indicate so by running it with <code
+              class="command">nice <em
+                class="replaceable">program</em></code>. The program will then have a smaller share of the CPU, and will have a smaller impact on other running processes. Of course, if no other processes needs to run, the program will not be artificially held back.
+		</div><div
+            class="para">
+			<code
+              class="command">nice</code> works with levels of “niceness”: the positive levels (from 1 to 19) progressively lower the priority, while the negative levels (from -1 to -20) will increase it — but only root can use these negative levels. Unless otherwise indicated (see the <span
+              class="citerefentry"><span
+                class="refentrytitle">nice</span>(1)</span> manual page), <code
+              class="command">nice</code> increases the current level by 10.
+		</div><div
+            class="para">
+			If you discover that an already running task should have been started with <code
+              class="command">nice</code> it is not too late to fix it; the <code
+              class="command">renice</code> command changes the priority of an already running process, in either direction (but reducing the “niceness” of a process is reserved for the root user).
+		</div></div><div
+          class="para">
+			Installation of the <span
+            class="pkg pkg">anacron</span> package deactivates execution by <code
+            class="command">cron</code> of the scripts in the <code
+            class="filename">/etc/cron.hourly/</code>, <code
+            class="filename">/etc/cron.daily/</code>, <code
+            class="filename">/etc/cron.weekly/</code>, and <code
+            class="filename">/etc/cron.monthly/</code> directories. This avoids their double execution by <code
+            class="command">anacron</code> and <code
+            class="command">cron</code>. The <code
+            class="command">cron</code> command remains active and will continue to handle the other scheduled tasks (especially those scheduled by users).
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>Önceki</strong>9.7. Scheduling Tasks with cron and atd</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Yukarı</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Başlangıç</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>Sonraki</strong>9.9. Quotas</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.asynchronous-task-scheduling-anacron.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.asynchronous-task-scheduling-anacron.html">da-DK</a></li><li><a
+              href="../de-DE/sect.asynchronous-task-scheduling-anacron.html">de-DE</a></li><li><a
+              href="../el-GR/sect.asynchronous-task-scheduling-anacron.html">el-GR</a></li><li><a
+              href="../en-US/sect.asynchronous-task-scheduling-anacron.html">en-US</a></li><li><a
+              href="../es-ES/sect.asynchronous-task-scheduling-anacron.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.asynchronous-task-scheduling-anacron.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.asynchronous-task-scheduling-anacron.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.asynchronous-task-scheduling-anacron.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.asynchronous-task-scheduling-anacron.html">id-ID</a></li><li><a
+              href="../it-IT/sect.asynchronous-task-scheduling-anacron.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.asynchronous-task-scheduling-anacron.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.asynchronous-task-scheduling-anacron.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.asynchronous-task-scheduling-anacron.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.asynchronous-task-scheduling-anacron.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.asynchronous-task-scheduling-anacron.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.asynchronous-task-scheduling-anacron.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.asynchronous-task-scheduling-anacron.html">zh-CN</a></li></ul></div></body></html>

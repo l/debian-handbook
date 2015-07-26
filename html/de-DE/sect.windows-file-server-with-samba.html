@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.5. Einrichten von Windows-Freigaben mit Samba</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="network-services.html"
+        title="Kapitel 11. Netzwerkdienste: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="prev"
+        href="sect.nfs-file-server.html"
+        title="11.4. NFS-Dateiserver" /><link
+        rel="next"
+        href="sect.http-ftp-proxy.html"
+        title="11.6. HTTP/FTP-Proxy" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.windows-file-server-with-samba.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.nfs-file-server.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.http-ftp-proxy.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.windows-file-server-with-samba"></a>11.5. Einrichten von Windows-Freigaben mit Samba</h2></div></div></div><div
+          class="para">
+			Samba ist ein Satz von Programmen, die das SMB-Protokoll (auch als „CIFS“ bekannt) auf Linux handhaben. Dieses Protokoll wird von Windows für Netzwerk-Freigaben und Netzwerkdrucker benutzt.
+		</div><a
+          id="idm139686908378528"
+          class="indexterm"></a><a
+          id="idm139686908377760"
+          class="indexterm"></a><a
+          id="idm139686908376992"
+          class="indexterm"></a><a
+          id="idm139686908376224"
+          class="indexterm"></a><a
+          id="idm139686908375456"
+          class="indexterm"></a><div
+          class="para">
+			Samba kann auch als Domänencontroller unter Windows agieren. Es ist ein hervorragendes Instrument, um die nahtlose Integration von Linux-Servern und Arbeitsplatzrechnern, die noch unter Windows laufen, zu gewährleisten.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686908373680"></a>11.5.1. Samba-Server</h3></div></div></div><div
+            class="para">
+				The <span
+              class="pkg pkg">samba</span> package contains the main two servers of Samba 4, <code
+              class="command">smbd</code> and <code
+              class="command">nmbd</code>.
+			</div><a
+            id="idm139686908371264"
+            class="indexterm"></a><a
+            id="idm139686908370368"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DOKUMENTATION</em></span> Weitere Schritte</strong></p></div></div></div><div
+              class="para">
+				Der Samba-Server ist äußerst gut konfigurierbar und vielseitig, kann sehr viele verschiedene Anwendungsfälle bewältigen und sich an sehr unterschiedliche Anforderungen und Netzwerk-Architekturen anpassen. Dieses Buch bezieht sich nur auf die Verwendung von Samba als Haupt-Domain-Controller, aber es kann auch als einfacher Server in der Domain eingesetzt werden und die Authentifizierung an den Hauptcontroller delegieren (der auch ein Windows-Server sein könnte).
+			</div><a
+              id="idm139686908367696"
+              class="indexterm"></a><a
+              id="idm139686908366928"
+              class="indexterm"></a><div
+              class="para">
+				The <span
+                class="pkg pkg">samba-doc</span> package contains a wealth of commented example files in <code
+                class="filename">/usr/share/doc/samba-doc/examples/</code>.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>HILFSPROGRAMM</em></span> Mit einem Windows-Server authentifizieren</strong></p></div></div></div><div
+              class="para">
+				Winbind gibt Systemadministratoren die Möglichkeit, einen Windows-Server als Authentifizierungsserver zu verwenden. Winbind integriert sich auch sauber in PAM und NSS. Dies ermöglicht es, Linux-Rechner so einzurichten, dass alle Benutzer einer Windows-Domäne automatisch ein Konto erhalten.
+			</div><a
+              id="idm139686908362960"
+              class="indexterm"></a><div
+              class="para">
+				More information can be found in the <code
+                class="filename">/usr/share/doc/samba-doc/examples/pam_winbind/</code> directory.
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139686908361296"></a>11.5.1.1. Mit <code
+                      class="command">debconf</code> konfigurieren</h4></div></div></div><div
+              class="para">
+					Das Paket richtet aufgrund der Antworten auf einige Debconf-Fragen, die während der ersten Installierung gestellt werden, eine minimale Konfiguration ein; diese Konfigurierungsschritte können später mit <code
+                class="command">dpkg-reconfigure samba-common samba</code> erneut abgespielt werden.
+				</div><div
+              class="para">
+					Das erste erforderliche Informationsteilstück ist der Name der Arbeitsgruppe, zu der der Samba-Server gehören wird (in unserem Fall lautet die Anwort <code
+                class="literal">FALCOTNET</code>). Eine weitere Frage erkundigt sich danach, ob Passwörter verschlüsselt sein sollen. Die Antwort lautet, dass sie es sein sollten, da dies für die jüngsten Windows-Clients vorgeschrieben ist; außerdem erhöht dies die Sicherheit. Anderenfalls wäre es auch erforderlich, die Samba-Passwörter getrennt von den Unix-Passwörtern zu verwalten.
+				</div><div
+              class="para">
+					Das Paket schlägt auch vor, den WINS-Server mithilfe der Information, die vom DHCP-Daemon bereitgestellt wird, zu identifizieren. Die Falcot Corp. Administratoren haben diese Option abgelehnt, da sie beabsichtigen, den Samba-Server selbst als WINS-Server zu verwenden.
+				</div><a
+              id="idm139686908357280"
+              class="indexterm"></a></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139686908356384"></a>11.5.1.2. Von Hand konfigurieren</h4></div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm139686908355744"></a>11.5.1.2.1. Änderungen in <code
+                        class="filename">smb.conf</code></h5></div></div></div><div
+                class="para">
+						Aufgrund der Erfordernisse bei Falcot müssen weitere Optionen in der Konfigurationsdatei <code
+                  class="filename">/etc/samba/smb.conf</code> angepasst werden. Die folgenden Auszüge fassen die Änderungen zusammen, die im Abschnitt <code
+                  class="literal">[global]</code> vorgenommen wurden.
+					</div><pre
+                class="programlisting">
+[global]
+
+## Browsing/Identification ###
+
+# Change this to the workgroup/NT-domain name your Samba server will part of
+   workgroup = FALCOTNET
+
+# server string is the equivalent of the NT Description field
+   server string = %h server (Samba %v)
+
+# Windows Internet Name Serving Support Section:
+# WINS Support - Tells the NMBD component of Samba to enable its WINS Server
+   wins support = yes <span
+                  id="smb.conf.wins"><img
+                    class="callout"
+                    src="Common_Content/images/1.png"
+                    alt="1" /></span>
+
+[...]
+
+####### Authentication #######
+
+# "security = user" is always a good idea. This will require a Unix account
+# in this server for every user accessing the server. See
+# /usr/share/doc/samba-doc/htmldocs/Samba3-HOWTO/ServerType.html 
+# in the samba-doc package for details.
+   security = user <span
+                  id="smb.conf.security"><img
+                    class="callout"
+                    src="Common_Content/images/2.png"
+                    alt="2" /></span>
+
+# You may wish to use password encryption.  See the section on
+# 'encrypt passwords' in the smb.conf(5) manpage before enabling.
+   encrypt passwords = true
+
+# If you are using encrypted passwords, Samba will need to know what
+# password database type you are using.
+   passdb backend = tdbsam
+
+[...]
+
+########## Printing ##########
+
+# If you want to automatically load your printer list rather
+# than setting them up individually then you'll need this
+   load printers = yes <span
+                  id="smb.conf.loadprinters"><img
+                    class="callout"
+                    src="Common_Content/images/3.png"
+                    alt="3" /></span>
+
+# lpr(ng) printing. You may wish to override the location of the
+# printcap file
+;   printing = bsd
+;   printcap name = /etc/printcap
+
+# CUPS printing.  See also the cupsaddsmb(8) manpage in the
+# cups-client package.
+   printing = cups <span
+                  id="smb.conf.printing"><img
+                    class="callout"
+                    src="Common_Content/images/4.png"
+                    alt="4" /></span>
+   printcap name = cups
+</pre><div
+                class="calloutlist"><table
+                  border="0"
+                  summary="Callout list"><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.wins"><img
+                            class="callout"
+                            src="Common_Content/images/1.png"
+                            alt="1" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Zeigt an, dass Samba für das lokale Netzwerk als ein Netbios-Namensserver (WINS) dienen soll.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.security"><img
+                            class="callout"
+                            src="Common_Content/images/2.png"
+                            alt="2" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Dies ist die Standardeinstellung dieses Parameters; da er jedoch für die Samba-Konfiguration wesentlich ist, wird empfohlen, ihn ausdrücklich einzutragen. Jeder Benutzer muss sich vor dem Zugriff auf eine Freigabe authentifizieren.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.loadprinters"><img
+                            class="callout"
+                            src="Common_Content/images/3.png"
+                            alt="3" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Weist Samba an, alle lokalen Drucker, die in der CUPS-Konfiguration enthalten sind, freizugeben. Es ist dann immer noch möglich, den Zugriff auf diese Drucker durch das Hinzufügen entsprechender Abschnitte einzuschränken.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.printing"><img
+                            class="callout"
+                            src="Common_Content/images/4.png"
+                            alt="4" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Gibt das verwendete Drucksystem vor; in diesem Fall CUPS.
+							</div></td></tr></table></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm139686908344320"></a>11.5.1.2.2. Benutzer hinzufügen</h5></div></div></div><div
+                class="para">
+						Jeder Samba-Benutzer benötigt ein Konto auf dem Server; als erstes müssen die Unix-Konten erstellt, dann die Benutzer in Sambas Datenbank eingetragen werden. Der Unix-Schritt verläuft wie üblich (zum Beispiel unter Verwendung von <code
+                  class="command">adduser</code>).
+					</div><div
+                class="para">
+						Das Hinzufügen eines bestehenden Benutzers zur Samba-Datenbank erfolgt durch den Befehl <code
+                  class="command">smbpasswd -a <em
+                    class="replaceable">benutzer</em></code>; dieser Befehl fragt interaktiv nach dem Passwort.
+					</div><div
+                class="para">
+						Ein Benutzer kann mit dem Befehl <code
+                  class="command">smbpasswd -x <em
+                    class="replaceable">benutzer</em></code> gelöscht werden. Auch ein Samba-Konto kann zeitweilig deaktiviert werden (mit <code
+                  class="command">smbpasswd -d <em
+                    class="replaceable">benutzer</em></code>) und später wieder reaktiviert (mit <code
+                  class="command">smbpasswd -e <em
+                    class="replaceable">benutzer</em></code>).
+					</div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm139686908338912"></a>11.5.1.2.3. Umstellen auf Domain-Controller</h5></div></div></div><div
+                class="para">
+						Dieser Abschnitt beschreibt, wie die Falcot Administratoren einen Schritt weiter gingen, indem sie den Samba-Server in einen Domain-Controller umwandelten, der servergespeicherte Profile bereitstellt (die es Benutzern ermöglichen, ihre Arbeitsumgebung unabhängig von dem Rechner, über den sie sich verbinden, zu erreichen).
+					</div><a
+                id="idm139686908337536"
+                class="indexterm"></a><a
+                id="idm139686908336768"
+                class="indexterm"></a><div
+                class="para">
+						Zunächst fügten sie einige zusätzliche Anweisungen zum Abschnitt <code
+                  class="literal">[global]</code> der Konfigurationsdatei hinzu:
+					</div><pre
+                class="programlisting">
+domain logons = yes              <span
+                  id="smb.conf.domainlogons"><img
+                    class="callout"
+                    src="Common_Content/images/1.png"
+                    alt="1" /></span>
+preferred master = yes           
+logon path = \\%L\profiles\%U    <span
+                  id="smb.conf.logonpath"><img
+                    class="callout"
+                    src="Common_Content/images/2.png"
+                    alt="2" /></span>
+logon script = scripts/logon.bat <span
+                  id="smb.conf.logonscript"><img
+                    class="callout"
+                    src="Common_Content/images/3.png"
+                    alt="3" /></span></pre><div
+                class="calloutlist"><table
+                  border="0"
+                  summary="Callout list"><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.domainlogons"><img
+                            class="callout"
+                            src="Common_Content/images/1.png"
+                            alt="1" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Aktiviert das Leistungsmerkmal Domain-Controller.
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.logonpath"><img
+                            class="callout"
+                            src="Common_Content/images/2.png"
+                            alt="2" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Bezeichnet den Ort der Benutzerverzeichnisse. Diese sind auf einer speziellen Freigabe abgespeichert, wodurch das Aktivieren spezifischer Optionen möglich wird (insbesondere <code
+                          class="literal">profile acls</code>, eine Voraussetzung für die Kompatibilität mit Windows 2000, XP und Vista).
+							</div></td></tr><tr><td
+                      width="5%"
+                      valign="top"
+                      align="left"><p><a
+                          href="#smb.conf.logonscript"><img
+                            class="callout"
+                            src="Common_Content/images/3.png"
+                            alt="3" /></a> </p></td><td
+                      valign="top"
+                      align="left"><div
+                        class="para">
+								Bezeichnet das (nicht-interaktive) <span
+                          class="emphasis"><em>Batch</em></span>-Skript, das bei jedem Sitzungsstart auf dem Windows-Client ausgeführt wird. In diesem Fall ist es <code
+                          class="filename">/var/lib/samba/netlogon/scripts/logon.bat</code>. Das Skript muss im DOS-Format stehen, bei dem die Zeilen durch ein Wagenrücklauf- und ein Zeilenvorschubzeichen getrennt sind; falls die Datei unter Linux erstellt wurde, kann sie mit dem Befehl <code
+                          class="command">unix2dos</code> konvertiert werden.
+							</div><div
+                        class="para">
+								Die in diesen Skripten am meisten benutzten Anweisungen ermöglichen die automatische Erstellung von Netzlaufwerken und das Synchronisieren der Systemzeit.
+							</div><div
+                        class="example"><a
+                          id="idm139686908327344"></a><p
+                          class="title"><strong>Beispiel 11.28. Die Datei <code
+                              class="filename">logon.bat</code></strong></p><div
+                          class="example-contents"><pre
+                            class="programlisting">
+net time \\ARRAKIS /set /yes
+net use H: /home
+net use U: \\ARRAKIS\utils
+</pre></div></div></td></tr></table></div><div
+                class="para">
+						Es wurden außerdem zwei zusätzliche Freigaben und die dazugehörigen Verzeichnisse erstellt:
+					</div><pre
+                class="programlisting">
+[netlogon]
+comment = Network Logon Service
+path = /var/lib/samba/netlogon
+guest ok = yes
+writable = no
+share modes = no
+
+[profiles]
+comment = Profile Share
+path = /var/lib/samba/profiles
+read only = No
+profile acls = Yes
+</pre><div
+                class="para">
+						Dann müssen noch die Benutzerverzeichnisse aller Benutzer erstellt werden (als <code
+                  class="filename">/var/lib/samba/profiles/<em
+                    class="replaceable">benutzer</em></code>), und jedes von ihnen muss dem passenden Benutzer gehören.
+					</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686908322864"></a>11.5.2. Samba-Client</h3></div></div></div><div
+            class="para">
+				Die Client-Merkmale in Samba ermöglichen es einem Linux-Rechner, auf Windows-Freigaben und freigegebene Rechner zuzugreifen. Die hierfür benötigten Programme befinden sich in den Paketen <span
+              class="pkg pkg">cifs-utils</span> und <span
+              class="pkg pkg">smbclient</span>.
+			</div><a
+            id="idm139686908320384"
+            class="indexterm"></a><a
+            id="idm139686908319488"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139686908318592"></a>11.5.2.1. Das Programm <code
+                      class="command">smbclient</code></h4></div></div></div><div
+              class="para">
+					Das Programm <code
+                class="command">smbclient</code> stellt Anfragen an SMB-Server. Es nimmt die Option <code
+                class="literal">-U <em
+                  class="replaceable">benutzer</em></code> entgegen, um sich mit dem Server unter einer bestimmten Identität zu verbinden. <code
+                class="command">smbclient //<em
+                  class="replaceable">server</em>/<em
+                  class="replaceable">freigabe</em></code> greift interaktiv auf die Freigabe zu, in ähnlicher Weise wie der FTP-Client auf der Befehlszeile. <code
+                class="command">smbclient -L <em
+                  class="replaceable">server</em></code> listet alle auf einem Server verfügbaren (und sichtbaren) Freigaben auf.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139686908314192"></a>11.5.2.2. Windows-Freigaben einhängen</h4></div></div></div><div
+              class="para">
+					Der Befehl <code
+                class="command">mount</code> ermöglicht es (mit Hilfe von <code
+                class="command">mount.cifs</code> aus dem Paket <span
+                class="pkg pkg">cifs-utils</span>), eine Windows-Freigabe in die Linux-Dateisystemhierarchie einzuhängen.
+				</div><a
+              id="idm139686908311680"
+              class="indexterm"></a><a
+              id="idm139686908310784"
+              class="indexterm"></a><div
+              class="example"><a
+                id="idm139686908310016"></a><p
+                class="title"><strong>Beispiel 11.29. Eine Windows-Freigabe einhängen</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+mount -t cifs //arrakis/shared /shared \
+      -o credentials=/etc/smb-credentials
+</pre></div></div><div
+              class="para">
+					Die Datei <code
+                class="filename">/etc/smb-credentials</code> (die nicht von Benutzern lesbar sein darf) hat das folgende Format:
+				</div><pre
+              class="programlisting">
+username = <em
+                class="replaceable">benutzer</em>
+password = <em
+                class="replaceable">passwort</em></pre><div
+              class="para">
+					Weitere Optionen können auf der Befehlszeile angegeben werden; sie sind auf der Handbuchseite <span
+                class="citerefentry"><span
+                  class="refentrytitle">mount.cifs</span>(1)</span> vollständig aufgelistet. Insbesondere zwei Optionen können interessant sein: <code
+                class="literal">uid</code> und <code
+                class="literal">gid</code> ermöglichen es, den Benutzer und die Gruppe der am Einhängepunkt verfügbaren Dateien einzustellen, um den Zugriff nicht auf den Administrator zu begrenzen.
+				</div><div
+              class="para">
+					EIn Einhängen einer Windows-Freigabe kann auch in <code
+                class="filename">/etc/fstab</code> konfiguriert werden:
+				</div><pre
+              class="programlisting">
+//<em
+                class="replaceable">server</em>/shared /shared cifs credentials=/etc/smb-credentials
+</pre><div
+              class="para">
+					Eine SMB/CIFS-Freigabe wird mit dem Befehl <code
+                class="command">umount</code> ausgehängt.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm139686908301936"></a>11.5.2.3. Auf einem Netzwerkdrucker drucken</h4></div></div></div><div
+              class="para">
+					CUPS ist eine elegante Lösung, um von einem Linux-Arbeitsplatzrechner aus auf einem von einem Windows-Rechner freigegebenen Drucker zu drucken. Wenn das Paket <span
+                class="pkg pkg">smbclient</span> installiert ist, ist es mit CUPS möglich, freigegebene Windows-Rechner automatisch zu installieren.
+				</div><a
+              id="idm139686908299984"
+              class="indexterm"></a><div
+              class="para">
+					Dies sind die erforderlichen Schritte:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							Melden Sie sich an der Beniutzerschnittstelle von CUPS an: <code
+                      class="literal">http://localhost:631/admin</code>
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							Klicken Sie auf "Drucker hinzufügen".
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							Wählen Sie das Gerät Drucker, nehmen Sie „Windows-Printer via SAMBA“.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							Geben Sie den URI für den Drucker ein, er sieht folgendermaßen aus:
+						</div><div
+                    class="para">
+							<code
+                      class="literal">smb://<em
+                        class="replaceable">benutzer</em>:<em
+                        class="replaceable">passwort</em>@<em
+                        class="replaceable">server</em>/<em
+                        class="replaceable">drucker</em></code>.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							Geben Sie den Namen ein der den Drucker eindeutig bezeichnet. Dann fügen Sie die Beschreibung und den Aufstellort des Druckers hinzu. Das sind die Angaben, die den Endanwendern angezeigt werden, um den Drucker identifizieren zu können.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							Geben Sie den Hersteller und das Modell des Druckers an oder stellen Sie direkt eine funktionierende Druckerbeschreibung (PPD, PostScript Printer Description) zur Verfügung.
+						</div></li></ul></div><div
+              class="para">
+					Voilà, der Drucker ist einsatzbereit!
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.nfs-file-server.html"><strong>Zurück</strong>11.4. NFS-Dateiserver</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.http-ftp-proxy.html"><strong>Weiter</strong>11.6. HTTP/FTP-Proxy</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.windows-file-server-with-samba.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.windows-file-server-with-samba.html">da-DK</a></li><li><a
+              href="../de-DE/sect.windows-file-server-with-samba.html">de-DE</a></li><li><a
+              href="../el-GR/sect.windows-file-server-with-samba.html">el-GR</a></li><li><a
+              href="../en-US/sect.windows-file-server-with-samba.html">en-US</a></li><li><a
+              href="../es-ES/sect.windows-file-server-with-samba.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.windows-file-server-with-samba.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.windows-file-server-with-samba.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.windows-file-server-with-samba.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.windows-file-server-with-samba.html">id-ID</a></li><li><a
+              href="../it-IT/sect.windows-file-server-with-samba.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.windows-file-server-with-samba.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.windows-file-server-with-samba.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.windows-file-server-with-samba.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.windows-file-server-with-samba.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.windows-file-server-with-samba.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.windows-file-server-with-samba.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.windows-file-server-with-samba.html">zh-CN</a></li></ul></div></body></html>

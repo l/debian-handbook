@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.8. جدولة المهام غير المتزامنة: anacron</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="إقلاع النظام, سكربتات Init, SSH , Telnet, حقوق, صلاحيات, إشراف, Inetd, Cron, النسخ الاحتياطي, توصيل ساخن, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="unix-services.html"
+        title="فصل 9. خدمات يونكس" /><link
+        rel="prev"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. جدولة المهام باستخدام cron وatd" /><link
+        rel="next"
+        href="sect.quotas.html"
+        title="9.9. الحصص التخزينية" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.asynchronous-task-scheduling-anacron.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.asynchronous-task-scheduling-anacron"></a>9.8. جدولة المهام غير المتزامنة: <code
+                  class="command">anacron</code></h2></div></div></div><div
+          class="para">
+			<code
+            class="command">anacron</code> هي خدمة تكمل عمل <code
+            class="command">cron</code> للحواسيب التي لا تعمل طوال الوقت. بما أن المهام المنتظمة تجدول عادة منتصفَ الليل، فلن تُنفَّذ أبداً إذا كان الحاسوب مطفأ في ذلك الوقت. الغرض من <code
+            class="command">anacron</code> هو تنفيذ هذه المهام، مع الأخذ بعين الاعتبار الفترات التي لا يعمل فيها الحاسوب.
+		</div><a
+          id="idm140225823509424"
+          class="indexterm"></a><div
+          class="para">
+			نرجو أن تلاحظ أن <code
+            class="command">anacron</code> غالباً سينفذ هذه النشاطات بعد إقلاع الجهاز ببضع دقائق، وهذا قد يخفض من استجابة الحاسوب. لذلك يبدأ تشغيل المهام المذكورة في الملف <code
+            dir="ltr"
+            class="filename">/etc/anacrontab</code> باستخدام الأمر <code
+            class="command">nice</code>، الذي يخفض أولوية تنفيذها وبالتالي يحدُّ من عبئها على النظام. انتبه إلى أن صيغة هذا الملف ليست مطابقة لصيغة <code
+            dir="ltr"
+            class="filename">/etc/crontab</code>؛ إذا كان هناك حاجة خاصة لاستخدام <code
+            class="command">anacron</code>، فاطلع على صفحة الدليل <span
+            class="citerefentry"><span
+              class="refentrytitle">anacrontab</span>(5)</span>‎.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>أساسيات</em></span> الأولويات و<code
+                      class="command">nice</code></strong></p></div></div></div><div
+            class="para">
+			نظم يونكس (وبالتالي لينكس) متعددة المهام ومتعددة المستخدمين. يمكن تشغيل عدة عمليات على التوازي فعلاً، ويمكن أن تنتمي لمستخدمين مختلفين: حيث تتولى النواة توزيع الموارد بين العمليات المختلفة. وكجزء من هذه الوظيفة، تتمتع النواة بمفهوم الأولوية، الذي يسمح لها بتفضيل عمليات معينة على أخرى، حسب الحاجة. يمكنك عندما تعلم أن إحدى العمليات يمكن أن تعمل بأولوية منخفضة أن تشير لذلك بتشغيلها باستخدام الأمر <code
+              class="command">nice <em
+                class="replaceable">program</em></code>‏ (nice تعني ”مهذب“). سيحصل البرنامج عندها على حصة أقل من المعالج، وسيكون أثره على العمليات الجارية الأخرى أخف. طبعاً، إذا لم يكن هناك عمليات أخرى تحتاج أن تعمل، فلن تُعرقَلَ حركة البرنامج بشكل مفتعل.
+		</div><div
+            class="para">
+			يعمل <code
+              class="command">nice</code> بعدة مستويات من ”التهذيب“: تخفض المستويات الموجبة (من 1 إلى 19) الأولوية تدريجياً، بينما ترفعها المستويات السالبة (من 1- حتى 20-) — لكن يسمح فقط للمستخدم الجذر بأن يستخدم هذه المستويات السالبة. يزيد <code
+              class="command">nice</code> المستوى الحالي بقيمة 10 إذا لم تحدد له قيمة أخرى (انظر صفحة الدليل <span
+              class="citerefentry"><span
+                class="refentrytitle">nice</span>(1)</span>‎).
+		</div><div
+            class="para">
+			If you discover that an already running task should have been started with <code
+              class="command">nice</code> it is not too late to fix it; the <code
+              class="command">renice</code> command changes the priority of an already running process, in either direction (but reducing the “niceness” of a process is reserved for the root user).
+		</div></div><div
+          class="para">
+			يعطل تثبيت الحزمة <span
+            class="pkg pkg">anacron</span> تنفيذ <code
+            class="command">cron</code> للسكربتات في المجلدات <code
+            class="filename">/etc/cron.hourly/</code>،‏ <code
+            class="filename">/etc/cron.daily/</code>،‏ <code
+            class="filename">/etc/cron.weekly/</code>،‏ و <code
+            class="filename">/etc/cron.monthly/</code>. وذلك لتفادي تنفيذها مرتين، مرة مع <code
+            class="command">anacron</code> ومرة مع <code
+            class="command">cron</code>. إلا أن الأمر <code
+            class="command">cron</code> يبقى فعّالاً ويتابع معالجة المهام المجدولة الأخرى (خصوصاً المهام التي يجدولها المستخدمون).
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>السابق</strong>9.7. جدولة المهام باستخدام cron وatd</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>التالي</strong>9.9. الحصص التخزينية</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.asynchronous-task-scheduling-anacron.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.asynchronous-task-scheduling-anacron.html">da-DK</a></li><li><a
+              href="../de-DE/sect.asynchronous-task-scheduling-anacron.html">de-DE</a></li><li><a
+              href="../el-GR/sect.asynchronous-task-scheduling-anacron.html">el-GR</a></li><li><a
+              href="../en-US/sect.asynchronous-task-scheduling-anacron.html">en-US</a></li><li><a
+              href="../es-ES/sect.asynchronous-task-scheduling-anacron.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.asynchronous-task-scheduling-anacron.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.asynchronous-task-scheduling-anacron.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.asynchronous-task-scheduling-anacron.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.asynchronous-task-scheduling-anacron.html">id-ID</a></li><li><a
+              href="../it-IT/sect.asynchronous-task-scheduling-anacron.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.asynchronous-task-scheduling-anacron.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.asynchronous-task-scheduling-anacron.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.asynchronous-task-scheduling-anacron.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.asynchronous-task-scheduling-anacron.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.asynchronous-task-scheduling-anacron.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.asynchronous-task-scheduling-anacron.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.asynchronous-task-scheduling-anacron.html">zh-CN</a></li></ul></div></body></html>

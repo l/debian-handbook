@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.3. التثبيت المؤتمت</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, تغذية, المراقبة, الحوسبة الظاهرية, ‏Xen, ‏LXC " /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="فصل 12. الإدارة المتقدمة" /><link
+        rel="prev"
+        href="sect.virtualization.html"
+        title="12.2. الحوسبة الظاهرية" /><link
+        rel="next"
+        href="sect.monitoring.html"
+        title="12.4. المراقبة" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.automated-installation.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtualization.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.monitoring.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.automated-installation"></a>12.3. التثبيت المؤتمت</h2></div></div></div><a
+          id="idm140225821109472"
+          class="indexterm"></a><a
+          id="idm140225821108704"
+          class="indexterm"></a><div
+          class="para">
+			يحتاج مدراء النظم في شركة فلكوت، كما هو حال مدراء النظم في العديد من شركات الخدمات التقنية الكبيرة، لأدوات تساعدهم على تثبيت (أو إعادة تثبيت) النظام على الأجهزة الجديدة بسرعة، وبصورة آلية إذا أمكن.
+		</div><div
+          class="para">
+			يمكن تلبية هذه الحاجة بطيف واسع من الحلول. فالأدوات العامة مثل SystemImager تعالج هذه القضية بإنشاء صورة بالاعتماد على جهاز نموذجي، ثم نشر تلك الصورة على الأجهزة المستهدفة، وعلى النهاية الأخرى من الطيف، هناك برنامج تثبيت دبيان القياسي الذي يمكن تغذيته بملف إعداد يجيب على الأسئلة المطروحة أثناء عملية التثبيت. وكنوع من الحلول الوسط، يمكن استخدام أداة هجينة مثل FAI (‏<span
+            class="emphasis"><em>Fully Automatic Installer</em></span>) لتثبيت النظام على الأجهزة باستخدام نظام إدارة الحزم، لكنها تستخدم بنية تحتية خاصة بها للمهام المتعلقة بالنشر واسع النطاق massive deployment (مثل الإقلاع، وتقطيع الأقراص، وإعداد النظام وما شابه).
+		</div><div
+          class="para">
+			لكل من هذه الأدوات محاسن ومساوئ. يعمل SystemImager بشكل مستقل عن أي نظام حزم معين، وهذا يسمح له بإدارة مجموعات كبيرة من الأجهزة باستخدام عدة توزيعات لينكس مختلفة. كما أنه يتضمن نظام تحديث لا يحتاج إعادة تثبيت النظام، لكن لا يمكن الاعتماد على نظام التحديث هذا إلا إذا لم تعدّل الأجهزة بشكل مستقل؛ أي يجب ألا يحدث المستخدمون وحدهم أي برمجية، كما لا يجب أن يثبتوا برمجيات إضافية. كما يجب عدم أتمتة التحديثات الأمنية، بل يجب أن تمر عبر الصورة المركزية التي يديرها SystemImager. هذا الحل يتطلب أيضًا أن تكون الأجهزة المستهدفة متجانسة، وإلا يجب الاحتفاظ بعدد من الصور المختلفة وإدارتها (صورة i386 لن تتناسب مع جهاز powerpc، وهكذا).
+		</div><div
+          class="para">
+			أما التثبيت المؤتمت باستخدام مثبت دبيان فيستطيع التكيف مع خصائص كل جهاز؛ إذ أن المثبت سيجلب النواة والحزم البرمجية المناسبة من المستودعات الموافقة، وسيتعرف على العتاد المتوفر، ويقطع كامل القرص الصلب للاستفادة من كل المساحة التخزينية المتاحة، ثم يثبت نظام دبيان ويعد محمل إقلاع ملائم. لكن المثبت القياسي لا يثبت إلا نسخ دبيان ”القياسية“، التي تحوي النظام الأساسي مع مجموعة من ”المهام“ المحددة مسبقًا؛ وهذا يمنع تثبيت نظام مخصص مع تطبيقات غير محزمة. لتلبية هذا المتطلب بالذات يجب تخصيص المثبت… لحسن الحظ، المثبت تجزيئي كثيراً (modular)، وهناك أدوات لأتمتة معظم العمل المطلوب لهذا التخصيص، أهمها simple-CDD (حيث CDD هي اختصار <span
+            class="emphasis"><em>Custom Debian Derivative</em></span>—مشتق مخصص من دبيان). وحتى simple-CDD يعالج التثبيت الأولي فقط؛ لكن هذه ليست مشكلة عادة بما أن أدوات APT تسمح بالنشر الفعال للتحديثات لاحقاً.
+		</div><div
+          class="para">
+			سوف نقدم شرحاً مقتضبًا فقط عن FAI، وسنتجاوز SystemImager بالكامل (الذي لم يعد متوفراً في دبيان)، وذلك للتركيز أكثر على مثبت دبيان وsimple-CDD، وهي الحلول الأكثر جاذبية عند العمل مع نظم دبيان.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.fai"></a>12.3.1. ‏Fully Automatic Installer (FAI)‎</h3></div></div></div><a
+            id="idm140225821099680"
+            class="indexterm"></a><div
+            class="para">
+				لعل <span
+              class="foreignphrase"><em
+                class="foreignphrase">Fully Automatic Installer</em></span> أقدم نظم النشر المؤتمت لأنظمة دبيان، وهذا ما يفسر ذكر هذه الأداة كثيراً؛ إلا أن طبيعته فائقة المرونة بالكاد تغطي تعقيد استخدامه.
+			</div><div
+            class="para">
+				يحتاج FAI لنظام يعمل كمخدم لتخزين معلومات النشر ويسمح للأجهزة المستهدفة بالإقلاع عبر الشبكة. يحتاج هذا المخدم حزمة <span
+              class="pkg pkg">fai-server</span> (أو <span
+              class="pkg pkg">fai-quickstart</span> التي تثبت أيضًا العناصر المطلوبة للإعداد القياسي).
+			</div><div
+            class="para">
+				يستخدمُ FAI أسلوباً خاصاً لتعريف البروفايلات المتنوعة التي يمكن تثبيتها. بدلاً من النسخ البسيط للنظام المرجعي، يوفر FAI مثبتاً متكاملاً يمكن تخصيصه بالكامل عبر مجموعة من الملفات والسكربتات المخزنة على المخدم؛ لا يتم إنشاء الموقع الافتراضي <code
+              class="filename">/srv/fai/config/</code> آليًا، لذلك يجب أن ينشئه مدير النظام بالإضافة لجميع الملفات اللازمة. في معظم الأحيان تكون هذه الملفات نسخاً مخصصة عن ملفات الأمثلة المتوفرة في الحزمة <span
+              class="pkg pkg">fai-doc</span> وبالأخص في المجلد <code
+              dir="ltr"
+              class="filename">/usr/share/doc/fai-doc/examples/simple/</code>.
+			</div><div
+            class="para">
+				بعد تعريف البروفايلات، يجب تنفيذ الأمر <code
+              class="command">fai-setup</code> لتوليد العناصر المطلوبة لبدء التثبيت باستخدام FAI؛ هذا يعني تحضير أو تحديث نظام أصغري (NFS-root) يستخدم خلال التثبيت. أو يمكن توليد CD إقلاعي للتثبيت باستخدام <code
+              class="command">fai-cd</code>.
+			</div><div
+            class="para">
+				لإنشاء كل ملفات الضبط هذه يجب فهم طريقة عمل FAI. تتألف عملية التثبيت النموذجية من الخطوات التالية:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						إحضار النواة عبر الشبكة، وإقلاعها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						ربط نظام الملفات الجذر عبر NFS‏ (nfsroot المذكور سابقاً)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تنفيذ <code
+                    dir="ltr"
+                    class="command">/usr/sbin/fai</code> الذ يتحكم بتتمة العملية (أي أن الخطوات التالية سينفذها هذا السكربت)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						نسخ مساحة الإعداد من المخدم إلى <code
+                    class="filename">/fai/</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						استدعاء <code
+                    class="command">fai-class</code>. سوف تُنفَّذ السكربتات <code
+                    dir="ltr"
+                    class="filename">/fai/class/[0-9][0-9]*</code> بالدور، وتعيد أسماء ”الفئات“ (classes) التي يجب تطبيقها على الجهاز الذي تجري عليه عملية التثبيت؛ سوف تعمل هذه المعلومات كأساس للخطوات التالية. هذا يسمح ببعض المرونة في تعريف الخدمات التي سوف تُثبَّت وتُضبَط.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						قراءة عدد من متغيرات الضبط، وذلك تبعاً للفئات (classes) المحددة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تقسيم الأقراص وتهيئة الأقسام الناتجة، حسب المعلومات المتوفرة في <code
+                    dir="ltr"
+                    class="filename">/fai/disk_config/<em
+                      class="replaceable">class</em></code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						ربط الأقسام السابقة؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تثبيت أساس النظام؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تغذية قاعدة بيانات Debconf باستخدام <code
+                    class="command">fai-debconf</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						الحصول على قائمة الحزم المتاحة لأداة APT؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تثبيت الحزم المذكورة في <code
+                    dir="ltr"
+                    class="filename">/fai/package_config/<em
+                      class="replaceable">class</em></code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تنفيذ السكربتات التالية للإعداد، <code
+                    dir="ltr"
+                    class="filename">/fai/scripts/<em
+                      class="replaceable">class</em>/[0-9][0-9]*</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						حفظ سجلات التثبيت، فصل أقسام الأقراص الصلبة، ثم إعادة الإقلاع؛
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.d-i-preseeding"></a>12.3.2. تغذية مثبت دبيان</h3></div></div></div><a
+            id="idm140225821072272"
+            class="indexterm"></a><a
+            id="idm140225821071504"
+            class="indexterm"></a><div
+            class="para">
+				في النهاية، يجب –منطقياً– أن يبقى مُثبِّت دبيان الرسمي أفضل أداة لتثبيت أنظمة دبيان. ولهذا السبب تم تصميم مثبت دبيان منذ البداية للاستخدام المؤتمت، بالاستفادة من مزايا البنية التحتية التي تقدمها <span
+              class="pkg pkg">debconf</span>. تسمح الأخيرة بتقليل عدد الأسئلة المطروحة من جهة (تأخذ الأسئلة المخفية الإجابات الافتراضية آلياً)، ومن جهة أخرى، توفير الإجابات الافتراضية بشكل مستقل، حتى تتاح إمكانية التثبيت غير التفاعلي. هذه الميزة الأخيرة تعرف باسم <span
+              class="emphasis"><em>preseeding</em></span>—التغذية، التي تعني ”الإعداد المسبق“ ببساطة.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>التعمق أكثر</em></span> Debconf مع قاعدة بيانات مركزية</strong></p></div></div></div><a
+              id="idm140225821067536"
+              class="indexterm"></a><div
+              class="para">
+				تسمح التغذية بالإجابة على أسئلة Debconf التي تطرحها أثناء التثبيت، لكن هذه الأجوبة ثابتة ولا تتطور بمرور الزمن. بما أن النظم المثبتة مسبقًا قد تحتاج للترقية، وقد تطرح أسئلة جديدة أثناء العملية، فيمكن ضبط ملف الإعداد <code
+                dir="ltr"
+                class="filename">/etc/debconf.conf</code> بحيث تستخدم Debconf مصادر بيانات خارجية (مثل مخدم LDAP directory، أو ملف بعيد تصل إليه عبر NFS أو Samba). يمكن تعريف عدة مصادر خارجية للبيانات في الوقت نفسه، وسوف تكمل هذه المصادر بعضها البعض. ستبقى قاعدة البيانات المحلية قيد الاستخدام (لاستخدامها للقراءة والكتابة)، أما قواعد البيانات الخارجية فتقتصر الصلاحيات فيها على القراءة فقط عادة. تشرح صفحة التعليمات <span
+                class="citerefentry"><span
+                  class="refentrytitle">debconf.conf</span>(5)</span>‎ كافة الاحتمالات بالتفصيل.
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821063552"></a>12.3.2.1. استخدام ملف تغذية</h4></div></div></div><div
+              class="para">
+					يستطيع المُثبّت الحصول على ملف التغذية من العديد من الأماكن:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							من initrd المستخدمة لإقلاع الجهاز، في هذه الحالة، تتم التغذية منذ بداية التثبيت الأولية، وسوف يتم تجاوز جميع الأسئلة. يجب فقط تسمية الملف preseed.cfg وتخزينه في جذر initrd.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							من وسيط الإقلاع (CD أو مفتاح USB)؛ وتحدث التغذية فور ربط الوسيط التخزيني، أي مباشرة بعد السؤال عن اللغة وتخطيط لوحة المفاتيح. يمكن استخدام متغير الإقلاع <code
+                      class="literal">preseed/file</code> للإشارة إلى موقع ملف التغذية (مثلا، <code
+                      dir="ltr"
+                      class="filename">/cdrom/preseed.cfg</code> عند التثبيت من قرص CD-ROM، أو <code
+                      dir="ltr"
+                      class="filename">/hd-media/preseed.cfg</code> في حال استخدام مفتاح USB).
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							من الشبكة؛ عندها لا تتم التغذية إلا بعد إعداد الشبكة (الأوتوماتيكي)؛ عندها يجب استخدام متغير الإقلاع <code
+                      class="literal">preseed/url=http://<em
+                        class="replaceable">server</em>/preseed.cfg</code>.
+						</div></li></ul></div><div
+              class="para">
+					كنظرة أولية، يبدو تضمين ملف التغذية في initrd أنه الحل الأكثر جاذبية؛ لكنه نادراً ما يستخدم عملياً، لأن توليد initrd للمثبت معقد جداً. الحلين الآخرين أكثر انتشاراً بكثير، خصوصًا أنك تستطيع استخدام المتغيرات الإقلاعية كطريق بديل لتغذية الأسئلة الأولى لعملية التثبيت. جرت العادة أن تحفظ هذه المتغيرات في إعدادات <code
+                class="command">isolinux</code> (في حال استخدام CD-ROM) أو <code
+                class="command">syslinux</code> (ذاكرة USB) بدلاً من كتابتها يدوياً عند كل عملية تثبيت.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821054416"></a>12.3.2.2. إنشاء ملف التغذية</h4></div></div></div><div
+              class="para">
+					ملف التغذية هو ملف نصي عادي، كل سطر منه يحوي إجابة لسؤال واحد من أسئلة Debconf. يفصل السطر إلى أربعة أقسام تفصلها مسافات بيضاء (علامة مسافة space أو علامة جدولة tab)، فمثلاً <code
+                class="literal">d-i mirror/suite string stable</code>:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							الحقل الأول هو ”صاحب“ السؤال؛ تستخدم ”d-i“ للأسئلة المتعلقة بالمثبت، لكن يمكن أن تكتب اسم حزمة للأسئلة التي تطرحها حزم دبيان؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							الحقل الثاني هو معرف للسؤال؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							الثالث، نوع السؤال؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							الحقل الرابع والأخير يحوي قيمة الإجابة. لاحظ أن هذا الحقل يجب فصله عن سابقه بمسافة واحدة؛ وإذا كان هناك أكثر من واحدة ستعتبر المسافات اللاحقة جزءاً من الإجابة.
+						</div></li></ul></div><div
+              class="para">
+					أبسط طريقة لكتابة ملف تغذية هي تثبيت النظام يدوياً. ثم يعطيك الأمر <code
+                class="command">debconf-get-selections --installer</code> الإجابات المتعلقة بالمثبت. يمكن الحصول على الإجابات المتعلقة بالحزم الأخرى بالأمر <code
+                class="command">debconf-get-selections</code>. لكن الحل الأفضل هو أن تكتب ملف التغذية يدوياً، بالاعتماد على مثال وعلى الوثائق: بهذا الشكل يمكن تغذية الأسئلة التي تحتاج تغيير إجاباتها الافتراضية فقط؛ واستخدام متغير الإقلاع <code
+                class="literal">priority=critical</code> سوف يفرض على Debconf أن تطرح الأسئلة الحرجة فقط، وأن تستخدم الإجابات الافتراضية لبقية الأسئلة.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>توثيق</em></span> الملحق في دليل التثبيت</strong></p></div></div></div><div
+                class="para">
+					يتضمن دليل التثبيت، المتاح على شبكة الإنترنت، توثيقاً مفصلاً عن استخدام ملفات التغذية في ملحق خاص. كما يتضمن مثالاً عن ملف تغذية مفصلاً ومزوداً بالتعليقات، يمكن الاستفادة منه كأساس للتخصيصات المحلية. <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/amd64/apb.html">http://www.debian.org/releases/wheezy/amd64/apb.html</a></div> <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/example-preseed.txt">http://www.debian.org/releases/wheezy/example-preseed.txt</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821042720"></a>12.3.2.3. إنشاء وسيط إقلاعي مخصص</h4></div></div></div><div
+              class="para">
+					من الجيد أن يعرف المرء مكان تخزين ملف التغذية، لكن مكان التخزين ليس كل شيء: يجب تعديل وسيط الإقلاع –بشكل أو بآخر– لتغيير متغيرات الإقلاع وإضافة ملف التغذية.
+				</div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140225821041376"></a>12.3.2.3.1. الإقلاع من الشبكة</h5></div></div></div><div
+                class="para">
+						عند إقلاع الحاسب من الشبكة، يعرف المخدم الذي يرسل عناصر التهيئة متغيرات الإقلاع أيضًا. أي يجب أن يتم التعديل على إعداد PXE لمخدم الإقلاع؛ وبالتحديد أكثر، في ملف الإعداد <code
+                  dir="ltr"
+                  class="filename">/tftpboot/pxelinux.cfg/default</code>. إن إعداد الإقلاع عبر الشبكة هو متطلب أساسي؛ انظر دليل التثبيت لمزيد من التفاصيل. <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/amd64/ch04s05.html">http://www.debian.org/releases/wheezy/amd64/ch04s05.html</a></div>
+					</div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140225821038288"></a>12.3.2.3.2. تحضير ذاكرة USB إقلاعية</h5></div></div></div><div
+                class="para">
+						بعد تجهيز الذاكرة الإقلاعية (انظر <a
+                  class="xref"
+                  href="installation.html#sect.install-usb">قسم 4.1.2, “الإقلاع من مفتاح USB”</a>)، يجب تنفيذ بعض العمليات الإضافية. على فرض أن محتويات الذاكرة متاحة في <code
+                  class="filename">/media/usbdisk/</code>:
+					</div><div
+                xmlns:d="http://docbook.org/ns/docbook"
+                class="itemizedlist"><ul><li
+                    class="listitem"><div
+                      class="para">
+								انسخ ملف التغذية إلى <code
+                        dir="ltr"
+                        class="filename">/media/usbdisk/preseed.cfg</code>
+							</div></li><li
+                    class="listitem"><div
+                      class="para">
+								حرر الملف <code
+                        dir="ltr"
+                        class="filename">/media/usbdisk/syslinux.cfg</code> وأضف المتغيرات الإقلاعية اللازمة (انظر المثال التالي).
+							</div></li></ul></div><div
+                class="example"><a
+                  id="idm140225821032864"></a><p
+                  class="title"><strong>مثال 12.2. ملف syslinux.cfg وبارامترات التغذية</strong></p><div
+                  class="example-contents"><pre
+                    class="programlisting">default vmlinuz
+append preseed/file=/hd-media/preseed.cfg locale=en_US console-keymaps-at/keymap=us languagechooser/language-name=English countrychooser/shortlist=US vga=normal initrd=initrd.gz  --
+</pre></div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140225821031376"></a>12.3.2.3.3. إنشاء صورة CD-ROM</h5></div></div></div><a
+                id="idm140225821030736"
+                class="indexterm"></a><div
+                class="para">
+						ذاكرة USB هي وسيط تخزين يقبل القراءة والكتابة، لذلك كانت إضافة الملف إليها وتعديل بعض المتغيرات فيها عملية سهلة. لكن في حالة استخدام CD-ROM، فالعملية معقدة أكثر، لأننا نحتاج توليد صورة ISO كاملة. هذه المهمة تحتاج الأداة <span
+                  class="pkg pkg">debian-cd</span>، لكن استخدام هذه الأداة مزعج نوعًا ما: تحتاج الأداة لمرآة محلية، كما تحتاج لفهم جميع الخيارات في <code
+                  dir="ltr"
+                  class="filename">/usr/share/debian-cd/CONF.sh</code>؛ وحتى بعد ذلك، يجب استدعاء <code
+                  class="command">make</code> عدة مرات. عليك إذن قراءة <code
+                  dir="ltr"
+                  class="filename">/usr/share/debian-cd/README</code>.
+					</div><div
+                class="para">
+						تعمل debian-cd دائماً بنفس الأسلوب: يتم توليد مجلد ”صورة“ فيه محتويات القرص الليزري نفسها، ثم يحوّل إلى ملف ISO بأداة مثل <code
+                  class="command">genisoimage</code> أو <code
+                  class="command">mkisofs</code> أو <code
+                  class="command">xorriso</code>. يُختَم المجلد بعد الخطوة <code
+                  class="command">make image-trees</code> التابعة لحزمة debian-cd. عند هذه النقطة، سوف نزرع ملف التغذية في المجلد المناسب (عادة <code
+                  dir="ltr"
+                  class="filename">$TDIR/wheezy/CD1/</code>، حيث ‎$TDIR هو أحد المتغيرات التي يعرفها ملف الإعداد <code
+                  class="filename">CONF.sh</code>). تستخدم الأقراص الليزرية <code
+                  class="command">isolinux</code> كمحمل للإقلاع، ويجب ضبط ملف الإعداد ليتناسب مع ما ولدته debian-cd، وإدخال متغيرات الإقلاع المطلوبة (الملف المقصود هو <code
+                  dir="ltr"
+                  class="filename">$TDIR/wheezy/boot1/isolinux/isolinux.cfg</code>). بعدها يمكن متابعة العملية ”الاعتيادية“، ويمكننا توليد صورة ISO بالأمر <code
+                  class="command">make image CD=1</code> (أو <code
+                  class="command">make images</code> إذا كنا سنولد عدة CD-ROMs).
+					</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.simple-cdd"></a>12.3.3. ‏Simple-CDD: كل الحلول في حل واحد</h3></div></div></div><a
+            id="idm140225821019872"
+            class="indexterm"></a><div
+            class="para">
+				ببساطة إن استخدام ملف التغذية لا يكفي لتلبية كافة المطالب التي قد تظهر عند النشر واسع النطاق. وبالرغم أنه يمكن تنفيذ بضعة سكربتات عند نهاية عملية التثبيت العادية، إلا أن مجموعة الحزم التي ستثبت ليست مرنة بما يكفي (أساساً لا يمكن إلا اختيار ”المهام“)؛ وأهم من هذا، لا يمكن إلا تثبيت حزم دبيان الرسمية، ولا يسمح بالحزم المولدة محليًا.
+			</div><div
+            class="para">
+				وعلى صعيد آخر، تستطيع debian-cd دمج الحزم الخارجية، كما يمكن توسيع مثبت دبيان بإدخال خطوات جديدة في عملية التثبيت. بجمع هذه الإمكانيات، يفترض أن نستطيع إنشاء مثبت مخصص يلبي حاجاتنا؛ بل يفترض أن يتمكن أيضًا من ضبط بعض الخدمات بعد تثبيت الحزم المطلوبة. لحسن الحظ، هذه ليست فرضية بلا برهان، بل هي وظيفة Simple-CDD (في الحزمة <span
+              class="pkg pkg">simple-cdd</span>) تماماً.
+			</div><div
+            class="para">
+				الهدف من Simple-CDD هو السماح لأي شخص بإنشاء توزيعة مشتقة من دبيان بسهولة، بتحديد مجموعة جزئية من الحزم المتوفرة، وإعدادها مسبقاً باستخدام Debconf، وإضافة برمجيات معينة، وتنفيذ سكربتات مخصصة عند نهاية عملية التثبيت. هذا يوافق فلسفة ”نظام التشغيل العالمي“، حيث يستطيع أي شخص تعديله ليناسب حاجاته الشخصية.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821015536"></a>12.3.3.1. تعريف البروفايلات</h4></div></div></div><div
+              class="para">
+					يعرف Simple-CDD ”بروفايلات“ تقابل مفهوم ”الفئات – classes“ في FAI، ويمكن إعطاء الجهاز عدة بروفايلات (تُحدَّد أثناء التثبيت). يعرف البروفايل بمجموعة من ملفات <code
+                dir="ltr"
+                class="filename">profiles/<em
+                  class="replaceable">profile</em>.*</code>:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							ملف <code
+                      dir="ltr"
+                      class="filename">.description</code> يحوي سطراً واحداً يصف البروفايل؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ملف <code
+                      dir="ltr"
+                      class="filename">.packages</code> يسرد أسماء الحزم التي ستثبت تلقائيًا عند تحديد هذا البروفايل؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ملف <code
+                      dir="ltr"
+                      class="filename">.downloads</code> يسرد أسماء الحزم التي ستخزن على وسيط التثبيت، لكن لا يشترط تثبيتها؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ملف <code
+                      dir="ltr"
+                      class="filename">.preseed</code> يحوي معلومات التغذية لأسئلة Debconf (للمثبت أو للحزم)؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ملف <code
+                      dir="ltr"
+                      class="filename">.postinst</code> يحوي سكربتًا يعمل عند نهاية التثبيت؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							أخيراً، ملف <code
+                      dir="ltr"
+                      class="filename">.conf</code> يسمح بتعديل بعض متغيرات Simple-CDD اعتماداً على البروفايلات التي ستضمَّن في الصورة.
+						</div></li></ul></div><div
+              class="para">
+					البروفايل <code
+                class="literal">default</code> له دور خاص، لأنه محدد دوماً؛ ولذلك يحوي الحد الأدنى المطلوب لعمل Simple-CDD. الشيء الوحيد الذي يخصص عادة في هذا البروفايل هو متغير التغذية <code
+                class="literal">simple-cdd/profiles</code>: هذا يسمح بتفادي طلب Simple-CDD تحديد البروفايل الذي يريد تثبيته من المستخدم.
+				</div><div
+              class="para">
+					لاحظ أيضًا أنه يجب استدعاء الأوامر من المجلد الأب للمجلد <code
+                class="filename">profiles</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821001136"></a>12.3.3.2. إعداد واستخدام <code
+                      class="command">build-simple-cdd</code></h4></div></div></div><a
+              id="idm140225821000240"
+              class="indexterm"></a><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>نظرة سريعة</em></span> ملف إعداد مفصل</strong></p></div></div></div><div
+                class="para">
+					هناك مثال عن ملف إعداد Simple-CDD فيه كل المتغيرات الممكنة، مضمن في الحزمة (<code
+                  dir="ltr"
+                  class="filename">/usr/share/doc/simple-cdd/examples/simple-cdd.conf.detailed.gz</code>). يمكن استخدام هذا الملف كنقطة انطلاق عند إنشاء ملفات إعداد مخصصة.
+				</div></div><div
+              class="para">
+					يحتاج Simple-CDD للكثير من المتغيرات ليعمل بشكل كامل. غالبًا ما تجمع هذه المتغيرات في ملف إعداد، وبعدها نمرره للأمر <code
+                class="command">build-simple-cdd</code> بالخيار <code
+                dir="ltr"
+                class="literal">--conf</code>، لكن يمكن أيضاً تحديد قيم هذه المتغيرات باستخدام بارمترات خاصة تعطى للأمر <code
+                class="command">build-simple-cdd</code>. إليك نظرة عامة عن عمل هذا الأمر، وعن تأثير متغيراته المختلفة:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							يحدد المتغير <code
+                      class="literal">profiles</code> البروفايلات التي ستضمن في صورة CD-ROM المولدة؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							اعتماداً على قائمة الحزم المطلوبة سوف ينزل Simple-CDD الملفات المناسبة من المخدم المذكور في <code
+                      class="literal">server</code>، ويجمعها في مرآة جزئية (التي ستعطى لاحقًا إلى debian-cd).
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							تدمج الحزم المخصصة المذكورة في <code
+                      class="literal">local_packages</code> أيضًا في هذه المرآة المحلية؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							بعدها تستدعى debian-cd (ويستخدم موقع افتراضي يمكن تعديله بالمتغير <code
+                      class="literal">debian_cd_dir</code>)، وتعطى قائمة بالحزم المراد دمجها؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							بعدما جهزت debian-cd المجلد، تطبق Simple-CDD بعض التعديلات عليه:
+						</div><div
+                    class="itemizedlist"><ul><li
+                        class="listitem"><div
+                          class="para">
+									تضاف الملفات التي تحوي البروفايلات إلى مجلد فرعي باسم <code
+                            class="filename">simple-cdd</code> (وسوف يظهر في القرص النهائي)؛
+								</div></li><li
+                        class="listitem"><div
+                          class="para">
+									تضاف الملفات الأخرى المذكورة في المتغير <code
+                            class="literal">all_extras</code> أيضًا؛
+								</div></li><li
+                        class="listitem"><div
+                          class="para">
+									تضبط متغيرات الإقلاع لتفعيل التغذية. يتم تفادي الأسئلة عن اللغة والبلد إذا كانت المعلومات المطلوبة مخزنة في المتغيرين <code
+                            class="literal">language</code> و<code
+                            class="literal">country</code>.
+								</div></li></ul></div></li><li
+                  class="listitem"><div
+                    class="para">
+							تولد debian-cd صورة ISO النهائية.
+						</div></li></ul></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225820982224"></a>12.3.3.3. توليد صورة ISO</h4></div></div></div><div
+              class="para">
+					بعدما كتبنا ملف الإعداد وعرفنا البروفايلات، تبقى خطوة استدعاء <code
+                class="command">build-simple-cdd --conf simple-cdd.conf</code>. بعد عدة دقائق، نحصل على الصورة المطلوبة في <code
+                class="filename">images/debian-7.0-amd64-CD-1.iso</code>.
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtualization.html"><strong>السابق</strong>12.2. الحوسبة الظاهرية</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.monitoring.html"><strong>التالي</strong>12.4. المراقبة</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.automated-installation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.automated-installation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.automated-installation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.automated-installation.html">el-GR</a></li><li><a
+              href="../en-US/sect.automated-installation.html">en-US</a></li><li><a
+              href="../es-ES/sect.automated-installation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.automated-installation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.automated-installation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.automated-installation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.automated-installation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.automated-installation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.automated-installation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.automated-installation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.automated-installation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.automated-installation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.automated-installation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.automated-installation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.automated-installation.html">zh-CN</a></li></ul></div></body></html>

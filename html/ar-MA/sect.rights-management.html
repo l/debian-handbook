@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.3. إدارة الصلاحيات</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="إقلاع النظام, سكربتات Init, SSH , Telnet, حقوق, صلاحيات, إشراف, Inetd, Cron, النسخ الاحتياطي, توصيل ساخن, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="unix-services.html"
+        title="فصل 9. خدمات يونكس" /><link
+        rel="prev"
+        href="sect.remote-login.html"
+        title="9.2. تسجيل الدخول عن بعد" /><link
+        rel="next"
+        href="sect.administration-interfaces.html"
+        title="9.4. واجهات الإدارة" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.rights-management.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.remote-login.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.administration-interfaces.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.rights-management"></a>9.3. إدارة الصلاحيات</h2></div></div></div><div
+          class="para">
+			لينكس هو نظام متعدد المستخدمين قطعاً، ولذلك يجب توفير نظام إدارة صلاحيات للتحكم بالعمليات المسموحة على الملفات والمجلدات، التي تشمل جميع موارد وأجهزة النظام (في نظام يونكس، كل جهاز يمثل بملف أو مجلد). هذا المبدأ مشترك بين جميع نظم يونكس، لكن التذكرة بالشيء مفيدة دوماً، خصوصاً أن هناك بعض الاستخدامات المتقدمة المهمة ولكن غير معروفة نسبياً.
+		</div><a
+          id="idm140225827187216"
+          class="indexterm"></a><a
+          id="idm140225827186256"
+          class="indexterm"></a><a
+          id="idm140225827185296"
+          class="indexterm"></a><a
+          id="idm140225827183856"
+          class="indexterm"></a><a
+          id="idm140225827182416"
+          class="indexterm"></a><a
+          id="idm140225827180976"
+          class="indexterm"></a><div
+          class="para">
+			كل ملف أو مجلد له صلاحيات خاصة لكل فئة من الفئات الثلاث للمستخدمين:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					المالك (يرمز له بالحرف <code
+                  class="literal">u</code> من كلمة ”user“)؛
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					المجموعة المالكة (يرمز لها بالحرف <code
+                  class="literal">g</code> من كلمة ”group“)، وهي تمثل جميع أعضاء المجموعة؛
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					الآخرون (يرمز لهم بالحرف <code
+                  class="literal">o</code> من كلمة ”other“).
+				</div></li></ul></div><div
+          class="para">
+			هناك ثلاثة أنواع من الصلاحيات يمكن جمعها:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					القراءة (يرمز لها بالحرف <code
+                  class="literal">r</code> من كلمة ”read“)؛
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					الكتابة (يرمز لها بالحرف <code
+                  class="literal">w</code> من كلمة ”write“)؛
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					التنفيذ (يرمز له بالحرف <code
+                  class="literal">x</code> من كلمة ”eXecute“).
+				</div></li></ul></div><a
+          id="idm140225827169088"
+          class="indexterm"></a><a
+          id="idm140225827168160"
+          class="indexterm"></a><a
+          id="idm140225827167232"
+          class="indexterm"></a><a
+          id="idm140225827166304"
+          class="indexterm"></a><div
+          class="para">
+			بالنسبة للملفات، فيمكن فهم هذه الصلاحيات بسهولة: تسمح صلاحية القراءة بقراءة المحتوى (ونسخه أيضاً)، وتسمح صلاحية الكتابة بتعديله، أما صلاحية التنفيذ فتسمح لك بتشغيله (وهذا سيعمل فقط إذا كان برنامجاً).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>أمن</em></span> الملفات التنفيذية ذات صلاحيات <code
+                      class="literal">setuid</code> و<code
+                      class="literal">setgid</code></strong></p></div></div></div><div
+            class="para">
+			هناك صلاحيتين محددتين ترتبطان بالملفات التنفيذية: <code
+              class="literal">setuid</code> و<code
+              class="literal">setgid</code> (يرمز لهما بالحرف ”s“). لاحظ أننا نتحدث عادة عن ”بت“، لأنه يمكن تمثيل كل من هذه القيم البوليانية ببت واحد. تسمح هاتان الصلاحيتان للمستخدم بتنفيذ البرنامج بصلاحيات مالكه أو صلاحيات مجموعته. تتيح هذه الآلية إمكانية الوصول إلى مزايا تحتاج صلاحيات ذات مستوى أعلى من المستوى العادي للمستخدم.
+		</div><a
+            id="idm140225827160544"
+            class="indexterm"></a><a
+            id="idm140225827159264"
+            class="indexterm"></a><div
+            class="para">
+			بما أن برامج الجذر التي تتمتع بصلاحية <code
+              class="literal">setuid</code> ستعمل تلقائياً تحت صلاحيات مدير النظام، فمن المهم جداً ضمان أن هذه البرامج آمنة وموثوقة. فالمستخدم الذي قد يتمكن من السيطرة على أحد هذه البرامج وجعله يستدعي أمراً من اختياره يستطيع عندها انتحال شخصية المستخدم الجذر وامتلاك جميع الصلاحيات على النظام.
+		</div></div><div
+          class="para">
+			أما المجلدات فالتعامل معها مختلف. تمنح صلاحية القراءة إمكانية الاستعلام عن محتويات المجلد (من ملفات ومجلدات)، أما صلاحية الكتابة فتسمح بإنشاء الملفات فيه أو حذفها، وصلاحية التنفيذ تسمح بالمرور عبره (خصوصاً الدخول إليه بالأمر <code
+            class="command">cd</code>). إن امتلاك حق العبور خلال المجلد دون امتلاك حق قراءته يسمح لك بالوصول إلى الملفات أو المجلدات داخله التي تعرفها بالاسم، لكن لا يسمح لك بالبحث عنها إذا لم تكن تعرف بوجودها أو لم تعرف اسمها بالضبط.
+		</div><div
+          class="sidebar"><a
+            id="sidebar.setgid-dir"></a><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>أمن</em></span> مجلدات <code
+                      class="literal">setgid</code> و ”<span
+                      class="emphasis"><em>البت اللاصق</em></span>“</strong></p></div></div></div><a
+            id="idm140225827152304"
+            class="indexterm"></a><div
+            class="para">
+			يطبّق بت <code
+              class="literal">setgid</code> على المجلدات أيضاً. أي عنصر جديد ينشأ في هذه المجلدات تُعيَّن له المجموعة المالكة للمجلد الأب، بدلاً من وراثة المجموعة الرئيسية للمستخدم الذي أنشأ الملف كما هي العادة. هذا الوضع يسمح للمستخدم بتفادي تغيير مجموعته الرئيسية (باستخدام الأمر <code
+              class="command">newgrp</code>) عندما يعمل في شجرة ملفات مشتركة بين عدة مستخدمين ينتمون لنفس المجموعة الخاصة.
+		</div><a
+            id="idm140225827149040"
+            class="indexterm"></a><div
+            class="para">
+			أما البت ”اللاصق“ (<span
+              class="emphasis"><em>sticky bit</em></span> – يرمز له بالحرف ”t“) فهي صلاحية تفيد فقط مع المجلدات. تستخدم هذه الصلاحية خصوصاً مع المجلدات المؤقتة التي يملك الجميع صلاحية الكتابة عليها (مثل المجلد <code
+              class="filename">/tmp/</code>): تقيّد هذه الصلاحية حذف الملفات بحيث يسمح لمالك الملف (أو مالك المجلد الأب) حذفه فقط. بدون هذا القيد، سوف يتمكن أي شخص من حذف ملفات المستخدمين الآخرين في المجلد <code
+              class="filename">/tmp/</code>.
+		</div></div><div
+          class="para">
+			تتحكم ثلاثة أوامر بصلاحيات الملفات:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chown <em
+                    class="replaceable">user</em> <em
+                    class="replaceable">file</em></code> يغير مالك الملف؛
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chgrp <em
+                    class="replaceable">group</em> <em
+                    class="replaceable">file</em></code> يغير المجموعة المالكة؛
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chmod <em
+                    class="replaceable">rights</em> <em
+                    class="replaceable">file</em></code> يغير صلاحيات الملف.
+				</div></li></ul></div><div
+          class="para">
+			هناك طريقتين لتمثيل الصلاحيات. لعل التمثيل الرمزي هو الأبسط فهماً والأسهل تذكراً بينهما. تستخدم الحروف الرمزية المذكورة سابقاً في هذا التمثيل. يمكنك تعريف صلاحيات كل فئة من المستخدمين (<code
+            class="literal">u</code>/<code
+            class="literal">g</code>/<code
+            class="literal">o</code>) إما بتحديدها صراحة (باستخدام <code
+            class="literal">=</code>) أو بالإضافة (<code
+            class="literal">+</code>) أو الطرح (<code
+            class="literal">-</code>). بالتالي ستمنح العلاقة <code
+            class="literal">u=rwx,g+rw,o-r</code> مالك الملف صلاحيات القراءة والكتابة والتنفيذ، وتضيف صلاحيتي القراءة والكتابة للمجموعة المالكة، وتزيل صلاحية القراءة من المستخدمين الآخرين. تبقى الصلاحيات الأخرى التي لا تعدل بالإضافة أو الطرح في مثل هذه الأوامر كما هي. يغطي الحرف <code
+            class="literal">a</code>، من الكلمة ”all“، فئات المستخدمين الثلاث، بالتالي تمنح العلاقة <code
+            class="literal">a=rx</code> جميع الفئات الثلاث الصلاحيات نفسها (القراءة والتنفيذ، لكن دون الكتابة).
+		</div><a
+          id="idm140225827132304"
+          class="indexterm"></a><a
+          id="idm140225827131184"
+          class="indexterm"></a><a
+          id="idm140225827130064"
+          class="indexterm"></a><a
+          id="idm140225826356032"
+          class="indexterm"></a><a
+          id="idm140225826355024"
+          class="indexterm"></a><div
+          class="para">
+			يربط التمثيل العددي (الثُماني) كل صلاحية مع رقم: 4 للقراءة، و2 للكتابة، و1 للتنفيذ. تُحدَّد كل مجموعة من الصلاحيات بمجموع الأرقام المقابلة لها. ثم تُسنَد كل قيمة لفئة مختلفة من المستخدمين بوضع هذه المجاميع جنباً إلى جنب بنفس الترتيب المعتاد لفئات المستخدمين (المالك، ثم المجموعة، ثم الآخرون).
+		</div><div
+          class="para">
+			على سبيل المثال، سوف يعطي الأمر <code
+            class="command">chmod 754 <em
+              class="replaceable">file</em></code> الصلاحيات التالية: القراءة والكتابة والتنفيذ للمالك (بما أن 7 = 4 + 2 +1)؛ القراءة والتنفيذ للمجموعة (بما أن 5 = 4 + 1)؛ والقراءة فقط للآخرين. الرقم <code
+            class="literal">0</code> يعني عدم وجود صلاحيات؛ بالتالي يسمح الأمر <code
+            class="command">chmod 600 <em
+              class="replaceable">file</em></code> للمالك بالقراءة والكتابة، ولا يمنح أي صلاحيات لأي شخص آخر. أكثر مجموعات الصلاحيات انتشاراً هي <code
+            class="literal">755</code> للملفات التنفيذية والمجلدات، و <code
+            class="literal">644</code> لملفات البيانات.
+		</div><div
+          class="para">
+			لتمثيل الصلاحيات الخاصة، يمكنك إضافة خانة رابعة قبل هذا العدد وفقاً لنفس المبدأ، حيث يقابل بت <code
+            class="literal">setuid</code> القيمة 4، وبت <code
+            class="literal">setgid</code> القيمة 2، أما البت اللاصق (<code
+            class="literal">sticky</code>) فيقابل 1. وبذلك سيضيف الأمر <code
+            class="command">chmod 4754</code> خانة <code
+            class="literal">setuid</code> إلى الصلاحيات المذكورة آنفاً.
+		</div><div
+          class="para">
+			Note that the use of octal notation only allows to set all the rights at once on a file; you cannot use it to simply add a new right, such as read access for the group owner, since you must take into account the existing rights and compute the new corresponding numerical value.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>تلميح</em></span> التطبيق التعاودي</strong></p></div></div></div><div
+            class="para">
+			نضطر أحياناً لتغيير الصلاحيات لشجرة ملفات كاملة. كل الأوامر السابقة لها خيار <code
+              dir="ltr"
+              class="literal">-R</code> حتى تعمل تعاودياً على المجلدات الفرعية.
+		</div><div
+            class="para">
+			إن الاختلاف بين الملفات والمجلدات يسبب المشاكل أحياناً مع العمليات التعاودية. لهذا أضيف الحرف ”X“ إلى التمثيل الرمزي للصلاحيات. يمثل هذا الحرف صلاحية التنفيذ التي تطبق على المجلدات فقط (وليس الملفات التي تفتقر إلى هذه الصلاحية من قبل). بالتالي، سيضيف الأمر <code
+              class="command">chmod -R a+X <em
+                class="replaceable">directory</em></code> صلاحية التنفيذ لجميع فئات المستخدمين (<code
+              class="literal">a</code>)، فقط للمجلدات الفرعية وللملفات التي تملك إحدى فئات المستخدمين على الأقل (حتى ولو كان مالكها وحده) صلاحية تنفيذها من قبل.
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>تلميح</em></span> تغيير المستخدم والمجموعة</strong></p></div></div></div><div
+            class="para">
+			Frequently you want to change the group of a file at the same time that you change the owner. The <code
+              class="command">chown</code> command has a special syntax for that: <code
+              class="command">chown <em
+                class="replaceable">user</em>:<em
+                class="replaceable">group</em> <em
+                class="replaceable">file</em></code>
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>التعمق أكثر</em></span> <code
+                      class="command">umask</code></strong></p></div></div></div><div
+            class="para">
+			عندما ينشئ أحد التطبيقات ملفاً، يخصص له صلاحيات دلالية، مع معرفة أن نظام الملفات يزيل بعض الصلاحيات تلقائياً، وهي الصلاحيات المحددة بالأمر <code
+              class="command">umask</code>. أدخِل <code
+              class="command">umask</code> في الصدفة؛ سترى قناعاً مثل <code
+              class="computeroutput">0022</code>. هذا القناع هو ببساطة تمثيل ثماني للصلاحيات التي ستزال آلياً (في هذا المثال، صلاحية الكتابة للمجموعة وللمستخدمين الآخرين).
+		</div><a
+            id="idm140225826332048"
+            class="indexterm"></a><a
+            id="idm140225826331088"
+            class="indexterm"></a><a
+            id="idm140225826329648"
+            class="indexterm"></a><div
+            class="para">
+			إذا أعطيت الأمر <code
+              class="command">umask</code> قيمة ثمانية جديدة، فسوف يعدل القناع. وإذا استخدمته في ملف تهيئة الصدفة (مثلاً، <code
+              dir="ltr"
+              class="filename">~/.bash_profile</code>)، فسوف يعدل عملياً القناع الافتراضي لجميع جلسات العمل.
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.remote-login.html"><strong>السابق</strong>9.2. تسجيل الدخول عن بعد</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.administration-interfaces.html"><strong>التالي</strong>9.4. واجهات الإدارة</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.rights-management.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.rights-management.html">da-DK</a></li><li><a
+              href="../de-DE/sect.rights-management.html">de-DE</a></li><li><a
+              href="../el-GR/sect.rights-management.html">el-GR</a></li><li><a
+              href="../en-US/sect.rights-management.html">en-US</a></li><li><a
+              href="../es-ES/sect.rights-management.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.rights-management.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.rights-management.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.rights-management.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.rights-management.html">id-ID</a></li><li><a
+              href="../it-IT/sect.rights-management.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.rights-management.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.rights-management.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.rights-management.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.rights-management.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.rights-management.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.rights-management.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.rights-management.html">zh-CN</a></li></ul></div></body></html>

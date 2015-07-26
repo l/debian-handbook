@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.3. Quality of Service</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="ネットワーク, ゲートウェイ, TCP/IP, IPv6, DNS, Bind, DHCP, QoS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="第10章 ネットワークインフラ" /><link
+        rel="prev"
+        href="sect.virtual-private-network.html"
+        title="10.2. 仮想プライベートネットワーク" /><link
+        rel="next"
+        href="sect.dynamic-routing.html"
+        title="10.4. 動的ルーティング" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.quality-of-service.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtual-private-network.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dynamic-routing.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.quality-of-service"></a>10.3. Quality of Service</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.qos-principe"></a>10.3.1. 原理とメカニズム</h3></div></div></div><div
+            class="para">
+				<span
+              class="emphasis"><em>Quality of Service (サービスの品質)</em></span> (略して <span
+              class="emphasis"><em>QoS</em></span>) はアプリケーションに提供されるサービスの品質を向上させる技術群を指します。最も人気の技術は、ネットワークトラフィックをカテゴリ分けして、トラフィックの所属するカテゴリ別にその取り扱いに違いを付ける事です。サービスを差別化するという概念の主な用途が<span
+              class="emphasis"><em>トラフィックシェーピング</em></span>です。これは一部のサービスおよびホストに関連する接続のデータの転送率を制限します。これを使うことで、利用可能な帯域幅が飽和する事を避け、重要な他のサービスに支障が出ないようにします。トラフィックシェーピングは TCP トラフィックに対して特に有効です。なぜなら、TCP は自動的に利用可能な帯域幅に適応するからです。
+			</div><a
+            id="idm140393326555280"
+            class="indexterm"></a><a
+            id="idm140393326554320"
+            class="indexterm"></a><a
+            id="idm140393326553360"
+            class="indexterm"></a><a
+            id="idm140393326551920"
+            class="indexterm"></a><div
+            class="para">
+				これを使うことで、トラフィックの優先度を変更し、対話的サービス(<code
+              class="command">ssh</code> や <code
+              class="command">telnet</code> など) や小さなブロックのデータだけを取り扱うサービスに関連するパケットに高い優先順位を付ける事が可能です。
+			</div><div
+            class="para">
+				Debian カーネルには、 QoS 関連モジュールと一緒に QoS に必要な機能が含まれています。多くのモジュールが存在し、各モジュールが異なるサービスを提供します。中でも注目すべきは IP パケットの待ち行列用の特別なスケジューラです。このスケジューラは様々な用途に利用可能なため、考え得る様々な要求に対応できます。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> LARTC - <span
+                        class="emphasis"><em>Linux Advanced Routing &amp; Traffic Control</em></span></strong></p></div></div></div><div
+              class="para">
+				<span
+                class="emphasis"><em>Linux Advanced Routing &amp; Traffic Control</em></span> HOWTO はネットワークのサービス品質に関して知っておくべきすべての内容をカバーする基礎的な文書です。<div
+                class="url">→ <a
+                  href="http://www.lartc.org/howto/">http://www.lartc.org/howto/</a></div>
+			</div><a
+              id="idm140393326544880"
+              class="indexterm"></a><a
+              id="idm140393326543440"
+              class="indexterm"></a><a
+              id="idm140393326542000"
+              class="indexterm"></a></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.qos-config"></a>10.3.2. 設定と実践</h3></div></div></div><div
+            class="para">
+				QoS パラメータは <code
+              class="command">tc</code> コマンド (<span
+              class="pkg pkg">iproute</span> パッケージの提供する) を使って設定します。このコマンドはインターフェースがかなり複雑なので、高レベルツールを使う事をおすすめします。
+			</div><a
+            id="idm140393326537680"
+            class="indexterm"></a><a
+            id="idm140393326536560"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.qos-wondershaper"></a>10.3.2.1. 待ち時間の低減: <code
+                      class="command">wondershaper</code></h4></div></div></div><div
+              class="para">
+					<code
+                class="command">wondershaper</code> (よく似た名前のパッケージに含まれます) の主目的はネットワーク負荷とは無関係に待ち時間を最小化する事です。このコマンドを使うことで、全トラフィックがある値に制限されます。この値には帯域を飽和させるよりほんの少しだけ小さな値を設定します。
+				</div><a
+              id="idm140393326532656"
+              class="indexterm"></a><a
+              id="idm140393326531536"
+              class="indexterm"></a><a
+              id="idm140393326530608"
+              class="indexterm"></a><div
+              class="para">
+					ネットワークインターフェースを設定した後、<code
+                class="command">wondershaper <em
+                  class="replaceable">interface</em> <em
+                  class="replaceable">download_rate</em> <em
+                  class="replaceable">upload_rate</em></code> を実行することでトラフィックが制限されます。インターフェースは例えば <code
+                class="literal">eth0</code> または <code
+                class="literal">ppp0</code> などで、各制限値はキロビット毎秒単位です。特定のインターフェースで実施されているトラフィック制限を無効化するには <code
+                class="command">wondershaper remove <em
+                  class="replaceable">interface</em></code> コマンドを使います。
+				</div><div
+              class="para">
+					イーサネット接続の場合、このスクリプトをインターフェースが設定された直後に呼び出すのが最良です。これを行うには、<code
+                class="filename">/etc/network/interfaces</code> ファイルに <code
+                class="literal">up</code> と <code
+                class="literal">down</code> 指示文を追加して、それぞれインターフェースが開始された後と停止される前に実行するコマンドを宣言します。例えば:
+				</div><div
+              class="example"><a
+                id="example.network-interfaces"></a><p
+                class="title"><strong>例10.9 <code
+                    class="filename">/etc/network/interfaces</code> ファイルの修正</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+iface eth0 inet dhcp
+    up /sbin/wondershaper eth0 500 100
+    down /sbin/wondershaper remove eth0</pre></div></div><div
+              class="para">
+					PPP の場合、<code
+                class="filename">/etc/ppp/ip-up.d/</code> 内に <code
+                class="command">wondershaper</code> を呼び出すスクリプトを作成することで、接続が開始された後可能な限り早い時期にトラフィック制御を行うように設定できます。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>GOING FURTHER</em></span> 最適な設定</strong></p></div></div></div><div
+                class="para">
+					<code
+                  class="filename">/usr/share/doc/wondershaper/README.Debian.gz</code> ファイルでは、パッケージメンテナの推奨する設定方法が少し詳しく説明されています。特に、ダウンロードとアップロード速度を計測する事を勧めています。実際の速度を計測することで、制限を適切に見積もる事が可能です。
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.qos-config-standard"></a>10.3.2.2. 標準的な設定</h4></div></div></div><div
+              class="para">
+					明示的に QoS 設定を行わない場合、Linux カーネルは <code
+                class="literal">pfifo_fast</code> キュースケジューラを使います。これは興味深い機能を提供します。各 IP パケットの優先度はパケットの ToS フィールド (<span
+                class="emphasis"><em>Type of Service</em></span>) によって決まります; スケジューリング機能を活用するには、このフィールドを修正するだけで十分です。ToS フィールドの取り得る値は 5 種類です:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							通常のサービス (0);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							コストの最小化 (2);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							信頼度の最大化 (4);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							速度の最大化 (8);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							遅延の最小化 (16).
+						</div></li></ul></div><a
+              id="idm140393326410000"
+              class="indexterm"></a><a
+              id="idm140393326409040"
+              class="indexterm"></a><div
+              class="para">
+					ToS フィールドは IP パケットを生成するアプリケーションによって設定されるか、<span
+                class="emphasis"><em>netfilter</em></span> によってその場で修正されます。以下のルールを使うだけで、サーバの SSH サービスに対する応答性を増加させる事が可能です:
+				</div><pre
+              class="programlisting scale">
+iptables -t mangle -A PREROUTING -p tcp --sport ssh -j TOS --set-tos Minimize-Delay
+iptables -t mangle -A PREROUTING -p tcp --dport ssh -j TOS --set-tos Minimize-Delay</pre></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtual-private-network.html"><strong>戻る</strong>10.2. 仮想プライベートネットワーク</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dynamic-routing.html"><strong>次へ</strong>10.4. 動的ルーティング</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.quality-of-service.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.quality-of-service.html">da-DK</a></li><li><a
+              href="../de-DE/sect.quality-of-service.html">de-DE</a></li><li><a
+              href="../el-GR/sect.quality-of-service.html">el-GR</a></li><li><a
+              href="../en-US/sect.quality-of-service.html">en-US</a></li><li><a
+              href="../es-ES/sect.quality-of-service.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.quality-of-service.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.quality-of-service.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.quality-of-service.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.quality-of-service.html">id-ID</a></li><li><a
+              href="../it-IT/sect.quality-of-service.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.quality-of-service.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.quality-of-service.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.quality-of-service.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.quality-of-service.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.quality-of-service.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.quality-of-service.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.quality-of-service.html">zh-CN</a></li></ul></div></body></html>

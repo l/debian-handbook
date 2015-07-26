@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. バックアップ</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="システム起動, 初期化スクリプト, SSH, Telnet, 権限, パーミッション, 管理, Inetd, Cron, バックアップ, ホットプラグ, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第9章 Unix サービス" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. クォータ" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. ホットプラグ機能: hotplug" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.backup.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. バックアップ</h2></div></div></div><div
+          class="para">
+			バックアップを取ることは管理者の主要な責任の 1 つです。しかし、これは通常極めるのが難しい強力なツールを使う複雑な問題です。
+		</div><a
+          id="idm140393307863536"
+          class="indexterm"></a><a
+          id="idm140393307862768"
+          class="indexterm"></a><div
+          class="para">
+			<code
+            class="command">amanda</code>、<code
+            class="command">bacula</code>、<code
+            class="command">BackupPC</code> 等の多くのプログラムが存在します。これらはクライアント/サーバシステムに適した多くの選択肢で、設定はかなり難しいです。幾つかは難しさを和らげるためのユーザフレンドリーなウェブインターフェースを提供しています。しかし Debian には、すべての考え得る使用事例に対応できる、他の数多くのバックアップソフトウェアが含まれています。ソフトウェアを確認するには <code
+            class="command">apt-cache search backup</code> を使ってください。
+		</div><a
+          id="idm140393307859552"
+          class="indexterm"></a><a
+          id="idm140393307858656"
+          class="indexterm"></a><a
+          id="idm140393307857760"
+          class="indexterm"></a><div
+          class="para">
+			これらのうちの幾つかを詳細に説明するのではなく、この節では、Falcot Corp 管理者がバックアップ戦略を定義する際にどのように考えたかを説明します。
+		</div><div
+          class="para">
+			Falcot Corp では、バックアップには 2 つの目標があります: 誤って削除したファイルを回復することと、ハードドライブに障害が起きた際にコンピュータ (サーバおよびデスクトップ) を素早く復元する事です。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393307855568"></a>9.10.1. <code
+                    class="command">rsync</code> を使ったバックアップ</h3></div></div></div><div
+            class="para">
+				テープへのバックアップは遅くて費用がかかりすぎるとみなされ、データは専用サーバのハードドライブにバックアップされる事になりました。専用サーバはソフトウェア RAID (<a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">「ソフトウェア RAID」</a>参照) を使ってデータをハードウェア障害から守っています。デスクトップコンピュータは個別にバックアップされませんが、ユーザは部署のファイルサーバの個人アカウントはバックアップされると忠告されています。毎日 <code
+              class="command">rsync</code> コマンド (同名のパッケージに含まれます) を使って、異なるサーバにバックアップを行います。
+			</div><a
+            id="idm140393307852688"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>BACK TO BASICS</em></span> ハードリンク、ファイルの別名</strong></p></div></div></div><a
+              id="idm140393307850896"
+              class="indexterm"></a><a
+              id="idm140393307849744"
+              class="indexterm"></a><div
+              class="para">
+				ハードリンクはシンボリックリンクと異なり、リンクされたファイルと区別する事ができません。本質的に、ハードリンクの作成は既存のファイルに別名を与えることと同義です。そのため、ハードリンクの削除はそのファイルに関連する名前を削除するに過ぎません。他の名前がまだそのファイルに関連付けられている場合、データの実体ファイルシステムから削除されません。コピーと異なり、ハードリンクはハードドライブ上に追加的な領域を必要としない点について注意することは興味深いです。
+			</div><div
+              class="para">
+				ハードリンクは <code
+                class="command">ln <em
+                  class="replaceable">target</em> <em
+                  class="replaceable">link</em></code> コマンドで作成されます。ここで <em
+                class="replaceable">link</em> ファイルは <em
+                class="replaceable">target</em> ファイルの新しい名前です。ハードリンクは <em
+                class="replaceable">target</em> と <em
+                class="replaceable">link</em> が同じファイルシステム上にあるときのみ作成可能です。対してシンボリックリンクはこの制限を受けません。
+			</div></div><div
+            class="para">
+				利用可能なハードドライブの空き領域によっては、完全な日次バックアップができない場合があります。このため、まず <code
+              class="command">rsync</code> コマンドはバックアップの内容をハードリンクで複製します。このお陰で、ハードドライブ領域を無駄に消費する事がなくなります。そして <code
+              class="command">rsync</code> プロセスは最後のバックアップ以降に変更されたファイルだけを置き換えます。このメカニズムにより、多くのバックアップを少ない領域に保存する事が可能です。すべてのバックアップは素早く利用可能でアクセス可能 (例えば、ネットワーク共有されたディレクトリの中) なので、ある日付同士の違いを素早く比較できます。
+			</div><a
+            id="idm140393307842544"
+            class="indexterm"></a><a
+            id="idm140393307841776"
+            class="indexterm"></a><a
+            id="idm140393307840624"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">dirvish</code> プログラムを使えば、このバックアップメカニズムを簡単に実現できます。<code
+              class="command">dirvish</code> プログラムはバックアップストレージ領域 (dirvish 用語で「bank」) を使い、「bank」の中に一連のバックアップファイルのタイムスタンプを付けたコピー (dirvish の文書ではこれらを「vaults」と呼びます) を置きます。
+			</div><div
+            class="para">
+				主要な設定は <code
+              class="filename">/etc/dirvish/master.conf</code> ファイルに含まれます。<code
+              class="filename">/etc/dirvish/master.conf</code> ファイルでは、バックアップストレージ領域の場所、管理する「vaults」のリスト、バックアップの保存期限のデフォルト値を定義します。残りの設定は <code
+              class="filename"><em
+                class="replaceable">bank</em>/<em
+                class="replaceable">vault</em>/dirvish/default.conf</code> ファイルの中に書き、このファイルには対応するファイルセットに対する特定の設定が含まれます。
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>例9.3 <code
+                  class="filename">/etc/dirvish/master.conf</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1</pre></div></div><div
+            class="para">
+				<code
+              class="literal">bank</code> 設定はバックアップが保存されるディレクトリを表します。<code
+              class="literal">exclude</code> 設定を使うと、バックアップからファイル (またはファイルタイプ) を除外する事が可能です。<code
+              class="literal">Runall</code> はタイムスタンプを付けてバックアップするファイルセットのリストです。これにより、万が一割り当てられた時間に正確にバックアップが実行されない場合、コピーする正確な時刻を割り当てる事が可能です。ここで指定する時刻は実際の実行時間の直前の時刻でなければいけません (<code
+              class="filename">/etc/cron.d/dirvish</code> によれば、Debian では実際の実行時間はデフォルトで午後 10:04 です)。最後に <code
+              class="literal">expire-default</code> と <code
+              class="literal">expire-rule</code> 設定でバックアップ保存期限ポリシーを定義します。上の例は、各四半期の最初の日曜日に作成されたバックアップを永久に保存し、それに当てはまらない各月の最初の日曜日作成されたバックアップを 1 年経過後に削除し、それに当てはまらない日曜日に作成されたバックアップを 3 ヶ月経過後に削除します。その他の日次バックアップは 15 日間保存されます。ルールが適用される順番が問題です。Dirvish は最後にマッチしたルールを使い、<code
+              class="literal">expire-rule</code> にマッチするものがなければ <code
+              class="literal">expire-default</code> を使います。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> 削除スケジュール</strong></p></div></div></div><div
+              class="para">
+				削除ルールは削除を担当する <code
+                class="command">dirvish-expire</code> によって使われます。実際には、新しいバックアップコピーの作成時に削除ルールが適用され、そのバックアップコピーに関連付けられた期限の切れる日が定義されます。<code
+                class="command">dirvish-expire</code> は保存されたコピーを単純に調べて、期限の過ぎているコピーを削除します。
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>例9.4 <code
+                  class="filename">/backup/root/dirvish/default.conf</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak</pre></div></div><div
+            class="para">
+				上の例は、バックアップするファイルセットを指定します: バックアップ対象は <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> マシン (ローカルデータをバックアップするには、単純に <code
+              class="command">hostname</code> の出力するローカルマシンの名前を指定します) にあり、特にルートツリーの内容 (<code
+              class="literal">tree: /</code>) から、<code
+              class="literal">exclude</code> に含まれるものを除外したファイルです。さらに、バックアップは <code
+              class="literal">tree</code> と同一のファイルシステムの内容に制限されます (<code
+              class="literal">xdev: 1</code>)。他のマウントポイントのファイルはバックアップされません。保存されたファイルのインデックスが生成され (<code
+              class="literal">index: gzip</code>)、イメージには現在の日付に関連する名前が付けられます (<code
+              class="literal">image-default: %Y%m%d</code>)。
+			</div><div
+            class="para">
+				多くのオプションがあり、すべては <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span> マニュアルページに書かれています。一度これらの設定ファイルを作ったら、<code
+              class="command">dirvish --vault <em
+                class="replaceable">vault</em> --init</code> コマンドを使って、各ファイルセットを初期化します。毎日の <code
+              class="command">dirvish-runall</code> 実行時に、期限切れになったバックアップコピーが削除され、その直後に自動的に新しいバックアップコピーが作成されます。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> SSH を使ったリモートバックアップ</strong></p></div></div></div><div
+              class="para">
+				dirvish がリモートマシンのデータをバックアップする場合、<code
+                class="command">ssh</code> を使ってリモートマシンに接続し、<code
+                class="command">rsync</code> をサーバとして開始します。この場合、root ユーザは自動的にリモートマシンに接続できなければいけません。これを実現するには、SSH 認証鍵を使ってください (<a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">「鍵認証方式」</a>参照)。
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393307813920"></a>9.10.2. バックアップ無しのマシンの復元</h3></div></div></div><div
+            class="para">
+				バックアップされていないデスクトップコンピュータに対しては <span
+              class="emphasis"><em>Simple-CDD</em></span> でカスタマイズされた DVD-ROM からシステムを再インストールするのが簡単でしょう (<a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">「Simple-CDD: 一体型の解決策」</a>参照)。インストールを最初からやり直すので、初回インストール後に行われたすべての設定は失われます。これは問題ではありません。なぜなら、アカウントについてはシステムはすべて中央 LDAP ディレクトリに接続されており、ほとんどのデスクトップアプリケーションについては dconf のお陰で事前設定されている (詳しい情報は<a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">「GNOME」</a>参照) からです。
+			</div><div
+            class="para">
+				Falcot Corp の管理者は自分達のバックアップポリシーの限界を理解しています。バックアップサーバを、テープを耐火金庫に入れるかの如く、保護する事ができないため、管理者はバックアップサーバを他のサーバと別の部屋に設置しました。そうすれば災害、例えばサーバルームの火事、が起きてもその他すべてと一緒にバックアップも破壊される事を避けられるからです。更に、管理者は 1 週間に 1 回 DVD-ROM に増分バックアップ - 最後のバックアップ以降に修正されたファイルだけのバックアップ - をとります。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> SQL と LDAP サービスのバックアップ</strong></p></div></div></div><div
+              class="para">
+				多くのサービス (SQL や LDAP データベースなど) は単純にファイルをコピーするだけではバックアップできません (それらのサービスをバックアップの作成中に適切に中断しない限りバックアップできません。サービスの中断は通常問題です。なぜなら、サービスは常に利用可能である事を意図されているからです)。そのような場合、安全にバックアップ可能な「データダンプ」を作るために「エクスポート」メカニズムを使う事が必要です。データダンプは通常サイズのとても大きいファイルですが、よく圧縮できます。要求されるストレージ領域を減らすために、完全なテキストファイルを保存するのは 1 週間に 1 回、<code
+                class="command">diff</code> を保存するのは毎日にするでしょう。差分は <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code> で生成されます。バイナリダンプから増分差分を作成するには <code
+                class="command">xdelta</code> プログラムを使ってください。
+			</div><a
+              id="idm140393307805600"
+              class="indexterm"></a><a
+              id="idm140393307804704"
+              class="indexterm"></a><a
+              id="idm140393307803808"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> <span
+                        class="emphasis"><em>TAR</em></span>、テープバックアップ用の標準規格</strong></p></div></div></div><a
+              id="idm140393307801632"
+              class="indexterm"></a><a
+              id="idm140393307800480"
+              class="indexterm"></a><a
+              id="idm140393307799712"
+              class="indexterm"></a><div
+              class="para">
+				歴史的に言って、Unix で最も簡単にバックアップを作成する手段は <span
+                class="emphasis"><em>TAR</em></span> アーカイブをテープに保存する方法でした。<code
+                class="command">tar</code> コマンドは「Tape ARchive」から命名されています。
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>戻る</strong>9.9. クォータ</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>次へ</strong>9.11. ホットプラグ機能: hotplug</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

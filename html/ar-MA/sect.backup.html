@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. النسخ الاحتياطي</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="إقلاع النظام, سكربتات Init, SSH , Telnet, حقوق, صلاحيات, إشراف, Inetd, Cron, النسخ الاحتياطي, توصيل ساخن, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="unix-services.html"
+        title="فصل 9. خدمات يونكس" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. الحصص التخزينية" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. التوصيل الساخن: hotplug" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.backup.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. النسخ الاحتياطي</h2></div></div></div><div
+          class="para">
+			النسخ الاحتياطي هو أحد المهام الرئيسية لأي مدير نظم، لكنه موضوع معقد، ويحتاج لأدوات قوية يصعب إتقانها أغلب الأحيان.
+		</div><a
+          id="idm140225823463696"
+          class="indexterm"></a><a
+          id="idm140225823462928"
+          class="indexterm"></a><div
+          class="para">
+			هناك العديد من البرامج، مثل <code
+            class="command">amanda</code>، و <code
+            class="command">bacula</code>، و <code
+            class="command">BackupPC</code>. هذه نظم مخدم/عميل تقدم خيارات عديدة، لكن إعدادها صعب نوعاً ما. توفر بعضها واجهات وب صديقة للمستخدم لتسهيل ذلك. لكن دبيان تحوي عشرات برمجيات النسخ الاحتياطي الأخرى التي تغطي جميع حالات الاستخدام الممكنة، ويمكنك التحقق من ذلك بسهولة عبر الأمر <code
+            class="command">apt-cache search backup</code>.
+		</div><a
+          id="idm140225823459776"
+          class="indexterm"></a><a
+          id="idm140225823458880"
+          class="indexterm"></a><a
+          id="idm140225823457984"
+          class="indexterm"></a><div
+          class="para">
+			بدلاً من تفصيل استخدام بعض هذه البرمجيات، سوف يستعرض هذا القسم أفكار مديري النظم في شركة فلكوت عندما حددوا استراتيجية النسخ الاحتياطي الخاصة بهم.
+		</div><div
+          class="para">
+			في شركة فلكوت، للنسخ الاحتياطي هدفان: استعادة الملفات المحذوفة خطأً، واستعادة أي حاسوب بسرعة (مكتبي أو مخدم) إذا تعطل قرصه الصلب.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225823455776"></a>9.10.1. النسخ الاحتياطي باستخدام <code
+                    class="command">rsync</code></h3></div></div></div><div
+            class="para">
+				يعتبر النسخ الاحتياطي على الشرائط المغناطيسية بطيئاً جداً ومكلفاً، لذلك ستخزن النسخ الاحتياطية من البيانات على مخدم خاص، حيث يحمي استخدام RAID برمجي (انظر <a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">قسم 12.1.1, “‏Software RAID”</a>) البيانات من أعطال الأقراص الصلبة. لن تؤخذ نسخ احتياطية عن الحواسيب المكتبية بشكل منفرد، لكن يتم إعلام المستخدمين أن حساباتهم الشخصية على مخدم الملفات في قسمهم في الشركة ستؤخذ عنها نسخ احتياطية. يُستخدَم الأمر <code
+              class="command">rsync</code> (من الحزمة ذات الاسم نفسه) يومياً لأخذ نسخ احتياطية عن هذه المخدمات المختلفة.
+			</div><a
+            id="idm140225823452752"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>أساسيات</em></span> الروابط الصلبة، أسماء أخرى للملف نفسه</strong></p></div></div></div><a
+              id="idm140225823450960"
+              class="indexterm"></a><a
+              id="idm140225823449808"
+              class="indexterm"></a><div
+              class="para">
+				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+			</div><div
+              class="para">
+				تنشئ الروابط الصلبة بالأمر <code
+                class="command">ln <em
+                  class="replaceable">target</em> <em
+                  class="replaceable">link</em></code>. عندئذ يصبح الملف <em
+                class="replaceable">link</em> اسماً جديداً للملف <em
+                class="replaceable">target</em>. يمكن إنشاء الروابط الصلبة ضمن نظام الملفات نفسه فقط، بينما لا تخضع الروابط الرمزية لهذا القيد.
+			</div></div><div
+            class="para">
+				تمنع محدودية المساحة التخزينية المتاحة على الأقراص الصلبة تطبيق نسخة احتياطية كاملة يومياً. لذلك، يُسبَقُ الأمر <code
+              class="command">rsync</code> بعملية تكرار لمحتويات النسخة الاحتياطية السابقة باستخدام روابط حقيقية تحول دون استهلاك الكثير من مساحة القرص الصلب. بعدها تستبدل عملية <code
+              class="command">rsync</code> الملفات التي طرأت عليها تعديلات منذ آخر عملية نسخ احتياطي فقط. باستخدام هذه الآلية يمكن الاحتفاظ بعدد أكبر من النسخ الاحتياطية في كمية قليلة من المساحة. بما أن جميع النسخ الاحتياطية متوفرة ومتاحة للوصول آنياً (مثلاً، في مجلدات مختلفة مشاركة على الشبكة)، يمكنك المقارنة فوراً بين تاريخين محددين.
+			</div><a
+            id="idm140225823443440"
+            class="indexterm"></a><a
+            id="idm140225823442672"
+            class="indexterm"></a><a
+            id="idm140225823441520"
+            class="indexterm"></a><div
+            class="para">
+				يمكن تطبيق آلية النسخ الاحتياطي هذه بسهولة باستخدام البرنامج <code
+              class="command">dirvish</code>. يستخدم البرنامج مساحة تخزينية للنسخ الاحتياطي (”bank“ بحسب مصطلحاته) يخزن فيها نسخاً مؤرخة من مجموعات من الملفات الاحتياطية (هذه المجموعات تدعى ”vaults“ في وثائق dirvish).
+			</div><div
+            class="para">
+				الإعدادات الرئيسية هي في الملف <code
+              dir="ltr"
+              class="filename">/etc/dirvish/master.conf</code>. تعرف هذه الإعدادات موقع المساحة التخزينية للنسخ الاحتياطي، ولائحة ال ”vaults“ التي ستتم إدارتها، والقيم الافتراضية لانتهاء صلاحية النسخ الاحتياطية. بقية الإعدادات تقع في الملفات <code
+              class="filename"><em
+                class="replaceable">bank</em>/<em
+                class="replaceable">vault</em>/dirvish/default.conf</code> وهي تحوي الإعدادات الخاصة بكل مجموعة من الملفات.
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>مثال 9.3. الملف <code
+                  dir="ltr"
+                  class="filename">/etc/dirvish/master.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1
+</pre></div></div><div
+            class="para">
+				يشير خيار <code
+              class="literal">bank</code> إلى المجلد الذي ستخزن النسخ الاحتياطية فيه. يسمح لك الخيار <code
+              class="literal">exclude</code> بتحديد الملفات (أو أنواع الملفات) التي لا تريد تضمينها في النسخ الاحتياطية. أما <code
+              class="literal">Runall</code> فهو لائحة بمجموعات الملفات التي ستنسخ احتياطياً مع تاريخ كل منها، وهذا يسمح لك بتعيين التاريخ الصحيح للنسخة، في حال لم يعمل النسخ الاحتياطي في الوقت المحدد بدقة. عليك تحديد وقت يسبق وقت التنفيذ الفعلي قليلاً (وهو، افتراضياً، 10:04 مساء في دبيان، وفقاً للملف <code
+              dir="ltr"
+              class="filename">/etc/cron.d/dirvish</code>). أخيراً، يحدد الخياران <code
+              class="literal">expire-default</code> و<code
+              class="literal">expire-rule</code> سياسة انتهاء الصلاحية للنسخ الاحتياطية. المثال السابق يبقي النسخ التي أخذت في الأحد الأول من كل ربع سنة للأبد، ويحذف النسخ المأخوذة في الأحد الأول من كل شهر بعد سنة، ويحذف النسخ المأخوذة في أيام الأحد الأخرى بعد ثلاثة أشهر. أما النسخ الاحتياطية اليومية الأخرى فيحتفظ بها لمدة 15 يوماً. ترتيب القواعد مهم جداً، لأن Dirvish يستخدم آخر قاعدة مناسبة، أو يستخدم قاعدة <code
+              class="literal">expire-default</code> إذا لم يجد أي <code
+              class="literal">expire-rule</code> مناسبة.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ممارسة عملية</em></span> انتهاء الصلاحية المُجدوَل</strong></p></div></div></div><div
+              class="para">
+				لا يستخدم <code
+                class="command">dirvish-expire</code> قواعد انتهاء الصلاحية لإتمام عمله. في الواقع، تطبق قواعد انتهاء الصلاحية عند إنشاء نسخة احتياطية جديدة لتحديد تاريخ انتهاء صلاحية تلك النسخة. حيث يطلع <code
+                class="command">dirvish-expire</code> ببساطة على النسخ المخزنة ويحذف النسخ التي انقضى تاريخ صلاحيتها.
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>مثال 9.4. الملف <code
+                  dir="ltr"
+                  class="filename">/backup/root/dirvish/default.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak
+</pre></div></div><div
+            class="para">
+				يحدد المثال أعلاه مجموعات الملفات التي يجب أخذ نسخة احتياطية عنها: وهي الملفات على الجهاز <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> (أما لأخذ نسخة احتياطية عن البيانات المحلية، فقط حدد اسم الجهاز المحلي كما هو محدد بالأمر <code
+              class="command">hostname</code>)، وبالأخص الملفات في الشجرة الجذر (<code
+              dir="ltr"
+              class="literal">tree: /</code>)؛ ما عدا تلك المذكورة في <code
+              class="literal">exclude</code>. النسخة الاحتياطية ستقتصر على محتويات نظام ملفات واحد (<code
+              dir="ltr"
+              class="literal">xdev: 1</code>)، ولن تتضمن أية ملفات من نقاط الربط الأخرى. سوف يُولَّد فهرس للملفات المحفوظة (<code
+              class="literal">index: gzip</code>)، وستسمّى الصورة تبعاً للتاريخ الحالي (<code
+              class="literal">image-default: %Y%m%d</code>).
+			</div><div
+            class="para">
+				هناك العديد من الخيارات المتوفرة، وكلها موثقة في صفحة الدليل <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span>‎. بمجرد تجهيز ملفات الضبط هذه، عليك تهيئة كل مجموعة ملفات بالأمر <code
+              class="command">dirvish --vault <em
+                class="replaceable">vault</em> --init</code>. ومن بعد ذلك سيعمل الاستدعاء اليومي للأمر <code
+              class="command">dirvish-runall</code> آلياً على إنشاء نسخة احتياطية جديدة مباشرة بعد حذف النسخ التي انتهت صلاحيتها.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ممارسة عملية</em></span> النسخ الاحتياطي البعيد عبر SSH</strong></p></div></div></div><div
+              class="para">
+				عندما يحتاج dirvish لحفظ البيانات على جهاز بعيد، سوف يستخدم <code
+                class="command">ssh</code> للاتصال به، وسوف يشغل <code
+                class="command">rsync</code> كمخدم. هذا يتطلب أن يمتلك المستخدم الجذر إمكانية الاتصال بذلك الجهاز آلياً. يسمح استخدام مفتاح للمصادقة عبر SSH بهذا الأمر بالضبط (انظر <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">قسم 9.2.1.1, “المصادقة بالمفاتيح”</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225823414144"></a>9.10.2. استعادة الأجهزة دون نسخ احتياطي</h3></div></div></div><div
+            class="para">
+				يمكن استعادة الأجهزة المكتبية، التي لا تؤخذ عنها نسخ احتياطية، بسهولة من قرص DVD-ROM مخصص تم تجهيزه باستخدام <span
+              class="emphasis"><em>Simple-CDD</em></span> (انظر <a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">قسم 12.3.3, “‏Simple-CDD: كل الحلول في حل واحد”</a>). بما أن هذه الطريقة تنفذ عملية تثبيت من الصفر، فسوف تسبب ضياع أي تخصيص تم بعد التثبيت الأولي. لا بأس بهذا بما أن جميع الأنظمة متصلة بمجلد LDAP مركزي للحسابات كما أن معظم التطبيقات المكتبية مضبوطة مسبقاً بفضل dconf (انظر <a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">قسم 13.3.1, “‏GNOME”</a> لمزيد من المعلومات عن هذا).
+			</div><div
+            class="para">
+				يدرك مديرو النظم في شركة فلكوت القصور في سياسة النسخ الاحتياطي التي اعتمدوها. فبما أنهم لا يستطيعون حماية مخدم النسخ الاحتياطي في خزانة مضادة للحرائق كما هي حال الشرائط المغناطيسية، فقد ركبوه في غرفة منفصلة بحيث لا تدمر كارثة، كحريق في غرفة المخدمات، النسخ الاحتياطية مع الأشياء الأخرى. بالإضافة لذلك، فإنهم يجرون نسخاً احتياطياً تصاعدياً (incremental) على DVD-ROM أسبوعياً — حيث تُنسَخ الملفات التي تغيرت منذ آخر عملية نسخ احتياطي فقط.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>التعمق أكثر</em></span> النسخ الاحتياطي لخدمات SQL و LDAP</strong></p></div></div></div><div
+              class="para">
+				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
+                class="command">diff</code> each day, which is created with a command of the type <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code>. The <code
+                class="command">xdelta</code> program produces incremental differences from binary dumps.
+			</div><a
+              id="idm140225823406176"
+              class="indexterm"></a><a
+              id="idm140225823405280"
+              class="indexterm"></a><a
+              id="idm140225823404384"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ثقافة</em></span> <span
+                        class="emphasis"><em>TAR</em></span>، المعيار في النسخ الاحتياطي على الشرائط</strong></p></div></div></div><a
+              id="idm140225823402112"
+              class="indexterm"></a><a
+              id="idm140225823400960"
+              class="indexterm"></a><a
+              id="idm140225823400192"
+              class="indexterm"></a><div
+              class="para">
+				تاريخياً، كانت أبسط وسيلة لأخذ النسخ الاحتياطية في يونكس هي تخزين أرشيف <span
+                class="emphasis"><em>TAR</em></span> على شريط مغنطيسي. بل إن الأمر <code
+                class="command">tar</code> قد أخذ اسمه من ”Tape ARchive“.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>السابق</strong>9.9. الحصص التخزينية</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>التالي</strong>9.11. التوصيل الساخن: hotplug</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

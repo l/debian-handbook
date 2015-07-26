@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.4. Servidor de archivos NFS</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-es-ES-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="El libro del administrador de Debian" /><link
+        rel="up"
+        href="network-services.html"
+        title="Capítulo 11. Servicios de red: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="prev"
+        href="sect.ftp-file-server.html"
+        title="11.3. Servidor de archivos FTP" /><link
+        rel="next"
+        href="sect.windows-file-server-with-samba.html"
+        title="11.5. Configuración de espacios compartidos Windows con Samba" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/es-ES/sect.nfs-file-server.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ftp-file-server.html"><strong>Anterior</strong></a></li><li
+          class="home">El libro del administrador de Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.windows-file-server-with-samba.html"><strong>Siguiente</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.nfs-file-server"></a>11.4. Servidor de archivos NFS</h2></div></div></div><div
+          class="para">
+			NFS (<span
+            class="emphasis"><em>sistema de archivos de red</em></span>: «Network File System») es un protocolo que permite acceso remoto a un sistema de archivos a través de la red. Todos los sistemas Unix pueden trabajar con este protocolo; cuando se involucran sistemas Windows, debe utilizar Samba en su lugar.
+		</div><a
+          id="idm140447101863424"
+          class="indexterm"></a><a
+          id="idm140447101862464"
+          class="indexterm"></a><a
+          id="idm140447101860704"
+          class="indexterm"></a><a
+          id="idm140447101859264"
+          class="indexterm"></a><a
+          id="idm140447101857824"
+          class="indexterm"></a><div
+          class="para">
+			NFS es una herramienta muy útil, pero debe tener en cuenta sus limitaciones especialmente en cuestiones de seguridad: todos los datos pasan a través de la red sin cifrar (un <span
+            class="emphasis"><em>sniffer</em></span> puede interceptarlos); el servidor fuerza restricciones de acceso basado en la dirección IP del cliente (que puede ser falsificada); y, finalmente, cuando se provee acceso a una máquina cliente a un espacio NFS compartido mal configurado, el usuario root del cliente puede acceder a todos los archivos en el espacio compartido (aún aquellos que pertenezcan a otros usuarios) ya que el servidor confía en el nombre de usuario que recibe del cliente (esta es una limitación histórica del protocolo).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>DOCUMENTACIÓN</em></span> «HOWTO» de NFS</strong></p></div></div></div><div
+            class="para">
+			Aunque es bastante antiguo, el «HOWTO» de NFS está repleto de información interesante, inclusive métodos para optimizar el rendimiento. También describe una forma de asegurar las transferencias NFS con un túnel SSH; sin embargo, esta técnica impide el uso de <code
+              class="command">lockd</code>. <div
+              class="url">→ <a
+                href="http://nfs.sourceforge.net/nfs-howto/">http://nfs.sourceforge.net/nfs-howto/</a></div>
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140447101851376"></a>11.4.1. Protección de NFS</h3></div></div></div><a
+            id="idm140447101850576"
+            class="indexterm"></a><div
+            class="para">
+				Debido a que NFS confía en la información que recibe de la red, es vital asegurar que sólo las máquinas que deban utilizarlo puedan conectarse a los varios servidores RPC necesarios. El firewall también debe bloquear <span
+              class="emphasis"><em>falseado de IPs</em></span> («IP spoofing») para prevenir que una máquina externa actúe como una interna y que el acceso a los puertos apropiados esté restringido a las máquinas que deban acceder a espacios compartidos por NFS.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>VOLVER A LOS CIMIENTOS</em></span> RPC</strong></p></div></div></div><div
+              class="para">
+				RPC (<span
+                class="emphasis"><em>llamada a procedimiento remoto</em></span>: «Remote Procedure Call») es un estándar Unix para servicios remotos. NFS es uno de esos servicios.
+			</div><a
+              id="idm140447101845632"
+              class="indexterm"></a><a
+              id="idm140447101844672"
+              class="indexterm"></a><div
+              class="para">
+				Los servicios RPC se registran en un directorio conocido como <span
+                class="emphasis"><em>portmapper</em></span> («asociador de puertos»). Un cliente que desee realizar una consulta NFS primero debe dirigirse al <span
+                class="emphasis"><em>portmapper</em></span> (en el puerto 111, TCP o UDP) y preguntar por el servidor NFS; la respuesta generalmente mencionará el puerto 2049 (el predeterminado para NFS). No todos los servicios RPC utilizan un puerto fijo necesariamente.
+			</div></div><div
+            class="para">
+				Para que NFS funcione de forma óptima pueden ser necesarios otros servicios RPC, incluyendo <code
+              class="command">rpc.mountd</code>, <code
+              class="command">rpc.statd</code> y <code
+              class="command">lockd</code>. Sin embargo, de forma predeterminada estos servicios utilizan un puerto aleatorio (asignado por el <span
+              class="emphasis"><em>portmapper</em></span>), lo que dificulta filtrar el tráfico a los mismos. Los administradores de Falcot Corp lograron evitar este problema de la forma descripta a continuación.
+			</div><a
+            id="idm140447101838912"
+            class="indexterm"></a><a
+            id="idm140447101837792"
+            class="indexterm"></a><a
+            id="idm140447101836672"
+            class="indexterm"></a><a
+            id="idm140447101835552"
+            class="indexterm"></a><div
+            class="para">
+				Los primeros dos servicios mencionados anteriormente son implementados por programas en espacio de usuario, iniciados respectivamente por <code
+              class="filename">/etc/init.d/nfs-kernel-server</code> y <code
+              class="filename">/etc/init.d/nfs-common</code>. Ambos proveen opciones de configuración para forzar puertos, los archivos relevantes que debe modificar para siempre utilizar estas opciones son <code
+              class="filename">/etc/default/nfs-kernel-server</code> y <code
+              class="filename">/etc/default/nfs-common</code>.
+			</div><a
+            id="idm140447101831840"
+            class="indexterm"></a><a
+            id="idm140447101830720"
+            class="indexterm"></a><a
+            id="idm140447101829632"
+            class="indexterm"></a><a
+            id="idm140447101828512"
+            class="indexterm"></a><div
+            class="example"><a
+              id="idm140447101827392"></a><p
+              class="title"><strong>Ejemplo 11.23. El archivo <code
+                  class="filename">/etc/default/nfs-kernel-server</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# Number of servers to start up
+RPCNFSDCOUNT=8
+
+# Runtime priority of server (see nice(1))
+RPCNFSDPRIORITY=0
+
+# Options for rpc.mountd.
+# If you have a port-based firewall, you might want to set up
+# a fixed port here using the --port option. For more information, 
+# see rpc.mountd(8) or http://wiki.debian.org/SecuringNFS
+# To disable NFSv4 on the server, specify '--no-nfs-version 4' here
+RPCMOUNTDOPTS="--manage-gids --port 2048"
+
+# Do you want to start the svcgssd daemon? It is only required for Kerberos
+# exports. Valid alternatives are "yes" and "no"; the default is "no".
+NEED_SVCGSSD=
+
+# Options for rpc.svcgssd.
+RPCSVCGSSDOPTS=
+</pre></div></div><div
+            class="example"><a
+              id="idm140447101825040"></a><p
+              class="title"><strong>Ejemplo 11.24. El archivo <code
+                  class="filename">/etc/default/nfs-common</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# If you do not set values for the NEED_ options, they will be attempted
+# autodetected; this should be sufficient for most people. Valid alternatives
+# for the NEED_ options are "yes" and "no".
+
+# Do you want to start the statd daemon? It is not needed for NFSv4.
+NEED_STATD=
+
+# Options for rpc.statd.
+#   Should rpc.statd listen on a specific port? This is especially useful
+#   when you have a port-based firewall. To use a fixed port, set this
+#   this variable to a statd argument like: "--port 4000 --outgoing-port 4001".
+#   For more information, see rpc.statd(8) or http://wiki.debian.org/SecuringNFS
+STATDOPTS="--port 2046 --outgoing-port 2047"
+
+# Do you want to start the idmapd daemon? It is only needed for NFSv4.
+NEED_IDMAPD=
+
+# Do you want to start the gssd daemon? It is required for Kerberos mounts.
+NEED_GSSD=
+</pre></div></div><div
+            class="para">
+				Una vez que realizó estos cambios y reinició los servicios, <code
+              class="command">rpc.mountd</code> utilizará el puerto 2048; <code
+              class="command">rpc.statd</code> escuchará en el puerto 2046 y utilizará el puerto 2047 para conexiones salientes.
+			</div><div
+            class="para">
+				El servicio <code
+              class="command">lockd</code> es gestionado por un <span
+              class="emphasis"><em>hilo</em></span> de núcleo (proceso liviano); esta funcionalidad está compilada como un módulo en los núcleos Debian. El módulo tiene dos opciones que permiten utilizar siempre el mismo puerto: <code
+              class="literal">nlm_udpport</code> y <code
+              class="literal">nlm_tcpport</code>. Para que se utilicen siempre estas opciones, debe existir un archivo <code
+              class="filename">/etc/modprobe.d/lockd</code> como el siguiente:
+			</div><div
+            class="example"><a
+              id="idm140447101817840"></a><p
+              class="title"><strong>Ejemplo 11.25. El archivo <code
+                  class="filename">/etc/modprobe.d/lockd</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+options lockd nlm_udpport=2045 nlm_tcpport=2045
+</pre></div></div><div
+            class="para">
+				Una vez que están definidos estos parámetros resulta más sencillo controlar el acceso al servicio NFS desde el firewall de una forma específica filtrando el acceso a los puertos 111 y desde el 2045 al 2049 (tanto UDP como TCP).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140447101815248"></a>11.4.2. Servidor NFS</h3></div></div></div><div
+            class="para">
+				El servidor NFS es parte del núcleo Linux; en los núcleos que Debian provee está compilado como un módulo de núcleo. Si necesita ejecutar el servidor NFS automáticamente al iniciar, debe instalar el paquete <span
+              class="pkg pkg">nfs-kernel-server</span>; contiene los scripts de inicio relevantes.
+			</div><div
+            class="para">
+				El archivo de configuración del servidor NFS, <code
+              class="filename">/etc/exports</code>, enumera los directorios que estarán disponibles en la red (<span
+              class="emphasis"><em>exportados</em></span>). Para cada espacio compartido NFS, sólo tendrán acceso las máquinas especificadas. Puede obtener un control más detallado con unas pocas opciones. La sintaxis para este archivo es bastante simple:
+			</div><a
+            id="idm140447101811360"
+            class="indexterm"></a><a
+            id="idm140447101810240"
+            class="indexterm"></a><pre
+            class="programlisting">
+/directory/to/share machine1(option1,option2,...) machine2(...) ...
+</pre><div
+            class="para">
+				Puede identificar cada máquina mediante su nombre DNS o su dirección IP. También puede especificar conjuntos completos de máquinas utilizando una sintaxis como <code
+              class="literal">*.falcot.com</code> o un rango de direcciones IP <code
+              class="literal">192.168.0.0/255.255.255.0</code> o <code
+              class="literal">192.168.0.0/24</code>.
+			</div><div
+            class="para">
+				De forma predeterminada (o si utiliza la opción <code
+              class="literal">ro</code>), los directorios están disponibles sólo para lectura. La opción <code
+              class="literal">rw</code> permite acceso de lectura y escritura. Los clientes NFS típicamente se conectan desde un puerto restringido sólo a root (en otras palabras, menor a 1024); puede eliminar esta restricción con la opción <code
+              class="literal">insecure</code> (la opción <code
+              class="literal">secure</code> es implícita, pero puede hacerla explícita para más claridad).
+			</div><a
+            id="idm140447093561248"
+            class="indexterm"></a><div
+            class="para">
+				De forma predeterminada, el servidor sólo responderá consultas NFS cuando se complete la operación actual de disco (la opción <code
+              class="literal">sync</code>); puede desactivar esto con la opción <code
+              class="literal">async</code>. Las escrituras asíncronas aumentarán un poco el rendimiento pero disminuirán la fiabilidad debido al riesgo de pérdida de datos en caso de un cierre inesperado del servidor entre que recibió el pedido de escritura y los datos sean escritos realmente en el disco. Debido a que el valor predeterminado cambió recientemente (comparado con el valor histórico de NFS), se recomienda configurarlo explícitamente.
+			</div><div
+            class="para">
+				Para no proveerle acceso de root al sistema de archivos a ningún cliente NFS, el servidor considerará todas las consultas que parezcan provenir de un usuario root como si provinieran del usuario <code
+              class="literal">nobody</code>. Este comportamiento corresponde a la opción <code
+              class="literal">root_squash</code> y está activado de forma predeterminada. La opción <code
+              class="literal">no_root_squash</code>, que desactiva este comportamiento, es riesgosa y sólo debe ser utilizada en entornos controlados. Las opciones <code
+              class="literal">anonuid=<em
+                class="replaceable">uid</em></code> y <code
+              class="literal">anongid=<em
+                class="replaceable">gid</em></code> permiten especificar otro usuario falso que será utilizado en lugar deñ UID/GID 65534 (que corresponden al usuario <code
+              class="literal">nobody</code> y al grupo <code
+              class="literal">nogroup</code>).
+			</div><div
+            class="para">
+				Existen otras opciones disponibles; están documentadas en la página de manual <span
+              class="citerefentry"><span
+                class="refentrytitle">exports</span>(5)</span>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>PRECAUCIÓN</em></span> Primera instalación</strong></p></div></div></div><div
+              class="para">
+				El script de inicio <code
+                class="filename">/etc/init.d/nfs-kernel-server</code> sólo inicia el servidor si el archivo <code
+                class="filename">/etc/exports</code> incluye al menos uno o más espacios compartidos NFS válidos. En la configuración inicial, una vez que editó este archivo para que contenga elementos válidos, deberá iniciar el servidor NFS ejecutando lo siguiente:
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>/etc/init.d/nfs-kernel-server start</code></strong></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140447093549584"></a>11.4.3. Cliente NFS</h3></div></div></div><a
+            id="idm140447093548944"
+            class="indexterm"></a><a
+            id="idm140447093547792"
+            class="indexterm"></a><div
+            class="para">
+				Como con cualquier otro sistema de archivos, incorporar un espacio compartido NFS en el jerarquía del sistema es necesario montarlo. Debido a que este sistema de archivos tiene sus peculiaridades fueron necesarios unos pocos ajustes en la sintaxis de <code
+              class="command">mount</code> y en el archivo <code
+              class="filename">/etc/fstab</code>.
+			</div><div
+            class="example"><a
+              id="idm140447093545216"></a><p
+              class="title"><strong>Ejemplo 11.26. Montaje manual con el programa <code
+                  class="command">mount</code></strong></p><div
+              class="example-contents"><pre
+                class="screen">
+<code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>mount -t nfs -o rw,nosuid arrakis.internal.falcot.com:/srv/shared /shared</code></strong></pre></div></div><div
+            class="example"><a
+              id="idm140447093543296"></a><p
+              class="title"><strong>Ejemplo 11.27. Elemento NFS en el archivo <code
+                  class="filename">/etc/fstab</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+arrakis.internal.falcot.com:/srv/shared /shared nfs rw,nosuid 0 0
+</pre></div></div><div
+            class="para">
+				El elemento descripto monta, al iniciar el sistema, el directorio NFS <code
+              class="filename">/srv/shared/</code> en el servidor <code
+              class="literal">arrakis</code> en el directorio local <code
+              class="filename">/shared/</code>. Necesita acceso de lectura y escritura (de allí el parámetro <code
+              class="literal">rw</code>). La opción <code
+              class="literal">nosuid</code> es una medida de protección que elimina cualquier bit <code
+              class="literal">setuid</code> o <code
+              class="literal">setgid</code> de los programas almacenados en el espacio compartido. Si el espacio compartido NFS está destinado sólo a almacenar documentos, también se recomienda utilizar la opción <code
+              class="literal">noexec</code> que evita la ejecución de programas almacenados en el espacio compartido.
+			</div><div
+            class="para">
+				La página de manual <span
+              class="citerefentry"><span
+                class="refentrytitle">nfs</span>(5)</span> describe todas las opciones con algo de detalle.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ftp-file-server.html"><strong>Anterior</strong>11.3. Servidor de archivos FTP</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Subir</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Inicio</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.windows-file-server-with-samba.html"><strong>Siguiente</strong>11.5. Configuración de espacios compartidos Windo...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.nfs-file-server.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.nfs-file-server.html">da-DK</a></li><li><a
+              href="../de-DE/sect.nfs-file-server.html">de-DE</a></li><li><a
+              href="../el-GR/sect.nfs-file-server.html">el-GR</a></li><li><a
+              href="../en-US/sect.nfs-file-server.html">en-US</a></li><li><a
+              href="../es-ES/sect.nfs-file-server.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.nfs-file-server.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.nfs-file-server.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.nfs-file-server.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.nfs-file-server.html">id-ID</a></li><li><a
+              href="../it-IT/sect.nfs-file-server.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.nfs-file-server.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.nfs-file-server.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.nfs-file-server.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.nfs-file-server.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.nfs-file-server.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.nfs-file-server.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.nfs-file-server.html">zh-CN</a></li></ul></div></body></html>

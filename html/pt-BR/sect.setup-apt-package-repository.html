@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.3. Criando um Repositório de Pacotes para o APT</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="Backport, Reconstruir, Pacote fonte, Arquivo, Meta-pacote, Desenvolvedor Debian, Mantenedor" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="Capítulo 15. Criando um Pacote Debian" /><link
+        rel="prev"
+        href="sect.building-first-package.html"
+        title="15.2. Construindo seu Primeiro Pacote" /><link
+        rel="next"
+        href="sect.becoming-package-maintainer.html"
+        title="15.4. Tornando-se um Mantenedor de Pacotes" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.setup-apt-package-repository.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.building-first-package.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.becoming-package-maintainer.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.setup-apt-package-repository"></a>15.3. Criando um Repositório de Pacotes para o APT</h2></div></div></div><a
+          id="idm140035048325280"
+          class="indexterm"></a><a
+          id="idm140035048324320"
+          class="indexterm"></a><div
+          class="para">
+			Falcot Corp gradualmente começou a manter alguns pacotes Debian modificados localmente a partir de pacotes existentes ou criados do zero para distribuir dados e programas internos.
+		</div><div
+          class="para">
+			Para facilitar a instalação, eles querem a integração destes pacotes em um repositório que possa ser acessado diretamente usando a ferramenta APT. Por motivos de manutenção óbvios, eles querem separar os pacotes internos dos pacotes refeitos localmente. O objetivo é ter as entradas correspondentes no arquivo <code
+            class="filename">/etc/apt/sources.list</code> como segue:
+		</div><pre
+          class="programlisting">
+deb http://packages.falcot.com/ updates/
+deb http://packages.falcot.com/ internal/
+</pre><a
+          id="idm140035048320032"
+          class="indexterm"></a><div
+          class="para">
+			The administrators therefore configure a virtual host on their internal HTTP server, with <code
+            class="filename">/srv/vhosts/packages/</code> as the root of the associated web space. The management of the archive itself is delegated to the <code
+            class="command">mini-dinstall</code> command (in the similarly-named package). This tool keeps an eye on an <code
+            class="filename">incoming/</code> directory (in our case, <code
+            class="filename">/srv/vhosts/packages/mini-dinstall/incoming/</code>) and waits for new packages there; when a package is uploaded, it is installed into a Debian archive at <code
+            class="filename">/srv/vhosts/packages/</code>. The <code
+            class="command">mini-dinstall</code> command reads the <code
+            class="filename">*.changes</code> file created when the Debian package is generated. These files contain a list of all other files associated with the version of the package (<code
+            class="filename">*.deb</code>, <code
+            class="filename">*.dsc</code>, <code
+            class="filename">*.diff.gz</code>/<code
+            class="filename">*.debian.tar.gz</code>, <code
+            class="filename">*.orig.tar.gz</code>, or their equivalents with other compression tools), and these allow <code
+            class="command">mini-dinstall</code> to know which files to install. <code
+            class="filename">*.changes</code> files also contain the name of the target distribution (often <code
+            class="literal">unstable</code>) mentioned in the latest <code
+            class="filename">debian/changelog</code> entry, and <code
+            class="command">mini-dinstall</code> uses this information to decide where the package should be installed. This is why administrators must always change this field before building a package, and set it to <code
+            class="literal">internal</code> or <code
+            class="literal">updates</code>, depending on the target location. <code
+            class="command">mini-dinstall</code> then generates the files required by APT, such as <code
+            class="filename">Packages.gz</code>.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIVA</em></span> <code
+                      class="command">apt-ftparchive</code></strong></p></div></div></div><a
+            id="idm140035048306880"
+            class="indexterm"></a><div
+            class="para">
+			Se <code
+              class="command">mini-dinstall</code> parece demasiado complexo para as suas necessidades de pacotes Debian, você também pode usar o comando <code
+              class="command">apt-ftparchive</code>. Esta ferramenta verifica o conteúdo de um diretório e exibe (em sua saída padrão) um arquivo <code
+              class="filename">Packages</code> correspondente. No caso Falcot Corp, os administradores podem carregar os pacotes diretamente em <code
+              class="filename">/srv/vhosts/packages/updates/</code> ou <code
+              class="filename">/srv/vhosts/packages/internal/</code>, em seguida, executar os seguintes comandos para criar os arquivos <code
+              class="filename">Packages.gz</code>:
+		</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd /srv/vhosts/packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-ftparchive packages updates &gt;updates/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>gzip updates/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-ftparchive packages internal &gt;internal/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>gzip internal/Packages</code></strong></pre><div
+            class="para">
+			O comando <code
+              class="command">apt-ftparchive sources</code> permite criar arquivos <code
+              class="filename">Sources.gz</code> de maneira similar.
+		</div></div><div
+          class="para">
+			Para configurar o <code
+            class="command">mini-dinstall</code> é necessário a configuração do arquivo <code
+            class="filename">~/.mini-dinstall.conf</code>; no caso da Falcot Corp, o conteúdo é o seguinte:
+		</div><pre
+          class="programlisting">
+[DEFAULT]
+archive_style = flat
+archivedir = /srv/vhosts/packages
+
+verify_sigs = 0
+mail_to = admin@falcot.com
+
+generate_release = 1
+release_origin = Falcot Corp
+release_codename = stable
+
+[updates]
+release_label = Recompiled Debian Packages
+
+[internal]
+release_label = Internal Packages
+</pre><div
+          class="para">
+			Uma decisão que merece atenção é a geração de arquivos <code
+            class="filename">Release</code> para cada arquivo. Isso pode ajudar a gerenciar as prioridades de instalação de pacotes usando o arquivo de configuração <code
+            class="filename">/etc/apt/preferences</code> (veja <a
+            class="xref"
+            href="sect.apt-get.html#sect.apt.priorities">Seção 6.2.5, “Gerenciar prioridades de pacote”</a> para detalhes).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SEGURANÇA</em></span> <code
+                      class="command">mini-dinstall</code> e permissões</strong></p></div></div></div><div
+            class="para">
+			Desde que o <code
+              class="command">mini-dinstall</code> foi concebido para ser executado como um usuário normal, não há necessidade de executá-lo como root. A maneira mais fácil é configurar tudo dentro da conta de usuário que pertence ao administrador encarregado de criar os pacotes Debian. Uma vez que apenas este administrador tem as permissões necessárias para colocar os arquivos no directório <code
+              class="filename">incoming/</code>, podemos deduzir que o administrador autenticado a origem de cada pacote antes da implantação e <code
+              class="command">mini-dinstall</code> não precisam fazê-lo novamente. Isto explica os parâmetros <code
+              class="literal">verify_sigs = 0</code> (o que significa que as assinaturas não precisam ser verificadas). No entanto, se o conteúdo dos pacotes são sensíveis, podemos inverter o cenário e eleger para autenticar com um chaveiro contendo as chaves públicas de pessoas permitido para criar pacotes (configurados com o parâmetro <code
+              class="literal">extra_keyrings</code>); <code
+              class="command">mini-dinstall</code> irá então verificar a origem de cada pacote de entrada através da análise da assinatura integrado para o arquivo <code
+              class="filename">*.changes</code>.
+		</div></div><div
+          class="para">
+			Executar <code
+            class="command">mini-dinstall</code> realmente começa um daemon em segundo plano. Enquanto este daemon é executado, ele irá verificar se há novos pacotes no diretório <code
+            class="filename">incoming/</code> a cada meia hora; quando um novo pacote chegar, ele será movido para o arquivo e os arquivos <code
+            class="filename">Packages.gz</code> e <code
+            class="filename">Sources.gz</code> serão restaurados. Se executar um daemon é um problema, <code
+            class="command">mini-dinstall</code> pode também chamar no modo batch (com a opção <code
+            class="literal">-b</code>) cada vez que um pacote for enviado para o diretorio <code
+            class="filename">incoming/</code>. Outras possibilidades oferecidas pelo <code
+            class="command">mini-dinstall</code> estão documentados na sua página do manual <span
+            class="citerefentry"><span
+              class="refentrytitle">mini-dinstall</span>(1)</span>.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>EXTRA</em></span> Gerando um arquivo assinado</strong></p></div></div></div><div
+            class="para">
+			A suíte APT verifica uma cadeia de assinaturas criptográficas sobre os pacotes que ele trata, antes de instalá-los (e tem feito isso desde o <span
+              class="distribution distribution">Etch</span>), a fim de garantir a sua autenticidade (veja <a
+              class="xref"
+              href="sect.package-authentication.html">Seção 6.5, “Verificando Autenticidade do Pacote”</a>). Arquivos APT privativos podem ser um problema, uma vez que as máquinas que os usa iram manter exibindo avisos sobre pacotes não assinados. Um administrador zeloso, portanto, integrará arquivos privados com o mecanismo APT seguro.
+		</div><div
+            class="para">
+			Para ajudar nesse processo, <code
+              class="command">mini-dinstall</code> inclui uma opção de configuração <code
+              class="literal">release_signscript</code> que permite especificar um script que será usado para gerar a assinatura. Um bom ponto de partida é o script <code
+              class="filename">sign-release.sh</code> fornecido pelo pacote <span
+              class="pkg pkg">mini-dinstall</span> em <code
+              class="filename">/usr/share/doc/mini-dinstall/examples/</code>; mudanças de localidade pode ser relevante.
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.building-first-package.html"><strong>Anterior</strong>15.2. Construindo seu Primeiro Pacote</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.becoming-package-maintainer.html"><strong>Próxima</strong>15.4. Tornando-se um Mantenedor de Pacotes</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.setup-apt-package-repository.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.setup-apt-package-repository.html">da-DK</a></li><li><a
+              href="../de-DE/sect.setup-apt-package-repository.html">de-DE</a></li><li><a
+              href="../el-GR/sect.setup-apt-package-repository.html">el-GR</a></li><li><a
+              href="../en-US/sect.setup-apt-package-repository.html">en-US</a></li><li><a
+              href="../es-ES/sect.setup-apt-package-repository.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.setup-apt-package-repository.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.setup-apt-package-repository.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.setup-apt-package-repository.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.setup-apt-package-repository.html">id-ID</a></li><li><a
+              href="../it-IT/sect.setup-apt-package-repository.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.setup-apt-package-repository.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.setup-apt-package-repository.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.setup-apt-package-repository.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.setup-apt-package-repository.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.setup-apt-package-repository.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.setup-apt-package-repository.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.setup-apt-package-repository.html">zh-CN</a></li></ul></div></body></html>

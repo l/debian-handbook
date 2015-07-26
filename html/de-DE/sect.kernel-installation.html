@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.11. Einen Kernel installieren</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Konfigurierung, Lokalisierung, Sprachumgebungen, Netzwerk, Namensauflösung, Benutzer, Gruppen, Benutzerkonten, Befehlszeileninterpreter, Shell, Drucken, Boot-Loader, Kernel-Kompilierung" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="Kapitel 8. Basis-Konfigurierung: Netzwerk, Benutzerkonten, Drucken..." /><link
+        rel="prev"
+        href="sect.kernel-compilation.html"
+        title="8.10. Einen Kernel kompilieren" /><link
+        rel="next"
+        href="unix-services.html"
+        title="Kapitel 9. Unix-Dienste" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.kernel-installation.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-compilation.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="unix-services.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.kernel-installation"></a>8.11. Einen Kernel installieren</h2></div></div></div><a
+          id="idm139686929639744"
+          class="indexterm"></a><a
+          id="idm139686929638304"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-package"></a>8.11.1. Merkmale eines Debian-Kernelpakets</h3></div></div></div><a
+            id="idm139686929635728"
+            class="indexterm"></a><div
+            class="para">
+				Ein Debian-Kernelpaket installiert das Kernelabbild (<code
+              class="filename">vmlinuz-<em
+                class="replaceable">version</em></code>), seine Konfiguration (<code
+              class="filename">config-<em
+                class="replaceable">version</em></code>) und seine Symboltabelle (<code
+              class="filename">System.map-<em
+                class="replaceable">version</em></code>) in das Verzeichnis <code
+              class="filename">/boot/</code>. Die Symboltabelle erleichtert es Entwicklern, die Bedeutung einer Fehlermeldung des Kernels zu verstehen; ohne sie besteht ein Kernel-Oops (ein „Oops“ bei einem Kernel entspricht einer Schutzverletzung bei einem Programm auf der Anwenderebene; anders gesagt, sind dies Meldungen, die nach einer ungültigen Dereferenzierung eines Zeigers ausgegeben werden) lediglich aus numerischen Speicheradressen, die als Information nutzlos sind ohne eine Tabelle, die diese Adressen Symbolen und Funktionsnamen zuordnet. Die Module werden in das Verzeichnis <code
+              class="filename">/lib/modules/<em
+                class="replaceable">version</em>/</code> installiert.
+			</div><div
+            class="para">
+				Die Konfigurierungsskripten des Pakets erstellen selbsttätig ein initrd-Abbild, ein Minisystem, das vom Boot-Loader in den Speicher geladen wird (daher sein Name, der „init ramdisk“ bedeutet) und vom Linux-Kernel ausschließlich dazu benutzt wird, die Module zu laden, die erforderlich sind, um auf die Geräte, die das vollständige Debian-System enthalten, zuzugreifen (zum Beispiel den Treiber für die IDE-Platten). Außerdem aktualisieren die Nachinstallationsskripten die symbolischen Verknüpfungen <code
+              class="filename">/vmlinuz</code>, <code
+              class="filename">/vmlinuz.old</code>, <code
+              class="filename">/initrd.img</code> und <code
+              class="filename">/initrd.img.old</code>, so dass sie auf die letzten beiden installierten Kernel und die entsprechenden initrd-Abbilder verweisen.
+			</div><div
+            class="para">
+				Die meisten der Aufgaben werden an "hook scripts" in den <code
+              class="filename">/etc/kernel/*.d/</code>-Verzeichnissen übergeben. Zum Beispiel fußt die Einbindung von <code
+              class="command">grub</code> darauf, dass <code
+              class="filename">/etc/kernel/postinst.d/zz-update-grub</code> und <code
+              class="filename">/etc/kernel/postrm.d/zz-update-grub</code> <code
+              class="command">update-grub</code> aufrufen, wenn ein Kernel installiert oder deinstalliert wird.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-installation-with-dpkg"></a>8.11.2. Mit <code
+                    class="command">dpkg</code> installieren</h3></div></div></div><div
+            class="para">
+				Using <code
+              class="command">apt-get</code> is so convenient that it makes it easy to forget about the lower-level tools, but the easiest way of installing a compiled kernel is to use a command such as <code
+              class="command">dpkg -i <em
+                class="replaceable">package</em>.deb</code>, where <code
+              class="literal"><em
+                class="replaceable">package</em>.deb</code> is the name of a <span
+              class="pkg pkg">linux-image</span> package such as <code
+              class="filename">linux-image-3.16.7-ckt4-falcot_1_amd64.deb</code>.
+			</div><div
+            class="para">
+				Die in diesem Kapitel beschriebenen Konfigurierungsschritte sind grundlegend und können sowohl zu einem Server als auch zu einem Arbeitsplatzrechner führen, und sie können in weitem Umfang auf halbautomatisierte Weise dupliziert werden. Dennoch reichen sie nicht aus, um ein vollständig konfiguriertes System bereitzustellen. Einiges bedarf einer weiteren Konfigurierung, beginnend mit den Programmen auf unterer Ebene, die als „Unix-Dienste“ bezeichnet werden.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-compilation.html"><strong>Zurück</strong>8.10. Einen Kernel kompilieren</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="unix-services.html"><strong>Weiter</strong>Kapitel 9. Unix-Dienste</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.kernel-installation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.kernel-installation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.kernel-installation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.kernel-installation.html">el-GR</a></li><li><a
+              href="../en-US/sect.kernel-installation.html">en-US</a></li><li><a
+              href="../es-ES/sect.kernel-installation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.kernel-installation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.kernel-installation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.kernel-installation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.kernel-installation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.kernel-installation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.kernel-installation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.kernel-installation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.kernel-installation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.kernel-installation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.kernel-installation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.kernel-installation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.kernel-installation.html">zh-CN</a></li></ul></div></body></html>

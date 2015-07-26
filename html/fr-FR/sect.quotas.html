@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.9. Les quotas</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Démarrage du système, Scripts d'initialisation, SSH, Telnet, Droits, Permissions, Supervision, Inetd, Cron, Sauvegarde, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Chapitre 9. Services Unix" /><link
+        rel="prev"
+        href="sect.asynchronous-task-scheduling-anacron.html"
+        title="9.8. Planification asynchrone : anacron" /><link
+        rel="next"
+        href="sect.backup.html"
+        title="9.10. Sauvegarde" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.quotas.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.backup.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.quotas"></a>9.9. Les quotas</h2></div></div></div><a
+          id="idm140565666605808"
+          class="indexterm"></a><div
+          class="para">
+			The quota system allows limiting disk space allocated to a user or group of users. To set it up, you must have a kernel that supports it (compiled with the <code
+            class="varname">CONFIG_QUOTA</code> option) — as is the case with Debian kernels. The quota management software is found in the <span
+            class="pkg pkg">quota</span> Debian package.
+		</div><div
+          class="para">
+			To activate quota in a filesystem, you have to indicate the <code
+            class="literal">usrquota</code> and <code
+            class="literal">grpquota</code> options in <code
+            class="filename">/etc/fstab</code> for the user and group quotas, respectively. Rebooting the computer will then update the quotas in the absence of disk activity (a necessary condition for proper accounting of already used disk space).
+		</div><div
+          class="para">
+			La commande <code
+            class="command">edquota <em
+              class="replaceable">utilisateur</em></code> (ou <code
+            class="command">edquota -g <em
+              class="replaceable">groupe</em></code>) permet de changer les limites tout en consultant la consommation actuelle.
+		</div><a
+          id="idm140565666599760"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Définir les quotas par script</strong></p></div></div></div><a
+            id="idm140565666597968"
+            class="indexterm"></a><div
+            class="para">
+			Le programme <code
+              class="command">setquota</code> peut être employé dans un script pour modifier automatiquement de nombreux quotas. Sa page de manuel <span
+              class="citerefentry"><span
+                class="refentrytitle">setquota</span>(8)</span> détaille la syntaxe précise à employer.
+		</div></div><div
+          class="para">
+			Le système de quotas permet de définir quatre limites :
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					Deux limites (<span
+                  class="foreignphrase"><em
+                    class="foreignphrase">soft</em></span> et <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">hard</em></span>, respectivement douce et dure) concernent le nombre de blocs consommés. Si le système de fichiers a été créé avec une taille de bloc de 1 kilo-octet, un bloc contient 1 024 octets du même fichier. Les blocs non saturés induisent donc des pertes d'espace disque. Un quota de 100 blocs, qui permet théoriquement de stocker 102 400 octets, sera pourtant saturé par 100 fichiers de 500 octets, ne représentant que 50 000 octets au total.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Deux limites (<span
+                  class="foreignphrase"><em
+                    class="foreignphrase">soft</em></span> et <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">hard</em></span>) concernent le nombre d'<span
+                  class="foreignphrase"><em
+                    class="foreignphrase">inodes</em></span> employés. Chaque fichier consomme au moins un <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">inode</em></span> pour stocker les informations le concernant (droits, propriétaires, date de dernier accès, etc.). Il s'agit donc d'une limite sur le nombre de fichiers de l'utilisateur.
+				</div></li></ul></div><div
+          class="para">
+			Une limite <span
+            class="foreignphrase"><em
+              class="foreignphrase">soft</em></span> peut être franchie temporairement ; l'utilisateur sera simplement averti de son dépassement de quota par le programme <code
+            class="command">warnquota</code>, habituellement invoqué par <code
+            class="command">cron</code>. Une limite <span
+            class="foreignphrase"><em
+              class="foreignphrase">hard</em></span> ne peut jamais être franchie : le système refusera toute opération provoquant un dépassement du quota dur.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>VOCABULAIRE</em></span> Blocs et <span
+                      class="foreignphrase"><em
+                        class="foreignphrase">inodes</em></span></strong></p></div></div></div><a
+            id="idm140565666586448"
+            class="indexterm"></a><a
+            id="idm140565666585680"
+            class="indexterm"></a><div
+            class="para">
+			Le système de fichiers découpe le disque dur en blocs, petites zones contiguës. La taille de ces blocs est déterminée lors de la création du système de fichiers et varie généralement entre 1 et 8 ko.
+		</div><div
+            class="para">
+			Un bloc peut être utilisé soit pour stocker des données réelles du fichier, soit des méta-données utilisées par le système de fichiers. Parmi ces méta-données, on trouve notamment les <span
+              class="foreignphrase"><em
+                class="foreignphrase">inodes</em></span> (terme parfois traduit par « i-nœuds » mais généralement laissé tel quel). Un inode utilise un bloc sur le disque (mais ce bloc n'est pas pris en compte dans le quota de blocs, seulement dans le quota d'inodes) et contient à la fois des informations sur le fichier qu'il concerne (nom, propriétaire, permissions etc.) et des pointeurs vers les blocs de données réellement utilisés. Pour les fichiers volumineux occupant plus de blocs qu'il n'est possible d'en référencer dans un seul inode, il y a même un système de blocs indirects : l'inode référence une liste de blocs ne contenant pas directement des données mais une autre liste de blocs.
+		</div></div><a
+          id="idm140565666582368"
+          class="indexterm"></a><div
+          class="para">
+			On peut définir, par la commande <code
+            class="command">edquota -t</code>, une « période de grâce » maximale autorisée pour un dépassement de limite <span
+            class="foreignphrase"><em
+              class="foreignphrase">soft</em></span>. Ce délai écoulé, la limite <span
+            class="foreignphrase"><em
+              class="foreignphrase">soft</em></span> se comportera comme une limite <span
+            class="foreignphrase"><em
+              class="foreignphrase">hard</em></span> et l'utilisateur devra donc repasser sous elle pour pouvoir à nouveau écrire quoi que ce soit sur le disque.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Systématiser un quota pour les nouveaux utilisateurs</strong></p></div></div></div><div
+            class="para">
+			Pour instaurer un quota systématique chez les nouveaux utilisateurs, il faut le configurer sur un utilisateur « modèle » (avec <code
+              class="command">edquota</code> ou <code
+              class="command">setquota</code>) et indiquer son nom dans la variable <code
+              class="varname">QUOTAUSER</code> du fichier <code
+              class="filename">/etc/adduser.conf</code>. Ce paramétrage sera alors automatiquement repris pour chaque nouvel utilisateur créé avec la commande <code
+              class="command">adduser</code>.
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>Précédent</strong>9.8. Planification asynchrone : anacron</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.backup.html"><strong>Suivant</strong>9.10. Sauvegarde</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.quotas.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.quotas.html">da-DK</a></li><li><a
+              href="../de-DE/sect.quotas.html">de-DE</a></li><li><a
+              href="../el-GR/sect.quotas.html">el-GR</a></li><li><a
+              href="../en-US/sect.quotas.html">en-US</a></li><li><a
+              href="../es-ES/sect.quotas.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.quotas.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.quotas.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.quotas.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.quotas.html">id-ID</a></li><li><a
+              href="../it-IT/sect.quotas.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.quotas.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.quotas.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.quotas.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.quotas.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.quotas.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.quotas.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.quotas.html">zh-CN</a></li></ul></div></body></html>

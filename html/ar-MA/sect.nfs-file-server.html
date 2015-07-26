@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.4. مخدم الملفات NFS</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="network-services.html"
+        title="فصل 11. خدمات الشبكة: Postfix،‏ Apache،‏ NFS،‏ Samba،‏ Squid،‏ LDAP" /><link
+        rel="prev"
+        href="sect.ftp-file-server.html"
+        title="11.3. مخدم الملفات FTP" /><link
+        rel="next"
+        href="sect.windows-file-server-with-samba.html"
+        title="11.5. إعداد مشاركات ويندوز باستخدام سامبا" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.nfs-file-server.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ftp-file-server.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.windows-file-server-with-samba.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.nfs-file-server"></a>11.4. مخدم الملفات NFS</h2></div></div></div><div
+          class="para">
+			NFS ‏(<span
+            class="emphasis"><em>Network File System</em></span>) هو بروتوكول يسمح بالوصول البعيد لنظم الملفات عبر الشبكة. تستطيع جميع نظم يونكس العمل مع هذا البروتوكول؛ لكن إذا دخلت نظم ويندوز على الصورة فلا بدَّ من استخدام Samba بدلاً منه.
+		</div><a
+          id="idm140225828909744"
+          class="indexterm"></a><a
+          id="idm140225828908784"
+          class="indexterm"></a><a
+          id="idm140225828907024"
+          class="indexterm"></a><a
+          id="idm140225828905584"
+          class="indexterm"></a><a
+          id="idm140225828904144"
+          class="indexterm"></a><div
+          class="para">
+			NFS أداة مفيدة جداً، لكن يجب عدم نسيان عيوبه أبداً، خصوصاً في المجالات الأمنية: حيث تنتقل جميع البيانات عبر الشبكة دون تشفير (أي تستطيع برامج التقاط الرزم <span
+            class="emphasis"><em>sniffers</em></span> اعتراضها)؛ كما يعتمد المخدم على عنوان IP للعميل عند فرض قيود الوصول (وهذا يمكن تزويره)؛ وأخيراً، عندما يمنح العميل صلاحية الوصول لمشاركة NFS إعدادها سيء، سيتمكن العميل من استخدام حساب الجذر الخاص به للوصول لجميع الملفات على المشاركة (حتى الملفات التي تنتمي للمستخدمين الآخرين) بما أن المخدم يثق باسم المستخدم الذي يتلقاه من العميل (هذا قصور تاريخي في البروتوكول).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>توثيق</em></span> NFS HOWTO</strong></p></div></div></div><div
+            class="para">
+			رغم أن وثيقة NFS HOWTO قديمة نسبياً، إلا أنها غنية بالمعلومات المهمة، منها أساليب لتحسين الأداء. كما تصف طريقة لتأمين عمليات النقل في NFS باستخدام نفق SSH؛ لكن تلك الطريقة تمنع استخدام <code
+              class="command">lockd</code>. <div
+              class="url">→ <a
+                href="http://nfs.sourceforge.net/nfs-howto/">http://nfs.sourceforge.net/nfs-howto/</a></div>
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225828897392"></a>11.4.1. تأمين NFS</h3></div></div></div><a
+            id="idm140225828896592"
+            class="indexterm"></a><div
+            class="para">
+				بما أن NFS يثق بالمعلومات التي يستقبلها من الشبكة، فلا بد أن نضمن أن الأجهزة التي يسمح لها باستخدامه وحدها فقط تستطيع الاتصال بمخدمات RPC المتنوعة التي نحتاجها. يجب أن يمنع الجدار الناري أيضاً تزوير عناوين IP ‏(<span
+              class="emphasis"><em>IP spoofing</em></span>) بحيث لا يسمح لأي جهاز خارجي أن ينتحل شخصية جهاز داخلي، ويجب حصر الوصول إلى المنافذ المناسبة بالأجهزة التي يسمح لها بالوصول لمشاركات NFS.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>أساسيات</em></span> RPC</strong></p></div></div></div><div
+              class="para">
+				RPC ‏(<span
+                class="emphasis"><em>Remote Procedure Call</em></span>، أو استدعاء الإجراءات البعيدة) هو معيار في يونكس للخدمات البعيدة. NFS هي واحدة من هذه الخدمات.
+			</div><a
+              id="idm140225828891344"
+              class="indexterm"></a><a
+              id="idm140225828890384"
+              class="indexterm"></a><div
+              class="para">
+				تُسجَّل خدمات RPC في دليل يعرف باسم <span
+                class="emphasis"><em>portmapper</em></span>. يتصل العميل الذي يرغب بإجراء طلب NFS مع <span
+                class="emphasis"><em>portmapper</em></span> أولاً (على المنفذ 111، إما TCP أو UDP)، ويسأل عن مخدم NFS؛ يتضمن الرد عادة المنفذ 2049 (منفذ NFS الافتراضي). لا يشترط أن تستخدم جميع خدمات RPC منافذ ثابتة.
+			</div></div><div
+            class="para">
+				قد يحتاج مخدم NFC لخدمات RPC أخرى ليعمل بشكل مثالي، منها <code
+              class="command">rpc.mountd</code>، و<code
+              class="command">rpc.statd</code> و<code
+              class="command">lockd</code>. لكن هذه الخدمات تستخدم منافذ عشوائية (يعينها <span
+              class="emphasis"><em>portmapper</em></span>) افتراضياً، وهذا يجعل ترشيح حركة الشبكة التي تستهدف هذه الخدمات أصعب. لقد عثر مديرو النظم في شركة فلكوت على حل للالتفاف حول هذه المشكلة، كما سنشرح فيما يلي.
+			</div><a
+            id="idm140225828884608"
+            class="indexterm"></a><a
+            id="idm140225828883488"
+            class="indexterm"></a><a
+            id="idm140225828882368"
+            class="indexterm"></a><a
+            id="idm140225828881248"
+            class="indexterm"></a><div
+            class="para">
+				الخدمتان المذكورتان أولاً أعلاه تقدمهما برامج من ساحة المستخدم، يشغلها السكربتان <code
+              dir="ltr"
+              class="filename">/etc/init.d/nfs-kernel-server</code> و<code
+              dir="ltr"
+              class="filename">/etc/init.d/nfs-common</code> على الترتيب. وهما يقدمان خيارات إعداد لتثبيت المنافذ؛ الملفان اللذان يجب تعديلها حتى تُستخدَم هذه الخيارات دوماً هما <code
+              dir="ltr"
+              class="filename">/etc/default/nfs-kernel-server</code> و<code
+              dir="ltr"
+              class="filename">/etc/default/nfs-common</code>.
+			</div><a
+            id="idm140225821938816"
+            class="indexterm"></a><a
+            id="idm140225821937920"
+            class="indexterm"></a><a
+            id="idm140225821936784"
+            class="indexterm"></a><a
+            id="idm140225821935888"
+            class="indexterm"></a><div
+            class="example"><a
+              id="idm140225821934752"></a><p
+              class="title"><strong>مثال 11.23. الملف <code
+                  dir="ltr"
+                  class="filename">/etc/default/nfs-kernel-server</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# Number of servers to start up
+RPCNFSDCOUNT=8
+
+# Runtime priority of server (see nice(1))
+RPCNFSDPRIORITY=0
+
+# Options for rpc.mountd.
+# If you have a port-based firewall, you might want to set up
+# a fixed port here using the --port option. For more information, 
+# see rpc.mountd(8) or http://wiki.debian.org/SecuringNFS
+# To disable NFSv4 on the server, specify '--no-nfs-version 4' here
+RPCMOUNTDOPTS="--manage-gids --port 2048"
+
+# Do you want to start the svcgssd daemon? It is only required for Kerberos
+# exports. Valid alternatives are "yes" and "no"; the default is "no".
+NEED_SVCGSSD=
+
+# Options for rpc.svcgssd.
+RPCSVCGSSDOPTS=
+</pre></div></div><div
+            class="example"><a
+              id="idm140225821932448"></a><p
+              class="title"><strong>مثال 11.24. الملف <code
+                  dir="ltr"
+                  class="filename">/etc/default/nfs-common</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# If you do not set values for the NEED_ options, they will be attempted
+# autodetected; this should be sufficient for most people. Valid alternatives
+# for the NEED_ options are "yes" and "no".
+
+# Do you want to start the statd daemon? It is not needed for NFSv4.
+NEED_STATD=
+
+# Options for rpc.statd.
+#   Should rpc.statd listen on a specific port? This is especially useful
+#   when you have a port-based firewall. To use a fixed port, set this
+#   this variable to a statd argument like: "--port 4000 --outgoing-port 4001".
+#   For more information, see rpc.statd(8) or http://wiki.debian.org/SecuringNFS
+STATDOPTS="--port 2046 --outgoing-port 2047"
+
+# Do you want to start the idmapd daemon? It is only needed for NFSv4.
+NEED_IDMAPD=
+
+# Do you want to start the gssd daemon? It is required for Kerberos mounts.
+NEED_GSSD=
+</pre></div></div><div
+            class="para">
+				بعد إجراء هذه التغييرات وإعادة تشغيل الخدمات، سيستخدم <code
+              class="command">rpc.mountd</code> المنفذ 2048؛ أما <code
+              class="command">rpc.statd</code> فينصت للمنفذ 2046 ويستخدم المنفذ 2047 للاتصالات الصادرة.
+			</div><div
+            class="para">
+				يتولى خيط نواة (عملية خفيفة، kernel <span
+              class="emphasis"><em>thread</em></span>) الخدمة <code
+              class="command">lockd</code>؛ هذه الميزة مبنية كوحدة في نَوَى دبيان. تملك الوحدة خيارين يسمحان باختيار المنفذ نفسه دوماً، <code
+              class="literal">nlm_udpport</code> و<code
+              class="literal">nlm_tcpport</code>. حتى تُستخدَم هذه الخيارات آلياً، يجب إضافة ملف بالاسم <code
+              dir="ltr"
+              class="filename">/etc/modprobe.d/lockd</code> يشبه التالي:
+			</div><div
+            class="example"><a
+              id="idm140225821925712"></a><p
+              class="title"><strong>مثال 11.25. الملف <code
+                  dir="ltr"
+                  class="filename">/etc/modprobe.d/lockd</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+options lockd nlm_udpport=2045 nlm_tcpport=2045
+</pre></div></div><div
+            class="para">
+				بعد ضبط هذه البارمترات، يصبح التحكم بالوصول لخدمة NFS من الجدار الناري بطريقة دقيقة أسهل عبر ترشيح الوصول للمنفذ 111 والمنافذ من 2045 حتى 2049 (على UDP أو TCP معاً).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821923248"></a>11.4.2. مخدم NFS</h3></div></div></div><div
+            class="para">
+				مخدم NFS جزء من النواة لينكس؛ وهو مبني كوحدة في النَوَى التي تقدمها دبيان. إذا كان هناك رغبة بتشغيل مخدم NFS تلقائياً عند الإقلاع، يجب تثبيت الحزمة <span
+              class="pkg pkg">nfs-kernel-server</span>؛ فهي تحوي سكربتات بدء التشغيل المناسبة.
+			</div><div
+            class="para">
+				يسرد ملف إعداد مخدم NFS، ‏<code
+              class="filename">/etc/exports</code>،المجلدات التي سيوفرها على الشبكة (المجلدات المُصدّرة <span
+              class="emphasis"><em>exported</em></span>). بالنسبة لكل مشاركة NFS، تمنح صلاحيات الوصول فقط للأجهزة المذكورة بجوارها. يمكن التحكم بالوصول بدقة أكبر باستخدام بضعة خيارات. صيغة الملف بسيطة جداً:
+			</div><a
+            id="idm140225821919760"
+            class="indexterm"></a><a
+            id="idm140225821918864"
+            class="indexterm"></a><pre
+            class="programlisting">
+/directory/to/share machine1(option1,option2,...) machine2(...) ...
+</pre><div
+            class="para">
+				يمكن التعرف على الأجهزة باسم DNS أو بعنوان IP الخاص بها. كما يمكن تحديد مجموعات من الأجهزة باستخدام صيغة مثل <code
+              dir="ltr"
+              class="literal">*.falcot.com</code> أو مجال من عناوين IP مثل <code
+              class="literal">192.168.0.0/255.255.255.0</code> أو <code
+              class="literal">192.168.0.0/24</code>.
+			</div><div
+            class="para">
+				تُصدّر المجلدات في وضع القراءة فقط افتراضياً (أو باستخدام الخيار <code
+              class="literal">ro</code>). يمنح الخيار <code
+              class="literal">rw</code> صلاحيات القراءة والكتابة. يتصل عملاء NFS نموذجياً من منفذ مخصص للمستخدم الجذر (أي أنه أقل من 1024)؛ يمكن رفع هذا القيد باستخدام الخيار <code
+              class="literal">insecure</code> (الخيار <code
+              class="literal">secure</code> ضمني، لكن يمكن كتابته صراحة للتوضيح إذا اقتضت الحاجة).
+			</div><a
+            id="idm140225821912928"
+            class="indexterm"></a><div
+            class="para">
+				افتراضياً، يجيب المخدم فقط على طلبات NFS بعد إتمام العملية على القرص (الخيار <code
+              class="literal">sync</code>)؛ لكن يمكن تعطيل هذا بالخيار <code
+              class="literal">async</code>. تزيد عمليات الكتابة غير المتزامنة الأداء قليلاً، لكنها تخفض الموثوقية بسبب احتمال خسارة البيانات إذا انهار المخدم في الفترة ما بين إرسال تأكيد الكتابة وبين إنهاء الكتابة الفعلية على القرص. بما أن القيمة الافتراضية تغيرت مؤخراً (مقارنة بالقيمة التاريخية في NFS)، يُفضّل استخدام خيار صريح.
+			</div><div
+            class="para">
+				يعتبر المخدم جميع الطلبات التي تبدو أنها واردة من المستخدم الجذر على أنها ترد من المستخدم <code
+              class="literal">nobody</code>، وذلك في سبيل عدم منح صلاحيات الجذر على نظام الملفات لأي عميل NFS. هذا السلوك يوافق الخيار <code
+              class="literal">root_squash</code>، وهو مُفعّل افتراضياً. أما الخيار <code
+              class="literal">no_root_squash</code>، الذي يُعطّل هذا السلوك، فهو خطر ويجب استخدامه فقط في البيئات المسيطر عليها. يسمح الخياران <code
+              class="literal">anonuid=<em
+                class="replaceable">uid</em></code> و<code
+              class="literal">anongid=<em
+                class="replaceable">gid</em></code> بتحديد مستخدم زائف آخر لاستخدامه بدلاً من UID/GID 65534 (التي توافق المستخدم <code
+              class="literal">nobody</code> والمجموعة <code
+              class="literal">nogroup</code>).
+			</div><div
+            class="para">
+				هناك خيارات أخرى متاحة؛ وهي موثّقة في صفحة الدليل <span
+              class="citerefentry"><span
+                class="refentrytitle">exports</span>(5)</span>‎.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> التثبيت الأول</strong></p></div></div></div><div
+              class="para">
+				يبدأ سكربت الإقلاع <code
+                dir="ltr"
+                class="filename">/etc/init.d/nfs-kernel-server</code> تشغيل المخدم فقط إذا كان الملف <code
+                dir="ltr"
+                class="filename">/etc/exports</code> يذكر مشاركة NFS صالحة واحدة أو أكثر. عند الإعداد أول مرة، يجب تشغيل مخدم NFS يدوياً بعد تحرير هذا الملف باستخدام الأمر التالي:
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>/etc/init.d/nfs-kernel-server start</code></strong></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821900336"></a>11.4.3. عميل NFS</h3></div></div></div><a
+            id="idm140225821899696"
+            class="indexterm"></a><a
+            id="idm140225821898544"
+            class="indexterm"></a><div
+            class="para">
+				كما في نظم الملفات الأخرى، يجب ربط (mount) مشاركات NFS في شجرة ملفات النظام لمدجها معها. بما أن نظام الملفات هذا له خصوصياته، فقد أضيفت بعض التعديلات على صيغة الأمر <code
+              class="command">mount</code> والملف <code
+              dir="ltr"
+              class="filename">/etc/fstab</code>.
+			</div><div
+            class="example"><a
+              id="idm140225821895696"></a><p
+              class="title"><strong>مثال 11.26. الربط اليدوي باستخدام الأمر <code
+                  class="command">mount</code></strong></p><div
+              class="example-contents"><pre
+                class="screen">
+<code
+                  class="computeroutput"># </code><strong
+                  class="userinput"><code>mount -t nfs -o rw,nosuid arrakis.internal.falcot.com:/srv/shared /shared</code></strong></pre></div></div><div
+            class="example"><a
+              id="idm140225821893776"></a><p
+              class="title"><strong>مثال 11.27. مدخلة NFS في الملف <code
+                  dir="ltr"
+                  class="filename">/etc/fstab</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+arrakis.internal.falcot.com:/srv/shared /shared nfs rw,nosuid 0 0
+</pre></div></div><div
+            class="para">
+				تعمل المدخلة المبينة أعلاه على ربط مجلد NFS ‏<code
+              class="filename">/srv/shared/</code> من المخدم <code
+              class="literal">arrakis</code> مع المجلد المحلي <code
+              class="filename">/shared/</code> عند إقلاع النظام. صلاحيات الكتابة والقراءة مطلوبة (ولذلك استخدم الخيار <code
+              class="literal">rw</code>). أما الخيار <code
+              class="literal">nosuid</code> فهو للحماية حيث يزيل بتات <code
+              class="literal">setuid</code> أو <code
+              class="literal">setgid</code> من البرامج المخزّنة على المشاركة. إذا كان القصد من مشاركة NFS تخزين المستندات فقط، فهناك خيار آخر ننصح به هو <code
+              class="literal">noexec</code>، الذي يمنع تنفيذ البرامج المُخزَّنة على المشاركة.
+			</div><div
+            class="para">
+				تشرح صفحة الدليل <span
+              class="citerefentry"><span
+                class="refentrytitle">nfs</span>(5)</span>‎ ‎جميع الخيارات بشيء من التفصيل.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ftp-file-server.html"><strong>السابق</strong>11.3. مخدم الملفات FTP</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.windows-file-server-with-samba.html"><strong>التالي</strong>11.5. إعداد مشاركات ويندوز باستخدام سامبا</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.nfs-file-server.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.nfs-file-server.html">da-DK</a></li><li><a
+              href="../de-DE/sect.nfs-file-server.html">de-DE</a></li><li><a
+              href="../el-GR/sect.nfs-file-server.html">el-GR</a></li><li><a
+              href="../en-US/sect.nfs-file-server.html">en-US</a></li><li><a
+              href="../es-ES/sect.nfs-file-server.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.nfs-file-server.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.nfs-file-server.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.nfs-file-server.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.nfs-file-server.html">id-ID</a></li><li><a
+              href="../it-IT/sect.nfs-file-server.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.nfs-file-server.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.nfs-file-server.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.nfs-file-server.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.nfs-file-server.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.nfs-file-server.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.nfs-file-server.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.nfs-file-server.html">zh-CN</a></li></ul></div></body></html>

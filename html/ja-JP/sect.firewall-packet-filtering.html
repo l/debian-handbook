@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.2. ファイヤーウォールとパケットフィルタリング</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="ファイヤーウォール, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="security.html"
+        title="第14章 セキュリティ" /><link
+        rel="prev"
+        href="security.html"
+        title="第14章 セキュリティ" /><link
+        rel="next"
+        href="sect.supervision.html"
+        title="14.3. 監督: 防止、検知、監査" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.firewall-packet-filtering.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="security.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.supervision.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.firewall-packet-filtering"></a>14.2. ファイヤーウォールとパケットフィルタリング</h2></div></div></div><a
+          id="idm140393311112672"
+          class="indexterm"></a><a
+          id="idm140393311111744"
+          class="indexterm"></a><a
+          id="idm140393311110816"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>BACK TO BASICS</em></span> ファイヤーウォール</strong></p></div></div></div><a
+            id="idm140393311108800"
+            class="indexterm"></a><div
+            class="para">
+			<span
+              class="emphasis"><em>ファイヤーウォール</em></span> はハードウェアかソフトウェアの形で提供されるコンピュータ部品の一種で、受信および送信する (ローカルネットワークに到着したり、ローカルネットワークから送信される) ネットワークパケットを仕分けて事前に定義された条件に一致するパケットだけを通過させるものです。
+		</div></div><div
+          class="para">
+			ファイヤーウォールはネットワークゲートウェイをフィルタするもので、ゲートウェイを通過しなければいけないパケットだけに有効です。それ故、ファイヤーウォールはパケットにとってファイヤーウォールが唯一の経路である場合だけに有効です。
+		</div><div
+          class="para">
+			標準的な設定が存在しないということは (そして「過程であって、成果ではない」モットーに従うということは) ややこしい初期設定の不要な解決策が存在しないという事を意味します。しかしながら、<span
+            class="emphasis"><em>netfilter</em></span> ファイヤーウォールの設定を簡単に行うためのツールが存在し、ツールはフィルタリングルールをグラフィカルに表現する機能を備えています。<code
+            class="command">fwbuilder</code> がこの種のツールの中で最良のツールであることは疑いありません。
+		</div><a
+          id="idm140393307410864"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SPECIFIC CASE</em></span> ローカルファイヤーウォール</strong></p></div></div></div><div
+            class="para">
+			ファイヤーウォールを使って (完全なネットワークとは対照的に) 特定のマシンを制限する事も可能です。この場合のファイヤーウォールの役割は、一部のサービスへのアクセスをフィルタしたり制限すること、好むと好まざるとにかかわらずユーザがインストールできる不正ソフトウェアによる外部への接続を防ぐこと、です。
+		</div></div><div
+          class="para">
+			Linux カーネルには <span
+            class="emphasis"><em>netfilter</em></span> ファイヤーウォールが組み込まれています。<code
+            class="command">iptables</code> と <code
+            class="command">ip6tables</code> コマンドを使うことで、<span
+            class="emphasis"><em>netfilter</em></span> ファイヤーウォールをユーザ空間から制御する事が可能です。<code
+            class="command">iptables</code> と <code
+            class="command">ip6tables</code> コマンドの違いは、<code
+            class="command">iptables</code> が IPv4 ネットワークを取り扱うのに対し、<code
+            class="command">ip6tables</code> は IPv6 ネットワークを取り扱うという点です。おそらく IPv4 と IPv6 のネットワークプロトコルスタックは長きに渡り共存するでしょうから、両方のツールを並行して実行する必要があります。
+		</div><a
+          id="idm140393307403216"
+          class="indexterm"></a><a
+          id="idm140393307402096"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.netfilter"></a>14.2.1. netfilter の挙動</h3></div></div></div><div
+            class="para">
+				<span
+              class="emphasis"><em>netfilter</em></span> は 4 種類の異なるテーブルを使います。テーブルには、パケットに対する 3 種類の操作を規制するためのルールを保存します:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">filter</code> はフィルタリングルール (パケットを受け入れる、拒否する、無視するなど) に関係します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">nat</code> はパケットの送信元や宛先アドレスおよびポート番号の変換に関係します; このテーブルは IPv4 だけに存在することに注意してください;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">mangle</code> は IP パケットに対するその他の変換にに関係します (ToS - <span
+                    class="emphasis"><em>Type of Service</em></span> - フィールドやオプションを含みます);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">raw</code> を使うことで、パケットが接続追跡システムに到達する前にパケットを手作業で別の変更を加える事が可能です。
+					</div></li></ul></div><div
+            class="para">
+				それぞれのテーブルには、<span
+              class="emphasis"><em>チェイン</em></span>と呼ばれるルールのリストが含まれます。ファイヤーウォールは事前に定義された状況に基いてパケットを取り扱うために標準的なチェインを使います。管理者は他のチェインを作成する事が可能です。このチェインを使うには、標準的なチェインの 1 つから (直接的か間接的かのいずれか一方の方法で) このチェインを参照します。
+			</div><a
+            id="idm140393304792224"
+            class="indexterm"></a><a
+            id="idm140393304791264"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="literal">filter</code> テーブルは 3 種類の標準的なチェインを備えています:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">INPUT</code>: 宛先がファイヤーウォール自身のパケットに関係します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OUTPUT</code>: ファイヤーウォールから送信されたパケットに関係します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">FORWARD</code>: ファイヤーウォールを通過するパケットに関係します (ファイヤーウォールはパケットの送信元でも宛先でもありません)。
+					</div></li></ul></div><div
+            class="para">
+				<code
+              class="literal">nat</code> テーブルも 3 種類のの標準的なチェインを備えています:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PREROUTING</code>: パケットの到着後すぐにパケットを修正します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">POSTROUTING</code>: パケットを宛先に送信する準備が完了した時にパケットを修正します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OUTPUT</code>: ファイヤーウォールそれ自身によって生成されたパケットを修正します。
+					</div></li></ul></div><div
+            class="figure"><a
+              id="figure.chaines-netfilter"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/netfilter.png"
+                  alt="netfilter チェインの呼び出される方法" /></div></div><p
+              class="title"><strong>図14.1 <span
+                  class="emphasis"><em>netfilter</em></span> チェインの呼び出される方法</strong></p></div><div
+            class="para">
+				各チェインはルールのリストです; 各ルールは一連の条件とその条件に一致する場合に実行される動作です。パケットを処理する場合、ファイヤーウォールは適切なチェインを 1 つづつ検査します; あるルールの条件に一致したら、処理を続けるために特定の動作に「ジャンプ」します(このためコマンドには <code
+              class="literal">-j</code> オプションが存在します)。最も一般的な挙動は標準化されており、それぞれの挙動に対する専用の動作が存在します。標準的な動作が選択されると、チェインの処理は中止されます。なぜなら、パケットの運命は既に決まっているからです (以下で言及されている除外に一致しなければ):
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>BACK TO BASICS</em></span> ICMP</strong></p></div></div></div><div
+              class="para">
+				ICMP (<span
+                class="emphasis"><em>Internet Control Message </em></span>Protocol) は通信に関する補足情報を送信するために使われるプロトコルです。<code
+                class="command">ping</code> コマンドは ICMP を使ってネットワークの接続性を検査します (<code
+                class="command">ping</code> コマンドは ICMP <span
+                class="emphasis"><em>echo request</em></span> メッセージを送信します。これに対して受信者は ICMP <span
+                class="emphasis"><em>echo reply</em></span> メッセージで応答することになっています)。ICMP を使えば、パケットがファイヤーウォールによって拒否された事を通知したり、受信バッファが溢れている事を通知したり、次回パケット以降に使えるより良い経路を提案する事が可能です。このプロトコルは幾つかの RFC 文書で定義されています; 最初の RFC777 と RFC792 はすぐに完成し、拡張されました。<div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc777.html">http://www.faqs.org/rfcs/rfc777.html</a></div><div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc792.html">http://www.faqs.org/rfcs/rfc792.html</a></div>
+			</div><div
+              class="para">
+				参考までに、受信バッファとは、データがネットワークから到着してカーネルがデータを処理するまでの間、そのデータを保存する小容量のメモリ区画です。このメモリ区画が満杯になると、新しいデータを受け取る事ができなくなり、ICMP がこの問題を通知します。そうすれば送信側はデータの転送速度を遅くする事が可能です (理想的に言えば、暫くの後に転送速度は平衡状態に達するべきです)。
+			</div><a
+              id="idm140393306631984"
+              class="indexterm"></a><a
+              id="idm140393306631024"
+              class="indexterm"></a><a
+              id="idm140393325141840"
+              class="indexterm"></a><a
+              id="idm140393325140880"
+              class="indexterm"></a><a
+              id="idm140393325139440"
+              class="indexterm"></a><div
+              class="para">
+				IPv4 ネットワークは ICMP が無くても動作しますが、IPv6 ネットワークは ICMPv6 を必須条件としています。なぜなら、ICMPv6 は IPv4 世界では ICMPv4、IGMP (<span
+                class="emphasis"><em>Internet Group Membership Protocol</em></span>)、ARP (<span
+                class="emphasis"><em>Address Resolution Protocol</em></span>) のように分散していた様々な機能をまとめているからです。ICMPv6 は RFC4443 で定義されています。<div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc4443.html">http://www.faqs.org/rfcs/rfc4443.html</a></div>
+			</div></div><div
+            class="para">
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ACCEPT</code>: 対象のパケットの通過を許可します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">REJECT</code>: 対象のパケットを拒否して ICMP エラーを返答します (<code
+                    class="command">iptables</code> の <code
+                    class="literal">--reject-with <em
+                      class="replaceable">type</em></code> オプションを使えば返答するエラーの種類を選ぶ事が可能です);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DROP</code>: 対象のパケットを削除 (無視) します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">LOG</code>: 対象のパケットと一緒にメッセージをログに記録 (<code
+                    class="command">syslogd</code> を使って) します; ログ記録が選択された場合チェインの処理は中止されない点に注意してください。チェインの実行は次のルールに進みます。このため、拒否されたパケットをログに記録するには、LOG と REJECT/DROP ルールの両方が必要です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ULOG</code>: <code
+                    class="command">ulogd</code> を介してメッセージをログに記録します。<code
+                    class="command">ulogd</code> は大量のメッセージを処理する場合に <code
+                    class="command">syslogd</code> よりも効率が良いです; LOG と同様、この場合も処理は呼び出されたチェインの次のルールに進む点に注意してください;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<em
+                    class="replaceable">chain_name</em>: 指定したチェインに飛んで、チェインのルールを評価します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RETURN</code>: 現在のチェインの処理を中止し、呼び出されたチェインに戻ります; 現在のチェインが標準的なチェインの場合、呼び出されがチェインはありませんから、代わりにデフォルトの動作 (<code
+                    class="command">iptables</code> の <code
+                    class="literal">-P</code> オプションで定義された動作) が実行されます;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SNAT</code> (<code
+                    class="literal">nat</code> テーブル、つまり <span
+                    class="distribution distribution">Wheezy</span> の IPv4 の中だけでのみ使う事が可能です - IPv6 の NAT サポートは Linux 3.7 カーネルから導入されました): <span
+                    class="emphasis"><em>Source NAT</em></span> を適用します (追加オプションを使って適用する正確な変更を設定します);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DNAT</code> (<code
+                    class="literal">nat</code> テーブル、つまり <span
+                    class="distribution distribution">Wheezy</span> の IPv4 の中だけでのみ使う事が可能です): <span
+                    class="emphasis"><em>Destination NAT</em></span> を適用します (追加オプションを使って適用する正確な変更を設定します);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MASQUERADE</code> (<code
+                    class="literal">nat</code> テーブル、つまり <span
+                    class="distribution distribution">Wheezy</span> の IPv4 の中だけでのみ使う事が可能です): <span
+                    class="emphasis"><em>マスカレード</em></span>を適用します (これは <span
+                    class="emphasis"><em>Source NAT</em></span> の特別な場合です);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">REDIRECT</code> (<code
+                    class="literal">nat</code> テーブル、つまり <span
+                    class="distribution distribution">Wheezy</span> の IPv4 の中だけでのみ使う事が可能です): ファイヤーウォールの指定したポートに対象のパケットを転送します; これを使って、クライアント側に特別な設定をせずとも動作する透過的なウェブプロキシをセットアップする事が可能です。なぜなら、クライアントは宛先に接続していると思っていても、実際の通信はプロキシを通過しているからです。
+					</div></li></ul></div><div
+            class="para">
+				その他の動作、特に <code
+              class="literal">mangle</code> テーブルに関する動作、はこの本の範囲を超えています。<span
+              class="citerefentry"><span
+                class="refentrytitle">iptables</span>(8)</span> と <span
+              class="citerefentry"><span
+                class="refentrytitle">ip6tables</span>(8)</span> には包括的なリストが含まれています。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.iptables"></a>14.2.2. <code
+                    class="command">iptables</code> と <code
+                    class="command">ip6tables</code> の構文</h3></div></div></div><div
+            class="para">
+				<code
+              class="command">iptables</code> と <code
+              class="command">ip6tables</code> コマンドを使って、テーブル、チェイン、ルールを操作する事が可能です。<code
+              class="literal">-t <em
+                class="replaceable">table</em></code> オプションで操作対象のテーブルを指定します (デフォルトの場合、<code
+              class="literal">filter</code> テーブルを操作します)。
+			</div><a
+            id="idm140393325099472"
+            class="indexterm"></a><a
+            id="idm140393325098352"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.iptables-command"></a>14.2.2.1. コマンド</h4></div></div></div><div
+              class="para">
+					<code
+                class="literal">-N <em
+                  class="replaceable">chain</em></code> オプションは新しいチェインを作成します。<code
+                class="literal">-X <em
+                  class="replaceable">chain</em></code> は空で使われていないチェインを削除します。<code
+                class="literal">-A <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">rule</em></code> はルールをチェインの最後に追加します。<code
+                class="literal">-I <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">rule_num</em> <em
+                  class="replaceable">rule</em></code> オプションは指定したルール番号 <em
+                class="replaceable">rule_num</em> の前にルールを挿入します。<code
+                class="literal">-D <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">rule_num</em></code> (または <code
+                class="literal">-D <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">rule</em></code>) オプションはチェインからルールを削除します; 初めの構文はルール番号を指定してルールを削除し、後の構文はルール内容を指定してルールを削除します。<code
+                class="literal">-F <em
+                  class="replaceable">chain</em></code> オプションはチェインをクリアします (チェインに含まれるすべてのルールを削除します); チェインを指定しなかった場合、テーブルに含まれるすべてのルールを削除します。<code
+                class="literal">-L <em
+                  class="replaceable">chain</em></code> オプションはチェインに含まれるルールを表示します。最後に、<code
+                class="literal">-P <em
+                  class="replaceable">chain</em> <em
+                  class="replaceable">action</em></code> オプションは指定したチェインのデフォルト動作、「ポリシー」、を定義します; ポリシーを設定できるのは標準的なチェインだけという点に注意してください。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.iptables-rules"></a>14.2.2.2. ルール</h4></div></div></div><a
+              id="idm140393325083248"
+              class="indexterm"></a><div
+              class="para">
+					それぞれのルールは <code
+                class="literal"><em
+                  class="replaceable">conditions</em> -j <em
+                  class="replaceable">action</em> <em
+                  class="replaceable">action_options</em></code> の形で指定します。復数の条件が同じルールとして表現された場合、復数の条件は結合 (論理 <span
+                class="emphasis"><em>and</em></span>) されます。つまり、各条件の結果を更に限定する事を意味します。
+				</div><div
+              class="para">
+					<code
+                class="literal">-p <em
+                  class="replaceable">protocol</em></code> 条件は IP パケットのプロトコルフィールドに一致します。最も普通の値は <code
+                class="literal">tcp</code>、<code
+                class="literal">udp</code>、<code
+                class="literal">icmp</code>、<code
+                class="literal">icmpv6</code> です。条件の前に感嘆符を付けることで、その条件を否定した事になります。つまり「指定したプロトコル以外のすべてのプロトコルを使ったパケット」に一致します。条件否定の方法は <code
+                class="literal">-p</code> オプションに限らず、他のすべての条件に適用する事が可能です。
+				</div><div
+              class="para">
+					<code
+                class="literal">-s <em
+                  class="replaceable">address</em></code> または <code
+                class="literal">-s <em
+                  class="replaceable">network/mask</em></code> 条件は対象のパケットの送信元アドレスに一致します。同様に、<code
+                class="literal">-d <em
+                  class="replaceable">address</em></code> または <code
+                class="literal">-d <em
+                  class="replaceable">network/mask</em></code> は宛先アドレスに一致します。
+				</div><div
+              class="para">
+					<code
+                class="literal">-i <em
+                  class="replaceable">interface</em></code> 条件は指定したネットワークインターフェースから受信したパケットを選択します。<code
+                class="literal">-o <em
+                  class="replaceable">interface</em></code> は指定したインターフェースから送信されるパケットを選択します。
+				</div><div
+              class="para">
+					上で説明した一般的な条件ごとに、条件の範囲を狭めるためのオプションが数多く存在します。例えば、<code
+                class="literal">-p tcp</code> 条件は TCP ポート番号を指定して条件範囲を狭める事が可能です。これを行うには、<code
+                class="literal">--source-port <em
+                  class="replaceable">port</em></code> と <code
+                class="literal">--destination-port <em
+                  class="replaceable">port</em></code> を使います。
+				</div><div
+              class="para">
+					<code
+                class="literal">--state <em
+                  class="replaceable">state</em></code> 条件は接続中のパケットの状態を検査します (接続追跡を行うための <code
+                class="command">ipt_conntrack</code> カーネルモジュールが必要です)。<code
+                class="literal">NEW</code> 状態は新しい接続の開始するパケットを意味します; <code
+                class="literal">ESTABLISHED</code> は既に存在する接続に関連するパケットに一致します。<code
+                class="literal">RELATED</code> は既存の接続に関連する新しい接続を開始するパケットに一致します (これは FTP プロトコルの「アクティブ」モードを使った<code
+                class="literal">ftp-data</code> 接続の際に便利です)。
+				</div><div
+              class="para">
+					前の節で利用可能な動作を説明しましたが、その動作に対するオプションを説明していませんでした。例えば、<code
+                class="literal">LOG</code> 動作は以下のオプションを持ちます:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">--log-priority</code> は記録する <code
+                      class="command">syslog</code> メッセージの優先度を指定します。デフォルトの場合 <code
+                      class="literal">warning</code> 以上の優先度を持つメッセージが記録されます;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">--log-prefix</code> はログに記録するメッセージを特徴づけるために行の先頭に付けるテキストを指定します;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">--log-tcp-sequence</code>、<code
+                      class="literal">--log-tcp-options</code>、<code
+                      class="literal">--log-ip-options</code> はログメッセージに含める追加的なデータを指定します: それぞれ TCP シーケンス番号、TCP オプション、IP オプションをログメッセージに含めます。
+						</div></li></ul></div><div
+              class="para">
+					<code
+                class="literal">DNAT</code> 動作には <code
+                class="literal">--to-destination <em
+                  class="replaceable">address</em>:<em
+                  class="replaceable">port</em></code> オプションを指定する事が可能です。これは新しい宛先 IP アドレスおよびポート番号を指定するオプションです。同様に、<code
+                class="literal">SNAT</code> には <code
+                class="literal">--to-source <em
+                  class="replaceable">address</em>:<em
+                  class="replaceable">port</em></code> を指定する事が可能です。これは新しい送信元 IP アドレスおよびポート番号を指定するオプションです。
+				</div><div
+              class="para">
+					<code
+                class="literal">REDIRECT</code> 動作には <code
+                class="literal">--to-ports <em
+                  class="replaceable">port(s)</em></code> オプションを指定する事が可能です。これはパケットの転送先ポート番号またはポート番号範囲を指定します (<code
+                class="literal">REDIRECT</code> 動作は <span
+                class="distribution distribution">Wheezy</span> 上の NAT を有効化している場合にのみ使う事が可能です。つまりこれは IPv4 だけで使える事を意味します)。
+				</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.creating-rules"></a>14.2.3. ルールの作成</h3></div></div></div><div
+            class="para">
+				1 つのルールを作成するには、<code
+              class="command">iptables</code>/<code
+              class="command">ip6tables</code> を 1 回実行する必要があります。これらのコマンドを手作業で実行することは退屈なので、通常スクリプトの形で保存しておきます。こうすることで、マシンの起動時に同じ設定を自動的に適用する事が可能です。このスクリプトは手作業で書かなければいけませんが、<code
+              class="command">fwbuilder</code> 等の高レベルツールを使ってスクリプトを準備する事も興味深いでしょう。
+			</div><div
+            class="para">
+				原理は簡単です。まず最初に、実際のルールに適用するすべての要素を宣言する必要があります:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						ネットワークインターフェースとそれを使うファイヤーウォール自身;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						対応する IP アドレス範囲とそれを使うネットワーク;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						サーバ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						サーバでホストされているサービスに対応するポート番号。
+					</div></li></ul></div><div
+            class="para">
+				オブジェクトに対する単純なドラッグアンドドロップ動作を使ってルールを作成します。一部のコンテキストメニューを使ってルールの条件を変更する (例えば条件を否定する) 事が可能です。そして、動作を選んで設定する必要があります。
+			</div><div
+            class="para">
+				IPv6 に関心があるなら、IPv4 と IPv6 で別々のルールセットを作成するか、片方だけを作成してオブジェクトに割り当てられたアドレスに応じて <code
+              class="command">fwbuilder</code> にそのルールを変換してもらうか、のどちらか一方を行う事が可能です。
+			</div><div
+            class="figure"><a
+              id="figure.fwbuilder"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/fwbuilder.png"
+                  alt="fwbuilder のメインウィンドウ" /></div></div><p
+              class="title"><strong>図14.2 fwbuilder のメインウィンドウ</strong></p></div><a
+            id="idm140393325344256"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">fwbuilder</code> は定義されたルールに従ってファイヤーウォールを設定するためのスクリプトを生成する事が可能です。モジュール式のアーキテクチャのお陰で、<code
+              class="command">fwbuilder</code> は様々なファイヤーウォールシステム (Linux の <code
+              class="command">iptables</code>、FreeBSD の <code
+              class="command">ipf</code>、OpenBSD の <code
+              class="command">pf</code>) を設定するためのスクリプトを生成する事が可能です。
+			</div><div
+            class="para">
+				<span
+              class="distribution distribution">Squeeze</span> 以降の <span
+              class="pkg pkg">fwbuilder</span> パッケージには、グラフィカルインターフェースと様々なファイヤーウォールシステム用のモジュール (以前、これらはシステム毎に復数のパッケージに分割されていました) が含まれます:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aptitude install fwbuilder</code></strong></pre></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.install-rules-at-boot"></a>14.2.4. 起動時にルールを適用する</h3></div></div></div><div
+            class="para">
+				ファイヤーウォールが断続的な PPP ネットワーク接続を保護するように設定されていた場合、スクリプトを <code
+              class="filename">/etc/ppp/ip-up.d/0iptables</code> に配置する事が最も単純な方法です (名前にドットを含まないファイルだけが考慮されます)。ファイヤーウォールは PPP 接続が確立された時点で毎回再読込されます。
+			</div><div
+            class="para">
+				別のやり方として、設定スクリプトを <code
+              class="filename">/etc/network/interfaces</code> ファイルの <code
+              class="literal">up</code> 指示文に登録する方法も推奨されます。以下の例では、設定スクリプトは <code
+              class="filename">/usr/local/etc/arrakis.fw</code> に保存されています。
+			</div><div
+            class="example"><a
+              id="example.network-interfaces-firewall"></a><p
+              class="title"><strong>例14.1 ファイヤーウォールスクリプト呼び出す <code
+                  class="filename">interfaces</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">auto eth0
+iface eth0 inet static
+    address 192.168.0.1
+    network 192.168.0.0
+    netmask 255.255.255.0
+    broadcast 192.168.0.255
+    up /usr/local/etc/arrakis.fw</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="security.html"><strong>戻る</strong>第14章 セキュリティ</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.supervision.html"><strong>次へ</strong>14.3. 監督: 防止、検知、監査</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.firewall-packet-filtering.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.firewall-packet-filtering.html">da-DK</a></li><li><a
+              href="../de-DE/sect.firewall-packet-filtering.html">de-DE</a></li><li><a
+              href="../el-GR/sect.firewall-packet-filtering.html">el-GR</a></li><li><a
+              href="../en-US/sect.firewall-packet-filtering.html">en-US</a></li><li><a
+              href="../es-ES/sect.firewall-packet-filtering.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.firewall-packet-filtering.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.firewall-packet-filtering.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.firewall-packet-filtering.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.firewall-packet-filtering.html">id-ID</a></li><li><a
+              href="../it-IT/sect.firewall-packet-filtering.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.firewall-packet-filtering.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.firewall-packet-filtering.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.firewall-packet-filtering.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.firewall-packet-filtering.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.firewall-packet-filtering.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.firewall-packet-filtering.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.firewall-packet-filtering.html">zh-CN</a></li></ul></div></body></html>

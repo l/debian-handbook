@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.3. Gestion des droits</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Démarrage du système, Scripts d'initialisation, SSH, Telnet, Droits, Permissions, Supervision, Inetd, Cron, Sauvegarde, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Chapitre 9. Services Unix" /><link
+        rel="prev"
+        href="sect.remote-login.html"
+        title="9.2. Connexion à distance" /><link
+        rel="next"
+        href="sect.administration-interfaces.html"
+        title="9.4. Interfaces d'administration" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.rights-management.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.remote-login.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.administration-interfaces.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.rights-management"></a>9.3. Gestion des droits</h2></div></div></div><div
+          class="para">
+			Linux est résolument multi-utilisateur ; il est donc nécessaire de prévoir un système de permissions contrôlant les opérations autorisées pour chacun sur les fichiers et répertoires, recouvrant toutes les ressources du système (y compris les périphériques : sur un système Unix, tout périphérique est représenté par un fichier ou répertoire). Ce principe est commun à tous les Unix mais un rappel est toujours utile, d'autant qu'il existe quelques usages avancés méconnus et relativement intéressants.
+		</div><a
+          id="idm140565684805280"
+          class="indexterm"></a><a
+          id="idm140565684804320"
+          class="indexterm"></a><a
+          id="idm140565684803360"
+          class="indexterm"></a><a
+          id="idm140565684801920"
+          class="indexterm"></a><a
+          id="idm140565684800480"
+          class="indexterm"></a><a
+          id="idm140565684700752"
+          class="indexterm"></a><div
+          class="para">
+			Chaque fichier ou répertoire dispose de permissions spécifiques pour trois catégories d'utilisateurs :
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					son propriétaire (symbolisé par <code
+                  class="literal">u</code> comme <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">user</em></span>) ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					son groupe propriétaire (symbolisé par <code
+                  class="literal">g</code> comme <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">group</em></span>) — représentant tous les utilisateurs membres du groupe ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					les autres (symbolisés par <code
+                  class="literal">o</code> comme <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">other</em></span>).
+				</div></li></ul></div><div
+          class="para">
+			Trois types de droits peuvent s'y combiner :
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					lecture (symbolisé par <code
+                  class="literal">r</code> comme <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">read</em></span>) ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					écriture (ou modification, symbolisé par <code
+                  class="literal">w</code> comme <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">write</em></span>) ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					exécution (symbolisé par <code
+                  class="literal">x</code> comme <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">eXecute</em></span>).
+				</div></li></ul></div><a
+          id="idm140565684685952"
+          class="indexterm"></a><a
+          id="idm140565684684992"
+          class="indexterm"></a><a
+          id="idm140565684684032"
+          class="indexterm"></a><a
+          id="idm140565684683072"
+          class="indexterm"></a><div
+          class="para">
+			Dans le cas d'un fichier, ces droits sont faciles à interpréter : l'accès en lecture permet d'en consulter le contenu (et notamment de le copier), l'accès en écriture de le modifier et l'accès en exécution permet de tenter de l'exécuter (ce qui ne fonctionnera que s'il s'agit d'un programme).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SÉCURITÉ</em></span> Exécutables <code
+                      class="literal">setuid</code> et <code
+                      class="literal">setgid</code></strong></p></div></div></div><div
+            class="para">
+			Deux droits particuliers concernent les fichiers exécutables : le droit <code
+              class="literal">setuid</code> et le droit <code
+              class="literal">setgid</code> (symbolisés par la lettre « s »). Remarquons qu'on parle souvent de « bit » car chacune de ces informations booléennes se représente individuellement par un 0 ou un 1. Ces deux droits permettent à n'importe quel utilisateur d'exécuter le programme en question avec respectivement les droits de son propriétaire ou de son groupe propriétaire. Ce mécanisme donne accès à des fonctionnalités requérant des droits plus élevés que ceux dont on dispose habituellement.
+		</div><a
+            id="idm140565684677536"
+            class="indexterm"></a><a
+            id="idm140565684676256"
+            class="indexterm"></a><div
+            class="para">
+			Un programme <code
+              class="literal">setuid</code> root s'exécutant systématiquement sous l'identité du super-utilisateur, il est très important d'en contrôler la fiabilité. En effet, un utilisateur capable de le détourner pour lui faire appeler une commande de son choix pourrait alors endosser l'identité de root et avoir tous les droits sur le système.
+		</div></div><div
+          class="para">
+			Un répertoire est traité différemment. L'accès en lecture donne le droit de consulter la liste de ses entrées, l'accès en écriture celui d'y créer ou supprimer des fichiers et l'accès en exécution de le traverser (et notamment de s'y rendre avec la commande <code
+            class="command">cd</code>). Pouvoir traverser un répertoire sans le lire donne le droit d'accéder à celles de ses entrées dont on connaît le nom, mais pas de les trouver si on ignore leur existence ou leur nom exact.
+		</div><div
+          class="sidebar"><a
+            id="sidebar.setgid-dir"></a><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SÉCURITÉ</em></span> Répertoire <code
+                      class="literal">setgid</code> et sticky bit</strong></p></div></div></div><a
+            id="idm140565684670192"
+            class="indexterm"></a><div
+            class="para">
+			Le bit <code
+              class="literal">setgid</code> s'applique également aux répertoires. Toutes les entrées qu'on y créera recevront alors pour groupe propriétaire celui du répertoire, au lieu de prendre comme c'est l'habitude le groupe principal de leur créateur. Cela évitera à celui-ci de changer de groupe principal (par la commande <code
+              class="command">newgrp</code>) lors d'un travail dans une arborescence partagée entre plusieurs utilisateurs d'un même groupe dédié.
+		</div><a
+            id="idm140565684667088"
+            class="indexterm"></a><div
+            class="para">
+			Le bit <code
+              class="literal">sticky</code> (symbolisé par la lettre « t ») est un droit qui n'est utile que sur les répertoires. Il est notamment employé pour les répertoires temporaires ouverts en écriture à tous (comme <code
+              class="filename">/tmp/</code>) : il n'autorise la suppression d'un fichier que par son propriétaire ou celui de son répertoire parent. En son absence, tout le monde pourrait supprimer les fichiers d'autrui dans <code
+              class="filename">/tmp/</code>.
+		</div></div><div
+          class="para">
+			Trois commandes manipulent les permissions associées à un fichier.
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chown <em
+                    class="replaceable">utilisateur</em> <em
+                    class="replaceable">fichier</em></code> affecte un nouveau propriétaire à un fichier.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chgrp <em
+                    class="replaceable">groupe</em> <em
+                    class="replaceable">fichier</em></code> opère sur son groupe propriétaire.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					<code
+                  class="command">chmod <em
+                    class="replaceable">droits</em> <em
+                    class="replaceable">fichier</em></code> intervient sur ses droits.
+				</div></li></ul></div><div
+          class="para">
+			Il existe deux manières de présenter les droits ; parmi elles, la représentation symbolique, sans doute la plus simple à comprendre et mémoriser, met en jeu les lettres symboles déjà citées. Pour chaque catégorie d'utilisateurs (<code
+            class="literal">u</code>/<code
+            class="literal">g</code>/<code
+            class="literal">o</code>), on peut définir les droits (<code
+            class="literal">=</code>), en ajouter (<code
+            class="literal">+</code>), ou en retrancher (<code
+            class="literal">-</code>). Ainsi, la formule <code
+            class="literal">u=rwx,g+rw,o-r</code> donne au propriétaire les droits de lecture, d'écriture et d'exécution ; ajoute au groupe propriétaire les droits de lecture et d'écriture ; et supprime le droit de lecture aux autres utilisateurs. Les droits non concernés par les opérations d'ajout ou de retranchement restent inchangés. La lettre <code
+            class="literal">a</code>, pour <span
+            class="foreignphrase"><em
+              class="foreignphrase">all</em></span>, recouvre les trois catégories d'utilisateurs, de sorte que <code
+            class="literal">a=rx</code> donne aux trois catégories les mêmes droits (lecture et exécution, mais pas écriture).
+		</div><a
+          id="idm140565684650096"
+          class="indexterm"></a><a
+          id="idm140565684648976"
+          class="indexterm"></a><a
+          id="idm140565684647856"
+          class="indexterm"></a><a
+          id="idm140565684646736"
+          class="indexterm"></a><a
+          id="idm140565684645808"
+          class="indexterm"></a><div
+          class="para">
+			La représentation numérique octale associe chaque droit à une valeur : 4 pour la lecture, 2 pour l'écriture et 1 pour l'exécution. On associe à chaque combinaison de droits la somme de ces chiffres, valeurs qu'on attribue ensuite aux différentes catégories d'utilisateurs en les mettant bout à bout dans l'ordre habituel (propriétaire, groupe, autres).
+		</div><div
+          class="para">
+			La commande <code
+            class="command">chmod 754 <em
+              class="replaceable">fichier</em></code> mettra donc en place les droits suivants : lecture, écriture et exécution au propriétaire (car 7 = 4 + 2 + 1) ; lecture et exécution au groupe (car 5 = 4 + 1) ; lecture seule aux autres. Le chiffre <code
+            class="literal">0</code> correspond à l'absence de droits, ainsi <code
+            class="command">chmod 600 <em
+              class="replaceable">fichier</em></code> ne donne que les droits de lecture/écriture au propriétaire, les autres ne pouvant rien faire du tout. Les droits les plus fréquents sont <code
+            class="literal">755</code> pour les exécutables ou les répertoires et <code
+            class="literal">644</code> pour les fichiers de données.
+		</div><div
+          class="para">
+			Pour représenter le cas échéant les droits spéciaux, on pourra préfixer à ce nombre un quatrième chiffre selon le même principe, sachant que les bits <code
+            class="literal">setuid</code>, <code
+            class="literal">setgid</code> et <code
+            class="literal">sticky</code> valent respectivement 4, 2 et 1. <code
+            class="command">chmod 4754</code> associera donc le bit <code
+            class="literal">setuid</code> aux droits décrits précédemment.
+		</div><div
+          class="para">
+			Note that the use of octal notation only allows to set all the rights at once on a file; you cannot use it to simply add a new right, such as read access for the group owner, since you must take into account the existing rights and compute the new corresponding numerical value.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ASTUCE</em></span> Application récursive</strong></p></div></div></div><div
+            class="para">
+			Il arrive que l'on doive changer les permissions de toute une arborescence. Toutes les commandes décrites disposent donc d'une option <code
+              class="literal">-R</code>, effectuant l'opération demandée de manière récursive.
+		</div><div
+            class="para">
+			La distinction entre répertoires et fichiers pose souvent problème lors des opérations récursives. C'est la raison de l'introduction de la lettre « X » dans la représentation symbolique des droits. Elle représente un droit d'exécution qui ne concerne que les répertoires (mais pas les fichiers ne disposant pas encore de ce droit). Ainsi, <code
+              class="command">chmod -R a+X <em
+                class="replaceable">répertoire</em></code> n'ajoutera les droits d'exécution pour toutes les catégories d'utilisateurs (<code
+              class="literal">a</code>) qu'à tous les sous-répertoires et aux fichiers sur lesquels au moins une catégorie d'utilisateurs (ne serait-ce que leur seul propriétaire) a déjà les droits d'exécution.
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ASTUCE</em></span> Changer l'utilisateur et le groupe</strong></p></div></div></div><div
+            class="para">
+			Frequently you want to change the group of a file at the same time that you change the owner. The <code
+              class="command">chown</code> command has a special syntax for that: <code
+              class="command">chown <em
+                class="replaceable">user</em>:<em
+                class="replaceable">group</em> <em
+                class="replaceable">file</em></code>
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> <code
+                      class="command">umask</code></strong></p></div></div></div><div
+            class="para">
+			Lorsqu'une application crée un fichier, elle lui donne des permissions indicatives, sachant que le système retire automatiquement certains droits, donnés par la commande <code
+              class="command">umask</code>. Saisissez <code
+              class="command">umask</code> dans un shell ; vous observerez un masque tel que <code
+              class="computeroutput">0022</code>. Ce n'est qu'une représentation octale des droits à retirer systématiquement (en l'occurrence, les droits en écriture pour le groupe et les autres utilisateurs).
+		</div><a
+            id="idm140565684623776"
+            class="indexterm"></a><a
+            id="idm140565684622656"
+            class="indexterm"></a><a
+            id="idm140565684621216"
+            class="indexterm"></a><div
+            class="para">
+			Si on lui passe une nouvelle valeur octale, la commande <code
+              class="command">umask</code> permet également de changer de masque. Employée dans un fichier d'initialisation de l'interpréteur de commande (par exemple <code
+              class="filename">~/.bash_profile</code>), elle aura pour effet de changer le masque par défaut de vos sessions de travail.
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.remote-login.html"><strong>Précédent</strong>9.2. Connexion à distance</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.administration-interfaces.html"><strong>Suivant</strong>9.4. Interfaces d'administration</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.rights-management.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.rights-management.html">da-DK</a></li><li><a
+              href="../de-DE/sect.rights-management.html">de-DE</a></li><li><a
+              href="../el-GR/sect.rights-management.html">el-GR</a></li><li><a
+              href="../en-US/sect.rights-management.html">en-US</a></li><li><a
+              href="../es-ES/sect.rights-management.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.rights-management.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.rights-management.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.rights-management.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.rights-management.html">id-ID</a></li><li><a
+              href="../it-IT/sect.rights-management.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.rights-management.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.rights-management.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.rights-management.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.rights-management.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.rights-management.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.rights-management.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.rights-management.html">zh-CN</a></li></ul></div></body></html>

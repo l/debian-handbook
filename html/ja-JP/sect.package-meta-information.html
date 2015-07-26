@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">5.2. パッケージのメタ情報</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="バイナリパッケージ, ソースパッケージ, dpkg, 依存関係, 衝突" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="packaging-system.html"
+        title="第5章 パッケージシステム: ツールと基本原則" /><link
+        rel="prev"
+        href="packaging-system.html"
+        title="第5章 パッケージシステム: ツールと基本原則" /><link
+        rel="next"
+        href="sect.source-package-structure.html"
+        title="5.3. ソースパッケージの構造" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.package-meta-information.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="packaging-system.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.source-package-structure.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.package-meta-information"></a>5.2. パッケージのメタ情報</h2></div></div></div><a
+          id="idm140393310860016"
+          class="indexterm"></a><a
+          id="idm140393310859088"
+          class="indexterm"></a><div
+          class="para">
+			Debian パッケージはインストールされるファイルのアーカイブというだけではありません。メタ情報はパッケージの一部で、他の Debian パッケージとの関係性 (依存関係、衝突、提案) を記述しています。また、メタ情報にはスクリプトも含まれています。スクリプトはパッケージライフサイクルのある時点 (インストール、削除、アップグレード) にコマンドを実行するためのものです。これらのデータはパッケージ管理ツールによって使われますが、パッケージ化されたソフトウェアの一部ではありません; これらのデータはパッケージの「メタ情報」(他の情報のデータ) と呼ばれて、パッケージに含まれています。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.control"></a>5.2.1. 説明: <code
+                    class="filename">control</code> ファイル</h3></div></div></div><a
+            id="idm140393328735568"
+            class="indexterm"></a><a
+            id="idm140393328734640"
+            class="indexterm"></a><a
+            id="idm140393328733200"
+            class="indexterm"></a><div
+            class="para">
+				このファイルは (RFC 2822 の定義する) 電子メールヘッダとよく似た構造を使っています。例えば、<span
+              class="pkg pkg">apt</span> の <code
+              class="filename">control</code> ファイルは以下の内容です:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-cache show apt</code></strong>
+<code
+              class="computeroutput">Package: apt
+Version: 1.0.9.6
+Installed-Size: 3788
+Maintainer: APT Development Team &lt;deity@lists.debian.org&gt;
+Architecture: amd64
+Replaces: manpages-it (&lt;&lt; 2.80-4~), manpages-pl (&lt;&lt; 20060617-3~), openjdk-6-jdk (&lt;&lt; 6b24-1.11-0ubuntu1~), sun-java5-jdk (&gt;&gt; 0), sun-java6-jdk (&gt;&gt; 0)
+Depends: libapt-pkg4.12 (&gt;= 1.0.9.6), libc6 (&gt;= 2.15), libgcc1 (&gt;= 1:4.1.1), libstdc++6 (&gt;= 4.9), debian-archive-keyring, gnupg
+Suggests: aptitude | synaptic | wajig, dpkg-dev (&gt;= 1.17.2), apt-doc, python-apt
+Conflicts: python-apt (&lt;&lt; 0.7.93.2~)
+Breaks: manpages-it (&lt;&lt; 2.80-4~), manpages-pl (&lt;&lt; 20060617-3~), openjdk-6-jdk (&lt;&lt; 6b24-1.11-0ubuntu1~), sun-java5-jdk (&gt;&gt; 0), sun-java6-jdk (&gt;&gt; 0)
+Description-ja: コマンドラインパッケージマネージャ
+ 本パッケージは、パッケージを検索、管理したりパッケージの情報を照会できるコ
+ マンドラインツールを提供します。libapt-pkg ライブラリの全機能に低レベルアク
+ セスできます。
+ .
+ 次のツールが含まれます。
+  * apt-get: 信頼されたソースからパッケージやパッケージの情報を取得したり、
+    パッケージとその依存関係をまとめてインストール、アップグレード、および削
+    除できます
+  * apt-cache: インストールしたパッケージやインストール可能なパッケージに関
+    して利用できる情報を検索できます
+  * apt-cdrom: リムーバブルメディアをパッケージの取得ソースとして利用できます
+  * apt-config: 構成設定へのインターフェース
+  * apt-key: 信頼できる鍵を管理するインターフェース
+Description-md5: 9fb97a88cb7383934ef963352b53b4a7
+Tag: admin::package-management, devel::lang:ruby, hardware::storage,
+ hardware::storage:cd, implemented-in::c++, implemented-in::perl,
+ implemented-in::ruby, interface::commandline, network::client,
+ protocol::ftp, protocol::http, protocol::ipv6, role::program,
+ role::shared-lib, scope::application, scope::utility, sound::player,
+ suite::debian, use::downloading, use::organizing, use::searching,
+ works-with::audio, works-with::software:package, works-with::text
+Section: admin
+Priority: important
+Filename: pool/main/a/apt/apt_1.0.9.6_amd64.deb
+Size: 1107560
+MD5sum: a325ccb14e69fef2c50da54e035a4df4
+SHA1: 635d09fcb600ec12810e3136d51e696bcfa636a6
+SHA256: 371a559ce741394b59dbc6460470a9399be5245356a9183bbeea0f89ecaabb03</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>BACK TO BASICS</em></span> RFC - インターネット標準</strong></p></div></div></div><a
+              id="idm140393328725248"
+              class="indexterm"></a><a
+              id="idm140393328724288"
+              class="indexterm"></a><div
+              class="para">
+				RFC は「Request For Comments」の略称です。RFC は一般的にインターネット標準になり得る技術の仕様を説明した技術文書です。標準化と決定の前に、これらの文書は公開レビューされます (そんなわけでこの名前が付いています)。IETF (インターネット技術タスクフォース) はこれらの文書の状態の進化 (標準化への提唱、標準化への草稿、標準) を決定します。
+			</div><div
+              class="para">
+				RFC 2026 ではインターネットプロトコル標準化の手続きが定義されています。<div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc2026.html">http://www.faqs.org/rfcs/rfc2026.html</a></div>
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328720976"></a>5.2.1.1. 依存関係: <code
+                      class="literal">Depends</code> フィールド</h4></div></div></div><a
+              id="idm140393328719696"
+              class="indexterm"></a><a
+              id="idm140393328718736"
+              class="indexterm"></a><a
+              id="idm140393328717488"
+              class="indexterm"></a><div
+              class="para">
+					依存関係はパッケージヘッダの <code
+                class="literal">Depends</code> フィールドで定義されています。依存関係はパッケージを正しく動かすために必要な条件を定義しています - <code
+                class="command">apt</code> などのツールは、この情報を使って、インストールしたいパッケージの依存関係を満たすために必要なバージョンのライブラリをインストールします。それぞれの依存パッケージについて、要求を満たすパッケージのバージョン範囲を指定する事が可能です。言い換えれば、バージョン「2.15」以上の <span
+                class="pkg pkg">libc6</span> パッケージが必要という条件を表現する(「<code
+                class="command">libc6 (&gt;= 2.15)</code>」と表記する) 事が可能です。バージョン比較演算子は次の通りです:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">&lt;&lt;</code>: より低い;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">&lt;=</code>: 以下;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">=</code>: 等しい (「<code
+                      class="literal">2.6.1</code>」は「<code
+                      class="literal">2.6.1-1</code>」と等しくありません);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">&gt;=</code>: 以上;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">&gt;&gt;</code>: より高い;
+						</div></li></ul></div><div
+              class="para">
+					満足すべき条件リストの中で使われるカンマは条件同士の区切りです。このカンマは論理「and」に解釈されます。条件リストの中で、垂直棒 (「|」) は論理「or」に解釈されます (これは「包含的論理和」で、「排他的論理和」ではありません)。or は「and」より大きな優先順位を持っており、必要に応じて何度でも使えます。このため、「(A or B) and C」は n <code
+                class="command">A | B, C</code> のように表記できます。これに対して、「A or (B and C)」は「(A or B) and (A or C)」のように表記してください。なぜなら、<code
+                class="literal">Depends</code> フィールドでは括弧を使って論理演算子「or」と「and」の優先度の順位を変える事ができないからです。このため、これは <code
+                class="command">A | B, A | C</code> のように表記できます。<div
+                class="url">→ <a
+                  href="http://www.debian.org/doc/debian-policy/ch-relationships.html">http://www.debian.org/doc/debian-policy/ch-relationships.html</a></div>
+				</div><a
+              id="idm140393328701040"
+              class="indexterm"></a><div
+              class="para">
+					依存関係システムはプログラムの動作を保証する良いメカニズムですが、「メタパッケージ」を使う手もあります。メタパッケージは依存関係を表記するだけの空のパッケージです。メタパッケージはメンテナが事前に選んだ一連のプログラムグループのインストールを楽にします; <code
+                class="command">apt-get install <em
+                  class="replaceable">meta-package</em></code> はメタパッケージが依存するすべてのプログラムを自動的にインストールします。<span
+                class="pkg pkg">gnome</span>、<span
+                class="pkg pkg">kde-full</span>、<span
+                class="pkg pkg">linux-image-amd64</span> パッケージはメタパッケージの例です。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DEBIAN POLICY</em></span> <code
+                          class="literal">Pre-Depends</code>、<code
+                          class="literal">Depends</code> よりも厳しい要求</strong></p></div></div></div><a
+                id="idm140393328694224"
+                class="indexterm"></a><a
+                id="idm140393328692976"
+                class="indexterm"></a><div
+                class="para">
+					「先行依存」はパッケージヘッダの「<code
+                  class="literal">Pre-Depends</code>」フィールドに書かれており、通常の依存関係を完全なものにします; 書式は同じです。通常の依存関係とは、インストールしたいパッケージの設定前に、依存関係にあるパッケージの解凍および設定されなければいけない事を示しています。先行依存とは、インストールしたいパッケージのインストール前スクリプトの実行前 (インストールの前) に、先行依存関係にあるパッケージの解凍および設定を行わなければいけない事を規定しています。
+				</div><div
+                class="para">
+					先行依存は <code
+                  class="command">apt</code> にとってとても重要です。なぜなら、先行依存関係はパッケージをインストールする順番を厳しく制約するからです。先行依存関係それ自体は、絶対必要でない限り勧められません。先行依存関係を追加する前に、<code
+                  class="email"><a
+                    class="email"
+                    href="mailto:debian-devel@lists.debian.org">debian-devel@lists.debian.org</a></code> の他の開発者に相談する事をお勧めします。通常、次善策として別の解決策を見つける事が可能です。
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DEBIAN POLICY</em></span> <code
+                          class="literal">Recommends</code>、<code
+                          class="literal">Suggests</code>、<code
+                          class="literal">Enhances</code> フィールド</strong></p></div></div></div><a
+                id="idm140393328685888"
+                class="indexterm"></a><a
+                id="idm140393328684640"
+                class="indexterm"></a><div
+                class="para">
+					<code
+                  class="literal">Recommends</code> と <code
+                  class="literal">Suggests</code> フィールドは必須ではない依存関係を表すためのものです。最も重要な「recommended」依存関係のパッケージは、パッケージの提供する機能を大幅に改善するけれども、動作に必要不可欠ではないパッケージです。2 番目に重要な「suggested」依存関係のパッケージは、そのユーティリティの機能を補完したり強化する可能性があり、他のパッケージではなくこのパッケージをインストールするのが極めて合理的であるようなパッケージです。
+				</div><div
+                class="para">
+					「recommended」パッケージは、それを必要としない理由を理解している場合を除いて、常にインストールされるべきです。逆に「suggested」パッケージは、それを必要とする理由を理解している場合を除いて、インストールしなくてもかまいません。
+				</div><a
+                id="idm140393328680576"
+                class="indexterm"></a><div
+                class="para">
+					<code
+                  class="literal">Enhances</code> フィールドは同様にパッケージを提案するためのものですが、使用法が少し違います。自分があるパッケージから利益を得る場合は Suggests フィールド、自分があるパッケージに利益を与える場合は Enhances フィールドを使います。Enhances フィールドの良いところは、自分を変更することなく提案を追加できる、という点です。つまり、あるプログラムのアドオン、プラグイン、機能拡張は、このソフトウェアの Enhances フィールドに載せる事が可能です。数年前から存在したにもかかわらず、Enhances フィールドはいまだに <code
+                  class="command">apt-get</code> や <code
+                  class="command">synaptic</code> など多くのプログラムから無視されています。<code
+                  class="literal">Enhances</code> フィールドの目的とは、<code
+                  class="literal">Suggests</code> フィールドによる伝統的な提案ではカバーできない提案をユーザに示す事です。
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328675328"></a>5.2.1.2. 衝突: <code
+                      class="literal">Conflicts</code> フィールド</h4></div></div></div><a
+              id="idm140393328674048"
+              class="indexterm"></a><a
+              id="idm140393328370512"
+              class="indexterm"></a><a
+              id="idm140393328369264"
+              class="indexterm"></a><div
+              class="para">
+					<code
+                class="literal">Conflicts</code> フィールドでは、同時にインストールできないパッケージを指定します。このフィールドが使われるケースで最も多いのは、両方のパッケージが同名のファイルを含む場合、同種のサービスを同じ TCP ポートで提供する場合、互いの動作を妨げる場合です。
+				</div><div
+              class="para">
+					<code
+                class="command">dpkg</code> は、あるパッケージがインストール済みのパッケージと衝突を引き起こす場合、新しいパッケージがインストール済みのパッケージを「置換」する場合 (このような場合、<code
+                class="command">dpkg</code> が古いパッケージを新パッケージで置換します) を除き、そのパッケージのインストールを拒否するでしょう。<code
+                class="command">apt-get</code> は常に、あなたの指示に従います: もしあなたが新しいパッケージをインストールしたいのなら、問題を引き起こすインストール済みパッケージを自動的にアンインストールします。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328363872"></a>5.2.1.3. 不適合性: <code
+                      class="literal">Breaks</code> フィールド</h4></div></div></div><a
+              id="idm140393328362592"
+              class="indexterm"></a><a
+              id="idm140393328361632"
+              class="indexterm"></a><a
+              id="idm140393328360384"
+              class="indexterm"></a><div
+              class="para">
+					<code
+                class="literal">Breaks</code> フィールドは <code
+                class="literal">Conflicts</code> フィールドとよく似た効果を持っていますが、特別な意味があります。このフィールドはあるパッケージをインストールすることで他のパッケージ (または他のパッケージの特定バージョン) を「破壊する」という意味があります。一般的に、このような 2 つのパッケージの不適合性は一時的なもので、<code
+                class="literal">Breaks</code> フィールドでは不適合性がある特定のバージョンだけを指定します。
+				</div><div
+              class="para">
+					<code
+                class="command">dpkg</code> はインストール済みのパッケージを破壊するようなパッケージのインストールを拒否します、<code
+                class="command">apt-get</code> は破壊されるパッケージを新しいバージョンに更新することで (新しいバージョンではこの問題が修正され、両パッケージが適合すると期待されます)、この問題の解決を試みます。
+				</div><div
+              class="para">
+					この手の状況は更新によって後方互換性が無くなる場合に起こりうるかもしれません: 新しいバージョンが古いバージョンと同時に動かない場合、特別な設定をしないと別のプログラムの機能不良が起きる場合です。<code
+                class="literal">Breaks</code> フィールドはユーザがこのような問題に遭遇する事がないようにしています。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328353376"></a>5.2.1.4. 提供されるアイテム: <code
+                      class="literal">Provides</code> フィールド</h4></div></div></div><a
+              id="idm140393328352128"
+              class="indexterm"></a><div
+              class="para">
+					このフィールドによって、とても興味深い「仮想パッケージ」の構想が生まれました。このフィールドは多くの役割を持っていますが、特に重要な 2 つを説明します。最初の役割は、仮想パッケージを使って一般的なサービスとパッケージを関連付ける (サービスを「提供する」のはパッケージです) 事を可能にする役割です。2 番目の役割は、このパッケージを他のパッケージを完全に置き換えること、このパッケージの依存関係を他のパッケージが満足するであろう依存関係を使って満足させる事を可能にする役割です。このため、同じパッケージ名を使わずに、代替パッケージを作成する事が可能です。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>VOCABULARY</em></span> メタパッケージと仮想パッケージ</strong></p></div></div></div><a
+                id="idm140393328348496"
+                class="indexterm"></a><a
+                id="idm140393328347536"
+                class="indexterm"></a><a
+                id="idm140393328346096"
+                class="indexterm"></a><div
+                class="para">
+					メタパッケージと仮想パッケージを明確に区別することは絶対不可欠です。メタパッケージは真のパッケージで (真の <code
+                  class="filename">.deb</code> ファイルを含んでいます)、その目的は依存関係を表現するだけです。
+				</div><div
+                class="para">
+					これに対して、仮想パッケージは実体がありません; 仮想パッケージの目的は、一般的で論理的な基準 (提供するサービス、一般的なプログラムまたは既存のパッケージなどとの互換性) に従って真のパッケージを選別する事です。
+				</div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140393328343120"></a>5.2.1.4.1. 「サービス」の提供</h5></div></div></div><div
+                class="para">
+						最初の場合について、例を挙げて詳細に議論しましょう: すべてのメールサーバ、例えば <span
+                  class="pkg pkg">postfix</span> や <span
+                  class="pkg pkg">sendmail</span> などは <span
+                  class="pkg pkg">mail-transport-agent</span> 仮想パッケージ「提供」するとされています。このため、動作にメールサービスを必要なパッケージ (例えば <span
+                  class="pkg pkg">smartlist</span> や <span
+                  class="pkg pkg">sympa</span> などのメーリングリストマネージャ) は、おそらくメールサービスを提供するであろうパッケージ (例えば、<code
+                  class="command">postfix | sendmail | exim4 | …</code>の ように) をたくさん依存関係に宣言するのではなく、たった 1 つ <span
+                  class="pkg pkg">mail-transport-agent</span> を宣言するだけで十分です。さらに、1 台のマシンに 2 つのメールサーバをインストールすることは無駄なため、メールサーバの機能を提供するパッケージは <span
+                  class="pkg pkg">mail-transport-agent</span> 仮想パッケージとの衝突を宣言します。あるパッケージとそれ自身との衝突はシステムによって無視されます。この手法により、2 つのメールサーバを同時にインストールできなくなります。
+					</div><div
+                class="sidebar"><div
+                  class="titlepage"><div><div><p
+                        class="title"><strong><span
+                            class="emphasis"><em>DEBIAN POLICY</em></span> 仮想パッケージのリスト</strong></p></div></div></div><a
+                  id="idm140393328334848"
+                  class="indexterm"></a><div
+                  class="para">
+						仮想パッケージを便利なものにするために、全員がその名前に同意しなければいけません。このため、仮想パッケージの名前は Debian ポリシーで標準化されています。メールサーバは <span
+                    class="pkg pkg">mail-transport-agent</span>、C 言語コンパイラは <span
+                    class="pkg pkg">c-compiler</span>、ウェブブラウザは <span
+                    class="pkg pkg">www-browser</span>、ウェブサーバは <span
+                    class="pkg pkg">httpd</span>、FTP サーバは <span
+                    class="pkg pkg">ftp-server</span>、グラフィカルモードのターミナルエミュレータ (<code
+                    class="command">xterm</code>) は <span
+                    class="pkg pkg">x-terminal-emulator</span>、ウィンドウマネージャは <span
+                    class="pkg pkg">x-window-manager</span> などが定められています。
+					</div><div
+                  class="para">
+						完全なリストはウェブの情報を参照してください。<div
+                    class="url">→ <a
+                      href="http://www.debian.org/doc/packaging-manuals/virtual-package-names-list.txt">http://www.debian.org/doc/packaging-manuals/virtual-package-names-list.txt</a></div>
+					</div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140393328326176"></a>5.2.1.4.2. 他のパッケージとの互換性</h5></div></div></div><div
+                class="para">
+						パッケージの内容が巨大なパッケージに統合された場合に、<code
+                  class="literal">Provides</code> フィールドはさらに興味深い役割を果たします。例えば、<span
+                  class="pkg pkg">libdigest-md5-perl</span> Perl モジュールは Perl 5.6 では任意選択モジュールでしたが、Perl 5.8 (と <span
+                  class="distribution distribution">Jessie</span> に含まれる 5.20 などのその後のバージョン) では標準モジュールに組み込まれました。このため、<span
+                  class="pkg pkg">perl</span> パッケージはバージョン 5.8 から <code
+                  class="literal">Provides: libdigest-md5-perl</code> を宣言しています。そうすれば、ユーザが Perl 5.8 (とそれより新しいバージョン) を持っている場合、このパッケージの依存関係が満足されるからです。<span
+                  class="pkg pkg">libdigest-md5-perl</span> パッケージ自体は、いずれ削除されます。なぜなら、古い Perl バージョンが削除されたらこのパッケージはもはや存在意義が無いからです。
+					</div><div
+                class="figure"><a
+                  id="idm140393328320960"></a><div
+                  class="figure-contents"><div
+                    class="mediaobject"><img
+                      src="images/virtual-package.png"
+                      alt="依存関係を壊さない Provides フィールドの使い方" /></div></div><p
+                  class="title"><strong>図5.1 依存関係を壊さない <code
+                      class="literal">Provides</code> フィールドの使い方</strong></p></div><div
+                class="para">
+						この機能はとても便利です、なぜなら、開発方向性の変化を予測することは絶対に不可能ですし、名称を変更できたり、他の時代遅れのソフトウェアを自動に置き換えできるようにする事が必要だからです。
+					</div><div
+                class="sidebar"><div
+                  class="titlepage"><div><div><p
+                        class="title"><strong><span
+                            class="emphasis"><em>BACK TO BASICS</em></span> Perl、プログラミング言語</strong></p></div></div></div><a
+                  id="idm140393328315920"
+                  class="indexterm"></a><a
+                  id="idm140393328314960"
+                  class="indexterm"></a><div
+                  class="para">
+						Perl (Practical Extraction and Report Language) はとても人気があるプログラミング言語です。Perl にはすぐに使えるモジュールが数多くあります。これらのモジュールは非常に広い分野における応用をカバーし、Perl パッケージの包括的ネットワークである CPAN (Comprehensive Perl Archive Network) サーバで配布されています。<div
+                    class="url">→ <a
+                      href="http://www.perl.org/">http://www.perl.org/</a></div> <div
+                    class="url">→ <a
+                      href="http://www.cpan.org/">http://www.cpan.org/</a></div>
+					</div><div
+                  class="para">
+						Perl はインタプリタ型言語であるため、Perl で書かれたプログラムは実行前にコンパイルする必要がありません。このためプログラムは「Perl スクリプト」と呼ばれています。
+					</div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140393328310688"></a>5.2.1.4.3. 過去に設けられていた制限</h5></div></div></div><div
+                class="para">
+						かつて仮想パッケージにはいくつかの制限がありました。最も重要な制限はバージョン番号が無かった事でした。先に挙げた例に戻ると、Perl 5.10 が存在する場合、<code
+                  class="literal">Depends: libdigest-md5-perl (&gt;= 1.6)</code> という依存関係は満足されています (正しく言えば、十中八九満足されています) が、パッケージシステムはこの依存関係が満足されていることに気が付きませんでした。パッケージシステムは依存関係が満足されていることに気がつきませんでしたが、指定されたバージョンが一致しないと仮定して、最もリスクの低いオプションを選んでいました。
+					</div><div
+                class="para">
+						この制限は <span
+                  class="pkg pkg">dpkg</span> 1.17.11 で無くなり、Jessie ではもはや関係のない話です。
+					</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328306880"></a>5.2.1.5. ファイルの置き換え: <code
+                      class="literal">Replaces</code> フィールド</h4></div></div></div><a
+              id="idm140393328305632"
+              class="indexterm"></a><a
+              id="idm140393328304672"
+              class="indexterm"></a><a
+              id="idm140393328303424"
+              class="indexterm"></a><div
+              class="para">
+					<code
+                class="literal">Replaces</code> フィールドは、そのパッケージが他のパッケージにも含まれるファイルを含んでおり、合法的にそのファイルを置き換える権利を持っている事を示すためのものです。この仕様が無かったとしても、<code
+                class="command">dpkg</code> はそのようなファイルを置き換える事はできません。これは他のパッケージのファイルは上書きできない事を意味しています (技術的に言えば、<code
+                class="literal">--force-overwrite</code> オプションを付けることで強制的に上書き可能ですが、これは一般に認められていません)。このことにより潜在的な問題を識別できるようになりますし、メンテナはこのフィールドを追加する前に問題の原因を追及する事ができるようになります。
+				</div><div
+              class="para">
+					このフィールドは、パッケージ名が変更された時や、パッケージが別のパッケージに統合された時に使われます。これはまた、メンテナが同じソースパッケージから作成されたバイナリパッケージ間で異なるファイルを配布したい場合に使われます: 置き換えられたファイルはもはや古いパッケージではなく新しいパッケージに所属します。
+				</div><div
+              class="para">
+					インストール済みパッケージのすべてのファイルが置き換えられたら、このパッケージは削除されたとみなされます。最後に、このフィールドは衝突がある場合に <code
+                class="command">dpkg</code> が置き換えられたパッケージを削除する際に使われます。
+				</div><div
+              class="sidebar"><a
+                id="sidebar.debtags"></a><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>GOING FURTHER</em></span> <code
+                          class="literal">Tag</code> フィールド</strong></p></div></div></div><div
+                class="para">
+					上に挙げた <span
+                  class="pkg pkg">apt</span> の例にはまだ説明していない <code
+                  class="literal">Tag</code> フィールドがあります。このフィールドはパッケージ間の関連性を説明するものではなく、単純にテーマ分類に基づいてパッケージを分類するものです。昔からパッケージはいくつかの基準 (インターフェースの種類、プログラミング言語、アプリケーションの分野など) に基づいて分類されていました。これにも関わらず、適切なタグがすべてのパッケージに付けられているわけではありませんし、まだすべての Debian ツールがタグを使えるわけではありません; <code
+                  class="command">aptitude</code> はこれらのタグを表示しますし、検索条件としてタグを使う事も可能です。<code
+                  class="command">aptitude</code> の検索条件に嫌悪感を抱く人は、以下のウェブサイトを使ってタグのデータベースを見る事が可能です。<div
+                  class="url">→ <a
+                    href="http://debtags.alioth.debian.org/">http://debtags.alioth.debian.org/</a></div>
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393328290976"></a>5.2.2. 設定スクリプト</h3></div></div></div><a
+            id="idm140393328290176"
+            class="indexterm"></a><a
+            id="idm140393328289056"
+            class="indexterm"></a><a
+            id="idm140393328287936"
+            class="indexterm"></a><a
+            id="idm140393328286816"
+            class="indexterm"></a><a
+            id="idm140393328285696"
+            class="indexterm"></a><div
+            class="para">
+				それぞれの Debian パッケージには、<code
+              class="filename">control</code> ファイルだけでなく <code
+              class="filename">control.tar.gz</code> アーカイブが含まれており、このアーカイブには、<code
+              class="command">dpkg</code> がパッケージ処理の各段階で呼び出す多数のスクリプトが含まれているかもしれません。Debian ポリシーでは、呼び出されるスクリプトとスクリプトが受け取る引数を明記することで、スクリプトの使われ方が詳しく説明されています。スクリプトが呼び出される順番はわかりにくいかもしれません。なぜなら、スクリプトの内 1 つでも失敗したら、<code
+              class="command">dpkg</code> は進行中のインストールを止めるか(可能ならば)削除することでシステムを一貫性のある状態に戻そうとするからです。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> <code
+                        class="command">dpkg</code> データベース</strong></p></div></div></div><a
+              id="idm140393328280000"
+              class="indexterm"></a><a
+              id="idm140393328278880"
+              class="indexterm"></a><div
+              class="para">
+				インストール済みパッケージの設定スクリプトはすべて <code
+                class="filename">/var/lib/dpkg/info/</code> ディレクトリに、ファイル名がパッケージ名から始まるファイルの形で保存されています。このディレクトリには、ファイル名がパッケージ名に <code
+                class="filename">.list</code> 拡張子を付けたファイルが含まれています。このファイルの内容はパッケージに含まれるファイルのリストです。
+			</div><div
+              class="para">
+				<code
+                class="filename">/var/lib/dpkg/status</code> ファイルは (有名なメールヘッダ、RFC 2822、の形で) 一連のデータブロックを含んでおり、各データブロックは各パッケージの状態に対応します。この情報は、インストール済みのパッケージの <code
+                class="filename">control</code> ファイルから、複製されています。
+			</div></div><div
+            class="para">
+				一般的に言って、<code
+              class="filename">preinst</code> スクリプトはパッケージのインストール前に実行され、<code
+              class="filename">postinst</code> はインストール後に実行されます。同様に、 <code
+              class="filename">prerm</code> はパッケージの削除前に実行され、<code
+              class="filename">postrm</code> は削除後に実行されます。パッケージの更新とは、パッケージの古いバージョンを削除して新しいバージョンをインストールすることと等価です。ここですべての可能なシナリオを詳細に説明することは不可能なので、最も一般的なケースを 2 つだけ挙げます: インストール/更新と削除です。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAUTION</em></span> スクリプトのシンボリック名</strong></p></div></div></div><div
+              class="para">
+				この節の説明文では、<code
+                class="command">old-prerm</code> や <code
+                class="command">new-postinst</code> などの特定の名前を持つ設定スクリプトが登場します。前者はパッケージの (更新の前にインストールされていた) 古いバージョンに含まれる <code
+                class="command">prerm</code> スクリプト、後者は (更新によってインストールされる) 新しいバージョンに含まれる <code
+                class="command">postinst</code> スクリプトを指します。
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> 状態遷移図</strong></p></div></div></div><div
+              class="para">
+				Manoj Srivastava さんは <code
+                class="command">dpkg</code> がどのように設定スクリプトを呼び出すかを説明する図を作成しました。Debian Women プロジェクトが同様の図を作成しました; この図は理解しやすいように少し単純化されており、先の図に比べると正確ではありません。<div
+                class="url">→ <a
+                  href="http://people.debian.org/~srivasta/MaintainerScripts.html">http://people.debian.org/~srivasta/MaintainerScripts.html</a></div> <div
+                class="url">→ <a
+                  href="http://wiki.debian.org/MaintainerScripts">http://wiki.debian.org/MaintainerScripts</a></div>
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328263184"></a>5.2.2.1. パッケージのインストールとアップグレード</h4></div></div></div><a
+              id="idm140393328262336"
+              class="indexterm"></a><div
+              class="para">
+					ここではパッケージのインストール中 (または更新中) に何が起きるかを説明します:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="orderedlist"><ol><li
+                  class="listitem"><div
+                    class="para">
+							更新の際に、<code
+                      class="command">dpkg</code> は <code
+                      class="command">old-prerm upgrade <em
+                        class="replaceable">new-version</em></code> を呼び出します。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							更新する場合、<code
+                      class="command">dpkg</code> は <code
+                      class="command">new-preinst upgrade <em
+                        class="replaceable">old-version</em></code> を実行します; 初めてインストールする場合、<code
+                      class="command">new-preinst install</code> を実行します。過去にもしパッケージがインストールされてさらに削除されていた場合 (完全消去されていない場合、古い設定ファイルがまだ残っている場合)、最後の引数に古いバージョンを追加します。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							そして新しいパッケージのファイルが解凍されます。あるファイルが既に存在した場合、そのファイルは置換されますが、一時的にバックアップコピーが作られます。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							更新の場合、<code
+                      class="command">dpkg</code> は <code
+                      class="command">old-postrm upgrade <em
+                        class="replaceable">new-version</em></code> を実行します。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">dpkg</code> はすべての内部データを (ファイルリスト、設定スクリプトなど) 更新し、置換されたファイルのバックアップを削除します。これ以降はもう後戻りできません: 前の状態に戻るために必要な情報がすべて失われたため、<code
+                      class="command">dpkg</code> は状態を復元できません。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">dpkg</code> が設定ファイルを更新します。自動的にこの作業を完了できない場合にはユーザにどうするか尋ねます。この作業の詳細は<a
+                      class="xref"
+                      href="sect.package-meta-information.html#sect.conffiles">「チェックサム、設定ファイルのリスト」</a>をご覧ください。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							最後に、<code
+                      class="command">dpkg</code> は <code
+                      class="command">new-postinst configure <em
+                        class="replaceable">last-version-configured</em></code> を実行して、パッケージを設定します。
+						</div></li></ol></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393328244368"></a>5.2.2.2. パッケージの削除</h4></div></div></div><div
+              class="para">
+					ここではパッケージの削除中に何が起こるかを説明します:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="orderedlist"><ol><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">dpkg</code> は <code
+                      class="command">prerm remove</code> を呼び出します。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">dpkg</code> は設定ファイルと設定スクリプトを除くすべてのパッケージのファイルを削除します。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="command">dpkg</code> は <code
+                      class="command">postrm remove</code> を実行します。すべての設定スクリプトは <code
+                      class="filename">postrm</code> を除いて削除されます。ユーザが「purge」オプションを指定しない限り、作業はここで終了します。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							パッケージを完全消去する (<code
+                      class="command">dpkg --purge</code> または <code
+                      class="command">dpkg -P</code> を実行した) 場合、設定ファイルおよびそのコピー (<code
+                      class="filename">*.dpkg-tmp</code>、<code
+                      class="filename">*.dpkg-old</code>、<code
+                      class="filename">*.dpkg-new</code>) と一時ファイルも削除されます; <code
+                      class="command">dpkg</code> は <code
+                      class="command">postrm purge</code> を実行します。
+						</div></li></ol></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>VOCABULARY</em></span> Purge、完全消去</strong></p></div></div></div><a
+                id="idm140393328231152"
+                class="indexterm"></a><div
+                class="para">
+					Debian パッケージが削除されても、パッケージの設定ファイルは後々の再インストールを楽にするために削除されません。同様に、デーモンが作成したデータ (LDAP サーバディレクトリの内容、SQL サーバのデータベースの内容など) も削除されません。
+				</div><div
+                class="para">
+					パッケージに関連するすべてのデータを削除するには、以下のコマンドを使ってパッケージを「完全消去」する必要があります。<code
+                  class="command">dpkg -P <em
+                    class="replaceable">package</em></code>、<code
+                  class="command">apt-get remove --purge <em
+                    class="replaceable">package</em></code>、<code
+                  class="command">aptitude purge <em
+                    class="replaceable">package</em></code>。
+				</div><div
+                class="para">
+					このようなデータに含まれる内容を考慮すると、安易に完全消去を実行するべきではありません。
+				</div></div><a
+              id="idm140393328225600"
+              class="indexterm"></a><div
+              class="para">
+					上で詳細を述べた 4 つのスクリプトの実行を補助するのが <code
+                class="filename">config</code> スクリプトです。パッケージが提供するこのスクリプトは <code
+                class="command">debconf</code> を用いて設定に必要な情報をユーザに入力させるためのものです。ユーザからの情報は <code
+                class="command">debconf</code> データベースに保存され、後々利用されます。このスクリプトは通常 <code
+                class="command">apt</code> によって各パッケージインストールの前に実行され、処理が始まるとすべての質問をまとめてユーザに尋ねます。インストール前後に実行されるスクリプトは、ユーザの希望を反映させるために、これらの情報を利用します。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>TOOL</em></span> <code
+                          class="command">debconf</code></strong></p></div></div></div><a
+                id="idm140393328219600"
+                class="indexterm"></a><div
+                class="para">
+					<code
+                  class="command">debconf</code> は Debian で繰り返し発生する問題を解決するために作られました。すべての Debian パッケージは最低限の設定無しには機能しません。昔は最低限の設定をするために <code
+                  class="filename">postinst</code> シェルスクリプト (と同様の別のスクリプト) の中で <code
+                  class="command">echo</code> や <code
+                  class="command">read</code> コマンドを呼び出して質問していました。しかしこの方法では、ユーザは長いインストールや更新の最中、いつあるかわからない様々な質問に答えるために、コンピュータの前に居続けなければいけませんでした。<code
+                  class="command">debconf</code> ツールのお陰で、今やほとんどの場合、このような手動設定法を採る必要はなくなりました。
+				</div><div
+                class="para">
+					<code
+                  class="command">debconf</code> には多くの興味深い機能があります: 開発者はユーザに入力させる内容を規定する事が可能です; ユーザに向けて表示されるすべての文字列の地域化が可能です (すべての翻訳は入力内容を説明している <code
+                  class="filename">templates</code> ファイルに保存されます); ユーザに質問を表示するための様々なフロントエンド (テキストモード、グラフィカルモード、非対話モード) があります; 複数のコンピュータで同じ設定を共有するために、ユーザが入力した内容の中央データベースを作成する事が可能です... しかし最も重要な機能は、ユーザに対するすべての質問が長時間かかるインストールや更新作業の前に行われる点です。ユーザはシステムがインストールを行っている間に自分の仕事をできます、質問に答えるために画面の前に居続ける必要はありません。
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.conffiles"></a>5.2.3. チェックサム、設定ファイルのリスト</h3></div></div></div><a
+            id="idm140393328211024"
+            class="indexterm"></a><a
+            id="idm140393328209904"
+            class="indexterm"></a><a
+            id="idm140393328208784"
+            class="indexterm"></a><a
+            id="idm140393328207824"
+            class="indexterm"></a><a
+            id="idm140393329264640"
+            class="indexterm"></a><div
+            class="para">
+				前の節で既に説明したメンテナスクリプトと管理情報に加えて、Debian パッケージの <code
+              class="filename">control.tar.gz</code> アーカイブに興味深いファイルが含まれている場合があります。1 つ目は <code
+              class="filename">md5sums</code> で、このファイルにはパッケージに含まれる全ファイルの MD5 チェックサムが列挙されています。これのお陰で、<code
+              class="command">debsums</code> などのツール (詳しくは<a
+              class="xref"
+              href="sect.supervision.html#sect.debsums">「パッケージの監査: <code
+                class="command">debsums</code> とその限界」</a>を参照) はインストール以降ファイルが変更されたか否かを判断できるようになります。このファイルが存在しなければ、<code
+              class="command">dpkg</code> がインストール時に動的にこのファイルを生成します (そして他の管理情報ファイルと同様に dpkg データベースに内容を保存します)。
+			</div><div
+            class="para">
+				<code
+              class="filename">conffiles</code> では、設定ファイルとして取り扱われるべきパッケージファイルが指定されています。管理者は設定ファイルを変更でき、<code
+              class="command">dpkg</code> はパッケージの更新中に設定ファイルの変更を保存しようとします。
+			</div><div
+            class="para">
+				実際のところこの状況では、<code
+              class="command">dpkg</code> はできるだけ賢明に振舞います: パッケージに含まれる標準的な設定ファイルが 2 つのバージョン間で変更されていなければ、何もしません。しかしながら、標準的な設定ファイルが 2 つのバージョン間で変更されていたら、ファイルを更新しようとします。2 つの場合が考えられます: 管理者が設定ファイルに変更を加えていなければ、<code
+              class="command">dpkg</code> は自動的にパッケージに含まれる新しいバージョンをインストールします; 管理者が設定ファイルに変更を加えていれば、<code
+              class="command">dpkg</code> は管理者にどちらのバージョン(変更された古いバージョン、またはパッケージに含まれる新しいバージョン) を使うかを尋ねます。どちらのバージョンを使うかの判断を手助けするために、<code
+              class="command">dpkg</code> は「<code
+              class="command">diff</code>」を使って 2 つのバージョンの違いを表示します。ユーザが古いバージョンを選んだ場合、新しいバージョンは同じ場所にファイル名の末尾に <code
+              class="filename">.dpkg-dist</code>を追加して保存されます。ユーザが新しいバージョンを選んだ場合、古いバージョンはファイル名の末尾に <code
+              class="filename">.dpkg-old</code> を追加して保存されます。他の利用可能な操作は、一旦 <code
+              class="command">dpkg</code> の処理を中断してファイルを編集する、または改めてバージョン間の違いを表示する (先と同じ様に <code
+              class="command">diff</code> コマンドを実行する) です。
+			</div><div
+            class="sidebar"><a
+              id="sidebar.questions-conffiles"></a><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> 設定ファイルに関連する質問を回避する</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">dpkg</code> は設定ファイルの更新を担当しますが、更新中に管理者からの入力を要求するため、更新作業は定期的に中断されます。この状況は非対話的に更新作業を行いたいと思う人にとって都合がよいとは言えない。そのため、<code
+                class="command">dpkg</code> にはシステムが同じ基準で自動的に質問に回答するオプションが用意されています: <code
+                class="command">--force-confold</code> を使うとファイルの古いバージョンが保持されます; <code
+                class="command">--force-confnew</code> を使うとファイルの新しいバージョンが使われます (管理者がファイルを変更していた場合さえも、これらの基準が優先されますから、期待通りの結果を得られない事が多いです)。<code
+                class="command">--force-confdef</code> オプションを使うと、<code
+                class="command">dpkg</code> は可能な場合は (言い換えれば、オリジナルの設定ファイルが変更されていなければ) 自動的にデフォルトの動作を選ぶようになり、その他の場合は <code
+                class="command">--force-confnew</code> または <code
+                class="command">--force-confold</code> を使うようになります。
+			</div><div
+              class="para">
+				これらは <code
+                class="command">dpkg</code> ののオプションですが、ほとんどの場合管理者は <code
+                class="command">aptitude</code> または <code
+                class="command">apt-get</code> プログラムを使って作業を行います。そのため、<code
+                class="command">dpkg</code> コマンドにオプションを渡すための構文を知らなければいけません (両者のコマンドラインインターフェースはとてもよく似ています)。
+			</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>apt-get -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold" dist-upgrade</code></strong></pre><div
+              class="para">
+				これらのオプションを直接 <code
+                class="command">apt</code> の設定に保存しておく事も可能です。これを行うには、<code
+                class="filename">/etc/apt/apt.conf.d/local</code> ファイルに以下の行を追加してください:
+			</div><div
+              class="informalexample"><pre
+                class="programlisting">
+DPkg::options { "--force-confdef"; "--force-confold"; }</pre></div><div
+              class="para">
+				設定ファイルにこのオプションを含めることは、<code
+                class="command">aptitude</code> のようなグラフィカルインターフェースでもこのオプションを使う事を意味しています。
+			</div></div><div
+            class="sidebar"><a
+              id="sidebar.questions-conffiles-bis"></a><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> 設定ファイルに関連する質問を強制する</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">--force-confask</code> オプションを使うと、<code
+                class="command">dpkg</code> は通常は質問の必要がない場合でも設定ファイルに関する質問を表示します。このため、このオプションを付けてパッケージを再インストールすると、<code
+                class="command">dpkg</code> は管理者が修正したすべての設定ファイルに関して再度質問します。これはとくに設定ファイルが削除され、コピーも残っていない状態でオリジナルの設定ファイルを再インストールしたい場合にとても便利です: 通常の再インストールではダメな場合にこれを使います。なぜなら、<code
+                class="command">dpkg</code> は削除を合理的な変更の一種と考えており、オリジナルの設定ファイルをインストールしないからです。
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="packaging-system.html"><strong>戻る</strong>第5章 パッケージシステム: ツールと基本原則</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.source-package-structure.html"><strong>次へ</strong>5.3. ソースパッケージの構造</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.package-meta-information.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.package-meta-information.html">da-DK</a></li><li><a
+              href="../de-DE/sect.package-meta-information.html">de-DE</a></li><li><a
+              href="../el-GR/sect.package-meta-information.html">el-GR</a></li><li><a
+              href="../en-US/sect.package-meta-information.html">en-US</a></li><li><a
+              href="../es-ES/sect.package-meta-information.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.package-meta-information.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.package-meta-information.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.package-meta-information.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.package-meta-information.html">id-ID</a></li><li><a
+              href="../it-IT/sect.package-meta-information.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.package-meta-information.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.package-meta-information.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.package-meta-information.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.package-meta-information.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.package-meta-information.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.package-meta-information.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.package-meta-information.html">zh-CN</a></li></ul></div></body></html>

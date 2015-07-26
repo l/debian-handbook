@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.11. التوصيل الساخن: hotplug</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="إقلاع النظام, سكربتات Init, SSH , Telnet, حقوق, صلاحيات, إشراف, Inetd, Cron, النسخ الاحتياطي, توصيل ساخن, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="unix-services.html"
+        title="فصل 9. خدمات يونكس" /><link
+        rel="prev"
+        href="sect.backup.html"
+        title="9.10. النسخ الاحتياطي" /><link
+        rel="next"
+        href="sect.power-management.html"
+        title="9.12. إدارة الطاقة: Advanced Configuration and Power Interface ‏(ACPI)" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.hotplug.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.backup.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.power-management.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.hotplug"></a>9.11. التوصيل الساخن: <span
+                  class="emphasis"><em>hotplug</em></span></h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225823396592"></a>9.11.1. مقدمة</h3></div></div></div><div
+            class="para">
+				يعالج نظام النواة الفرعي <span
+              class="emphasis"><em>hotplug</em></span> إضافة وإزالة الأجهزة ديناميكياً، عبر تحميل التعاريف المناسبة وعبر إنشاء ملفات الأجهزة الموافقة (بمساعدة <code
+              class="command">udevd</code>). في الأجهزة الحديثة والحوسبة الظاهرية، يمكن توصيل أي شيء تقريباً بشكل ساخن: من ملحقات USB/PCMCIA/IEEE 1394 الشائعة إلى أقراص SATA الصلبة، وصولاً إلى المعالجات والذواكر أيضاً.
+			</div><div
+            class="para">
+				لدى النواة قاعدة بيانات تربط رقم تعريف (ID) كل جهاز مع برنامج التعريف المطلوب. تستخدم قاعدة البيانات هذه أثناء الإقلاع لتحميل جميع تعاريف الأجهزة الملحقة التي تكتشف على النواقل المختلفة، وأيضاً عند توصيل جهاز إضافي يدعم التوصيل الساخن. ترسل رسالة إلى <code
+              class="command">udevd</code> فور جاهزية القطعة للاستعمال، حتى يتمكن من إنشاء المدخلة الموافقة في <code
+              class="filename">/dev/</code>.
+			</div><a
+            id="idm140225823392496"
+            class="indexterm"></a><a
+            id="idm140225823391600"
+            class="indexterm"></a><a
+            id="idm140225823390832"
+            class="indexterm"></a><a
+            id="idm140225823390064"
+            class="indexterm"></a><a
+            id="idm140225823389296"
+            class="indexterm"></a><a
+            id="idm140225823388528"
+            class="indexterm"></a></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225823387632"></a>9.11.2. مشكلة التسمية</h3></div></div></div><div
+            class="para">
+				قبل ظهور الاتصالات الساخنة، كان من السهل تعيين أسماء ثابتة للأجهزة. كانت تعتمد تسميتها ببساطة على موقع الجهاز على الناقل الخاص به. لكن هذا غير ممكن عندما تتحرك هذه الأجهزة على النواقل. من الحالات النموذجية استخدام الكاميرا الرقمية أو مفتاح USB، حيث يظهر كل منهما للحاسوب على أنه قرص تخزيني. ربما كان اسم الجهاز المتصل أولاً <code
+              dir="ltr"
+              class="filename">/dev/sdb</code> والمتصل ثانياً <code
+              dir="ltr"
+              class="filename">/dev/sdc</code> (حيث يمثل <code
+              dir="ltr"
+              class="filename">/dev/sda</code> القرص الصلب للحاسوب). أسماء الأجهزة غير ثابتة؛ بل تعتمد على ترتيب توصيل الأجهزة.
+			</div><div
+            class="para">
+				بالإضافة لذلك، يزداد عدد التعاريف التي تستخدم قيماً ديناميكية لأرقام major/minor للأجهزة، ما يحول دون إمكانية تعيين مدخلات ثابتة للأجهزة المعنية، بما أن هذه الخصائص الأساسية قد تختلف بعد إعادة الإقلاع.
+			</div><div
+            class="para">
+				لقد أنشئ <span
+              class="emphasis"><em>udev</em></span> لحل هذه المشكلة تحديداً.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ممارسة عملية</em></span> إدارة بطاقات الشبكة</strong></p></div></div></div><div
+              class="para">
+				Many computers have multiple network cards (sometimes two wired interfaces and a wifi interface), and with <span
+                class="emphasis"><em>hotplug</em></span> support on most bus types, kernel versions later than 2.6 no longer guarantee fixed naming of network interfaces. But a user who wants to configure their network in <code
+                class="filename">/etc/network/interfaces</code> needs a fixed name!
+			</div><div
+              class="para">
+				من الصعب أن تطلب من كل مستخدم أن ينشئ قواعد <span
+                class="emphasis"><em>udev</em></span> خاصة به لحل هذه المشكلة. لذلك كان إعداد <span
+                class="emphasis"><em>udev</em></span> منفرداً نوعاً ما؛ عند الإقلاع الأول (وبشكل أعم، عند كل مرة تظهر فيها بطاقة شبكية جديدة) يستخدم udev اسم الواجهة الشبكية وعنوان MAC الخاص بها لإنشاء قواعد جديدة لإعادة تعيين الاسم نفسه عند عمليات الإقلاع التالية. تخزن هذه القواعد في <code
+                dir="ltr"
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code>.
+			</div><div
+              class="para">
+				This mechanism has some side effects that you should know about. Let's consider the case of a computer that has only one PCI network card. The network interface is named <code
+                class="literal">eth0</code>, logically. Now say the card breaks down, and the administrator replaces it; the new card will have a new MAC address. Since the old card was assigned the name, <code
+                class="literal">eth0</code>, the new one will be assigned <code
+                class="literal">eth1</code>, even though the <code
+                class="literal">eth0</code> card is gone for good (and the network will not be functional because <code
+                class="filename">/etc/network/interfaces</code> likely configures an <code
+                class="literal">eth0</code> interface). In this case, it is enough to simply delete the <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> file before rebooting the computer. The new card will then be given the expected <code
+                class="literal">eth0</code> name.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225823373344"></a>9.11.3. طريقة عمل <span
+                    class="emphasis"><em>udev</em></span></h3></div></div></div><div
+            class="para">
+				عندما تُـنَـبِّه النواةُ <span
+              class="emphasis"><em>udev</em></span> إلى ظهور جهاز جديد، يجمع udev المعلومات المختلفة عن الجهاز المعني باستطلاع المدخلات المناسبة في <code
+              class="filename">/sys/</code>، خصوصاً المدخلات التي تعرف الجهاز بشكل فريد (عنوان MAC للبطاقات الشبكية، الأرقام التسلسلية لبعض أجهزة USB، الخ).
+			</div><div
+            class="para">
+				بعد جمع كل هذه المعلومات، يتحقق <span
+              class="emphasis"><em>udev</em></span> من القواعد المخزنة في <code
+              class="filename">/etc/udev/rules.d/</code> و<code
+              class="filename">/lib/udev/rules.d/</code>. من خلال هذه العملية يقرر كيفية تسمية الجهاز، والروابط الرمزية التي سينشئها له (لإعطائه أسماء بديلة)، والأوامر التي يجب تنفيذها. يتم استطلاع جميع الملفات، و تقيَّم جميع القواعد تسلسلياً (إلا عندما يحوي الملف توجيهات ”GOTO“). لذلك قد ترتبط عدة قواعد بحدث معين.
+			</div><div
+            class="para">
+				صيغة ملفات القواعد بسيطة جداً: كل سطر يحوي معايير اختيار وقيم متغيرات. تستخدم الأولى لتحديد الأحداث التي يجب الاستجابة لها، وتُعرِّف الأخيرة الأفعال التي يجب اتخاذها. تفصل كافة المكونات عن بعضها بفواصل، وتُفَرِّق المعاملات ضمنياً بين معايير الاختيار (التي تحوي معاملات مقارنة، مثل <code
+              class="literal">==</code> أو <code
+              dir="ltr"
+              class="literal">!=</code>) وبين توجيهات الإسناد (التي تستخدم معاملات مثل <code
+              class="literal">=</code> أو <code
+              dir="ltr"
+              class="literal">+=</code> أو <code
+              dir="ltr"
+              class="literal">:=</code>).
+			</div><div
+            class="para">
+				تستخدم معاملات المقارنة على المتغيرات التالية:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">KERNEL</code>: الاسم الذي تعينه النواة للجهاز؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ACTION</code>: الفعل الموافق للحدث (”add“ عندما تضاف القطعة، ”remove“ عند إزالتها)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DEVPATH</code>: مسار مدخلة القطعة في <code
+                    class="filename">/sys/</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SUBSYSTEM</code>: نظام النواة الفرعي الذي وَلَّدَ الطلب (هناك العديد من هذه الأنظمة، لكن من بعض الأمثلة عليها ”usb“،‏ ”ide“،‏ ”net“،‏ ”firmware“، الخ)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ATTR{<em
+                      class="replaceable">attribute</em>}</code>: file contents of the <em
+                    class="replaceable">attribute</em> file in the <code
+                    class="filename">/sys/<em
+                      class="replaceable">$devpath</em>/</code> directory of the device. This is where you find the MAC address and other bus specific identifiers;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">KERNELS</code> و<code
+                    class="literal">SUBSYSTEMS</code> و<code
+                    dir="ltr"
+                    class="literal">ATTRS{<em
+                      class="replaceable">attributes</em>}</code> هي صيغ أخرى تُستَخدَمُ لمطابقة الخيارات المختلفة لأحد الأجهزة الآباء للجهاز الحالي؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PROGRAM</code>: يوكل الاختبار إلى البرنامج المشار إليه (true إذا أعاد القيمة 0، false فيما عدا ذلك). تخزن محتويات خرج البرنامج القياسي بحيث يستطيع اختبار <code
+                    class="literal">RESULT</code> إعادة استخدامها؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RESULT</code>: يجري اختبارات على الخرج القياسي المخزن أثناء آخر استدعاء لـ <code
+                    class="literal">PROGRAM</code>.
+					</div></li></ul></div><div
+            class="para">
+				يمكن أن تستخدم التعابير المنتظمة لمطابقة عدة قيم في الوقت نفسه في المعاملات على اليمين. مثلاً، تطابق النجمة <code
+              class="literal">*</code> أيَّ سلسلة (وحتى السلسلة الفارغة)؛ وتطابق علامة الاستفهام <code
+              class="literal">?</code> أي محرف، وتطابق الأقواس المربعة <code
+              dir="ltr"
+              class="literal">[]</code> مجموعة من المحارف المذكورة بين القوسين المربعين (أو عكس تلك المحارف إذا كان المحرف الأول علامة تعجب، وتكتب المجالات المستمرة بالشكل <code
+              class="literal">a-z</code>).
+			</div><div
+            class="para">
+				أما بخصوص معاملات الإسناد، فيسند المعامل <code
+              class="literal">=</code> قيمة جديدة (ويستبدل القيمة الحالية)؛ في حال تطبيقه على لائحة، سوف يفرغها ويسند لها القيمة المعطاة فقط. المعامل <code
+              dir="ltr"
+              class="literal">:=</code> له نفس الأثر، لكنه يمنع التعديلات اللاحقة على المتغير نفسه. أما بالنسبة للمعامل <code
+              dir="ltr"
+              class="literal">+=</code>، فهو يضيف عنصراً إلى اللائحة. يمكن تعديل المتغيرات التالية:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">NAME</code>: اسم ملف الجهاز الذي سينشأ في <code
+                    class="filename">/dev/</code>. تؤخذ عملية الإسناد الأولى بعين الاعتبار فقط؛ وتهمل الإسنادات الأخرى؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SYMLINK</code>: لائحة بالروابط الرمزية التي تشير إلى الجهاز نفسه؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						تعرف المتغيرات <code
+                    class="literal">OWNER</code> و<code
+                    class="literal">GROUP</code> و<code
+                    class="literal">MODE</code> المستخدم المالك والمجموعة المالكة للجهاز، بالإضافة إلى الصلاحيات المتعلقة به؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RUN</code>: لائحة بالبرامج التي يجب تنفيذها استجابة لهذا الحدث.
+					</div></li></ul></div><div
+            class="para">
+				يمكن استخدام عدد من البدائل في القيم التي تسند إلى هذه المتغيرات:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$kernel</code> أو <code
+                    dir="ltr"
+                    class="literal">%k</code>: تكافئ <code
+                    class="literal">KERNEL</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$number</code> أو <code
+                    dir="ltr"
+                    class="literal">%n</code>: لترقيم الجهاز، مثلاً، بالنسبة للجهاز <code
+                    class="literal">sda3</code>، ستكون قيمته ”3“؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$devpath</code> أو <code
+                    dir="ltr"
+                    class="literal">%p</code>: تكافئ <code
+                    class="literal">DEVPATH</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$attr{<em
+                      class="replaceable">attribute</em>}</code> أو <code
+                    dir="ltr"
+                    class="literal">%s{<em
+                      class="replaceable">attribute</em>}</code>: تكافئ <code
+                    dir="ltr"
+                    class="literal">ATTRS{<em
+                      class="replaceable">attribute</em>}</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$major</code> أو <code
+                    dir="ltr"
+                    class="literal">%M</code>: رقم النواة الكبير للجهاز؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$minor</code> أو <code
+                    dir="ltr"
+                    class="literal">%m</code>: رقم النواة الصغير للجهاز؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">$result</code> أو <code
+                    dir="ltr"
+                    class="literal">%c</code>: الخرج النصي لآخر برنامج استدعي عبر <code
+                    class="literal">PROGRAM</code>؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						وأخيراً، <code
+                    class="literal">%%</code> للعلامة المئوية و<code
+                    class="literal">$$</code> لعلامة الدولار.
+					</div></li></ul></div><div
+            class="para">
+				The above lists are not complete (they include only the most important parameters), but the <span
+              class="citerefentry"><span
+                class="refentrytitle">udev</span>(7)</span> manual page should be exhaustive.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225823316048"></a>9.11.4. مثال واقعي</h3></div></div></div><div
+            class="para">
+				دعنا ندرس حالة مفتاح USB بسيط ونحاول تعيين اسم ثابت له. أولاً، يجب أن تعثر على العناصر التي تعرف المفتاح بشكل فريد. للحصول عليها، وصّل المفتاح ثم استدع <code
+              class="command">udevadm info -a -n /dev/sdc</code> مع استبدال <em
+              dir="ltr"
+              class="replaceable">/dev/sdc</em> بالاسم الفعلي الذي أعطي للمفتاح).
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>udevadm info -a -n /dev/sdc</code></strong>
+<code
+              class="computeroutput">[...]
+  looking at device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2/1-2.2:1.0/host9/target9:0:0/9:0:0:0/block/sdc':
+    KERNEL=="sdc"
+    SUBSYSTEM=="block"
+    DRIVER==""
+    ATTR{range}=="16"
+    ATTR{ext_range}=="256"
+    ATTR{removable}=="1"
+    ATTR{ro}=="0"
+    ATTR{size}=="126976"
+    ATTR{alignment_offset}=="0"
+    ATTR{capability}=="53"
+    ATTR{stat}=="      51      100     1208      256        0        0        0        0        0      192      25        6"
+    ATTR{inflight}=="       0        0"
+[...]
+  looking at parent device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2/1-2.2:1.0/host9/target9:0:0/9:0:0:0':
+    KERNELS=="9:0:0:0"
+    SUBSYSTEMS=="scsi"
+    DRIVERS=="sd"
+    ATTRS{device_blocked}=="0"
+    ATTRS{type}=="0"
+    ATTRS{scsi_level}=="3"
+    ATTRS{vendor}=="I0MEGA  "
+    ATTRS{model}=="UMni64MB*IOM2C4 "
+    ATTRS{rev}=="    "
+    ATTRS{state}=="running"
+[...]
+    ATTRS{max_sectors}=="240"
+[...]
+  looking at parent device '/devices/pci0000:00/0000:00:10.3/usb1/1-2/1-2.2':
+    KERNELS=="9:0:0:0"
+    SUBSYSTEMS=="usb"
+    DRIVERS=="usb"
+    ATTRS{configuration}=="iCfg"
+    ATTRS{bNumInterfaces}==" 1"
+    ATTRS{bConfigurationValue}=="1"
+    ATTRS{bmAttributes}=="80"
+    ATTRS{bMaxPower}=="100mA"
+    ATTRS{urbnum}=="398"
+    ATTRS{idVendor}=="4146"
+    ATTRS{idProduct}=="4146"
+    ATTRS{bcdDevice}=="0100"
+[...]
+    ATTRS{manufacturer}=="USB Disk"
+    ATTRS{product}=="USB Mass Storage Device"
+    ATTRS{serial}=="M004021000001"
+[...]
+</code></pre><div
+            class="para">
+				لإنشاء قاعدة جديدة، يمكنك عمل اختبارات على متغيرات الجهاز، وعلى متغيرات الأجهزة الآباء. يسمح لنا المثال السابق بإنشاء قاعدتين كما يلي:
+			</div><pre
+            class="programlisting">KERNEL=="sd?", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/disk"
+KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/part%n"
+</pre><div
+            class="para">
+				بعد تخزين هذه القواعد في ملف، اسمه <code
+              dir="ltr"
+              class="filename">/etc/udev/rules.d/010_local.rules</code> على سبيل المثال، يمكنك ببساطة إزالة مفتاح USB وتوصيله من جديد. عندئذ سترى أن <code
+              dir="ltr"
+              class="filename">/dev/usb_key/disk</code> يمثل القرص التخزيني المرتبط بمفتاح USB، وأن <code
+              dir="ltr"
+              class="filename">/dev/usb_key/part1</code> يمثل القسم الأول منه.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>التعمق أكثر</em></span> تنقيح إعدادات <span
+                        class="emphasis"><em>udev</em></span></strong></p></div></div></div><div
+              class="para">
+				يخزن <code
+                class="command">udevd</code>، مثل العديد من الخدمات، سجلات في <code
+                dir="ltr"
+                class="filename">/var/log/daemon.log</code>. لكنها غير مفصلة كثيراً افتراضياً، وهي عادة غير كافية لفهم ما يجري. يزيد الأمر <code
+                class="command">udevadm control --log-priority=info</code> مستوى التفصيل ويحل هذه المشكلة. يعود الأمر <code
+                class="command">udevadm control --log-priority=err</code> إلى مستوى التفصيل الافتراضي.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.backup.html"><strong>السابق</strong>9.10. النسخ الاحتياطي</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.power-management.html"><strong>التالي</strong>9.12. إدارة الطاقة: Advanced Configuration and Po...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.hotplug.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.hotplug.html">da-DK</a></li><li><a
+              href="../de-DE/sect.hotplug.html">de-DE</a></li><li><a
+              href="../el-GR/sect.hotplug.html">el-GR</a></li><li><a
+              href="../en-US/sect.hotplug.html">en-US</a></li><li><a
+              href="../es-ES/sect.hotplug.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.hotplug.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.hotplug.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.hotplug.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.hotplug.html">id-ID</a></li><li><a
+              href="../it-IT/sect.hotplug.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.hotplug.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.hotplug.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.hotplug.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.hotplug.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.hotplug.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.hotplug.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.hotplug.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.9. Other Configurations: Time Synchronization, Logs, Sharing Access…</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-it-IT-1.0-1" /><meta
+        name="keywords"
+        content="Configurazione, Localizzazione, Localizzazioni, Rete, Risoluzione dei nomi, Utenti, Gruppi, Account, Interprete a riga di comando, Shell, Stampa, Bootloader, Compilazione del kernel" /><link
+        rel="home"
+        href="index.html"
+        title="Il manuale dell'amministratore Debian" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="Capitolo 8. Configurazione di base: rete, account, stampa, ..." /><link
+        rel="prev"
+        href="sect.config-bootloader.html"
+        title="8.8. Configurare il bootloader" /><link
+        rel="next"
+        href="sect.kernel-compilation.html"
+        title="8.10. Compilare un kernel" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/it-IT/sect.config-misc.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-bootloader.html"><strong>Indietro</strong></a></li><li
+          class="home">Il manuale dell'amministratore Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.kernel-compilation.html"><strong>Avanti</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.config-misc"></a>8.9. Other Configurations: Time Synchronization, Logs, Sharing Access…</h2></div></div></div><div
+          class="para">
+			È bene conoscere i molti elementi elencati in questa sezione per chiunque voglia padroneggiare tutti gli aspetti di configurazione di un sistema GNU/Linux. Tuttavia sono trattati brevemente e i riferimenti alla documentazione sono frequenti.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.timezone"></a>8.9.1. Fuso orario</h3></div></div></div><a
+            id="idm140618335341248"
+            class="indexterm"></a><div
+            class="sidebar"><a
+              id="sidebar.symbolic-link"></a><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>FONDAMENTALI</em></span> Collegamenti simbolici</strong></p></div></div></div><a
+              id="idm140618335338800"
+              class="indexterm"></a><a
+              id="idm140618335337360"
+              class="indexterm"></a><a
+              id="idm140618335336400"
+              class="indexterm"></a><div
+              class="para">
+				Un collegamento simbolico è un puntatore ad un altro file. Quando vi si accede viene aperto il file al quale punta. Rimuovere il collegamento non causa la rimozione del file a cui punta. Allo stesso modo non dispone di un proprio insieme di permessi mentre mantiene i permessi del file a cui punta. Infine può puntare a qualsiasi tipo di file: directory, file speciali (socket, pipe con nome, file di device, ecc.), anche ad altri collegamenti simbolici.
+			</div><div
+              class="para">
+				Il comando <code
+                class="command">ln -s <em
+                  class="replaceable">destinazione</em> <em
+                  class="replaceable">nome-collegamento</em></code> crea un collegamento simbolico chiamato <em
+                class="replaceable">nome-collegamento</em> che punta a <em
+                class="replaceable">destinazione</em>.
+			</div><div
+              class="para">
+				Se il file a cui punta non esiste, allora il collegamento è «interrotto» e tentare di accedervi causerà un errore che indica l'assenza del file di destinazione. Se il collegamento punta ad un altro collegamento si avrà una «catena» di collegamenti che diviene un «ciclo» se una delle destinazioni punta ad uno dei predecessori. In questo caso, accedere ad uno dei collegamenti nel ciclo, causerà un errore specifico («too many levels of symbolic links» ovvero troppi livelli di collegamenti simbolici): questo significa che il kernel ha rinunciato dopo alcuni giri nel ciclo.
+			</div></div><div
+            class="para">
+				The timezone, configured during initial installation, is a configuration item for the <span
+              class="pkg pkg">tzdata</span> package. To modify it, use the <code
+              class="command">dpkg-reconfigure tzdata</code> command, which allows you to choose the timezone to be used in an interactive manner. Its configuration is stored in the <code
+              class="filename">/etc/timezone</code> file. Additionally, the corresponding file in the <code
+              class="filename">/usr/share/zoneinfo</code> directory is copied into <code
+              class="filename">/etc/localtime</code>; this file contains the rules governing the dates where daylight saving time is active, for countries that use it.
+			</div><a
+            id="idm140618335327072"
+            class="indexterm"></a><a
+            id="idm140618335325952"
+            class="indexterm"></a><a
+            id="idm140618335324832"
+            class="indexterm"></a><a
+            id="idm140618335323712"
+            class="indexterm"></a><a
+            id="idm140618335322592"
+            class="indexterm"></a><a
+            id="idm140618335321632"
+            class="indexterm"></a><div
+            class="para">
+				Quando si necessita di cambiare temporaneamente il fuso orario si può utilizzare la variabile d'ambiente <code
+              class="varname">TZ</code> che ha priorità rispetto alla configurazione predefinita di sistema:
+			</div><a
+            id="idm140618335319648"
+            class="indexterm"></a><a
+            id="screen.tz"></a><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>date</code></strong>
+<code
+              class="computeroutput">Thu Feb 19 11:25:18 CET 2015</code>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>TZ="Pacific/Honolulu" date</code></strong>
+<code
+              class="computeroutput">Thu Feb 19 00:25:21 HST 2015</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NOTA</em></span> Orologio di sistema, orologio hardware</strong></p></div></div></div><div
+              class="para">
+				There are two time sources in a computer. A computer's motherboard has a hardware clock, called the “CMOS clock”. This clock is not very precise, and provides rather slow access times. The operating system kernel has its own, the software clock, which it keeps up to date with its own means (possibly with the help of time servers, see <a
+                class="xref"
+                href="sect.config-misc.html#sect.time-synchronization">Sezione 8.9.2, «Sincronizzazione del tempo»</a>). This system clock is generally more accurate, especially since it doesn't need access to hardware variables. However, since it only exists in live memory, it is zeroed out every time the machine is booted, contrary to the CMOS clock, which has a battery and therefore “survives” rebooting or halting of the machine. The system clock is, thus, set from the CMOS clock during boot, and the CMOS clock is updated on shutdown (to take into account possible changes or corrections if it has been improperly adjusted).
+			</div><div
+              class="para">
+				In pratica c'è un problema perché l'orologio CMOS non è nulla più di un contatore che non contiene informazioni circa il fuso orario. Vi è una scelta da fare riguardo questa interpretazione: o il sistema considera che si configurato nell'orario universale (UTC, precedemente GMT), oppure in orario locale. Questa scelta può sembrare semplice ma le cose sono in verità più complicate: come risultato dell'ora legale questo sfasamento non è costante. Il risultato è che il sistema non ha modo di determinare se lo sfasamento è corretto, specialmente nei periodi del cambio. Poiché è sempre possibile ricostruire l'orario locale dal tempo universale e le informazioni sul fuso orario, raccomandiamo fortemente di utilizzare l'orologio CMOS con l'orario universale.
+			</div><div
+              class="para">
+				Unfortunately, Windows systems in their default configuration ignore this recommendation; they keep the CMOS clock on local time, applying time changes when booting the computer by trying to guess during time changes if the change has already been applied or not. This works relatively well, as long as the system has only Windows running on it. But when a computer has several systems (whether it be a “dual-boot” configuration or running other systems via virtual machine), chaos ensues, with no means to determine if the time is correct. If you absolutely must retain Windows on a computer, you should either configure it to keep the CMOS clock as UTC (setting the registry key <code
+                class="literal">HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation\RealTimeIsUniversal</code> to “1” as a DWORD), or use <code
+                class="command">hwclock --localtime --set</code> on the Debian system to set the hardware clock and mark it as tracking the local time (and make sure to manually check your clock in spring and autumn).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.time-synchronization"></a>8.9.2. Sincronizzazione del tempo</h3></div></div></div><a
+            id="idm140618335307600"
+            class="indexterm"></a><a
+            id="idm140618335306672"
+            class="indexterm"></a><div
+            class="para">
+				La sincronizzazione del tempo, che può sembrare superflua in un computer, è molto importante in una rete. Poiché gli utenti non hanno permessi per poter modificare data ed ora è importante che questa informazione sia precisa per evitare confusione. Inoltre, avere tutti i computer sincronizzati sulla rete permette di ottenere comparazioni migliori tra le informazioni dei log sulle varie macchine. Così, in caso di attacco, è più semplice ricostruire la sequenza cronologica delle azioni sulle varie macchine interessate dalla compromissione. I dati raccolti sulle varie macchine per propositi statistici avrebbero hanno un gran senso se non fossero sincronizzati.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>FONDAMENTALI</em></span> NTP</strong></p></div></div></div><a
+              id="idm140618335302960"
+              class="indexterm"></a><a
+              id="idm140618335302000"
+              class="indexterm"></a><div
+              class="para">
+				L'NTP (Network Time Protocol) consente alla macchina di sincronizzarsi con altri in modo piuttosto accurato, prendendo in considerazione i ritardi introdotti dal trasferimento delle informazioni attraverso la rete ed altri possibili sfasamenti.
+			</div><div
+              class="para">
+				Mentre ci sono numerosi server NTP su Internet, i più popolari possono essere sovraccarichi. Ecco perché raccomandiamo di usare il server NTP <span
+                class="emphasis"><em>pool.ntp.org</em></span> che è, in realtà, un gruppo di macchine che hanno accettato di agire come server NTP pubblici. È sempre possibile limitare l'uso ad un sotto-gruppo specifico ad un paese, per esempio con <span
+                class="emphasis"><em>us.pool.ntp.org</em></span> per gli Stati Uniti o <span
+                class="emphasis"><em>ca.pool.ntp.org</em></span> per il Canada, ecc.
+			</div><div
+              class="para">
+				Tuttavia, se si gestisce una grande rete, si raccomanda di installare un proprio server NTP, che si sincronizzerà con i server pubblici. In questo caso tutte le altre macchine sulla rete potranno usare il server NTP interno anziché incrementare il carico sui server pubblici. Inoltre si aumenterà l'omogeneità dei propri orologi poiché tutte le macchine saranno sincronizzate dalla stessa sorgente e questa sorgente sarà generalmente molto vicina in termini di tempo di trasferimento di rete.
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.ntp-on-workstations"></a>8.9.2.1. Per le postazioni di lavoro</h4></div></div></div><div
+              class="para">
+					Poiché le postazioni di lavoro sono regolarmente riavviate (anche solo per risparmiare energia) sincronizzarle con NTP all'avvio è sufficiente. Per farlo si può installare il pacchetto <span
+                class="pkg pkg">ntpdate</span>. Se è necessario bisogna cambiare il server NTP usato modificando il file <code
+                class="filename">/etc/default/ntpdate</code>.
+				</div><a
+              id="idm140618335293584"
+              class="indexterm"></a><a
+              id="idm140618335292464"
+              class="indexterm"></a></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.ntp-on-servers"></a>8.9.2.2. Per i server</h4></div></div></div><div
+              class="para">
+					I server sono riavviati raramente ed è estremamente importante che il loro tempo di sistema sia corretto. Per mantenere costantemente corretto il tempo si dovrebbe installare un server NTP locale, un servizio offerto dal pacchetto <span
+                class="pkg pkg">ntp</span>. Nella configurazione predefinita il server si sincronizza con <span
+                class="emphasis"><em>pool.ntp.org</em></span> e fornisce il tempo in risposta alle richieste che arrivano dalla rete locale. È possibile configurarlo modificando il file <code
+                class="filename">/etc/ntp.conf</code> e la modifica più significativa riguarda il cambio dei server NTP a cui fa riferimento. Se la rete ha molti server può essere interessante avere un server del tempo locale che si sincronizza con i server pubblici e viene usato come sorgente del tempo dagli altri server nella rete.
+				</div><a
+              id="idm140618335287136"
+              class="indexterm"></a><a
+              id="idm140618335285712"
+              class="indexterm"></a><a
+              id="idm140618335284272"
+              class="indexterm"></a><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>APPROFONDIMENTI</em></span> Moduli GPS e altre sorgenti del tempo</strong></p></div></div></div><a
+                id="idm140618335281744"
+                class="indexterm"></a><a
+                id="idm140618335280784"
+                class="indexterm"></a><div
+                class="para">
+					Se la sincronizzazione del tempo è particolarmente cruciale per una rete è possibile equipaggiare un server con un modulo GPS (che utilizzerà il tempo fornito dai satelliti GPS) o un modulo DCF-77 (che sincronizzerà il tempo con l'orologio atomico vicino a Francoforte, Germania). In questo caso la configurazione del server NTP è un po' più complicata e si rente assolutamente necessaria la consultazione della documentazione prima di procedere.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.rotation-logs"></a>8.9.3. Ruotare i file di log</h3></div></div></div><a
+            id="idm140618335277248"
+            class="indexterm"></a><a
+            id="idm140618335275808"
+            class="indexterm"></a><a
+            id="idm140618335274368"
+            class="indexterm"></a><a
+            id="idm140618335273440"
+            class="indexterm"></a><div
+            class="para">
+				I file di log crescono, velocemente, ed è necessario archiviarli. Lo schema più comune è «ruotare» gli archivi: i file log vengono regolarmente archiviati e solo gli ultimi <em
+              class="replaceable">X</em> archivi vengono mantenuti. <code
+              class="command">logrotate</code>, il programma responsabile di queste rotazioni, segue le direttive specificate nel file <code
+              class="filename">/etc/logrotate.conf</code> ed in tutti i file all'interno della directory <code
+              class="filename">/etc/logrotate.d/</code>. L'amministratore può modificare questi file, se desidera adattare le politiche di rotazione definite da Debian. La pagina di manuale <span
+              class="citerefentry"><span
+                class="refentrytitle">logrotate</span>(1)</span> descrive tutte le opzioni disponibili per questi file di configurazione. Si potrebbe desiderare l'incremento del numero di file mantenuti nella rotazione dei log oppure spostare i file di log in una directory dedicata specifica per archiviarli anziché cancellarli. I log si possono anche inviare via email per archiviarli in altro luogo.
+			</div><div
+            class="para">
+				Il programma <code
+              class="command">logrotate</code> viene eseguito giornalmente dal software di programmazione <code
+              class="command">cron</code> (descritto in <a
+              class="xref"
+              href="sect.task-scheduling-cron-atd.html">Sezione 9.7, «Pianificare attività con <code
+                class="command">cron</code> e <code
+                class="command">atd</code>»</a>).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.sharing-admin-rights"></a>8.9.4. Condivisione dei privilegi di amministrazione</h3></div></div></div><a
+            id="idm140618335264896"
+            class="indexterm"></a><a
+            id="idm140618335263456"
+            class="indexterm"></a><a
+            id="idm140618335262496"
+            class="indexterm"></a><div
+            class="para">
+				Frequentemente diversi amministratori lavorano nella stessa rete. Condividere le password di root non è molto elegante ed apre le porte ad abusi legati all'anonimato che questa condivisione genera. La soluzione a questo problema è il programma <code
+              class="command">sudo</code> che consente a certi utenti di eseguire determinati comandi con privilegi speciali. Nel caso d'uso più comune <code
+              class="command">sudo</code> consente ad un utente fidato di eseguire qualsiasi comando come root. Per farlo l'utente esegue semplicemente <code
+              class="command">sudo <em
+                class="replaceable">comando</em></code> e si autentica utilizzando la propria password personale.
+			</div><div
+            class="para">
+				When installed, the <span
+              class="pkg pkg">sudo</span> package gives full root rights to members of the <code
+              class="literal">sudo</code> Unix group. To delegate other rights, the administrator must use the <code
+              class="command">visudo</code> command, which allows them to modify the <code
+              class="filename">/etc/sudoers</code> configuration file (here again, this will invoke the <code
+              class="command">vi</code> editor, or any other editor indicated in the <code
+              class="varname">EDITOR</code> environment variable). Adding a line with <code
+              class="literal"><em
+                class="replaceable">username</em> ALL=(ALL) ALL</code> allows the user in question to execute any command as root.
+			</div><a
+            id="idm140618335254288"
+            class="indexterm"></a><a
+            id="idm140618335253168"
+            class="indexterm"></a><a
+            id="idm140618335252048"
+            class="indexterm"></a><div
+            class="para">
+				Configurazioni più sofisticate consentono l'autorizzazione solo su specifici comandi per specifici utenti. Tutti i dettagli circa le varie possibilità sono offerti nella pagina di manuale <span
+              class="citerefentry"><span
+                class="refentrytitle">sudoers</span>(5)</span>.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.fstab-mount-points"></a>8.9.5. Lista dei punti di mount</h3></div></div></div><a
+            id="idm140618335247856"
+            class="indexterm"></a><a
+            id="idm140618335246896"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>FONDAMENTALI</em></span> Montare e smontare</strong></p></div></div></div><div
+              class="para">
+				In un sistema tipo Unix come Debian i file sono organizzati in una singola gerarchia ad albero di directory. La directory <code
+                class="filename">/</code> è chiamata la «directory radice»: tutte le altre directory sono sottodirectory di questa radice. «Montare» è l'azione di includere il contenuto di un dispositivo periferico (spesso un disco rigido) nell'albero generale dei file del sistema. Come conseguenza se si usa un disco rigido separato per conservare i dati personali degli utenti, questo disco dovrà essere «montato» nella directory <code
+                class="filename">/home/</code>. La radice del filesystem è sempre montata all'avvio dal kernel: altri dispositivi sono spesso montati successivamente durante la sequenza di avvio o manualmente con il comando <code
+                class="command">mount</code>.
+			</div><a
+              id="idm140618335242240"
+              class="indexterm"></a><div
+              class="para">
+				Alcuni dispositivi removibili sono montati automaticamente quando sono collegati, in particolare quando si usano GNOME, KDE o altri ambienti desktop grafici. Altri devono essere montati manualmente dall'utente. Allo stesso modo devono essere smontati (rimossi dall'albero dei file). Gli utenti comuni non hanno spesso il permesso di eseguire i comandi <code
+                class="command">mount</code> e <code
+                class="command">umount</code>. L'amministratore può tuttavia autorizzare queste operazioni (indipendentemente per ciascun punto di montaggio) includendo l'opzione <code
+                class="literal">user</code> nel file <code
+                class="filename">/etc/fstab</code>.
+			</div><div
+              class="para">
+				Il comando <code
+                class="command">mount</code> può essere usato senza argomenti (visualizza tutti i filesystem montati). I seguenti parametri sono richiesti per montare o smontare un dispositivo. Per la lista completa fare riferimento alle corrispondenti pagine di manuale: <span
+                class="citerefentry"><span
+                  class="refentrytitle">mount</span>(8)</span> e <span
+                class="citerefentry"><span
+                  class="refentrytitle">umount</span>(8)</span>. Per i casi più semplici la sintassi è altrettanto semplice: per esempio per montare la partizione <code
+                class="filename">/dev/sdc1</code>, che ha un filesystem ext3, nella directory <code
+                class="filename">/mnt/tmp/</code> si può semplicemente eseguire <code
+                class="command">mount -t ext3 /dev/sdc1 /mnt/tmp/</code>.
+			</div></div><div
+            class="para">
+				Il file <code
+              class="filename">/etc/fstab</code> fornisce la lista di tutti i possibili montaggi che possono avvenire sia automaticamente all'avvio, sia manualmente per i dispositivi di archiviazione removibili. Ogni punto di montaggio è descritto da una riga con diversi campi separati da spazi: <a
+              id="idm140618335232240"
+              class="indexterm"></a> <a
+              id="idm140618335231440"
+              class="indexterm"></a>
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						dispositivo da montare: può essere una partizione locale (disco rigido, CD-ROM) o un filesystem remoto (come NFS).
+					</div><div
+                  class="para">
+						Questo campo è frequentemente sostituito con l'ID univoco del filesystem (che può essere determinato con <code
+                    class="command">blkid <strong
+                      class="userinput"><code>dispositivo</code></strong></code>) ed è preceduto da <code
+                    class="literal">UUID=</code>. Questo mette al riparo da un eventuale cambio nel nome del device in caso di aggiunta o rimozione di dischi, o se i dischi vengono individuati in un ordine diverso.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						punto di montaggio: questa è la posizione nel filesystem locale dove il dispositivo, sistema remoto, o partizione dev'essere montata.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						type: this field defines the filesystem used on the mounted device. <code
+                    class="literal">ext4</code>, <code
+                    class="literal">ext3</code>, <code
+                    class="literal">vfat</code>, <code
+                    class="literal">ntfs</code>, <code
+                    class="literal">btrfs</code>, <code
+                    class="literal">xfs</code> are a few examples.
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>FONDAMENTALI</em></span> NFS, un filesystem di rete</strong></p></div></div></div><div
+                    class="para">
+						NFS è un filesystem di rete: su Linux consente l'accesso trasparente a file remoti includendoli nel filesystem locale.
+					</div></div><div
+                  class="para">
+						Una lista completa dei filesystem conosciuti è disponibile nella pagina di manuale <span
+                    class="citerefentry"><span
+                      class="refentrytitle">mount</span>(8)</span>. Il valore speciale <code
+                    class="literal">swap</code> è per le partizioni di swap. Il valore speciale <code
+                    class="literal">auto</code> comunica al programma <code
+                    class="command">mount</code> di individuare automaticamente il filesystem (cosa particolarmente utile per i lettori e le chiavette USB, poiché ognuna può avere un filesystem diverso dall'altra).
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						opzioni: ne esistono molte, in base al filesystem, e sono documentate nella pagina di manuale <code
+                    class="command">mount</code>. Le più comuni sono
+					</div><div
+                  class="itemizedlist"><ul><li
+                      class="listitem"><div
+                        class="para">
+								<code
+                          class="literal">rw</code> o <code
+                          class="literal">ro</code>, significano rispettivamente che il dispositivo può essere montato con i permessi di lettura/scrittura oppure sola lettura.
+							</div></li><li
+                      class="listitem"><div
+                        class="para">
+								<code
+                          class="literal">noauto</code> disattiva il montaggio automatico all'avvio.
+							</div></li><li
+                      class="listitem"><div
+                        class="para">
+								<code
+                          class="literal">user</code> autorizza tutti gli utenti a montare questo filesystem (un'operazione che sarebbe altrimenti consentita al solo utente root).
+							</div></li><li
+                      class="listitem"><div
+                        class="para">
+								<code
+                          class="literal">defaults</code> imposta un insieme di opzioni predefinite: <code
+                          class="literal">rw</code>, <code
+                          class="literal">suid</code>, <code
+                          class="literal">dev</code>, <code
+                          class="literal">exec</code>, <code
+                          class="literal">auto</code>, <code
+                          class="literal">nouser</code> e <code
+                          class="literal">async</code>, ognuna delle quali può essere singolarmente disabilitata dopo <code
+                          class="literal">defaults</code> aggiungendo <code
+                          class="literal">nosuid</code>, <code
+                          class="literal">nodev</code> e così via per bloccare rispettivamente <code
+                          class="literal">suid</code>, <code
+                          class="literal">dev</code> ecc. Aggiungere l'opzione <code
+                          class="literal">user</code> la riattiva, dato che <code
+                          class="literal">defaults</code> include <code
+                          class="literal">nouser</code>.
+							</div></li></ul></div></li><li
+                class="listitem"><div
+                  class="para">
+						backup: questo campo è quasi sempre impostato a <code
+                    class="literal">0</code>. Quando è pari a <code
+                    class="literal">1</code> comunica allo strumento <code
+                    class="command">dump</code> che la partizione contiene dati che devono essere soggetti a backup.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						ordine di controllo: questo ultimo campo indica quando l'integrità del filesystem dev'essere controllata all'avvio, e in che ordine questo controllo dev'essere eseguito. Se è <code
+                    class="literal">0</code> nessun controllo viene eseguito. Il filesystem radice dovrebbe sempre avere il valore <code
+                    class="literal">1</code> mentre altri filesystem permanenti dovrebbero avere il valore <code
+                    class="literal">2</code>.
+					</div></li></ul></div><div
+            class="example"><a
+              id="example.fstab"></a><p
+              class="title"><strong>Esempio 8.5. Esempio di file <code
+                  class="filename">/etc/fstab</code>:</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# /etc/fstab: static file system information.
+#
+# &lt;file system&gt; &lt;mount point&gt;   &lt;type&gt;  &lt;options&gt;       &lt;dump&gt;  &lt;pass&gt;
+proc            /proc           proc    defaults        0       0
+# / was on /dev/sda1 during installation
+UUID=c964222e-6af1-4985-be04-19d7c764d0a7 / ext3 errors=remount-ro 0 1
+# swap was on /dev/sda5 during installation
+UUID=ee880013-0f63-4251-b5c6-b771f53bd90e none swap sw  0       0
+/dev/scd0       /media/cdrom0   udf,iso9660 user,noauto 0       0
+/dev/fd0        /media/floppy   auto    rw,user,noauto  0       0
+arrakis:/shared /shared         nfs     defaults        0       0
+</pre></div></div><div
+            class="para">
+				L'ultima riga di questo esempio corrisponde ad un filesystem di rete (NFS): la directory <code
+              class="filename">/shared/</code> sul server <span
+              class="emphasis"><em>arrakis</em></span> è montata in <code
+              class="filename">/shared/</code> nella macchina locale. Il formato del file <code
+              class="filename">/etc/fstab</code> è documentato nella pagina di manuale <span
+              class="citerefentry"><span
+                class="refentrytitle">fstab</span>(5)</span>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>APPROFONDIMENTI</em></span> Montaggio automatico</strong></p></div></div></div><div
+              class="para">
+				Il pacchetto <span
+                class="emphasis"><em>am-utils</em></span> fornisce l'utilità di montaggio automatico <code
+                class="command">amd</code> in grado di montare dischi removibili su richiesta quando un utente cerca di accedere ai rispettivi comuni punti di montaggio. L'utilità smonta questi dispositivi quando nessun processo vi fa più accesso.
+			</div><a
+              id="idm140618335187296"
+              class="indexterm"></a><a
+              id="idm140618335186176"
+              class="indexterm"></a><a
+              id="idm140618335185056"
+              class="indexterm"></a><a
+              id="idm140618335183936"
+              class="indexterm"></a><a
+              id="idm140618335182816"
+              class="indexterm"></a><div
+              class="para">
+				Esistono altre utilità di montaggio automatico come <code
+                class="command">automount</code> contenuta nel pacchetto <span
+                class="emphasis"><em>autofs</em></span>.
+			</div><div
+              class="para">
+				Note also that GNOME, KDE, and other graphical desktop environments work together with <span
+                class="emphasis"><em>udisks</em></span>, and can automatically mount removable media when they are connected.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.locate-updatedb"></a>8.9.6. <code
+                    class="command">locate</code> e <code
+                    class="command">updatedb</code></h3></div></div></div><a
+            id="idm140618335177264"
+            class="indexterm"></a><a
+            id="idm140618335176144"
+            class="indexterm"></a><a
+            id="idm140618335175024"
+            class="indexterm"></a><div
+            class="para">
+				The <code
+              class="command">locate</code> command can find the location of a file when you only know part of the name. It sends a result almost instantaneously, since it consults a database that stores the location of all the files on the system; this database is updated daily by the <code
+              class="command">updatedb</code> command. There are multiple implementations of the <code
+              class="command">locate</code> command and Debian picked <span
+              class="pkg pkg">mlocate</span> for its standard system.
+			</div><div
+            class="para">
+				<code
+              class="command">mlocate</code> is smart enough to only return files which are accessible to the user running the command even though it uses a database that knows about all files on the system (since its <code
+              class="command">updatedb</code> implementation runs with root rights). For extra safety, the administrator can use <code
+              class="varname">PRUNEDPATHS</code> in <code
+              class="filename">/etc/updatedb.conf</code> to exclude some directories from being indexed.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-bootloader.html"><strong>Indietro</strong>8.8. Configurare il bootloader</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Risali</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Partenza</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.kernel-compilation.html"><strong>Avanti</strong>8.10. Compilare un kernel</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.config-misc.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.config-misc.html">da-DK</a></li><li><a
+              href="../de-DE/sect.config-misc.html">de-DE</a></li><li><a
+              href="../el-GR/sect.config-misc.html">el-GR</a></li><li><a
+              href="../en-US/sect.config-misc.html">en-US</a></li><li><a
+              href="../es-ES/sect.config-misc.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.config-misc.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.config-misc.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.config-misc.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.config-misc.html">id-ID</a></li><li><a
+              href="../it-IT/sect.config-misc.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.config-misc.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.config-misc.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.config-misc.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.config-misc.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.config-misc.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.config-misc.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.config-misc.html">zh-CN</a></li></ul></div></body></html>

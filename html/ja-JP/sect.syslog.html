@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.5. syslog システムイベント</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="システム起動, 初期化スクリプト, SSH, Telnet, 権限, パーミッション, 管理, Inetd, Cron, バックアップ, ホットプラグ, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第9章 Unix サービス" /><link
+        rel="prev"
+        href="sect.administration-interfaces.html"
+        title="9.4. 管理インターフェース" /><link
+        rel="next"
+        href="sect.inetd.html"
+        title="9.6. inetd スーパーサーバ" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.syslog.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.syslog"></a>9.5. <code
+                  class="command">syslog</code> システムイベント</h2></div></div></div><a
+          id="idm140393323799184"
+          class="indexterm"></a><a
+          id="idm140393323798064"
+          class="indexterm"></a><a
+          id="idm140393323796624"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-principe"></a>9.5.1. 原理とメカニズム</h3></div></div></div><div
+            class="para">
+				<code
+              class="command">rsyslogd</code> デーモンはアプリケーションおよびカーネルからのサービスメッセージを収集を担当し、サービスメッセージをログファイル (通常 <code
+              class="filename">/var/log/</code> ディレクトリに保存されます) に配送します。<code
+              class="command">rsyslogd</code> デーモンは <code
+              class="filename">/etc/rsyslog.conf</code> ファイルの設定に従います。
+			</div><div
+            class="para">
+				各ログメッセージはアプリケーションサブシステム (文書中では「facility」と呼ばれます) に関連付けられます:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">auth</code> と <code
+                    class="literal">authpriv</code>: 認証;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">cron</code>: タスクスケジューリングサービスからのメッセージ、<code
+                    class="command">cron</code> と <code
+                    class="command">atd</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">daemon</code>: 特別な分類の無いデーモン (DNS、NTP、など);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ftp</code>: FTP サーバ関連;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">kern</code>: カーネルからのメッセージ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">lpr</code>: 印刷サブシステムからのメッセージ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">mail</code>: 電子メールサブシステムからのメッセージ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">news</code>: Usenet サブシステムからのメッセージ (特にニュースグループを管理する NNTP - Network News Transfer Protocol - サーバ);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">syslog</code>: <code
+                    class="command">syslogd</code> サーバ (自分) からのメッセージ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">user</code>: ユーザメッセージ (一般);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">uucp</code>: UUCP サーバからのメッセージ (Unix to Unix Copy Program、とりわけ昔は電子メールメッセージの配送に使われていた古いプロトコル);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">local0</code> から <code
+                    class="literal">local7</code>: ローカル利用向けに予約されています。
+					</div></li></ul></div><div
+            class="para">
+				さらに各メッセージは優先順位と関連付けられます。以下は優先度の高い順に挙げたリストです:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">emerg</code>: 「助けて!」非常事態です。おそらくシステムが不安定になっています。
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">alert</code>: 急いで下さい、遅れると危険な状態になります。すぐに何らかの措置が必要です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">crit</code>: 危機的状態です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">err</code>: エラー;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">warn</code>: 警告 (潜在的エラー);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">notice</code>: 正常な状態ですが、このメッセージは重要です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">info</code>: 有益なメッセージ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">debug</code>: デバッグメッセージ。
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-config"></a>9.5.2. 設定ファイル</h3></div></div></div><div
+            class="para">
+				<code
+              class="filename">/etc/rsyslog.conf</code> ファイルの構文は <span
+              class="citerefentry"><span
+                class="refentrytitle">rsyslog.conf</span>(5)</span> マニュアルページで詳しく説明されています。しかし、<span
+              class="pkg pkg">rsyslog-doc</span> パッケージから提供される HTML 文書 (<code
+              class="filename">/usr/share/doc/rsyslog-doc/html/index.html</code>) も利用可能です。全般的な原則は「セレクタ」と「アクション」の組を書く事です。セレクタはすべての関連するメッセージを定義し、アクションはそれらのメッセージをどのように取り扱うかを定義します。
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-selector-syntax"></a>9.5.2.1. セレクタの構文</h4></div></div></div><div
+              class="para">
+					セレクタは <code
+                class="literal"><em
+                  class="replaceable">subsystem</em>.<em
+                  class="replaceable">priority</em></code> の組からなるセミコロン区切りリストです (例: <code
+                class="literal">auth.notice;mail.info</code>)。アスタリスクはすべてのサブシステムまたはすべての優先順位を表します (例: <code
+                class="literal">*.alert</code>、<code
+                class="literal">mail.*</code>)。コンマで区切れば複数のサブシステムをグループ化する事が可能です (例: <code
+                class="literal">auth,mail.info</code>)。優先度は同じかより高い優先度を持つメッセージを意味します; このため <code
+                class="literal">auth.alert</code> は <code
+                class="literal">alert</code> および <code
+                class="literal">emerg</code> 優先度を持つ <code
+                class="literal">auth</code> サブシステムメッセージを表現します。優先度の前に感嘆符 (!) を付けると否定を表します。言い換えれば、その優先度より低い優先度です; このため <code
+                class="literal">auth.!notice</code> は <code
+                class="literal">auth</code> から発行された <code
+                class="literal">info</code> および <code
+                class="literal">debug</code> 優先度を持つメッセージを表現します。優先度の前に等号 (=) をつけると、その優先度だけを表します (<code
+                class="literal">auth.=notice</code> は <code
+                class="literal">auth</code> から発行された <code
+                class="literal">notice</code> 優先度を持つメッセージを表現します)。
+				</div><div
+              class="para">
+					セレクタリスト内の各要素は前の要素を上書きします。このため、セレクタリストからある組を制限したり、ある要素を除外する事が可能です。例えば、<code
+                class="literal">kern.info;kern.!err</code> はカーネルの発行した <code
+                class="literal">info</code> と <code
+                class="literal">warn</code> の間の優先度を持つメッセージを意味します。<code
+                class="literal">none</code> 優先度は空の組 (優先度を持たない) を意味します。これはあるサブシステムをメッセージの組から除外するのに役立つかもしれません。そんなわけで、<code
+                class="literal">*.crit;kern.none</code> はカーネルの発行した <code
+                class="literal">crit</code> 以上の優先度を持つメッセージを意味します。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-action-syntax"></a>9.5.2.2. アクションの構文</h4></div></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>BACK TO BASICS</em></span> 名前付きパイプ、永続的パイプ</strong></p></div></div></div><a
+                id="idm140393323736272"
+                class="indexterm"></a><a
+                id="idm140393323735312"
+                class="indexterm"></a><div
+                class="para">
+					名前付きパイプは特殊なファイル型で、古典的なパイプ (コマンドラインで「|」文字を使って表すパイプ) のように振る舞いますが、ファイルを経由します。名前付きパイプのメカニズムは 2 つの別々のプロセスを関連付ける事が可能という利点を持っています。別のプロセスが名前付きパイプに書き込まれたデータを読む準備を整えるまで、名前付きパイプに書き込むプロセスはブロックされます。読み込み側のプロセスが書き込み側のプロセスの書き込んだデータを読み込むと、書き込み側のプロセスのブロックが解除されます。
+				</div><div
+                class="para">
+					名前付きパイプは <code
+                  class="command">mkfifo</code> コマンドで作成します。
+				</div></div><div
+              class="para">
+					様々なアクションが利用可能です:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							ファイルにメッセージを追記する (例: <code
+                      class="filename">/var/log/messages</code>);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							メッセージをリモートの <code
+                      class="command">syslog</code> サーバに送信する (例: <code
+                      class="literal">@log.falcot.com</code>);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							既存の名前付きパイプにメッセージを送信する (例: <code
+                      class="literal">|/dev/xconsole</code>);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ログイン中の 1 人かそれ以上のユーザにメッセージを送信する (例: <code
+                      class="literal">root,rhertzog</code>);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ログイン中の全ユーザにメッセージを送信する (例: <code
+                      class="literal">*</code>);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							テキストコンソールにメッセージを書き込む (例: <code
+                      class="literal">/dev/tty8</code>)。
+						</div></li></ul></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>SECURITY</em></span> ログの転送</strong></p></div></div></div><a
+                id="idm140393308048688"
+                class="indexterm"></a><div
+                class="para">
+					最重要のログを別のマシン (ログ記録専用マシン) に記録する事をは良い考えです。なぜなら、そうすることで侵入者に不正侵入の形跡を削除されないようにする事が可能だからです (これを削除するにはもちろん、ログを記録させた別のマシンに不正アクセスするしかありません)。更に、深刻な問題 (カーネルクラッシュなど) が起きた場合に、他のマシンにログを記録しておけば、クラッシュを引き起こす一連の出来事を決定できる可能性を増やす事が可能です。
+				</div><div
+                class="para">
+					他のマシンから送信されたログメッセージを受け入れるには、<span
+                  class="emphasis"><em>rsyslog</em></span> を再設定しなければいけません: 具体的に言えば、<code
+                  class="filename">/etc/rsyslog.conf</code> の中ですぐに利用できる状態になっているエントリ (<code
+                  class="literal">$ModLoad imudp</code> と <code
+                  class="literal">$UDPServerRun 514</code>) を有効化するだけで十分です。
+				</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>戻る</strong>9.4. 管理インターフェース</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>次へ</strong>9.6. inetd スーパーサーバ</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.syslog.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.syslog.html">da-DK</a></li><li><a
+              href="../de-DE/sect.syslog.html">de-DE</a></li><li><a
+              href="../el-GR/sect.syslog.html">el-GR</a></li><li><a
+              href="../en-US/sect.syslog.html">en-US</a></li><li><a
+              href="../es-ES/sect.syslog.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.syslog.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.syslog.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.syslog.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.syslog.html">id-ID</a></li><li><a
+              href="../it-IT/sect.syslog.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.syslog.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.syslog.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.syslog.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.syslog.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.syslog.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.syslog.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.syslog.html">zh-CN</a></li></ul></div></body></html>

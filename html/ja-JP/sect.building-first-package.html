@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.2. 最初のパッケージのビルド</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="バックポート, 再ビルド, ソースパッケージ, アーカイブ, メタパッケージ, Debian 開発者, メンテナ" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="第15章 Debian パッケージの作成" /><link
+        rel="prev"
+        href="debian-packaging.html"
+        title="第15章 Debian パッケージの作成" /><link
+        rel="next"
+        href="sect.setup-apt-package-repository.html"
+        title="15.3. APT 用のパッケージリポジトリの作成" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.building-first-package.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.building-first-package"></a>15.2. 最初のパッケージのビルド</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393326093024"></a>15.2.1. メタパッケージか偽物のパッケージ</h3></div></div></div><div
+            class="para">
+				偽物のパッケージとメタパッケージは似ています。両者は自分のメタデータをパッケージ取り扱いスタックに置いておくためだけに存在する抜け殻です。
+			</div><div
+            class="para">
+				偽物のパッケージの目的は、<code
+              class="command">dpkg</code> と <code
+              class="command">apt</code> を騙して、抜け殻に過ぎない幾つかのパッケージがインストールされていると信じこませる事にあります。これを使うことで、あるソフトウェアの依存関係を満足させるために必要なソフトウェアがパッケージシステムの管轄外にインストールされている場合に、そのソフトウェアの依存関係を満足させる事が可能です。この方法は問題を解決しますが、これはできる限り避けるべき方法です。なぜなら、手作業でインストールされたソフトウェアが対応するパッケージと全く同様に振る舞う保証はありませんし、手作業でインストールされたソフトウェアに依存する他のパッケージが適切に動く保証もないからです。
+			</div><div
+            class="para">
+				逆に、メタパッケージはほとんどの場合依存関係の集合体として機能します。メタパッケージをインストールするだけで、一連の他のパッケージがインストールされます。
+			</div><div
+            class="para">
+				偽物のパッケージとメタパッケージは <code
+              class="command">equivs-control</code> と <code
+              class="command">equivs-build</code> コマンド (<span
+              class="pkg pkg">equivs</span> パッケージに含まれます) を使って作成されます。<code
+              class="command">equivs-control <em
+                class="replaceable">file</em></code> コマンドは Debian パッケージヘッダファイルを作成します。 Debian パッケージヘッダファイルには、パッケージの名前、バージョン番号、メンテナ、依存関係、説明を含めるように編集します。デフォルト値を持たない他のフィールドは任意で、削除する事も可能です。<code
+              class="literal">Copyright</code>、<code
+              class="literal">Changelog</code>、<code
+              class="literal">Readme</code>、<code
+              class="literal">Extra-Files</code> フィールドは Debian パッケージの標準的なフィールドではありません; これらのフィールドは <code
+              class="command">equivs-build</code> を使う限りにおいて意味を持つものであり、生成されるパッケージのヘッダから削除されるべきです。
+			</div><div
+            class="example"><a
+              id="idm140393304773600"></a><p
+              class="title"><strong>例15.2 <span
+                  class="emphasis"><em>libxml-libxml-perl</em></span> 偽物のパッケージのヘッダファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Section: perl
+Priority: optional
+Standards-Version: 3.8.4
+
+Package: libxml-libxml-perl
+Version: 1.57-1
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Depends: libxml2 (&gt;= 2.6.6)
+Architecture: all
+Description: Fake package - module manually installed in site_perl
+ This is a fake package to let the packaging system
+ believe that this Debian package is installed. 
+ .
+ In fact, the package is not installed since a newer version
+ of the module has been manually compiled &amp; installed in the
+ site_perl directory.</pre></div></div><div
+            class="para">
+				次のステップでは、<code
+              class="command">equivs-build <em
+                class="replaceable">file</em></code> コマンドを使って Debian パッケージを生成します。さぁこれで、パッケージは現在のディレクトリに作成され、他の Debian パッケージと同様に取り扱う事が可能になります。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140393304769744"></a>15.2.2. 単純なファイルアーカイブ</h3></div></div></div><div
+            class="para">
+				Falcot Corp の管理者は大量のマシン上に一連の文書を配備する事を簡単に行うために Debian パッケージを作成する必要があります。この作業を担当する管理者は最初に「新メンテナーガイド」を読み、その後最初のパッケージに対する作業に着手します。<div
+              class="url">→ <a
+                href="http://www.debian.org/doc/maint-guide/">http://www.debian.org/doc/maint-guide/</a></div>
+			</div><div
+            class="para">
+				最初に、対象のソースパッケージを含める <code
+              class="filename">falcot-data-1.0</code> ディレクトリを作成します。このパッケージは必然的に、<code
+              class="literal">falcot-data</code> と名付けられ、バージョン番号は <code
+              class="literal">1.0</code> になります。その後、管理者は文書ファイルを <code
+              class="filename">data</code> サブディレクトリに置きます。その後、管理者は <code
+              class="command">dh_make</code> コマンド (<span
+              class="pkg pkg">dh-make</span> パッケージに含まれます) を実行し、パッケージ生成作業に必要なファイルを追加します。このファイルは <code
+              class="filename">debian</code> サブディレクトリに保存されます:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd falcot-data-1.0</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>dh_make --native</code></strong>
+<code
+              class="computeroutput">
+Type of package: single binary, indep binary, multiple binary, library, kernel module, kernel patch or cdbs?
+ [s/i/m/l/k/n/b] </code><strong
+              class="userinput"><code>i</code></strong>
+<code
+              class="computeroutput">
+Maintainer name : Raphael Hertzog
+Email-Address   : hertzog@debian.org
+Date            : Mon, 11 Apr 2011 15:11:36 +0200
+Package Name    : falcot-data
+Version         : 1.0
+License         : blank
+Usind dpatch    : no
+Type of Package : Independent
+Hit &lt;enter&gt; to confirm:
+Currently there is no top level Makefile. This may require additional tuning.
+Done. Please edit the files in the debian/ subdirectory now. You should also
+check that the falcot-data Makefiles install into $DESTDIR and not in / .
+$</code></pre><div
+            class="para">
+				パッケージの種類で <span
+              class="emphasis"><em>single binary</em></span> を選ぶと、ソースパッケージから単一のバイナリパッケージをアーキテクチャ毎に (<code
+              class="literal">Architecture: any</code>) 生成します。<span
+              class="emphasis"><em>indep binary</em></span> はその逆の振る舞いで、対象のアーキテクチャに依存しない (<code
+              class="literal">Architecture: all</code>) 単一のバイナリを生成します。今回作成するパッケージの場合、<span
+              class="emphasis"><em>indep binary</em></span> がより適切です。なぜなら、このパッケージは文書だけを含みバイナリプログラムを含まないからです。このため、すべてのアーキテクチャのコンピュータで同じように使う事が可能です。
+			</div><div
+            class="para">
+				<span
+              class="emphasis"><em>multiple binary</em></span> を選ぶと、ソースパッケージから復数のバイナリパッケージを作成する事になります。<span
+              class="emphasis"><em>library</em></span> は特別な場合で、共有ライブラリ用に用意されています。なぜなら、共有ライブラリは厳しいパッケージ化規則に従う必要があるからです。同様に、<span
+              class="emphasis"><em>kernel module</em></span> はカーネルモジュールを含むパッケージ用に用意されています。最後に、<span
+              class="emphasis"><em>cdbs</em></span> は特定のパッケージビルドシステム用に用意されています; これはかなり柔軟ですが、より多くの知識が必要です。<a
+              id="idm140393304753984"
+              class="indexterm"></a> <a
+              id="idm140393304753376"
+              class="indexterm"></a>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> メンテナの名前と電子メールアドレス</strong></p></div></div></div><div
+              class="para">
+				パッケージメンテナンスに関わるほとんどのプログラムはメンテナの名前と電子メールアドレスを <code
+                class="varname">DEBFULLNAME</code> と <code
+                class="varname">DEBEMAIL</code> または <code
+                class="varname">EMAIL</code> 環境変数から取得します。たった 1 回だけこれらの環境変数を定義するだけで、これらの情報を毎回打ち込む必要がなくなります。通常のシェルが <code
+                class="command">bash</code> の場合、<code
+                class="filename">~/.bashrc</code> と <code
+                class="filename">~/.bash_profile</code> ファイルに以下の 2 行 (当然ですが、値を自分のものに変えてくださいね!) を追加するだけで簡単にこれを行う事が可能です:
+			</div><pre
+              class="programlisting">
+export EMAIL="hertzog@debian.org"
+export DEBFULLNAME="Raphael Hertzog"</pre></div><div
+            class="para">
+				<code
+              class="command">dh_make</code> コマンドは <code
+              class="filename">debian</code> サブディレクトリと各種ファイルを作成しました。一部のファイル、特に <code
+              class="filename">rules</code>、<code
+              class="filename">control</code>、<code
+              class="filename">changelog</code>、<code
+              class="filename">copyright</code> は必須です。<code
+              class="filename">.ex</code> 拡張子を持つファイルは例ファイルで、必要ならばこれらのファイルをひな形として (拡張子を削除して) 使う事が可能です。必要なければ例ファイルを削除する事をおすすめします。<code
+              class="filename">compat</code> ファイルはそのままにしておくべきです。なぜなら、<code
+              class="filename">compat</code> ファイルはパッケージビルド作業の様々な段階で使われる <span
+              class="emphasis"><em>debhelper</em></span> プログラムスイート (<code
+              class="command">dh_</code> から始まるプログラム群) を適切に動作させるために必要だからです。
+			</div><div
+            class="para">
+				<code
+              class="filename">copyright</code> ファイルには、必ずパッケージに含まれる文書の著者と対応するライセンスに関する情報を含めなければいけません。今回の場合、パッケージには内部文書が含まれ、その使用は Falcot Corp 社内だけに制限されています。デフォルトの <code
+              class="filename">changelog</code> ファイルはほとんどの場合に適切です; 「Initial release」をより詳しい説明に置き換えたり、<code
+              class="literal">unstable</code> を <code
+              class="literal">internal</code> に変えるだけで十分です。<code
+              class="filename">control</code> ファイルも更新します: section は <span
+              class="emphasis"><em>misc</em></span> に変更され、<code
+              class="literal">Homepage</code>、<code
+              class="literal">Vcs-Git</code>、<code
+              class="literal">Vcs-Browser</code> は削除されました。<code
+              class="literal">Depends</code> フィールドには <code
+              class="literal">iceweasel | www-browser</code> を指定しました。これはパッケージ内の文書を表示するために必要なウェブブラウザがインストールされている事を保証するためです。
+			</div><div
+            class="example"><a
+              id="idm140393304734624"></a><p
+              class="title"><strong>例15.3 <code
+                  class="filename">control</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Source: falcot-data
+Section: misc
+Priority: optional
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Build-Depends: debhelper (&gt;= 7.0.50~)
+Standards-Version: 3.8.4
+
+Package: falcot-data
+Architecture: all
+Depends: iceweasel | www-browser, ${misc:Depends}
+Description: Internal Falcot Corp Documentation
+ This package provides several documents describing the internal
+ structure at Falcot Corp.  This includes:
+  - organization diagram
+  - contacts for each department.
+ .
+ These documents MUST NOT leave the company.
+ Their use is INTERNAL ONLY.</pre></div></div><div
+            class="example"><a
+              id="idm140393304732336"></a><p
+              class="title"><strong>例15.4 <code
+                  class="filename">changelog</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+falcot-data (1.0) internal; urgency=low
+
+  * Initial Release.
+  * Let's start with few documents:
+    - internal company structure;
+    - contacts for each department.
+
+ -- Raphael Hertzog &lt;hertzog@debian.org&gt;  Mon, 11 Apr 2011 20:46:33 +0200</pre></div></div><div
+            class="example"><a
+              id="idm140393304730352"></a><p
+              class="title"><strong>例15.5 <code
+                  class="filename">copyright</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+This work was packaged for Debian by Raphael Hertzog &lt;hertzog@debian.org&gt;
+on Mon, 11 Apr 2011 20:46:33 +0200
+
+Copyright:
+
+    Copyright (C) 2004-2011 Falcot Corp
+
+License:
+
+    All rights reserved.</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>BACK TO BASICS</em></span> <code
+                        class="filename">Makefile</code> ファイル</strong></p></div></div></div><a
+              id="idm140393304726816"
+              class="indexterm"></a><div
+              class="para">
+				<code
+                class="filename">Makefile</code> ファイルは <code
+                class="command">make</code> プログラムによって使われるスクリプトです; <code
+                class="filename">Makefile</code> ファイルは互いに依存関係を持つファイル群をビルドする規則を指定します (例えば、復数のソースファイル群から 1 つのプログラムをビルドする事を指定します)。<code
+                class="filename">Makefile</code> ファイルはビルド規則を以下のフォーマットで指定します。
+			</div><pre
+              class="programlisting">
+target: source1 source2 ...
+        command1
+        command2</pre><div
+              class="para">
+				ビルド規則の解釈は以下の通り行われます: <code
+                class="literal">source*</code> ファイルの 1 つが <code
+                class="literal">target</code> ファイルよりも新しい場合、<code
+                class="command">command1</code> と <code
+                class="command">command2</code> を使って target を生成します。
+			</div><div
+              class="para">
+				コマンド行は必ずタブ文字で開始しなければいけない点に注意してください; さらに、コマンド行がダッシュ文字 (<code
+                class="literal">-</code>) で始まる場合、そのコマンドが失敗しても全体のプロセスは停止されなくなる点に注意してください。
+			</div></div><div
+            class="para">
+				<code
+              class="filename">rules</code> ファイルには、(生成されるバイナリパッケージにちなんで名付けられた) 専用のサブディレクトリ内で対象のソフトウェアを設定、ビルド、インストールするために使われる一連の規則が定義されています。このサブディレクトリの内容はあたかもサブディレクトリがファイルシステムのルートであるかの如く Debian パッケージの中に保存されます。今回の場合、ファイルは <code
+              class="filename">debian/falcot-data/usr/share/falcot-data/</code> サブディレクトリにインストールされます。こうすることで、生成されたパッケージをインストールすると、ファイルが <code
+              class="filename">/usr/share/falcot-data/</code> の下に配備されます。<code
+              class="filename">rules</code> ファイルは <code
+              class="filename">Makefile</code> として使われ、幾つかの標準的なターゲット (定義済みの <code
+              class="literal">clean</code> と <code
+              class="literal">binary</code> はそれぞれソースディレクトリを削除する場合、バイナリパッケージを生成する場合に使います) が定義されています。
+			</div><div
+            class="para">
+				<code
+              class="filename">rules</code> ファイルはビルド作業の核心で、<code
+              class="command">debhelper</code> ツールによって提供される標準的なコマンド群を実行するために必要な最低限の要素だけを含みます。これが面倒を見るのは <code
+              class="command">dh_make</code> によって生成されたファイルだけです。自分のファイルをインストールするためには、以下の <code
+              class="filename">debian/falcot-data.install</code> ファイルを作成して、<code
+              class="command">dh_install</code> コマンドの挙動を単純に設定します。
+			</div><pre
+            class="programlisting">
+data/* usr/share/falcot-data/</pre><div
+            class="para">
+				この時点で、パッケージを作成する事が可能になります。しかしながら、もう少しファイルを追加します。管理者はグラフィカルデスクトップ環境のヘルプメニューから文書へ簡単にアクセスできるようにしたいので、Debian メニューシステムにエントリを作成しました。これは <code
+              class="filename">debian/menu.ex</code> の拡張子を外し、以下のとおり編集することで、単純に行われます。
+			</div><div
+            class="example"><a
+              id="idm140393304576416"></a><p
+              class="title"><strong>例15.6 <code
+                  class="filename">menu</code> ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+?package(falcot-data):needs=X11|wm section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/x-www-browser /usr/share/falcot-data/index.html"
+?package(falcot-data):needs=text section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/www-browser /usr/share/falcot-data/index.html"</pre></div></div><div
+            class="para">
+				<code
+              class="literal">needs</code> フィールドが <code
+              class="literal">X11|wm</code> に設定された場合、このエントリがグラフィカルインターフェースでのみ意味を持つ事を意味します。そのため、このエントリはグラフィカル (X11) アプリケーションとウィンドウマネージャ (<code
+              class="literal">wm</code>) のメニューに統合されます。<code
+              class="literal">section</code> フィールドはこのエントリが表示されるメニュー内の場所を指定します。今回の場合、このエントリは Help メニューに表示されます。<code
+              class="literal">title</code> フィールドはメニューに表示されるテキストを指定します。最後に、<code
+              class="literal">command</code> フィールドはユーザがメニューエントリを選択した時に実行するコマンドを指定します。
+			</div><div
+            class="para">
+				2 番目のエントリは 1 番目のエントリを Linux コンソールテキストモードに適応させたものです。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DEBIAN POLICY</em></span> メニュー統合</strong></p></div></div></div><div
+              class="para">
+				Debian メニューは規則に従って統合されます。詳細は以下のテキストに書かれています: <div
+                class="url">→ <a
+                  href="http://www.debian.org/doc/packaging-manuals/menu-policy/">http://www.debian.org/doc/packaging-manuals/menu-policy/</a></div>
+			</div><div
+              class="para">
+				<code
+                class="filename">menu</code> ファイルの <code
+                class="literal">section</code> の値はこの文書で述べられているリストの値を使うべきです。
+			</div></div><div
+            class="para">
+				パッケージ内でメニューを有効化するには、単純に <code
+              class="filename">debian/menu</code> ファイルを作成するだけで十分です。なぜなら、パッケージビルド作業の間に <code
+              class="command">dh</code> が <code
+              class="command">dh_installmenu</code> コマンドを自動的に呼び出すからです。
+			</div><div
+            class="para">
+				これでソースパッケージの準備が整いました。最後に残された作業は、以前パッケージを再ビルドした際に使った方法と同じ方法を使って、バイナリパッケージを生成する事です: バイナリパッケージを生成するには、<code
+              class="filename">falcot-data-1.0</code> ディレクトリの中で、<code
+              class="command">dpkg-buildpackage -us -uc</code> コマンドを実行します。
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>戻る</strong>第15章 Debian パッケージの作成</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>次へ</strong>15.3. APT 用のパッケージリポジトリの作成</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.building-first-package.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.building-first-package.html">da-DK</a></li><li><a
+              href="../de-DE/sect.building-first-package.html">de-DE</a></li><li><a
+              href="../el-GR/sect.building-first-package.html">el-GR</a></li><li><a
+              href="../en-US/sect.building-first-package.html">en-US</a></li><li><a
+              href="../es-ES/sect.building-first-package.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.building-first-package.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.building-first-package.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.building-first-package.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.building-first-package.html">id-ID</a></li><li><a
+              href="../it-IT/sect.building-first-package.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.building-first-package.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.building-first-package.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.building-first-package.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.building-first-package.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.building-first-package.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.building-first-package.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.building-first-package.html">zh-CN</a></li></ul></div></body></html>

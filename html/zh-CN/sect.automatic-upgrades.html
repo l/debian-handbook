@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">6.8. Automatic Upgrades</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="apt-get, apt缓存, aptitude 更安全的apt, synaptic, sources.list, apt-cdrom" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="apt.html"
+        title="第 6 章 维护和更新：APT 工具" /><link
+        rel="prev"
+        href="sect.regular-upgrades.html"
+        title="6.7. Keeping a System Up to Date" /><link
+        rel="next"
+        href="sect.searching-packages.html"
+        title="6.9. Searching for Packages" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.automatic-upgrades.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.regular-upgrades.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.searching-packages.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.automatic-upgrades"></a>6.8. Automatic Upgrades</h2></div></div></div><a
+          id="idm140492733341504"
+          class="indexterm"></a><a
+          id="idm140492733340096"
+          class="indexterm"></a><div
+          class="para">
+			Since Falcot Corp has many computers but only limited manpower, its administrators try to make upgrades as automatic as possible. The programs in charge of these processes must therefore run with no human intervention.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492733338448"></a>6.8.1. Configuring <code
+                    class="command">dpkg</code></h3></div></div></div><div
+            class="para">
+				As we have already mentioned (see sidebar <a
+              class="xref"
+              href="sect.package-meta-information.html#sidebar.questions-conffiles"><span
+                class="emphasis"><em>更进一步</em></span> 避免配置文件问题</a>), <code
+              class="command">dpkg</code> can be instructed not to ask for confirmation when replacing a configuration file (with the <code
+              class="literal">--force-confdef --force-confold</code> options). Interactions can, however, have three other sources: some come from APT itself, some are handled by <code
+              class="command">debconf</code>, and some happen on the command line due to package configuration scripts.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492733334576"></a>6.8.2. Configuring APT</h3></div></div></div><div
+            class="para">
+				The case of APT is simple: the <code
+              class="literal">-y</code> option (or <code
+              class="literal">--assume-yes</code>) tells APT to consider the answer to all its questions to be “yes”.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492733332240"></a>6.8.3. Configuring <code
+                    class="command">debconf</code></h3></div></div></div><div
+            class="para">
+				The case of <code
+              class="command">debconf</code> deserves more details. This program was, from its inception, designed to control the relevance and volume of questions displayed to the user, as well as the way they are shown. That is why its configuration requests a minimal priority for questions; only questions above the minimal priority are displayed. <code
+              class="command">debconf</code> assumes the default answer (defined by the package maintainer) for questions which it decided to skip.
+			</div><div
+            class="para">
+				The other relevant configuration element is the interface used by the front-end. If you choose <code
+              class="literal">noninteractive</code> out of the choices, all user interaction is disabled. If a package tries to display an informative note, it will be sent to the administrator by email.
+			</div><div
+            class="para">
+				To reconfigure <code
+              class="command">debconf</code>, use the <code
+              class="command">dpkg-reconfigure</code> tool from the <span
+              class="pkg pkg">debconf</span> package; the relevant command is <code
+              class="command">dpkg-reconfigure debconf</code>. Note that the configured values can be temporarily overridden with environment variables when needed (for instance, <code
+              class="varname">DEBIAN_FRONTEND</code> controls the interface, as documented in the <span
+              class="citerefentry"><span
+                class="refentrytitle">debconf</span>(7)</span> manual page).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492733323648"></a>6.8.4. Handling Command Line Interactions</h3></div></div></div><div
+            class="para">
+				The last source of interactions, and the hardest to get rid of, is the configuration scripts run by <code
+              class="command">dpkg</code>. There is unfortunately no standard solution, and no answer is overwhelmingly better than another.
+			</div><div
+            class="para">
+				The common approach is to suppress the standard input by redirecting the empty content of <code
+              class="filename">/dev/null</code> into it with <code
+              class="command"><em
+                class="replaceable">command</em> &lt;/dev/null</code>, or to feed it with an endless stream of newlines. None of these methods is 100 % reliable, but they generally lead to the default answers being used, since most scripts consider a lack of reply as an acceptance of the default value.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492733319520"></a>6.8.5. The Miracle Combination</h3></div></div></div><div
+            class="para">
+				By combining the previous elements, it is possible to design a small but rather reliable script which can handle automatic upgrades.
+			</div><div
+            class="example"><a
+              id="example.non-interactive-upgrade"></a><p
+              class="title"><strong>例 6.4. Non-interactive upgrade script</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">export DEBIAN_FRONTEND=noninteractive
+yes '' | apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> The Falcot Corp case</strong></p></div></div></div><div
+              class="para">
+				Falcot computers are a heterogeneous system, with machines having various functions. Administrators will therefore pick the most relevant solution for each computer.
+			</div><div
+              class="para">
+				In practice, the servers running <span
+                class="distribution distribution">Jessie</span> are configured with the “miracle combination” above, and are kept up to date automatically. Only the most critical servers (the firewalls, for instances) are set up with <code
+                class="command">apticron</code>, so that upgrades always happen under the supervision of an administrator.
+			</div><div
+              class="para">
+				The office workstations in the administrative services also run <span
+                class="distribution distribution">Jessie</span>, but they are equipped with <span
+                class="pkg pkg">gnome-packagekit</span>, so that users trigger the upgrades themselves. The rationale for this decision is that if upgrades happen without an explicit action, the behavior of the computer might change unexpectedly, which could cause confusion for the main users.
+			</div><div
+              class="para">
+				In the lab, the few computers using <span
+                class="distribution distribution">Testing</span> — to take advantage of the latest software versions — are not upgraded automatically either. Administrators only configure APT to prepare the upgrades but not enact them; when they decide to upgrade (manually), the tedious parts of refreshing package lists and downloading packages will be avoided, and administrators can focus on the really useful part.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.regular-upgrades.html"><strong>上一页</strong>6.7. Keeping a System Up to Date</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.searching-packages.html"><strong>下一页</strong>6.9. Searching for Packages</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.automatic-upgrades.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.automatic-upgrades.html">da-DK</a></li><li><a
+              href="../de-DE/sect.automatic-upgrades.html">de-DE</a></li><li><a
+              href="../el-GR/sect.automatic-upgrades.html">el-GR</a></li><li><a
+              href="../en-US/sect.automatic-upgrades.html">en-US</a></li><li><a
+              href="../es-ES/sect.automatic-upgrades.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.automatic-upgrades.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.automatic-upgrades.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.automatic-upgrades.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.automatic-upgrades.html">id-ID</a></li><li><a
+              href="../it-IT/sect.automatic-upgrades.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.automatic-upgrades.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.automatic-upgrades.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.automatic-upgrades.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.automatic-upgrades.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.automatic-upgrades.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.automatic-upgrades.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.automatic-upgrades.html">zh-CN</a></li></ul></div></body></html>

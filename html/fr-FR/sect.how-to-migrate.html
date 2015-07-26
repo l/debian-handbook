@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">3.2. Démarche de migration</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Existant, Réutilisation, Migration" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="existing-setup.html"
+        title="Chapitre 3. Prise en compte de l'existant et migration" /><link
+        rel="prev"
+        href="existing-setup.html"
+        title="Chapitre 3. Prise en compte de l'existant et migration" /><link
+        rel="next"
+        href="installation.html"
+        title="Chapitre 4. Installation" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.how-to-migrate.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="existing-setup.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="installation.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.how-to-migrate"></a>3.2. Démarche de migration</h2></div></div></div><a
+          id="idm140565670749264"
+          class="indexterm"></a><div
+          class="para">
+			Pour chaque ordinateur à migrer, il faut suivre une démarche garantissant une continuité dans les services offerts. Quel que soit le système d'exploitation utilisé, le principe ne change pas.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565670747632"></a>3.2.1. Recenser et identifier les services</h3></div></div></div><div
+            class="para">
+				Aussi simple qu'elle paraisse, cette étape est indispensable. Un administrateur sérieux connaît vraisemblablement les rôles principaux de chaque serveur, mais ceux-ci évoluent et quelques utilisateurs expérimentés auront parfois installé des services « sauvages ». Connaître leur existence vous permettra au moins de décider de leur sort au lieu de les supprimer par mégarde.
+			</div><div
+            class="para">
+				À ce titre, il est souhaitable d'informer vos utilisateurs de votre projet quelque temps avant la migration effective du serveur. Pour les impliquer dans le projet, il pourra être utile d'installer sur les postes bureautiques les logiciels libres les plus courants qu'ils seront amenés à retrouver lors de la migration des postes de travail sous Debian ; on pense bien entendu à Libre Office et aux logiciels de la suite Mozilla.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565670745088"></a>3.2.1.1. Réseau et processus</h4></div></div></div><a
+              id="idm140565670744288"
+              class="indexterm"></a><div
+              class="para">
+					The <code
+                class="command">nmap</code> tool (in the package with the same name) will quickly identify Internet services hosted by a network connected machine without even requiring to log in to it. Simply call the following command on another machine connected to the same network:
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>nmap mirwiz</code></strong>
+<code
+                class="computeroutput">Starting Nmap 6.47 ( http://nmap.org ) at 2015-03-24 11:34 CET
+Nmap scan report for mirwiz (192.168.1.104)
+Host is up (0.0037s latency).
+Not shown: 999 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Nmap done: 1 IP address (1 host up) scanned in 0.13 seconds</code></pre><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>ALTERNATIVE</em></span> Utiliser <code
+                          class="command">netstat</code> pour trouver la liste des services disponibles</strong></p></div></div></div><div
+                class="para">
+					Sur une machine Linux, la commande <code
+                  class="command">netstat -tupan</code> dresse la liste des sessions TCP actives ou en attente ainsi que des ports UDP que les programmes actifs écoutent. Cela facilite le recensement des services proposés sur le réseau.
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> IPv6</strong></p></div></div></div><div
+                class="para">
+					Certaines commandes réseau peuvent travailler en IPv4 ou en IPv6. C'est notamment le cas des commandes <code
+                  class="command">nmap</code> et <code
+                  class="command">netstat</code>, mais aussi d'autres comme <code
+                  class="command">route</code> ou <code
+                  class="command">ip</code>. La convention est que ce comportement est déclenché par l'option de ligne de commande <em
+                  class="parameter"><code>-6</code></em>.
+				</div></div><div
+              class="para">
+					Si le serveur est une machine Unix offrant un compte shell aux utilisateurs, il est intéressant de déterminer si des processus s'exécutent en tâche de fond, en l'absence de leur propriétaire. La commande <code
+                class="command">ps auxw</code> affiche tous les processus et leur identifiant utilisateur associé. En croisant ces informations avec la sortie de la commande <code
+                class="command">who</code> (donnant la liste des utilisateurs connectés), il est possible de retrouver d'éventuels serveurs sauvages ou des programmes fonctionnant en tâche de fond. La consultation des tables de processus planifiés (<code
+                class="filename">crontabs</code>) fournira souvent des renseignements intéressants sur les fonctions remplies par le serveur (l'explication complète des commandes de <code
+                class="command">cron</code> se trouve dans la section « Planification de tâches » du <a
+                class="xref"
+                href="unix-services.html">Chapitre 9, <em>Services Unix</em></a>).
+				</div><div
+              class="para">
+					Dans tous les cas, il est indispensable de prévoir une sauvegarde du serveur : elle permettra de récupérer des informations a posteriori, quand les utilisateurs feront état de problèmes concrets dus à la migration.
+				</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565669864176"></a>3.2.2. Conserver la configuration</h3></div></div></div><div
+            class="para">
+				Il convient de conserver la configuration de chaque service identifié afin de pouvoir installer l'équivalent sur le serveur mis à jour. Le strict minimum est de faire une copie de sauvegarde des fichiers de configuration.
+			</div><div
+            class="para">
+				Pour des machines Unix, la configuration se trouve habituellement sous <code
+              class="filename">/etc/</code> mais il se peut qu'elle soit placée dans un sous-répertoire de <code
+              class="filename">/usr/local/</code>. C'est le cas lorsqu'un logiciel est installé depuis ses sources plutôt qu'avec un paquet. On peut même la rencontrer, dans certains cas, sous <code
+              class="filename">/opt/</code>.
+			</div><div
+            class="para">
+				Pour les services gérant des données (comme les bases de données), il est fortement recommandé d'exporter celles-ci dans un format standard, plus facile à reprendre par le nouveau logiciel. Un tel format est généralement en mode texte et documenté : il s'agira par exemple d'un <span
+              class="foreignphrase"><em
+                class="foreignphrase">dump</em></span> SQL pour une base de données et d'un fichier LDIF pour un serveur LDAP.
+			</div><div
+            class="figure"><a
+              id="idm140565669859520"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/existing-setup-2.png"
+                  alt="Sauvegarde des bases de données" /></div></div><p
+              class="title"><strong>Figure 3.2. Sauvegarde des bases de données</strong></p></div><div
+            class="para">
+				Chaque logiciel serveur est différent et il est impossible de détailler tous les cas existants. Reportez-vous aux documentations du logiciel actuel et du nouveau logiciel pour identifier les portions exportables puis réimportables et celles qui nécessiteront un travail manuel. La lecture de ce livre vous éclairera déjà sur la configuration des principaux logiciels serveurs sous Linux.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565669855744"></a>3.2.3. Prendre en main un serveur Debian existant</h3></div></div></div><a
+            id="idm140565669854976"
+            class="indexterm"></a><a
+            id="idm140565669854048"
+            class="indexterm"></a><a
+            id="idm140565669853120"
+            class="indexterm"></a><div
+            class="para">
+				Pour en reprendre efficacement l'administration, on pourra analyser une machine déjà animée par Debian.
+			</div><div
+            class="para">
+				Le premier fichier à vérifier est <code
+              class="filename">/etc/debian_version</code>, qui contient habituellement le numéro de version du système Debian installé (il fait partie du paquet <span
+              class="emphasis"><em>base-files</em></span>). S'il indique <code
+              class="literal">testing/unstable</code>, c'est que le système a été mis à jour avec des paquets provenant d'une de ces deux distributions en développement.
+			</div><div
+            class="para">
+				Le programme <code
+              class="command">apt-show-versions</code> (du paquet Debian éponyme) consulte la liste des paquets installés et identifie les versions disponibles. <code
+              class="command">aptitude</code> permet aussi d'effectuer ces tâches, d'une manière moins systématique.
+			</div><div
+            class="para">
+				A glance at the <code
+              class="filename">/etc/apt/sources.list</code> file (and <code
+              class="filename">/etc/apt/sources.list.d/</code> directory) will show where the installed Debian packages likely came from. If many unknown sources appear, the administrator may choose to completely reinstall the computer's system to ensure optimal compatibility with the software provided by Debian.
+			</div><div
+            class="para">
+				Ce fichier <code
+              class="filename">sources.list</code> est souvent un bon indicateur : la majorité des administrateurs gardent au moins en commentaires les sources APT employées par le passé. Mais il est toujours possible que des sources employées par le passé aient été supprimées, voire que l'ancien administrateur ait installé manuellement (avec <code
+              class="command">dpkg</code>) des paquets téléchargés sur Internet. Dans ce cas, la machine trompe par son apparence de Debian « standard ». C'est pourquoi il convient d'être attentif à tout indice pouvant trahir la présence de paquets externes (apparition de fichiers <code
+              class="filename">.deb</code> dans des répertoires inhabituels, numéros de version de paquet dotés d'un suffixe particulier représentant l'origine du paquet — comme <code
+              class="literal">ubuntu</code> ou <code
+              class="literal">lmde</code>, etc.)
+			</div><div
+            class="para">
+				De même, il est intéressant d'analyser le contenu du répertoire <code
+              class="filename">/usr/local/</code>, prévu pour contenir des programmes compilés et installés manuellement. Répertorier les logiciels installés de cette manière est riche d'enseignements, car cela incite à s'interroger sur la raison justifiant le non-emploi du paquet Debian correspondant — si un tel paquet existe.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DÉCOUVERTE</em></span> <span
+                        class="pkg pkg">cruft</span></strong></p></div></div></div><div
+              class="para">
+				Le paquet <span
+                class="pkg pkg">cruft</span> permet de répertorier tous les fichiers présents sur le disque qui ne sont affectés à aucun paquet. Il dispose de quelques filtres (plus ou moins efficaces et plus ou moins à jour) pour éviter d'afficher certains de ces fichiers qui existent légitimement (fichiers générés par les paquets Debian, ou fichiers de configuraton gérés en dehors du contrôle de <code
+                class="command">dpkg</code>, etc.).
+			</div><div
+              class="para">
+				Attention à ne pas supprimer aveuglément tout ce que <code
+                class="command">cruft</code> pourrait lister !
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565669359712"></a>3.2.4. Installer Debian</h3></div></div></div><div
+            class="para">
+				Toutes les informations relatives au serveur actuel étant maintenant connues, il est possible de mettre celui-ci hors service et d'y installer Debian.
+			</div><a
+            id="idm140565668119488"
+            class="indexterm"></a><div
+            class="para">
+				Pour en choisir la version adéquate, il faut connaître l'architecture de l'ordinateur. S'il s'agit d'un PC, ce sera vraisemblablement amd64 (les anciens PC peuvent nécessiter l'usage de l'architecture i386). Dans les autres cas, on pourra restreindre les possibilités en fonction du système précédemment employé.
+			</div><div
+            class="para">
+				Le <a
+              class="xref"
+              href="sect.how-to-migrate.html#tab-corresp">Tableau 3.1</a> ne prétend pas être exhaustif mais pourra vous aider. Dans tous les cas, la documentation d'origine de l'ordinateur vous renseignera de manière plus certaine.
+			</div><div
+            class="table"><a
+              id="tab-corresp"></a><p
+              class="title"><strong>Tableau 3.1. Correspondance entre système d'exploitation et architecture</strong></p><div
+              class="table-contents"><table
+                xmlns:d="http://docbook.org/ns/docbook"
+                class="lt-4-cols gt-7-rows"
+                summary="Correspondance entre système d'exploitation et architecture"><colgroup><col /><col /></colgroup><thead><tr><th>Système d'exploitation</th><th>Architecture(s)</th></tr></thead><tbody><tr><td>DEC Unix (OSF/1)</td><td>alpha, mipsel</td></tr><tr><td>HP Unix</td><td>ia64, hppa</td></tr><tr><td>IBM AIX</td><td>powerpc</td></tr><tr><td>Irix</td><td>mips</td></tr><tr><td>OS X</td><td>amd64, powerpc, i386</td></tr><tr><td>z/OS, MVS</td><td>s390x, s390</td></tr><tr><td>Solaris, SunOS</td><td>sparc, i386, m68k</td></tr><tr><td>Ultrix</td><td>mips</td></tr><tr><td>VMS</td><td>alpha</td></tr><tr><td>Windows 95/98/ME</td><td>i386</td></tr><tr><td>Windows NT/2000</td><td>i386, alpha, ia64, mipsel</td></tr><tr><td>Windows XP / Windows Server 2008</td><td>i386, amd64, ia64</td></tr><tr><td>Windows Vista / Windows 7 / Windows 8</td><td>i386, amd64</td></tr></tbody></table></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>MATÉRIEL</em></span> PC 64 bit ou PC 32 bit</strong></p></div></div></div><a
+              id="idm140565668092208"
+              class="indexterm"></a><a
+              id="idm140565668091248"
+              class="indexterm"></a><div
+              class="para">
+				La plupart des ordinateurs récents sont pourvus de processeurs 64 bits d'Intel ou d'AMD, compatibles avec les anciens processeurs 32 bits : les logiciels compilés pour architecture « i386 » fonctionneront donc. En revanche, ce mode compatibilité ne met pas à profit les capacités de ces nouveaux processeurs. C'est pourquoi Debian dispose de l'architecture « amd64 », qui gère les processeurs récents d'AMD ainsi que les processeurs « em64t » d'Intel (y compris la plupart des processeurs de la famille « Core »).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565668088960"></a>3.2.5. Installer et configurer les services sélectionnés</h3></div></div></div><div
+            class="para">
+				Once Debian is installed, we must install and configure one by one all of the services that this computer must host. The new configuration must take into consideration the prior one in order to ensure a smooth transition. All the information collected in the first two steps will be useful to successfully complete this part.
+			</div><div
+            class="figure"><a
+              id="idm140565668087392"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/existing-setup-4.png"
+                  alt="Installer les services sélectionnés" /></div></div><p
+              class="title"><strong>Figure 3.3. Installer les services sélectionnés</strong></p></div><div
+            class="para">
+				Prior to jumping into this exercise with both feet, it is strongly recommended that you read the remainder of this book. After that you will have a more precise understanding of how to configure the expected services.
+			</div><div
+            class="para">
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="existing-setup.html"><strong>Précédent</strong>Chapitre 3. Prise en compte de l'existant et migr...</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="installation.html"><strong>Suivant</strong>Chapitre 4. Installation</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.how-to-migrate.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.how-to-migrate.html">da-DK</a></li><li><a
+              href="../de-DE/sect.how-to-migrate.html">de-DE</a></li><li><a
+              href="../el-GR/sect.how-to-migrate.html">el-GR</a></li><li><a
+              href="../en-US/sect.how-to-migrate.html">en-US</a></li><li><a
+              href="../es-ES/sect.how-to-migrate.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.how-to-migrate.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.how-to-migrate.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.how-to-migrate.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.how-to-migrate.html">id-ID</a></li><li><a
+              href="../it-IT/sect.how-to-migrate.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.how-to-migrate.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.how-to-migrate.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.how-to-migrate.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.how-to-migrate.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.how-to-migrate.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.how-to-migrate.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.how-to-migrate.html">zh-CN</a></li></ul></div></body></html>

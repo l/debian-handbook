@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.8. Programación de tareas asincrónicas: anacron</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-es-ES-1.0-1" /><meta
+        name="keywords"
+        content="Arranque del sistema, Scripts de inicio, SSH, Telnet, Derechos, Permisos, Supervisión, Inetd, Cron, Respaldo, Conexión en caliente («hotplug»), PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="El libro del administrador de Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Capítulo 9. Servicios Unix" /><link
+        rel="prev"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. Programación de tareas con cron y atd" /><link
+        rel="next"
+        href="sect.quotas.html"
+        title="9.9. Cuotas" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/es-ES/sect.asynchronous-task-scheduling-anacron.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>Anterior</strong></a></li><li
+          class="home">El libro del administrador de Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>Siguiente</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.asynchronous-task-scheduling-anacron"></a>9.8. Programación de tareas asincrónicas: <code
+                  class="command">anacron</code></h2></div></div></div><div
+          class="para">
+			<code
+            class="command">anacron</code> es el demonio que completa <code
+            class="command">cron</code> en equipos que no están encendidos todo el tiempo. Dado que generalmente las tareas recurrentes están programadas para la mitad de la noche, no ejecutarán nunca si la máquina está apagada en esos momentos. El propósito de <code
+            class="command">anacron</code> es ejecutarlas teniendo en cuenta los períodos de tiempo en los que el equipo no estuvo funcionando.
+		</div><a
+          id="idm140447094836656"
+          class="indexterm"></a><div
+          class="para">
+			Sepa que <code
+            class="command">anacron</code> frecuentemente ejecutará dichos programas unos minutos después de iniciar la máquina, lo que utilizará poder de procesamiento del equipo. Es por esto que se ejecutan las tareas en el archivo <code
+            class="filename">/etc/anacrontab</code> con el programa <code
+            class="command">nice</code> que reduce su prioridad de ejecución, limitando así su impacto en el resto del sistema. Tenga en cuenta que el formato de este archivo no es el mismo que el de <code
+            class="filename">/etc/crontab</code>; si tiene necesidades especiales para <code
+            class="command">anacron</code> revise la página de manual <span
+            class="citerefentry"><span
+              class="refentrytitle">anacrontab</span>(5)</span>.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>VOLVER A LOS CIMIENTOS</em></span> Prioridades y <code
+                      class="command">nide</code></strong></p></div></div></div><div
+            class="para">
+			Los sistemas Unix (y, por lo tanto, Linux) son sistemas multitarea y multiusuario. Varios procesos puede ejecutar en paralelo y pertenecer a diferentes usuarios: el núcleo mediará el acceso a los recursos para los diferentes procesos. Como parte de esta tarea tiene el concepto de prioridad, que permite favorecer a ciertos procesos por sobre otros según sea necesario. Cuando sabe que un proceso puede ejecutar con prioridad baja, puede indicarlo ejecutándolo con <code
+              class="command">nice <em
+                class="replaceable">programa</em></code>. El programa entonces tendrá una porción más pequeña del CPU y tendrá un menor impacto sobre otros procesos en ejecución. Por supuesto, si no hay otros procesos que necesiten ejecutar el programa no será restringido artificialmente.
+		</div><div
+            class="para">
+			<code
+              class="command">nice</code> funciona con niveles de «bondad»: los niveles positivos (de 1 a 19) reducen progresivamente la prioridad mientras que los niveles negativos (de -1 a -20) aumentan la prioridad — pero sólo root puede utilizar estos niveles negativos. A menos que se indique lo contrario (revise la página de manual <span
+              class="citerefentry"><span
+                class="refentrytitle">nice</span>(1)</span>), <code
+              class="command">nice</code> aumentará en 10 el nivel actual.
+		</div><div
+            class="para">
+			If you discover that an already running task should have been started with <code
+              class="command">nice</code> it is not too late to fix it; the <code
+              class="command">renice</code> command changes the priority of an already running process, in either direction (but reducing the “niceness” of a process is reserved for the root user).
+		</div></div><div
+          class="para">
+			Instalar el paquete <span
+            class="pkg pkg">anacron</span> desactiva la ejecución via <code
+            class="command">cron</code> de los scripts en los directorios <code
+            class="filename">/etc/cron.hourly/</code>, <code
+            class="filename">/etc/cron.daily/</code>, <code
+            class="filename">/etc/cron.weekly/</code> y <code
+            class="filename">/etc/cron.monthly/</code>. Esto evita que sean ejecutados tanto por <code
+            class="command">anacron</code> como por <code
+            class="command">cron</code>. El programa <code
+            class="command">cron</code> continuará activo y seguirá administrando otras tareas programadas (especialmente aquellas programadas por los usuarios).
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.task-scheduling-cron-atd.html"><strong>Anterior</strong>9.7. Programación de tareas con cron y atd</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Subir</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Inicio</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.quotas.html"><strong>Siguiente</strong>9.9. Cuotas</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.asynchronous-task-scheduling-anacron.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.asynchronous-task-scheduling-anacron.html">da-DK</a></li><li><a
+              href="../de-DE/sect.asynchronous-task-scheduling-anacron.html">de-DE</a></li><li><a
+              href="../el-GR/sect.asynchronous-task-scheduling-anacron.html">el-GR</a></li><li><a
+              href="../en-US/sect.asynchronous-task-scheduling-anacron.html">en-US</a></li><li><a
+              href="../es-ES/sect.asynchronous-task-scheduling-anacron.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.asynchronous-task-scheduling-anacron.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.asynchronous-task-scheduling-anacron.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.asynchronous-task-scheduling-anacron.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.asynchronous-task-scheduling-anacron.html">id-ID</a></li><li><a
+              href="../it-IT/sect.asynchronous-task-scheduling-anacron.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.asynchronous-task-scheduling-anacron.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.asynchronous-task-scheduling-anacron.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.asynchronous-task-scheduling-anacron.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.asynchronous-task-scheduling-anacron.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.asynchronous-task-scheduling-anacron.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.asynchronous-task-scheduling-anacron.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.asynchronous-task-scheduling-anacron.html">zh-CN</a></li></ul></div></body></html>

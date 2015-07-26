@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.6. Der Superserver inetd</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Systemstart, Initialisierungsskripten, SSH, Telnet, Rechte, Berechtigungen, Überwachung, Inetd, Cron, Datensicherung, Wechsel im laufenden Betrieb, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Kapitel 9. Unix-Dienste" /><link
+        rel="prev"
+        href="sect.syslog.html"
+        title="9.5. syslog Systemereignisse" /><link
+        rel="next"
+        href="sect.task-scheduling-cron-atd.html"
+        title="9.7. Aufgaben mit cron und atd zeitlich festlegen" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.inetd.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.syslog.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.task-scheduling-cron-atd.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.inetd"></a>9.6. Der Superserver <code
+                  class="command">inetd</code></h2></div></div></div><div
+          class="para">
+			Inetd (häufig „Internet-Superserver“ genannt) ist ein Server der Server. Er führt selten genutzte Server nach Bedarf aus, so dass sie nicht ständig laufen müssen.
+		</div><a
+          id="idm139686928792960"
+          class="indexterm"></a><a
+          id="idm139686928791840"
+          class="indexterm"></a><div
+          class="para">
+			Die Datei <code
+            class="filename">/etc/inetd.conf</code> listet diese Server und ihre üblichen Ports auf. Der Befehl <code
+            class="command">inetd</code> wartet an allen diesen Ports auf Anfragen; wenn er eine Verbindung zu einem dieser Ports entdeckt, führt er das entsprechende Serverprogramm aus.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>DEBIAN-RICHTLINIEN</em></span> Einen Server in <code
+                      class="filename">inetd.conf</code> registrieren</strong></p></div></div></div><div
+            class="para">
+			Packages frequently want to register a new server in the <code
+              class="filename">/etc/inetd.conf</code> file, but Debian Policy prohibits any package from modifying a configuration file that it doesn't own. This is why the <code
+              class="command">update-inetd</code> script (in the package with the same name) was created: It manages the configuration file, and other packages can thus use it to register a new server to the super-server's configuration.
+		</div></div><div
+          class="para">
+			Jede signifikante Zeile der Datei <code
+            class="filename">/etc/inetd.conf</code> beschreibt einen Server in sieben Feldern (getrennt durch Leerzeichen):
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					Die TCP- oder UDP-Portnummer, oder der Dienstname (der einer Standardportnummer mit der Information, die in der Datei <code
+                  class="filename">/etc/services</code> enthalten ist, zugeordnet ist).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Der Socket-Typ: <code
+                  class="literal">stream</code> für eine TCP-Verbindung, <code
+                  class="literal">dgram</code> für UDP-Datagramme.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Das Protokoll: <code
+                  class="literal">tcp</code> oder <code
+                  class="literal">udp</code>.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Die Optionen: zwei mögliche Werte: <code
+                  class="literal">wait</code> oder <code
+                  class="literal">nowait</code>, um <code
+                  class="command">inetd</code> mitzuteilen, ob er auf das Ende des gestarteten Prozesses warten soll, bevor er eine andere Verbindung annimmt, oder nicht. Für TCP-Verbindungen, die einen Kanal leicht mehrfach nutzen können, können Sie normalerweise <code
+                  class="literal">nowait</code> verwenden. Für Programme, die über UDP antworten, sollten Sie <code
+                  class="literal">nowait</code> nur dann verwenden, wenn der Server in der Lage ist, mehrere Verbindungen parallel zu verwalten. Sie können an dieses Feld einen Punkt anhängen, gefolgt von der Höchstzahl der Verbindungen, die pro Minute erlaubt ist (der Standardgrenzwert ist 256).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Der Benutzername des Benutzers, unter dessen Identität der Server laufen wird.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Der vollständige Pfad zu dem auszuführenden Serverprogramm.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Die Argumente: dies ist eine vollständige Liste der Argumente des Programms einschließlich seines eigenen Namens (<code
+                  class="literal">argv[0]</code> in C).
+				</div></li></ul></div><div
+          class="para">
+			Das folgende Beispiel illustriert die häufigsten Fälle:
+		</div><div
+          class="example"><a
+            id="example.inetd-conf"></a><p
+            class="title"><strong>Beispiel 9.1. Auszug aus <code
+                class="filename">/etc/inetd.conf</code></strong></p><div
+            class="example-contents"><pre
+              class="programlisting">talk   dgram  udp wait    nobody.tty /usr/sbin/in.talkd in.talkd
+finger stream tcp nowait  nobody     /usr/sbin/tcpd     in.fingerd
+ident  stream tcp nowait  nobody     /usr/sbin/identd   identd -i
+</pre></div></div><a
+          id="idm139686928768880"
+          class="indexterm"></a><div
+          class="para">
+			Das Programm <code
+            class="command">tcpd</code> wird in <code
+            class="filename">/etc/inetd.conf</code> häufig benutzt. Es ermöglicht es, ankommende Verbindungen durch die Verwendung von Zugangskontrollregeln einzuschränken, die auf der Handbuchseite <span
+            class="citerefentry"><span
+              class="refentrytitle">hosts_access</span>(5)</span> dokumentiert sind, und die in den Dateien <code
+            class="filename">/etc/hosts.allow</code> und <code
+            class="filename">/etc/hosts.deny</code> konfiguriert sind. Sobald feststeht, dass die Verbindung autorisiert ist, führt <code
+            class="command">tcpd</code> den eigentlich zuständigen Server aus (wie <code
+            class="command">/usr/bin/in.fingerd</code> in unserem Beispiel). Es ist wichtig anzumerken, dass <code
+            class="command">tcpd</code> auf den Namen zurückgreift, mit welchem es aufgerufen wurde (das ist das erste Argument, <code
+            class="literal">argv[0]</code>), um das tatsächlich auszuführende Programm zu ermitteln. Sie sollten deshalb die Parameterliste nicht mit <code
+            class="literal">tcpd</code> beginnen, sondern mit dem Programm, zu dem umgeleitet werden soll.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>GEMEINSCHAFT</em></span> Wietse Venema</strong></p></div></div></div><a
+            id="idm139686928760496"
+            class="indexterm"></a><a
+            id="idm139686928759536"
+            class="indexterm"></a><div
+            class="para">
+			Wietse Venema, dessen Fachkenntnis im Bereich Sicherheit ihn zu einem angesehenen Programmierer gemacht hat, ist der Verfasser des <code
+              class="command">tcpd</code>-Programms. Er ist auch der Haupturheber von Postfix, dem modularen E-Mail-Server (SMTP, Simple Mail Transfer Protocol), der dafür ausgelegt ist, sicherer und verlässlicher zu sein als <code
+              class="command">sendmail</code>, das sich durch eine lange Vorgeschichte von Sicherheitsschwachstellen auszeichnet.
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIVE</em></span> Weitere <code
+                      class="command">inetd</code> Befehle</strong></p></div></div></div><div
+            class="para">
+			Debian installiert zwar standardmäßig <span
+              class="pkg pkg">openbsd-inetd</span>, aber es gibt genügend Alternativen: <span
+              class="pkg pkg">inetutils-inetd</span>, <span
+              class="pkg pkg">micro-inetd</span>, <span
+              class="pkg pkg">rlinetd</span> and <span
+              class="pkg pkg">xinetd</span> um nur einige zu nennen.
+		</div><div
+            class="para">
+			Diese jüngste Verkörperung eines Superservers bietet sehr interessante Möglichkeiten. Dazu gehört vor allem, dass seine Konfiguration in mehrere Dateien aufgeteilt werden kann (die natürlich im Verzeichnis <code
+              class="filename">/etc/xinetd.d/</code> gespeichert werden), wodurch das Leben eines Administrators erleichtert werden kann.
+		</div><div
+            class="para">
+			It's even possible to emulate <code
+              class="command">inetd</code>'s behaviour with <code
+              class="command">systemd</code>'s socket-activation mechanism (see above).
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.syslog.html"><strong>Zurück</strong>9.5. syslog Systemereignisse</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.task-scheduling-cron-atd.html"><strong>Weiter</strong>9.7. Aufgaben mit cron und atd zeitlich festlegen</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.inetd.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.inetd.html">da-DK</a></li><li><a
+              href="../de-DE/sect.inetd.html">de-DE</a></li><li><a
+              href="../el-GR/sect.inetd.html">el-GR</a></li><li><a
+              href="../en-US/sect.inetd.html">en-US</a></li><li><a
+              href="../es-ES/sect.inetd.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.inetd.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.inetd.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.inetd.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.inetd.html">id-ID</a></li><li><a
+              href="../it-IT/sect.inetd.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.inetd.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.inetd.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.inetd.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.inetd.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.inetd.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.inetd.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.inetd.html">zh-CN</a></li></ul></div></body></html>

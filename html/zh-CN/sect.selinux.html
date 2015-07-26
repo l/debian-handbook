@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.4. SELinux 简介</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="防火墙, 网络过滤, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="security.html"
+        title="第 14 章 安全" /><link
+        rel="prev"
+        href="sect.supervision.html"
+        title="14.3. 监督：预防，检测，威慑" /><link
+        rel="next"
+        href="sect.other-security-considerations.html"
+        title="14.5. 其他安全相关事项" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.selinux.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.selinux"></a>14.4. SELinux 简介</h2></div></div></div><a
+          id="idm140492715222736"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-principles"></a>14.4.1. 原理</h3></div></div></div><div
+            class="para">
+				SELinux （<span
+              class="emphasis"><em>安全增强－Security Enhanced Linux</em></span>）是一种基于Linux LSM（<span
+              class="emphasis"><em>Linux 安全模块</em></span>）的<span
+              class="emphasis"><em>强制访问控制</em></span>系统。实际上，内核在执行系统调用前会询问 SELinux 进程是否获得了执行操作的授权。
+			</div><div
+            class="para">
+				SELinux 使用一套规则－合称为<span
+              class="emphasis"><em>策略</em></span>－来授权或禁止操作。这些规则较难创建。幸好，有两种标准策略（<span
+              class="emphasis"><em>针对－targeted</em></span> 和 <span
+              class="emphasis"><em>严格－strict</em></span>）可以避免大量的配置工作。
+			</div><div
+            class="para">
+				在 SELinux 中，权限的管理完全不同于传统的 Unix 系统。进程的权限取决于它的<span
+              class="emphasis"><em>安全上下文</em></span>。上下文由唤起该进程的用户<span
+              class="emphasis"><em>身份</em></span>定义，即该时刻用户具有的<span
+              class="emphasis"><em>角色</em></span>和<span
+              class="emphasis"><em>域</em></span>。权限实际上取决于域，但是在域之间转换由角色控制。角色之间的转换取决于身份。
+			</div><div
+            class="figure"><a
+              id="idm140492715214192"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-context.png"
+                  alt="安全上下文和 Unix 用户" /></div></div><p
+              class="title"><strong>图 14.3. 安全上下文和 Unix 用户</strong></p></div><div
+            class="para">
+				实际上，在登录期间，用户被赋予默认的安全上下文（取决于它们的角色）。这定义了当前域，以及所有新的子进程的域。如果想要改变当前角色和相关联的域，就必须调用 <code
+              class="command">newrole -r <em
+                class="replaceable">role_r</em> -t <em
+                class="replaceable">domain_t</em></code>（一个指定角色通常只能被赋予一个域，<code
+              class="literal">-t</code> 参数可以忽略）。该命令需要口令授权。这个特性可以禁止程序自动切换角色。在 SELinux 策略中，这种改变只能是显式的。
+			</div><div
+            class="para">
+				Obviously the rights do not apply to all <span
+              class="emphasis"><em>objects</em></span> (files, directories, sockets, devices, etc.). They can vary from object to object. To achieve this, each object is associated to a <span
+              class="emphasis"><em>type</em></span> (this is known as labeling). Domains' rights are thus expressed with sets of (dis)allowed operations on those types (and, indirectly, on all objects which are labeled with the given type).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>补充</em></span>域和类型等效</strong></p></div></div></div><div
+              class="para">
+				Internally, a domain is just a type, but a type that only applies to processes. That's why domains are suffixed with <code
+                class="literal">_t</code> just like objects' types.
+			</div></div><div
+            class="para">
+				By default, a program inherits its domain from the user who started it, but the standard SELinux policies expect many important programs to run in dedicated domains. To achieve this, those executables are labeled with a dedicated type (for example <code
+              class="command">ssh</code> is labeled with <code
+              class="literal">ssh_exec_t</code>, and when the program starts, it automatically switches to the <code
+              class="literal">ssh_t</code> domain). This automatic domain transition mechanism makes it possible to grant only the rights required by each program. It is a fundamental principle of SELinux.
+			</div><div
+            class="figure"><a
+              id="idm140492715201856"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-transitions.png"
+                  alt="域之间的自动转换" /></div></div><p
+              class="title"><strong>图 14.4. 域之间的自动转换</strong></p></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>实践</em></span>找到安全上下文</strong></p></div></div></div><a
+              id="idm140492715197344"
+              class="indexterm"></a><a
+              id="idm140492715196384"
+              class="indexterm"></a><a
+              id="idm140492715195456"
+              class="indexterm"></a><div
+              class="para">
+				要找到指定进程的安全上下文，就要在 <code
+                class="command">ps</code> 命令中使用 <code
+                class="literal">Z</code> 选项。
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ps axZ | grep vstfpd</code></strong>
+<code
+                class="computeroutput">system_u:system_r:ftpd_t:s0   2094 ?    Ss  0:00 /usr/sbin/vsftpd</code></pre><div
+              class="para">
+				第一个区段包含了身份，角色，域和 MCS 等级，使用冒号分隔。MCS 等级（<span
+                class="emphasis"><em>多类别安全－Multi-Category Security</em></span>）是一个参数，它会影响保护策略的机密性，进而基于敏感性管制对文件的访问。本书中，此特性将不做详细解释。
+			</div><div
+              class="para">
+				要在命令行中显示当前的安全上下文，应当调用 <code
+                class="command">id -Z</code>。
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>id -Z</code></strong>
+<code
+                class="computeroutput">unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre><div
+              class="para">
+				要显示赋予文件的类型，使用 <code
+                class="command">ls -Z</code>。
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ls -Z test /usr/bin/ssh</code></strong>
+<code
+                class="computeroutput">unconfined_u:object_r:user_home_t:s0 test
+     system_u:object_r:ssh_exec_t:s0 /usr/bin/ssh</code></pre><div
+              class="para">
+				注意要将身份和角色赋予不是特别重要的文件（从未使用过），但是为了统一，所有的对象都被赋予完整的安全上下文。
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-setup"></a>14.4.2. 设置 SELinux</h3></div></div></div><div
+            class="para">
+				SELinux 支持嵌入到 Debian 提供的标准内核中。Unix 核心工具无需修改就支持 SELinux。因此，启用 SELinux 也相对容易。
+			</div><div
+            class="para">
+				<code
+              class="command">aptitude install selinux-basics selinux-policy-default</code> 命令会自动安装配置 SELinux 系统所需要的软件包。
+			</div><div
+            class="para">
+				The <span
+              class="pkg pkg">selinux-policy-default</span> package contains a set of standard rules. By default, this policy only restricts access for a few widely exposed services. The user sessions are not restricted and it is thus unlikely that SELinux would block legitimate user operations. However, this does enhance the security of system services running on the machine. To setup a policy equivalent to the old “strict” rules, you just have to disable the <code
+              class="literal">unconfined</code> module (modules management is detailed further in this section).
+			</div><div
+            class="para">
+				一旦策略安装，就要标识全部有效文件（即给它们赋予类型）。该操作必须使用 <code
+              class="command">fixfiles relabel</code> 命令手工启动。
+			</div><div
+            class="para">
+				SELinux 系统现在已经准备好了。要给内核添加 <code
+              class="literal">selinux=1</code> 参数来启用它。<code
+              class="literal">audit=1</code> 参数会使 SELinux 记录所有被拒绝的操作。<code
+              class="literal">enforcing=1</code> 参数使规则起作用：不使用该参数的话，SELinux 工作在默认<span
+              class="emphasis"><em>许可</em></span>模式，该模式下拒绝行为会被记录但是仍然可以执行。可以修改 GRUB 启动加载器的配置文件来附加需要的参数。一个简单的方法是修改 <code
+              class="filename">/etc/default/grub</code> 文件中的 <code
+              class="literal">GRUB_CMDLINE_LINUX</code> 变量并运行 <code
+              class="command">update-grub</code>。在重启之后 SELinux 就生效了。
+			</div><div
+            class="para">
+				注意在下次启动时，用 <code
+              class="command">selinux-activate</code> 脚本自动化这些操作并强制标识（避免无标识的文件在 SELinux 未生效或正在标识的时候被创建）。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-management"></a>14.4.3. 管理 SELinux 系统</h3></div></div></div><a
+            id="idm140492715171792"
+            class="indexterm"></a><a
+            id="idm140492715170672"
+            class="indexterm"></a><div
+            class="para">
+				SELinux 策略是一系列的模块化规则集合，安装时它会基于已经安装的服务自动探测并启用相关模块。系统立即可操作。然而，如果一个服务是在 SELinux 策略之后安装的，就要手动启用相应模块了。<code
+              class="command">semodule</code> 命令可以实现该目的。还必须用 <code
+              class="command">semanage</code> 命令，定义每个用户可用的角色。
+			</div><div
+            class="para">
+				这两个命令可以用于修改当前 SELinux 存储在 <code
+              class="filename">/etc/selinux/default/</code> 的配置。不像其他配置文件，可以在 <code
+              class="filename">/etc/</code> 中的其他配置文件，这些文件不能手工修改。应当使用相应的程序来修改。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>进阶</em></span>更多文档</strong></p></div></div></div><div
+              class="para">
+				由于 NSA 没有提供任何官方文档，社区设置了 wiki 来弥补。里面收集了很多信息，但是要意识到大多数 SELinux 贡献者是 Fedora 用户（其中 SELinux 默认启用）。因此，文档趋于处理该发行版的问题。<div
+                class="url">→ <a
+                  href="http://www.selinuxproject.org">http://www.selinuxproject.org</a></div>
+			</div><div
+              class="para">
+				应该看一看 Debian 中专门的 wiki 页面和 Russell Coker 的博客，他是 Debian 上致力于 SELinux 最活跃的开发者。<div
+                class="url">→ <a
+                  href="http://wiki.debian.org/SELinux">http://wiki.debian.org/SELinux</a></div> <div
+                class="url">→ <a
+                  href="http://etbe.coker.com.au/tag/selinux/">http://etbe.coker.com.au/tag/selinux/</a></div>
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492715161088"></a>14.4.3.1. 管理 SELinux 模块</h4></div></div></div><div
+              class="para">
+					可用的 SELinux 模块存储在 <code
+                class="filename">/usr/share/selinux/default/</code> 目录。要在当前配置中启用其中的一个模块，使用 <code
+                class="command">semodule -i <em
+                  class="replaceable">module.pp</em></code> 命令。<span
+                class="emphasis"><em>pp</em></span> 扩展名代表 <span
+                class="emphasis"><em>策略软件包－policy package</em></span>。
+				</div><div
+              class="para">
+					从当前配置中移除模块使用 <code
+                class="command">semodule -r <em
+                  class="replaceable">module</em></code> 命令。<code
+                class="command">semodule -l</code> 列出当前已经启用的模块清单。同时也输出版本号。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -i /usr/share/selinux/default/aide.pp</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">aide    1.4.0
+apache  1.10.0
+apm     1.7.0
+[...]</code>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -r aide</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">apache  1.10.0
+apm     1.7.0
+[...]</code></pre><div
+              class="para">
+					<code
+                class="command">semodule</code> 立即加载新配置，除非使用了 <code
+                class="literal">-n</code> 选项。需要注意的是在当前配置默认启用的程序（由在 <code
+                class="filename">/etc/selinux/config</code> 文件中的 <code
+                class="literal">SELINUXTYPE</code> 变量指明），可以使用 <code
+                class="literal">-s</code> 选项来修改和储存其他的。注意不同版本支持的选项可能不同。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492715148672"></a>14.4.3.2. 管理身份</h4></div></div></div><div
+              class="para">
+					每次用户登录，就会被赋予一个 SELinux 身份。该身份定义了他们可以使用的角色。这两种映射（从用户到身份，从该身份到角色）使用 <code
+                class="command">semanage</code> 命令配置。
+				</div><div
+              class="para">
+					一定要阅读 <span
+                class="citerefentry"><span
+                  class="refentrytitle">semanage</span>(8)</span> 手册页，即使命令语法和所管理的所有概念相似。你会发现所有子命令的通用选项：<code
+                class="literal">-a</code> 添加，<code
+                class="literal">-d</code> 删除，<code
+                class="literal">-m</code> 修改，<code
+                class="literal">-l</code> 列表，<code
+                class="literal">-t</code> 指明类型（或域）。
+				</div><div
+              class="para">
+					<code
+                class="command">semanage login -l</code> 列出当用户身份和 SELinux 身份之间的映射。没有指明登记项的用户会使用 <code
+                class="literal">__default__</code> 登记项。 <code
+                class="command">semanage login -a -s user_u <em
+                  class="replaceable">user</em></code> 命令会关联 <span
+                class="emphasis"><em>user_u</em></span> 身份到指定用户。<code
+                class="command">semanage login -d <em
+                  class="replaceable">user</em></code> 会移除赋予用户的映射登记项。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -a -s user_u rhertzog</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -l</code></strong>
+<code
+                class="computeroutput">
+Login Name                SELinux User              MLS/MCS Range
+
+__default__               unconfined_u              s0-s0:c0.c1023
+rhertzog                  user_u                    None
+root                      unconfined_u              s0-s0:c0.c1023
+system_u                  system_u                  s0-s0:c0.c1023
+# </code><strong
+                class="userinput"><code>semanage login -d rhertzog</code></strong></pre><div
+              class="para">
+					<code
+                class="command">semanage user -l</code> 列出 SELinux 用户身份和允许的角色之间的映射。添加一个新的身份需要定义相应的角色和用于给个人文件赋予类型的标识前缀（<code
+                class="filename">/home/<em
+                  class="replaceable">user</em>/*</code>）。前缀必须从 <code
+                class="literal">user</code>，<code
+                class="literal">staff</code>，和 <code
+                class="literal">sysadm</code> 之间挑选。<code
+                class="literal">staff</code> 前缀生成 <code
+                class="literal">staff_home_dir_t</code> 类型文件。创建新的用户身份使用 <code
+                class="command">semanage user -a -R <em
+                  class="replaceable">roles</em> -P <em
+                  class="replaceable">prefix</em> <em
+                  class="replaceable">identity</em></code>。使用 <code
+                class="command">semanage user -d <em
+                  class="replaceable">identity</em></code> 移除用户身份。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -a -R 'staff_r user_r' -P staff test_u</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -l</code></strong>
+<code
+                class="computeroutput">
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range        SELinux Roles
+
+root            sysadm     s0         s0-s0:c0.c1023   staff_r sysadm_r system_r
+staff_u         staff      s0         s0-s0:c0.c1023   staff_r sysadm_r
+sysadm_u        sysadm     s0         s0-s0:c0.c1023   sysadm_r
+system_u        user       s0         s0-s0:c0.c1023   system_r
+test_u          staff      s0         s0               staff_r user_r
+unconfined_u    unconfined s0         s0-s0:c0.c1023   system_r unconfined_r
+user_u          user       s0         s0               user_r
+# </code><strong
+                class="userinput"><code>semanage user -d test_u</code></strong></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492715126096"></a>14.4.3.3. 管理文件上下文，端口和布尔值</h4></div></div></div><div
+              class="para">
+					每个 SELinux 模块提供了一套标识规则，但是也可以添加定制的标识规则来满足特殊情况。例如，如果想要网页服务器能读取 <code
+                class="filename">/srv/www/</code> 里面的文件，就要执行 <code
+                class="command">semanage fcontext -a -t httpd_sys_content_t "/srv/www(/.*)?"</code> 和 <code
+                class="command">restorecon -R /srv/www/</code>。前者注册新的标识规则，后者根据当前标识规则重置文件类型。
+				</div><div
+              class="para">
+					Similarly, TCP/UDP ports are labeled in a way that ensures that only the corresponding daemons can listen to them. For instance, if you want the web server to be able to listen on port 8080, you should run <code
+                class="command">semanage port -m -t http_port_t -p tcp 8080</code>.
+				</div><div
+              class="para">
+					有些 SELinux 模块导出布尔选项，可以用来改变默认规则。<code
+                class="command">getsebool</code> 程序可以用于检查此类选项（<code
+                class="command">getsebool <em
+                  class="replaceable">boolean</em></code> 显示一个选项，<code
+                class="command">getsebool -a</code> 显示所有选项）。<code
+                class="command">setsebool <em
+                  class="replaceable">boolean</em> <em
+                  class="replaceable">value</em></code> 命令改变当前布尔选项值。<code
+                class="literal">-P</code> 选项使更改永久生效，就意味着新规则成为默认规则，重启之后也会保留。下面的例子授予网页服务器对用户主目录的访问权限（当用户在 <code
+                class="filename">~/public_html/</code> 中有个人网页的时候，这是很有用的）。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong>
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; off
+# </code><strong
+                class="userinput"><code>setsebool -P httpd_enable_homedirs on</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong> 
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; on</code></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-custom-rules"></a>14.4.4. 适应规则</h3></div></div></div><div
+            class="para">
+				既然 SELinux 策略是模块化的，那么为（定制化）新应用开发新模块是很有趣的。这些新模块会完善<span
+              class="emphasis"><em>参考策略</em></span>。
+			</div><div
+            class="para">
+				要创建新模块，需要 <span
+              class="pkg pkg">selinux-policy-dev</span> 软件包，还有 <span
+              class="pkg pkg">selinux-policy-doc</span>。后者包含了标准规则的文档（<code
+              class="filename">/usr/share/doc/selinux-policy-doc/html/</code>）和可用于创建新规则的模板示例文件。安装这些文件并更深入的研究：
+			</div><pre
+            class="screen"><code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/Makefile.example.gz &gt;Makefile</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.fc.gz &gt;example.fc</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.if.gz &gt;example.if</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cp /usr/share/doc/selinux-policy-doc/example.te ./</code></strong></pre><div
+            class="para">
+				<code
+              class="filename">.te</code> 文件是最重要的一个。它定义规则。<code
+              class="filename">.fc</code> 文件定义“文件上下文”，即与模块相关的文件被赋予的类型。<code
+              class="filename">.fc</code> 文件里的数据将在文件标识时使用。<code
+              class="filename">.if</code> 文件定义了模块接口：它是一套“公用函数”，以便其他模块可以同你所创建的模块交互。
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492715103712"></a>14.4.4.1. 写一个 <code
+                      class="filename">.fc</code> 文件</h4></div></div></div><div
+              class="para">
+					阅读下面的例子足可以理解此类文件的结构。可以使用正则表达式给多个文件，甚至是整个目录树赋予相同的安全上下文。
+				</div><div
+              class="example"><a
+                id="idm140492715101792"></a><p
+                class="title"><strong>例 14.2. <code
+                    class="filename">example.fc</code> 文件</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting scale"># myapp executable will have:
+# label: system_u:object_r:myapp_exec_t
+# MLS sensitivity: s0
+# MCS categories: &lt;none&gt;
+
+/usr/sbin/myapp         --      gen_context(system_u:object_r:myapp_exec_t,s0)
+</pre></div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492715099392"></a>14.4.4.2. 写一个 <code
+                      class="filename">.if</code> 文件</h4></div></div></div><div
+              class="para">
+					在下面的例子中，第一个接口（<code
+                class="literal">myapp_domtrans</code>）控制谁可以执行程序。第二个（<code
+                class="literal">myapp_read_log</code>）授予程序日志文件的读权限。
+				</div><div
+              class="para">
+					每个接口必须有一套规则并嵌入到 <code
+                class="filename">.te</code> 文件。因此必须声明所有使用的类型（使用 <code
+                class="literal">gen_require</code> 宏），并使用标准指令授予权限。也可以使用其他模块提供的接口。如何表示这些权限将在下节给出更详细的解释。
+				</div><div
+              class="example"><a
+                id="idm140492715095168"></a><p
+                class="title"><strong>例 14.3. <code
+                    class="filename">example.if</code> 文件</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">## &lt;summary&gt;Myapp example policy&lt;/summary&gt;
+## &lt;desc&gt;
+##      &lt;p&gt;
+##              More descriptive text about myapp.  The &lt;desc&gt;
+##              tag can also use &lt;p&gt;, &lt;ul&gt;, and &lt;ol&gt;
+##              html tags for formatting.
+##      &lt;/p&gt;
+##      &lt;p&gt;
+##              This policy supports the following myapp features:
+##              &lt;ul&gt;
+##              &lt;li&gt;Feature A&lt;/li&gt;
+##              &lt;li&gt;Feature B&lt;/li&gt;
+##              &lt;li&gt;Feature C&lt;/li&gt;
+##              &lt;/ul&gt;
+##      &lt;/p&gt;
+## &lt;/desc&gt;
+#
+
+########################################
+## &lt;summary&gt;
+##      Execute a domain transition to run myapp.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to transition.
+## &lt;/param&gt;
+#
+interface(`myapp_domtrans',`
+        gen_require(`
+                type myapp_t, myapp_exec_t;
+        ')
+
+        domtrans_pattern($1,myapp_exec_t,myapp_t)
+')
+
+########################################
+## &lt;summary&gt;
+##      Read myapp log files.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to read the log files.
+## &lt;/param&gt;
+#
+interface(`myapp_read_log',`
+        gen_require(`
+                type myapp_log_t;
+        ')
+
+        logging_search_logs($1)
+        allow $1 myapp_log_t:file r_file_perms;
+')
+</pre></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>文档</em></span>关于参考策略的解释</strong></p></div></div></div><div
+                class="para">
+					<span
+                  class="emphasis"><em>参考策略</em></span>像其他任何自由软件一样演变：基于志愿者的贡献。该项目有 Tresys 托管，它是在 SELinux 领域最活跃的公司之一。他们的 wiki 页面包含了如何构建规则的解释以及如何创建新规则。<div
+                  class="url">→ <a
+                    href="http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted">http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492715088640"></a>14.4.4.3. 写一个 <code
+                      class="filename">.te</code> 文件</h4></div></div></div><div
+              class="para">
+					看一看 <code
+                class="filename">example.te</code> 文件：
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>进阶</em></span> <code
+                          class="command">m4</code> 宏语言</strong></p></div></div></div><div
+                class="para">
+					要恰当的构建策略，SELinux 开发者使用宏命令处理器。他们创建了“宏功能”，而非重复使用很多相似的<span
+                  class="emphasis"><em>允许（allow）</em></span>指令，来使用高级别的逻辑生成更加可读的策略。
+				</div><div
+                class="para">
+					实际上，<code
+                  class="command">m4</code> 用于编译这些规则。它进行反方向地操作：将所有高级别的逻辑扩展为由<span
+                  class="emphasis"><em>允许（allow）</em></span>指令组成的巨型数据库。
+				</div><div
+                class="para">
+					SELinux“接口”只是宏功能，在编译时它会被一套规则替代。类似地，有些权限其实是一套权限集合，它们在编译时会被实际值取代。
+				</div></div><pre
+              class="programlisting">policy_module(myapp,1.0.0) <span
+                id="example.te.module"><img
+                  class="callout"
+                  src="Common_Content/images/1.png"
+                  alt="1" /></span>
+
+########################################
+#
+# Declarations
+#
+
+type myapp_t; <span
+                id="example.te.type"><img
+                  class="callout"
+                  src="Common_Content/images/2.png"
+                  alt="2" /></span>
+type myapp_exec_t;
+domain_type(myapp_t)
+domain_entry_file(myapp_t, myapp_exec_t) <span
+                id="example.te.domain"><img
+                  class="callout"
+                  src="Common_Content/images/3.png"
+                  alt="3" /></span>
+
+type myapp_log_t;
+logging_log_file(myapp_log_t) <span
+                id="example.te.interface"><img
+                  class="callout"
+                  src="Common_Content/images/4.png"
+                  alt="4" /></span>
+
+type myapp_tmp_t;
+files_tmp_file(myapp_tmp_t)
+
+########################################
+#
+# Myapp local policy
+#
+
+allow myapp_t myapp_log_t:file { read_file_perms append_file_perms }; <span
+                id="example.te.allow"><img
+                  class="callout"
+                  src="Common_Content/images/5.png"
+                  alt="5" /></span>
+
+allow myapp_t myapp_tmp_t:file manage_file_perms;
+files_tmp_filetrans(myapp_t,myapp_tmp_t,file)
+</pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.module"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							模块必须通过名字和版本号标识。此指令是必须的。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							如果模块引入了新类型，它们必须使用类似的指令声明。不要害怕需要创建的类型过多，这总胜过赋予过多无用权限。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.domain"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							这些接口定义 <code
+                        class="literal">myapp_t</code> 类型为进程域，它可以被标识为 <code
+                        class="literal">myapp_exec_t</code> 的可执行程序使用。这隐式地给这些对象添加 <code
+                        class="literal">exec_type</code> 属性，反过来允许其他模块授予权限执行这些程序：例如，<code
+                        class="literal">userdomain</code> 模块允许具有 <code
+                        class="literal">user_t</code>，<code
+                        class="literal">staff_t</code>，和 <code
+                        class="literal">sysadm_t</code> 域的进程执行。其他受限域将无权运行，除非规则赋予它们类似的权限（在此例中，<code
+                        class="command">dpkg</code> 和域 <code
+                        class="literal">dpkg_t</code>）。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.interface"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">logging_log_file</code> 是一个有参考策略提供的接口。它指明具有某些标识的文件是日志文件并从相关联的规则中获取权限（例如赋予 <code
+                        class="command">logrotate</code> 权限，以便于处理它们）。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.allow"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">allow</code> 指令是授予操作权限的基本指令。第一个参数是允许执行操作的进程域。第二个定义前面的域进程可以操作的对象。参数的形式是：“<em
+                        class="replaceable">type</em>:<em
+                        class="replaceable">class</em>”此处 <em
+                        class="replaceable">type</em> 是 SELinux 类型，<em
+                        class="replaceable">class</em> 描述对象（文件，目录，套接字，fifo，等等）属性。最后的参数描述许可权限（即允许的操作）。
+						</div><div
+                      class="para">
+							许可权限由一套允许操作集合组成，并按照这个模板： <code
+                        class="literal">{ <em
+                          class="replaceable">operation1</em> <em
+                          class="replaceable">operation2</em> }</code>。可以使用宏来代表最常用的许可。<code
+                        class="filename">/usr/share/selinux/default/include/support/obj_perm_sets.spt</code> 中一一列举。
+						</div><div
+                      class="para">
+							后面的网页提供了一个比较详尽的对象类列表，以及可以授予的权限。<div
+                        class="url">→ <a
+                          href="http://www.selinuxproject.org/page/ObjectClassesPerms">http://www.selinuxproject.org/page/ObjectClassesPerms</a></div>
+						</div></td></tr></table></div><div
+              class="para">
+					现在需要找到能确保目标程序或服务正常工作的最小规则集合。要做到这一点，就要很好的理解应用程序是如何工作的，它需要处理或生成什么样的数据。
+				</div><div
+              class="para">
+					然而，实验方法也可以。一旦相关的对象被正确标识，可以在许可模式下使用应用程序：应该禁止的操作会被记录但是仍然会运行。通过分析日志，就能识别那些操作应该允许。这里有一个此类日志条目示例：
+				</div><pre
+              class="programlisting">avc:  denied  { read write } for  pid=1876 comm="syslogd" name="xconsole" dev=tmpfs ino=5510 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=fifo_file
+</pre><div
+              class="para">
+					为了更好的理解这条信息，我们逐一分析。
+				</div><div
+              class="table"><a
+                id="idm140492715055856"></a><p
+                class="title"><strong>表 14.1. SELinux 追踪记录分析</strong></p><div
+                class="table-contents"><table
+                  xmlns:d="http://docbook.org/ns/docbook"
+                  class="lt-4-cols gt-7-rows"
+                  summary="SELinux 追踪记录分析"><colgroup><col /><col /></colgroup><thead><tr><th>消息</th><th>描述</th></tr></thead><tbody><tr><td><code
+                          class="computeroutput">avc: denied</code></td><td>一个操作被拒绝。</td></tr><tr><td><code
+                          class="computeroutput">{ read write }</code></td><td>该操作需要 <code
+                          class="literal">读－read</code> 和 <code
+                          class="literal">写－write</code> 许可。</td></tr><tr><td><code
+                          class="computeroutput">pid=1876</code></td><td>进程号为1876的进程执行的操作（或者试图执行）。</td></tr><tr><td><code
+                          class="computeroutput">comm="syslogd"</code></td><td>该进程是 <code
+                          class="literal">syslogd</code> 程序的一个实例。</td></tr><tr><td><code
+                          class="computeroutput">name="xconsole"</code></td><td>目标对象名称是 <code
+                          class="literal">xconsole</code>。</td></tr><tr><td><code
+                          class="computeroutput">dev=tmpfs</code></td><td>承载目标对象的设备是 <code
+                          class="literal">tmpfs</code>（一个内存文件系统）。对于真实磁盘，可以看到承载对象的分区（例如：“hda3”）。</td></tr><tr><td><code
+                          class="computeroutput">ino=5510</code></td><td>对象的节点（inode）号码是5510。</td></tr><tr><td><code
+                          class="computeroutput">scontext=system_u:system_r:syslogd_t:s0</code></td><td>这是执行操作进程的安全上下文。</td></tr><tr><td><code
+                          class="computeroutput">tcontext=system_u:object_r:device_t:s0</code></td><td>这是执行操作对象的安全上下文。</td></tr><tr><td><code
+                          class="computeroutput">tclass=fifo_file</code></td><td>目标对象是一个 FIFO 文件。</td></tr></tbody></table></div></div><div
+              class="para">
+					通过观察日志条目，就可以创建允许操作的规则。例如：<code
+                class="literal">allow syslogd_t device_t:fifo_file { read write }</code>。这一过程可以自动化，这正是 <code
+                class="command">audit2allow</code>（在 <span
+                class="pkg pkg">policycoreutils</span> 软件包）命令所提供的功能。这种方法只在各种对象根据其限制已被正确标识时有用。任何情况下，都要仔细审阅创建的规则并根据对应用程序的认识验证它们。实际上，这种方法通常会授予比实际需求更多的权限。恰当的方案是创建新的类型并且只授予针对这些类型的权限。有时候，拒绝操作对应用程序并不是致命的，这种情况下，可以添加一条“<code
+                class="literal">忽略－dontaudit</code>”规则来避免记入日志。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>补充</em></span>无角色的策略规则</strong></p></div></div></div><div
+                class="para">
+					在创建新规则时，完全看不到角色是比较怪异的。SELinux 只使用域来确定哪些操作允许。角色只是通过允许用户切换到另外的域间接起作用。SELinux 是基于被称为<span
+                  class="emphasis"><em>类型增强－Type Enforcement </em></span>的理论，类型是唯一影响授权的元素。<a
+                  id="idm140492715028128"
+                  class="indexterm"></a> <a
+                  id="idm140492713438432"
+                  class="indexterm"></a>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492713437536"></a>14.4.4.4. 编译文件</h4></div></div></div><div
+              class="para">
+					一旦三个文件（<code
+                class="filename">example.if</code>, <code
+                class="filename">example.fc</code>, 和 <code
+                class="filename">example.te</code>）符合对新规则的预期要求，运行 <code
+                class="command">make</code> 在 <code
+                class="filename">example.pp</code> 文件中创建模块（可以使用 <code
+                class="command">semodule -i example.pp</code> 立即加载）。如果定义了几个模块，<code
+                class="command">make</code> 会生成所有对应的 <code
+                class="filename">.pp</code> 文件。
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>上一页</strong>14.3. 监督：预防，检测，威慑</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>下一页</strong>14.5. 其他安全相关事项</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.selinux.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.selinux.html">da-DK</a></li><li><a
+              href="../de-DE/sect.selinux.html">de-DE</a></li><li><a
+              href="../el-GR/sect.selinux.html">el-GR</a></li><li><a
+              href="../en-US/sect.selinux.html">en-US</a></li><li><a
+              href="../es-ES/sect.selinux.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.selinux.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.selinux.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.selinux.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.selinux.html">id-ID</a></li><li><a
+              href="../it-IT/sect.selinux.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.selinux.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.selinux.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.selinux.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.selinux.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.selinux.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.selinux.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.selinux.html">zh-CN</a></li></ul></div></body></html>

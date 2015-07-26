@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.3. الإشراف: المنع، والاكتشاف، والردع</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="الجدار الناري, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="security.html"
+        title="فصل 14. الأمن" /><link
+        rel="prev"
+        href="sect.firewall-packet-filtering.html"
+        title="14.2. الجدار الناري أو ترشيح الرزم" /><link
+        rel="next"
+        href="sect.selinux.html"
+        title="14.4. مقدمة إلى SELinux" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.supervision.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.firewall-packet-filtering.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.selinux.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.supervision"></a>14.3. الإشراف: المنع، والاكتشاف، والردع</h2></div></div></div><a
+          id="idm140225821540752"
+          class="indexterm"></a><a
+          id="idm140225821539792"
+          class="indexterm"></a><div
+          class="para">
+			المراقبة هي جزء متمم لأي سياسة أمنية وذلك لعدة أسباب. منها، أن هدف الحماية لا ينحصر عادة في ضمان سرية البيانات فقط، بل يتعداه إلى ضمان توافر الخدمات. لا بد إذن من التحقق أن كل شيء يعمل كما هو متوقع. واكتشاف أي سلوك شاذ أو تغيّر في جودة الخدمة (أو الخدمات) المقدمة في الوقت المناسب. قد تساعد عملية المراقبة على اكتشاف محاولات التطفل وتفعيل ردود سريعة قبل أن تسبب عواقب جسيمة. يراجع هذا القسم بعض الأدوات المستخدمة لمراقبة عدة نواحي في نظام دبيان. بالتالي، فهو يكمل القسم المخصص للمراقبة العامة للنظام في <a
+            class="xref"
+            href="advanced-administration.html">فصل 12, <em>الإدارة المتقدمة</em></a>.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.logcheck"></a>14.3.1. مراقبة السجلات باستخدام <code
+                    class="command">logcheck</code></h3></div></div></div><a
+            id="idm140225821535376"
+            class="indexterm"></a><a
+            id="idm140225821534256"
+            class="indexterm"></a><a
+            id="idm140225821532816"
+            class="indexterm"></a><div
+            class="para">
+				يراقب البرنامج <code
+              class="command">logcheck</code> ملفات السجلات في كل ساعة افتراضياً حيث يرسل رسائل السجل غير الطبيعية إلى مدير النظام عبر البريد الإلكتروني لمتابعة تحليلها.
+			</div><div
+            class="para">
+				تُخزَّن لائحة الملفات التي يراقبها في <code
+              dir="ltr"
+              class="filename">/etc/logcheck/logcheck.logfiles</code>؛ القيم الافتراضية جيدة إذا لم يكن الملف <code
+              dir="ltr"
+              class="filename">/etc/syslog.conf</code> أعيد بناؤه بالكامل.
+			</div><div
+            class="para">
+				يمكن أن يعمل <code
+              class="command">logcheck</code> في وضع واحد من ثلاثة أوضاع تختلف بمستوى تفصيلها: <span
+              class="emphasis"><em>paranoid</em></span> (مُرتاب) و <span
+              class="emphasis"><em>server</em></span> (مُخدِّم) و <span
+              class="emphasis"><em>workstation</em></span> (محطة عمل). الوضع الأول مفصل جداً، ويجب عدم استخدامه على الأرجح إلا على مخدمات خاصة مثل الجدران النارية. الوضع الثاني (والافتراضي) هو الوضع المفضل لمعظم المخدمات. أما الوضع الأخير فهو مصمم لمحطات العمل، وهو أكثر إيجازاً (يحجب رسائل أكثر).
+			</div><div
+            class="para">
+				في جميع الحالات الثلاث. يجب تخصيص <code
+              class="command">logcheck</code> على الأغلب لاستبعاد بعض الرسائل الإضافية (اعتماداً على الخدمات المثبتة)، إلا إذا كان مدير النظام يريد فعلاً تلقي دفعات ساعية من رسائل بريدية طويلة وغير مهمة. بما أن آلية اختيار الرسائل معقدة نوعاً ما، يجب قراءة الملف <code
+              dir="ltr"
+              class="filename">/usr/share/doc/logcheck-database/README.logcheck-database.gz</code> ودماغك نشط حتى تفهمها بشكل أفضل.
+			</div><div
+            class="para">
+				يمكن تقسيم القواعد المطبّقة إلى عدة أنواع:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						القواعد التي تصنف الرسالة على أنها محاولة اختراق (مخزنة في ملف ضمن المجلد <code
+                    dir="ltr"
+                    class="filename">/etc/logcheck/cracking.d/</code>)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						القواعد التي تلغي التصنيف السابق (<code
+                    class="filename">/etc/logcheck/cracking.ignore.d/</code>)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						القواعد التي تصنف الرسالة على أنها تحذير أمني (<code
+                    class="filename">/etc/logcheck/violations.d/</code>)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						القواعد التي تلغي التصنيف السابق (<code
+                    class="filename">/etc/logcheck/violations.ignore.d/</code>)؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						وأخيراً، القواعد التي على بقية الرسائل (التي تعتبر كأحداث نظام <span
+                    class="emphasis"><em>system events</em></span>).
+					</div></li></ul></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> تجاهل رسالة</strong></p></div></div></div><div
+              class="para">
+				لا يمكن تجاهل أي رسالة تصنف على أنها محاولة اختراق أو تحذير أمني (نتيجة اتباع قاعدة مخزنة في الملف <code
+                dir="ltr"
+                class="filename">/etc/logcheck/violations.d/myfile</code> ) إلا بقاعدة في الملف <code
+                dir="ltr"
+                class="filename">/etc/logcheck/violations.ignore.d/myfile</code> أو الملف <code
+                dir="ltr"
+                class="filename">/etc/logcheck/violations.ignore.d/myfile-<em
+                  class="replaceable">extension</em></code>.
+			</div></div><div
+            class="para">
+				كما تُرسَل أحداث النظام دائماً إلا في حال وجود قاعدة في أحد المجلدات <code
+              dir="ltr"
+              class="filename">/etc/logcheck/ignore.d.{paranoid,server,workstation}/</code> تُبيّن وجوب تجاهل هذا الحدث. طبعاً، لا تؤخذ بعين الاعتبار إلا المجلدات التي توافق مستوى التفصيل لوضع العمل المحدد والمستويات الأعلى منه.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تلميح</em></span> استخدام السجلات كخلفية للشاشة</strong></p></div></div></div><div
+              class="para">
+				يحبُّ بعض مديرو النظم رؤية رسائل سجلاتهم تمر أمامهم في الزمن الحقيقي؛ يمكن استخدام الأمر <code
+                class="command">root-tail</code> (من الحزمة <span
+                class="pkg pkg">root-tail</span>) لدمج رسائل السجلات في خلفية سطح المكتب الرسومي. كما يستطيع البرنامج <code
+                class="command">xconsole</code> (في الحزمة <span
+                class="emphasis"><em>x11-apps</em></span>) عرضها في نافذة صغيرة. تؤخذ الرسائل من <code
+                class="command">syslogd</code> مباشرة عبر الأنبوب المُسمّى <code
+                dir="ltr"
+                class="filename">/dev/xconsole</code>.
+			</div><a
+              id="idm140225821503584"
+              class="indexterm"></a><a
+              id="idm140225821502464"
+              class="indexterm"></a></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.monitoring-activity"></a>14.3.2. مراقبة النشاطات</h3></div></div></div><a
+            id="idm140225821499664"
+            class="indexterm"></a><a
+            id="idm140225821498224"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.real-time-monitoring"></a>14.3.2.1. في الزمن الحقيقي</h4></div></div></div><div
+              class="para">
+					<code
+                class="command">top</code> هي أداة تفاعلية تعرض قائمة بالعمليات النشطة حالياً. يعتمد الترتيب الافتراضي على نسبة استخدام المعالج ويمكن الوصول لهذا الترتيب بالمفتاح <span
+                class="keycap"><strong>P</strong></span>. من الخيارات الأخرى المتاحة للترتيب الترتيب حسب كمية الذاكرة المحجوزة (المفتاح <span
+                class="keycap"><strong>M</strong></span>)، أو حسب الزمن الكلي للمعالج (المفتاح <span
+                class="keycap"><strong>T</strong></span>) أو حسب مُعرّف العملية (المفتاح <span
+                class="keycap"><strong>N</strong></span>). يسمح المفتاح <span
+                class="keycap"><strong>k</strong></span> بقتل عملية عبر إدخال رقم تعريفها. ويسمح المفتاح <span
+                class="keycap"><strong>r</strong></span> <span
+                class="emphasis"><em>بإعادة تهذيب</em></span> العملية، أي تغيير أولويتها.
+				</div><a
+              id="idm140225821491616"
+              class="indexterm"></a><div
+              class="para">
+					عندما يبدو أن حمل النظام زائد، تسمح <code
+                class="command">top</code> بالتعرف على العمليات التي تتنافس على وقت المعالج أو التي تستهلك الكثير من الذاكرة. بالأخص، تفيد هذه الأداة في التحقق من توافق العمليات التي تستهلك الموارد مع الخدمات الحقيقية التي نعرف أن الجهاز يستضيفها. أي عملية غير معروفة تعمل بصلاحيات المستخدم www-data (مثلاً) يجب أن تبدو ظاهرة تماماً ويجب التحقق منها، لأنها على الأغلب نسخة من برمجية مثبتة ومنفّذة على النظام عبر استغلال ثغرة في أحد تطبيقات الوب.
+				</div><div
+              class="para">
+					<code
+                class="command">top</code> أداة مرنة جداً وتفصل صفحة دليلها طريقة تخصيص أسلوب عرضها للمعلومات وتكييفها مع احتياجاتك وعاداتك.
+				</div><div
+              class="para">
+					الأداتين الرسوميتين <code
+                class="command">gnome-system-monitor</code> و <code
+                class="command">qps</code> تشبهان <code
+                class="command">top</code> وتوفران المزايا نفسها تقريباً.
+				</div><a
+              id="idm140225821485856"
+              class="indexterm"></a></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.monitoring-history"></a>14.3.2.2. من الماضي</h4></div></div></div><a
+              id="idm140225821483408"
+              class="indexterm"></a><div
+              class="para">
+					حمل المعالج ونشاط الشبكة والمساحة التخزينية الحرة هي معلومات متغيرة باستمرار يفيد تتبع تاريخ تطورها غالباً في التعرف على طريقة استثمار الحاسوب بدقة.
+				</div><a
+              id="idm140225821481728"
+              class="indexterm"></a><a
+              id="idm140225821480768"
+              class="indexterm"></a><div
+              class="para">
+					هناك أدوات عديدة مخصصة لهذه المهمة. معظمها قادر على جلب البيانات عبر SNMP‏ (<span
+                class="emphasis"><em>Simple Network Management Protocol</em></span>) وذلك لمركزة هذه المعلومات. من المكاسب المضافة هي أن هذا يسمح بجلب البيانات من العناصر الشبكية التي قد لا تكون بالضرورة حواسيباً عامة الأغراض، مثل موجهات الشبكة المتخصصة أو التحويلات.
+				</div><div
+              class="para">
+					يغطي هذا الكتاب Munin بالتفصيل (انظر <a
+                class="xref"
+                href="sect.monitoring.html#sect.munin">قسم 12.4.1, “إعداد Munin”</a>) في الفصل <a
+                class="xref"
+                href="advanced-administration.html">فصل 12: “<em>الإدارة المتقدمة</em>”</a>. توفر دبيان أيضاً أداة مشابهة هي <span
+                class="pkg pkg">cacti</span>. وضع هذه الأداة في الخدمة أعقد قليلاً، لأنها تعتمد كلياً على SNMP. ورغم أنها تملك واجهة وب، إلا أن استيعاب مفاهيم إعدادها لا يزال صعباً. لا مفر من قراءة وثائق HTML‏ (<code
+                dir="ltr"
+                class="filename">/usr/share/doc/cacti/html/index.html</code>) إذا كنت ستستعمل هذه الأداة.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>بدائل</em></span> <code
+                          class="command">mrtg</code></strong></p></div></div></div><a
+                id="idm140225821473152"
+                class="indexterm"></a><div
+                class="para">
+					<code
+                  class="command">mrtg</code> (في الحزمة ذات الاسم نفسه) هي أداة أقدم. ورغم بعض نقاط الضعف، إلا أنها تستطيع جمع البيانات التأريخية وعرضها كمخططات. كما تتضمّن عدداً من السكربتات المخصصة لجمع أكثر البيانات التي تُراقب عادة مثل حمل المعالج، ونشاط الشبكة، وعدد مرات الدخول إلى صفحة وب، وغيرها.
+				</div><div
+                class="para">
+					تحوي الحزمتين <span
+                  class="pkg pkg">mrtg-contrib</span> و <span
+                  class="pkg pkg">mrtgutils</span> أمثلة عن سكربتات يمكن استخدامها مباشرة.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821468144"></a>14.3.3. اكتشاف التغيُّرات</h3></div></div></div><div
+            class="para">
+				بعد تثبيت النظام وإعداده، وفيما عدا التحديثات الأمنية، ليس هناك أي داعي عادة لتطور معظم الملفات والمجلدات، إلا البيانات. من المهم إذن التأكد من عدم تغيُّر الملفات فعلاً: أي تغيير غير متوقع عندئذ يستحق التقصي حوله. يعرض هذا القسم بضعة أدوات قادرة على مراقبة الملفات وتحذير مدير النظام عند حدوث أي تغيير غير متوقع (أو لسرد هذه التغييرات ببساطة).
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.debsums"></a>14.3.3.1. فحص الحزم: <code
+                      class="command">debsums</code> وحدودها</h4></div></div></div><a
+              id="idm140225821464640"
+              class="indexterm"></a><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>التعمق أكثر</em></span> الحماية من التغيرات المنبعية</strong></p></div></div></div><div
+                class="para">
+					تفيد <code
+                  class="command">debsums</code> في اكتشاف التغيرات على الملفات داخل حزم دبيان، لكنها عديمة الفائدة إذا تعرضت الحزمة نفسها للعبث. للحماية من هذا النوع من الهجمات يجب استخدام نظام APT للتحقق من التواقيع الرقمية (انظر <a
+                  class="xref"
+                  href="sect.package-authentication.html">قسم 6.5, “التحقق من سلامة الحزم”</a>)، والانتباه إلى تثبيت الحزم من مصادر موثوقة فقط.
+				</div></div><div
+              class="para">
+					<code
+                class="command">debsums</code> أداة مفيدة ﻷنها تسمح باكتشاف الملفات المثبتة التي عُدّلت (نتيجة تطفلات خبيثة على النظام مثلا)، لكن عليك ألا تثق تماماً بهذا. لأنه أولاً، لاتقدم جميع حزم دبيان البصمات اللازمة لعمل هذا البرنامج (التي يمكن العثور عليها في <code
+                dir="ltr"
+                class="filename">/var/lib/dpkg/info/<em
+                  class="replaceable">package</em>.md5sums</code> في حال توفرها). <a
+                id="idm140225821457904"
+                class="indexterm"></a> <a
+                id="idm140225821457264"
+                class="indexterm"></a> <a
+                id="idm140225821456624"
+                class="indexterm"></a> <a
+                id="idm140225821455984"
+                class="indexterm"></a>للتذكرة: البصمة هي قيمة، رقميّة غالباً (رغم أنها تكتب بالتدوين الست عشري)، تحوي شكلاً من التوقيع الرقمي لمحتويات الملف. يُحسَب هذا التوقيع بخوارزمية (من الأمثلة المشهورة MD5 أو SHA1) تضمن أن أي تغيير (تقريباً) على محتويات الملف، مهما كان صغيراً، سيؤدي لتغير البصمة؛ يعرف هذا ”بأثر التَّيْهور avalanche effect“. يسمح هذا باستخدام بصمة رقمية بسيطة للتحقق من عدم تغيّر محتويات الملف. هذه الخوارزميات غير عكوسة؛ أي أن معرفة البصمة، في معظم هذه الخوارزميات، لا تسمح بالعثور على المحتويات الموافقة لها. يبدو أن التطورات الأخيرة في الرياضيات قد أضعفت منعة هذه المبادئ، لكن لم تصل لمرحلة التشكيك في استخدامها حتى الآن، لأنه يبدو أن إنشاء محتويات مختلفة تعطي البصمة نفسها لا يزال صعباً جداً.
+				</div><div
+              class="para">
+					بالإضافة لذلك، تُخزّن ملفات <code
+                class="filename">md5sums</code> على القرص الصلب؛ فالمهاجم الخبير سوف يُعدِّل هذه الملفات بحيث تحوي قيم شفرات التحقق الجديدة للملفات التي خربها.
+				</div><div
+              class="para">
+					يمكن تفادي القصور الأول عبر الطلب من <code
+                class="command">debsums</code> أن تستخدم حزمة <code
+                dir="ltr"
+                class="filename">.deb</code> مباشرة عند التحقق من الملفات بدلاً من الاعتماد على ملف <code
+                class="command">debsums</code>. لكن ذلك يحتاج تنزيل ملفات <code
+                dir="ltr"
+                class="filename">.deb</code> الموافقة أولاً:
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>apt-get --reinstall -d install `debsums -l`</code></strong>
+<code
+                class="computeroutput">[ ... ]
+# </code><strong
+                class="userinput"><code>debsums -p /var/cache/apt/archives -g</code></strong>
+</pre><div
+              class="para">
+					كما يجدر بالملاحظة أن <code
+                class="command">debsums</code>، حسب الإعدادات الافتراضية، تولد ملفات <code
+                class="filename">md5sums</code> المفقودة تلقائياً في كل مرة تستخدم فيها APT لتثبيت حزمة جديدة.
+				</div><div
+              class="para">
+					يمكن تفادي المشكلة الأخرى بأسلوب مشابه، يجب أن يعتمد التحقق على ملف <code
+                dir="ltr"
+                class="filename">.deb</code> الأصلي ببساطة. بما أن هذا يعني ضمنياً ضرورة امتلاك جميع ملفات <code
+                dir="ltr"
+                class="filename">.deb</code> لجميع الحزم المثبتة، وضمان سلامتها، فإن أبسط وسيلة هي الحصول عليها من مرآة دبيان. قد تكون هذه العملية بطيئة ومملة، لذلك يجب عدم اتخاذها كتقنية وقائية تستخدم على نحو منتظم.
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>apt-get --reinstall -d install `grep-status -e 'Status: install ok installed' -n -s Package`</code></strong>
+<code
+                class="computeroutput">[ ... ]
+# </code><strong
+                class="userinput"><code>debsums -p /var/cache/apt/archives --generate=all</code></strong>
+</pre><div
+              class="para">
+					لاحظ أن هذا المثال يستخدم <code
+                class="command">grep-status</code> من الحزمة <span
+                class="pkg pkg">dctrl-tools</span>، وهي غير مثبتة افتراضياً.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225822800112"></a>14.3.3.2. مراقبة الملفات: AIDE</h4></div></div></div><a
+              id="idm140225822799344"
+              class="indexterm"></a><div
+              class="para">
+					تسمح الأداة AIDE‏ (<span
+                class="emphasis"><em>Advanced Intrusion Detection Environment</em></span>) بالتحقق من سلامة الملفات، واكتشاف أي تغيّرات اعتماداً على صورة مسجلة سابقاً للنظام السليم. تُخزّن هذه الصورة كقاعدة بيانات (<code
+                dir="ltr"
+                class="filename">/var/lib/aide/aide.db</code>) تحوي خصائص جميع ملفات النظام (البصمات، الصلاحيات، التواريخ وغيرها). تُهيّأ قاعدة البيانات هذه أولاً باستخدام <code
+                class="command">aideinit</code>؛ وبعدها تُستخدَم يومياً (يستخدمها السكربت <code
+                dir="ltr"
+                class="filename">/etc/cron.daily/aide</code>) للتحقق من عدم تغير أي شيء. عند اكتشاف أي تغير، تسجله AIDE في سجلاتها (<code
+                dir="ltr"
+                class="filename">/var/log/aide/*.log</code>) وترسل ما وجدته إلى مدير النظام عبر البريد الإلكتروني.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>ممارسة عملية</em></span> حماية قاعدة البيانات</strong></p></div></div></div><div
+                class="para">
+					بما أن AIDE تستخدم قاعدة بيانات محلية لمقارنة حالة الملفات، فإن صحة نتائجها ترتبط مباشرة بسلامة قاعدة البيانات. إذا حصل المهاجم على صلاحيات الجذر على النظام المُختَرَق، عندها يستطيع استبدال قاعدة البيانات وتغطية آثاره. من الحلول الممكنة لهذه المشكلة تخزين البيانات على وسيط تخزيني للقراءة فقط.
+				</div></div><div
+              class="para">
+					هناك العديد من الخيارات في <code
+                dir="ltr"
+                class="filename">/etc/default/aide</code> التي يمكن استخدامها لتعديل سلوك حزمة <span
+                class="pkg pkg">aide</span>. تخزن إعدادات هذا البرنامج في <code
+                dir="ltr"
+                class="filename">/etc/aide/aide.conf</code> و <code
+                class="filename">/etc/aide/aide.conf.d/</code> (في الواقع، يستخدم <code
+                class="command">update-aide.conf</code> هذه الملفات فقط لتوليد <code
+                dir="ltr"
+                class="filename">/var/lib/aide/aide.conf.autogenerated</code>). تدل الإعدادات على الملفات وخصائص الملفات المطلوب التحقق منها. مثلاً، تتغير محتويات ملفات السجلات بشكل متكرر، ويمكن تجاهل هذه التغيرات طالما أن صلاحيات الوصول لهذه الملفات لم تتغير، لكن بالنسبة للبرامج التنفيذية يجب أن تبقى محتوياتها وصلاحياتها ثابتة. رغم أن صيغة هذه الإعدادات ليست بالغة التعقيد، إلا أنها ليست بدهية أيضاً. قراءة صفحة الدليل <span
+                class="citerefentry"><span
+                  class="refentrytitle">aide.conf</span>(5)</span>‎ إذن سوف تفيد.
+				</div><div
+              class="para">
+					تُولّد نسخة جديدة من قاعدة البيانات يومياً في <code
+                dir="ltr"
+                class="filename">/var/lib/aide/aide.db.new</code>؛ إذا كانت جميع التغييرات المسجّلة مشروعة، يمكن استخدام هذه النسخة لاستبدال قاعدة البيانات المرجعية.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>بدائل</em></span> Tripwire و Samhain</strong></p></div></div></div><div
+                class="para">
+					Tripwire يشبه AIDE كثيراً؛ حتى أن صيغة ملفات الإعداد نفسها تقريباً. الزيادة الرئيسية التي يضيفها <span
+                  class="pkg pkg">tripwire</span> هي آلية لتوقيع ملف الإعداد، بحيث لا يستطيع المهاجم تعديله حتى يشير لنسخة مختلفة من قاعدة البيانات المرجعية.
+				</div><div
+                class="para">
+					كما يوفر Samhain مزايا مشابهة، بالإضافة لبعض الوظائف التي تساعد على اكتشاف rootkits (انظر الملاحظة الجانبية نظرة سريعة). كما يمكن تثبيته على الشبكة كلها وتسجيل نتائجه على مخدم مركزي (مع استخدام توقيع).
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>نظرة سريعة</em></span> الحزم <span
+                          class="pkg pkg">checksecurity</span> و <span
+                          class="pkg pkg">chkrootkit</span>/<span
+                          class="pkg pkg">rkhunter</span></strong></p></div></div></div><a
+                id="idm140225822776512"
+                class="indexterm"></a><div
+                class="para">
+					تحوي أولى هذه الحزم عدة سكربتات صغيرة تجري اختبارات أساسية على النظام (كلمات السر الفارغة، ملفات setuid جديدة، وما شابه) وتُحذِّر مدير النظام إذا اقتضى الأمر. رغم اسمها الواضح، إلا أنه لا يجب أن يعتمد مدير النظام عليها وحدها للتأكد من أمان نظام لينكس.
+				</div><div
+                class="para">
+					تسمح الحزمتين <span
+                  class="pkg pkg">chkrootkit</span> و <span
+                  class="pkg pkg">rkhunter</span> بالبحث عن <span
+                  class="emphasis"><em>rootkits</em></span> التي يحتمل أنها مثبّتة على النظام. للتذكرة، rootkits هي برمجيات مصممة لإخفاء عملية اختراق النظام بينما تحافظ على إمكانية التحكم بالجهاز بصمت. ليست الفحوصات موثوقة 100%، لكنها قد تلفت انتباه مدير النظام عادة للمشاكل الكامنة.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.intrusion-detection"></a>14.3.4. اكتشاف التطفل (IDS/NIDS)</h3></div></div></div><a
+            id="idm140225822769760"
+            class="indexterm"></a><a
+            id="idm140225822768800"
+            class="indexterm"></a><a
+            id="idm140225822767872"
+            class="indexterm"></a><a
+            id="idm140225822766912"
+            class="indexterm"></a><a
+            id="idm140225822765984"
+            class="indexterm"></a><a
+            id="idm140225822765024"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>أساسيات</em></span> Denial of service</strong></p></div></div></div><a
+              id="idm140225822762464"
+              class="indexterm"></a><div
+              class="para">
+				تهدف هجمات ”denial of service“ لغرض واحد فقط: إيقاف خدمة عن العمل. سواء كان الهجوم يشمل إغراق المخدم بالطلبات أو استغلال علة ما، النتيجة النهائية هي نفسها: لم تعد الخدمة متوفرة. المستخدمون المنتظمون غير راضين، وتعاني الهيئة التي تستضيف الخدمة المستهدفة من خسارة سمعتها (وربما أرباحها، إذا كانت الخدمة مثلاً موقع تجارة إلكترونية).
+			</div><div
+              class="para">
+				توصف هذه الهجمات أحياناً بأنها ”موزعة“ (distributed)؛ حيث تشمل هذه الهجمات إغراق المخدم بعدد ضخم من الطلبات التي ترد من مصادر مختلفة عديدة بحيث يعجز المخدم عن إجابة الطلبات النظامية. اكتسب هذان النوعان من الهجمات اختصارين شهيرين: <acronym
+                class="acronym">DoS</acronym> و <acronym
+                class="acronym">DDoS</acronym> (الأول للهجمات العادية والثاني للموزعة).
+			</div></div><div
+            class="para">
+				<code
+              class="command">snort</code> (في حزمة دبيان ذات الاسم نفسه) هو NIDS‏ — <span
+              class="emphasis"><em>Network Intrusion Detection System</em></span> (نظام كشف تطفل). مهمته هي الإنصات للشبكة ومحاولة اكتشاف محاولات الاختراق و (أو) الأفعال العدائية (بما فيها هجمات denial of service). تُسجّل جميع هذه الأحداث، ويرسل بريد إلكتروني يومي إلى مدير النظام يحوي ملخص آخر 24 ساعة.
+			</div><a
+            id="idm140225822756736"
+            class="indexterm"></a><div
+            class="para">
+				يحتاج إعداده إلى تحديد مجال العناوين التي تغطي الشبكة المحلية. عملياً، هذا يعني مجموعة الأهداف المحتملة للهجوم. يمكن ضبط المتغيرات المهمة الأخرى باستخدام <code
+              class="command">dpkg-reconfigure snort</code>، بما في ذلك الواجهة الشبكية التي سيراقبها. ستكون هذه غالباً <code
+              class="literal">eth0</code> بالنسبة لاتصالات إيثرنت، لكن هناك إمكانيات أخرى مثل <code
+              class="literal">ppp0</code> لاتصالات ADSL أو PSTN‏ (<span
+              class="emphasis"><em>Public Switched Telephone Network</em></span>، شبكة الهاتف العامة أو مودمات الاتصال الهاتفي القديمة)، أو حتى <code
+              class="literal">wlan0</code> بالنسبة لبعض بطاقات الشبكات اللاسلكية.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>التعمق أكثر</em></span> التكامل مع <code
+                        class="command">prelude</code></strong></p></div></div></div><div
+              class="para">
+				يوفر Prelude مراقبة مركزية للمعلومات الأمنية. تتضمن معماريته التجزيئية مخدماً (<span
+                class="emphasis"><em>manager</em></span> في <span
+                class="pkg pkg">prelude-manager</span>) الذي يجمع التحذيرات التي تولدها الحساسات (<span
+                class="emphasis"><em>sensors</em></span>) المختلفة.
+			</div><div
+              class="para">
+				يمكن إعداد Snort حتى يعمل كحساس. من الحساسات الأخرى <span
+                class="emphasis"><em>prelude-lml</em></span>‏ (<span
+                class="emphasis"><em>Log Monitor Lackey</em></span>) الذي يراقب ملفات السجلات (بطريقة تشبه <code
+                class="command">logcheck</code>، المشروح في <a
+                class="xref"
+                href="sect.supervision.html#sect.logcheck">قسم 14.3.1, “مراقبة السجلات باستخدام <code
+                  class="command">logcheck</code>”</a>).
+			</div><a
+              id="idm140225822745856"
+              class="indexterm"></a></div><div
+            class="para">
+				ملف إعدادات <code
+              class="command">snort</code>‏ (<code
+              dir="ltr"
+              class="filename">/etc/snort/snort.conf</code>) طويل جداً، والتعليقات الكثيرة تشرح كل مدخلة بتفصيل مسهب. للاستفادة منه بشكل كامل يجب قراءته كله وملائمته مع الوضع المحلي. مثلاً، يمكن أن يساعد تحديد الأجهزة التي تستضيف خدمات معينة على تقليل عدد الحوادث التي يبلغ عنها <code
+              class="command">snort</code>، لأن هجمات denial of service على جهاز مكتبي ليست أبداً بنفس أهمية الهجوم على مخدم DNS. من التعليمات المفيدة الأخرى تعليمة تسمح بتخزين التقابلات بين عناوين IP وعناوين MAC (التي تُعرّف بطاقات الشبكات بشكل فريد)، بحيث يمكن اكتشاف هجمات <span
+              class="emphasis"><em>ARP spoofing</em></span> (تزوير ARP) التي يحاول أحد الأجهزة المخترقة من خلالها التنكر بدور مخدم حساس.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> المدى المجدي</strong></p></div></div></div><div
+              class="para">
+				تتحدد فعالية <code
+                class="command">snort</code> بمقدار الحركة التي يراها من خلال الواجهة الشبكية المراقبة. من الواضح أنه لن يتمكن من اكتشاف أي شيء إذا لم يتمكن من معاينة الحركة الحقيقية على الشبكة. سوف يراقب إذن، عند توصيله مع تحويلة شبكية (switch)، الهجمات التي تستهدف الجهاز الذي يعمل عليه فقط، وهذا ليس المقصود على الأرجح. بالتالي، يجب توصيل الجهاز الذي يستضيف <code
+                class="command">snort</code> بمنفذ ”المرآة“ في التحويلة، المخصص لربط التحويلات مع بعضها وبالتالي تصل إليه جميع الرزم.
+			</div><div
+              class="para">
+				أما في الشبكات الصغيرة التي تعتمد على مجمع (hub)، فلا تظهر هذه المشكلة، لأن جميع الأجهزة تستقبل جميع الرزم بطبيعة الحال.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.firewall-packet-filtering.html"><strong>السابق</strong>14.2. الجدار الناري أو ترشيح الرزم</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.selinux.html"><strong>التالي</strong>14.4. مقدمة إلى SELinux</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.supervision.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.supervision.html">da-DK</a></li><li><a
+              href="../de-DE/sect.supervision.html">de-DE</a></li><li><a
+              href="../el-GR/sect.supervision.html">el-GR</a></li><li><a
+              href="../en-US/sect.supervision.html">en-US</a></li><li><a
+              href="../es-ES/sect.supervision.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.supervision.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.supervision.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.supervision.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.supervision.html">id-ID</a></li><li><a
+              href="../it-IT/sect.supervision.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.supervision.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.supervision.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.supervision.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.supervision.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.supervision.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.supervision.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.supervision.html">zh-CN</a></li></ul></div></body></html>

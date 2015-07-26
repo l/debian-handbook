@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.6. HTTP/FTP-Proxy</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="network-services.html"
+        title="Kapitel 11. Netzwerkdienste: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="prev"
+        href="sect.windows-file-server-with-samba.html"
+        title="11.5. Einrichten von Windows-Freigaben mit Samba" /><link
+        rel="next"
+        href="sect.ldap-directory.html"
+        title="11.7. LDAP-Verzeichnis" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.http-ftp-proxy.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.windows-file-server-with-samba.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ldap-directory.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.http-ftp-proxy"></a>11.6. HTTP/FTP-Proxy</h2></div></div></div><div
+          class="para">
+			Ein HTTP/FTP-Proxy agiert als Vermittler bei HTTP- und FTP-Verbindungen. Er erfüllt zwei Rollen:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					Zwischenspeichern: Kopien kürzlich heruntergeladener Dokumente werden lokal gespeichert, wodurch mehrfaches Herunterladen vermieden wird.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Filter-Server: falls die Benutzung des Proxy vorgeschrieben ist (und ausgehende Verbindungen gesperrt werden, wenn sie nicht über den Proxy laufen), kann der Proxy bestimmen, ob die Anfrage erlaubt wird oder nicht.
+				</div></li></ul></div><a
+          id="idm139686908285648"
+          class="indexterm"></a><a
+          id="idm139686908284880"
+          class="indexterm"></a><div
+          class="para">
+			Falcot Corp. hat Squid als ihren Proxy-Server ausgewählt.
+		</div><a
+          id="idm139686908283648"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686908282880"></a>11.6.1. Installieren</h3></div></div></div><div
+            class="para">
+				The <span
+              class="pkg pkg">squid3</span> Debian package only contains the modular (caching) proxy. Turning it into a filtering server requires installing the additional <span
+              class="pkg pkg">squidguard</span> package. In addition, <span
+              class="pkg pkg">squid-cgi</span> provides a querying and administration interface for a Squid proxy.
+			</div><div
+            class="para">
+				Vor dem Installieren sollte sichergestellt werden, dass das System seinen eigenen vollständigen Namen feststellen kann: der Befehl <code
+              class="command">hostname -f</code> muss einen vollqualifizierten Namen (einschließlich einer Domain) ergeben. Anderenfalls sollte die Datei <code
+              class="filename">/etc/hosts</code> so editiert werden, dass sie den vollständigen Namen des Systems (zum Beispiel <code
+              class="literal">arrakis.falcot.com</code>) enthält. Der vollständige Rechnername sollte vom Netz-Administrator bestätigt werden, um mögliche Namenskonflikte zu vermeiden.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686908277536"></a>11.6.2. Einen Cache konfigurieren</h3></div></div></div><div
+            class="para">
+				Enabling the caching server feature is a simple matter of editing the <code
+              class="filename">/etc/squid3/squid.conf</code> configuration file and allowing machines from the local network to run queries through the proxy. The following example shows the modifications made by the Falcot Corp administrators:
+			</div><div
+            class="example"><a
+              id="idm139686908275824"></a><p
+              class="title"><strong>Beispiel 11.30. The <code
+                  class="filename">/etc/squid3/squid.conf</code> file (excerpts)</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+
+# Example rule allowing access from your local networks. Adapt
+# to list your (internal) IP networks from where browsing should
+# be allowed
+acl our_networks src 192.168.1.0/24 192.168.2.0/24
+http_access allow our_networks
+http_access allow localhost
+# And finally deny all other access to this proxy
+http_access deny all
+</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686908273760"></a>11.6.3. Einen Filter konfigurieren</h3></div></div></div><div
+            class="para">
+				<code
+              class="command">squid</code> selbst führt die Filterung nicht durch; dieser Arbeitsgang wird an <code
+              class="command">squidGuard</code> delegiert. Ersteres muss dann so konfiguriert werden, dass es mit letzterem zusammenarbeitet. Hierzu wird folgende Anweisung zur Datei <code
+              class="filename">/etc/squid/squid.conf</code> hinzugefügt:
+			</div><a
+            id="idm139686908271344"
+            class="indexterm"></a><pre
+            class="programlisting">
+redirect_program /usr/bin/squidGuard -c /etc/squid/squidGuard.conf
+</pre><div
+            class="para">
+				Das CGI-Programm <code
+              class="filename">/usr/lib/cgi-bin/squidGuard.cgi</code> muss ebenfalls installiert werden, wobei die Datei <code
+              class="filename">/usr/share/doc/squidguard/examples/squidGuard.cgi.gz</code> als Ausgangspunkt dient. In diesem Skript müssen die Variablen <code
+              class="varname">$proxy</code> und <code
+              class="varname">$proxymaster</code> angepasst werden (der Name des Proxy und die E-Mail-Adresse des Administrators). Die Variablen <code
+              class="varname">$image</code> und <code
+              class="varname">$redirect</code> sollten auf bestehende Abbilder zeigen, die die Ablehnung einer Anfrage darstellen.
+			</div><div
+            class="para">
+				Der Filter wird mit dem Befehl <code
+              class="command">/etc/init.d/squid reload</code> aktiviert. Da das Paket <span
+              class="pkg pkg">squidguard</span> jedoch nicht standardmäßig Filterungen durchführt, ist es Aufgabe des Administrators, die Richtlinien festzulegen. Dies kann durch Erstellen der Datei <code
+              class="filename">/etc/squid/squidGuard.conf</code> geschehen (evt. mit Hilfe von <code
+              class="filename">/etc/squidguard/squidGuard.conf.default</code> als Vorlage).
+			</div><div
+            class="para">
+				Die aktive Datenbank muss nach jeder Änderung der Konfigurationsdatei <code
+              class="command">squidGuard</code> (oder einer der Domain- beziehungsweise URL-Listen, die sich auf sie beziehen) mit dem Befehl <code
+              class="command">update-squidguard</code> aktualisiert werden. Die Syntax der Konfigurationsdatei ist auf der folgenden Website dokumentiert: <div
+              class="url">→ <a
+                href="http://www.squidguard.org/Doc/configure.html">http://www.squidguard.org/Doc/configure.html</a></div>
+			</div><a
+            id="idm139686908262448"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ALTERNATIVE</em></span> DansGuardian</strong></p></div></div></div><a
+              id="idm139686908260656"
+              class="indexterm"></a><a
+              id="idm139686908259520"
+              class="indexterm"></a><div
+              class="para">
+				Das Paket <span
+                class="pkg pkg">dansguardian</span> stellt eine Alternative zu <span
+                class="emphasis"><em>squidguard</em></span> dar. Dieses Programm verwaltet nicht einfach eine schwarze Liste verbotener URLs, sondern kann mithilfe des PICS-Systems (<span
+                class="emphasis"><em>Platform for Internet Content Selection</em></span>) den Inhalt einer Seite dynamisch analysieren, um zu entscheiden, ob sie zulässig ist.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.windows-file-server-with-samba.html"><strong>Zurück</strong>11.5. Einrichten von Windows-Freigaben mit Samba</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ldap-directory.html"><strong>Weiter</strong>11.7. LDAP-Verzeichnis</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.http-ftp-proxy.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.http-ftp-proxy.html">da-DK</a></li><li><a
+              href="../de-DE/sect.http-ftp-proxy.html">de-DE</a></li><li><a
+              href="../el-GR/sect.http-ftp-proxy.html">el-GR</a></li><li><a
+              href="../en-US/sect.http-ftp-proxy.html">en-US</a></li><li><a
+              href="../es-ES/sect.http-ftp-proxy.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.http-ftp-proxy.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.http-ftp-proxy.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.http-ftp-proxy.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.http-ftp-proxy.html">id-ID</a></li><li><a
+              href="../it-IT/sect.http-ftp-proxy.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.http-ftp-proxy.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.http-ftp-proxy.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.http-ftp-proxy.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.http-ftp-proxy.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.http-ftp-proxy.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.http-ftp-proxy.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.http-ftp-proxy.html">zh-CN</a></li></ul></div></body></html>

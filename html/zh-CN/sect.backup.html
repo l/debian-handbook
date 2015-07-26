@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. 备份</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="系统启动, 启动脚本, SSH, Telnet, 权限, 许可, 管理, Inetd, Cron, 备份, 热插拔, PCMCIA接口, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="unix-services.html"
+        title="第 9 章 Unix 服务" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. 配额" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. 热插拔： 热插拔" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.backup.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. 备份</h2></div></div></div><div
+          class="para">
+			制作备份是管理员的主要责任之一，但它是个相对复杂的课题，并包含一些很难掌握的强大工具。
+		</div><a
+          id="idm140492716936832"
+          class="indexterm"></a><a
+          id="idm140492716936064"
+          class="indexterm"></a><div
+          class="para">
+			Many programs exist, such as <code
+            class="command">amanda</code>, <code
+            class="command">bacula</code>, <code
+            class="command">BackupPC</code>. Those are client/server system featuring many options, whose configuration is rather difficult. Some of them provide user-friendly web interfaces to mitigate this. But Debian contains dozens of other backup software covering all possible use cases, as you can easily confirm with <code
+            class="command">apt-cache search backup</code>.
+		</div><a
+          id="idm140492716933072"
+          class="indexterm"></a><a
+          id="idm140492716932176"
+          class="indexterm"></a><a
+          id="idm140492716931280"
+          class="indexterm"></a><div
+          class="para">
+			本章节并没有详细介绍这些工具，而是介绍 Falcot Corp （本书中虚构的公司）管理员们确定备份策略时的思路。
+		</div><div
+          class="para">
+			在 Falcot Corp公司，备份有两个目的：恢复被误删的文件，迅速恢复硬盘损坏的电脑。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492716929312"></a>9.10.1. 使用 <code
+                    class="command">rsync</code>备份</h3></div></div></div><div
+            class="para">
+				Backups on tape having been deemed too slow and costly, data will be backed up on hard drives on a dedicated server, on which the use of software RAID (see <a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">第 12.1.1 节 “Software RAID”</a>) will protect the data from hard drive failure. Desktop computers are not backed up individually, but users are advised that their personal account on their department's file server will be backed up. The <code
+              class="command">rsync</code> command (from the package of the same name) is used daily to back up these different servers.
+			</div><a
+            id="idm140492716926512"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>回到基础</em></span> 硬链接，文件的第二个名字</strong></p></div></div></div><a
+              id="idm140492716924720"
+              class="indexterm"></a><a
+              id="idm140492716923568"
+              class="indexterm"></a><div
+              class="para">
+				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+			</div><div
+              class="para">
+				硬链接使用 <code
+                class="command">ln <em
+                  class="replaceable">target</em> <em
+                  class="replaceable">link</em></code> 命令创建。 然后<em
+                class="replaceable">link</em> 文件是<em
+                class="replaceable">target</em> 文件另外的新名字。硬链接只能在相同的文件系统上创建，而符号链接不受此限制。
+			</div></div><div
+            class="para">
+				有限的硬盘空间限制了每天完全备份数据。由此，<code
+              class="command">rsync</code> 命令对之前备份的内容使用硬链接，这样可以避免使用过多的硬盘空间。 然后<code
+              class="command">rsync</code> 进程只覆盖上次备份后修改过的文件。通过这种机制，大量的备份只占用小的磁盘空间。所有的备份会立即生效并且可以读写（例如，在共享网络上的不同目录），可以迅速比较两个不同日期的文件。
+			</div><a
+            id="idm140492716917824"
+            class="indexterm"></a><a
+            id="idm140492716917056"
+            class="indexterm"></a><a
+            id="idm140492716915904"
+            class="indexterm"></a><div
+            class="para">
+				这种备份机制可以通过 <code
+              class="command">dirvish</code> 程序执行。使用备份存储空间（“空”的），放置有时间戳的备份文件集（这些文件集在dirvish 文档中被成为“vaults”）。
+			</div><div
+            class="para">
+				主要配置在 <code
+              class="filename">/etc/dirvish/master.conf</code> 文件中。它定义了备份存储空间的位置，要管理的“vaults”，和备份超期的默认值。配置的其他部分在 <code
+              class="filename"><em
+                class="replaceable">bank</em>/<em
+                class="replaceable">vault</em>/dirvish/default.conf</code> 文件中，包含对应文件集的特殊配置。
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>例 9.3.  <code
+                  class="filename">/etc/dirvish/master.conf</code> 文件</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1
+</pre></div></div><div
+            class="para">
+				<code
+              class="literal">bank</code> 设置备份存储的目录。<code
+              class="literal">exclude</code> 设置可以指定要排除的文件（或文件类型）。 <code
+              class="literal">Runall</code> 是一个带有时间戳的备份文件集列表，如果备份没有在指定的确切时间触发，可以通过它指定拷贝的日期。必须将时间设定在实际执行时间之前（在Debian 中默认按照 <code
+              class="filename">/etc/cron.d/dirvish</code> 10:04 pm）。最后，<code
+              class="literal">expire-default</code> 和 <code
+              class="literal">expire-rule</code> 设定备份过期时间。上面的例子中，会永久保存每季度第一个周日产生的备份，一年以后删除每月第一个周日的备份，三个月之后其他周日的备份。其他备份保留１５天。规则的顺序并不重要，Dirvish 使用最后的匹配规则，如果没找到 <code
+              class="literal">expire-rule</code> 匹配，会使用 <code
+              class="literal">expire-default</code> 。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>实践</em></span>　使用SSH远程备份</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">dirvish-expire</code> 完成任务并不使用超期规则。实际上，当创建新备份时，超期规则用来定义与该拷贝相关联的截止日期。 <code
+                class="command">dirvish-expire</code> 审阅已存储的拷贝并删除已经超期的。
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>例 9.4.  <code
+                  class="filename">/backup/root/dirvish/default.conf</code> 文件</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak
+</pre></div></div><div
+            class="para">
+				上面的例子中指明了要备份的文件集：这些文件在机器 <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> 上（对本地数据备份，只需指明本地机器 <code
+              class="command">hostname</code>），主要是在根目录下（<code
+              class="literal">tree: /</code>），除了在 <code
+              class="literal">exclude</code>中列出的文件。备份仅限于一个文件系统中的内容（<code
+              class="literal">xdev: 1</code>）。不包含其他挂载点的文件。产生保存文件的索引（<code
+              class="literal">index: gzip</code>），镜像根据当前日期进行命名（<code
+              class="literal">image-default: %Y%m%d</code>）。
+			</div><div
+            class="para">
+				有许多可用选项，都记录在 <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span> 手册中。一旦这些配置文件设定好后，必须要使用<code
+              class="command">dirvish --vault <em
+                class="replaceable">vault</em> --init</code> 命令来初始化每个文件集。此后每天在删除过期备份之后，就会自动唤起 <code
+              class="command">dirvish-runall</code> 进行备份。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>实践</em></span>　使用SSH远程备份</strong></p></div></div></div><div
+              class="para">
+				When dirvish needs to save data to a remote machine, it will use <code
+                class="command">ssh</code> to connect to it, and will start <code
+                class="command">rsync</code> as a server. This requires the root user to be able to automatically connect to it. The use of an SSH authentication key allows precisely that (see <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">第 9.2.1.1 节 “基于密钥的认证”</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140492716892144"></a>9.10.2. 不使用备份恢复系统</h3></div></div></div><div
+            class="para">
+				Desktop computers, which are not backed up, will be easy to reinstall from custom DVD-ROMs prepared with <span
+              class="emphasis"><em>Simple-CDD</em></span> (see <a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">第 12.3.3 节 “Simple-CDD: The All-In-One Solution”</a>). Since this performs an installation from scratch, it loses any customization that can have been made after the initial installation. This is fine since the systems are all hooked to a central LDAP directory for accounts and most desktop applications are preconfigured thanks to dconf (see <a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">第 13.3.1 节 “GNOME”</a> for more information about this).
+			</div><div
+            class="para">
+				Falcot Corp 的管理员深知他们备份策略的局限性。由于他们不能把备份服务器和磁带放入防火保险箱，因此他们把服务器部署在一个单独的房间，该房间可以免受类似着火等类型灾难，从而避免灭顶之灾。此外，他们每周在 DVD-ROM 上做增量备份—只包含上次备份之后修改的文件。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>进阶 </em></span> 备份SQL 和LDAP 服务</strong></p></div></div></div><div
+              class="para">
+				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
+                class="command">diff</code> each day, which is created with a command of the type <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code>. The <code
+                class="command">xdelta</code> program produces incremental differences from binary dumps.
+			</div><a
+              id="idm140492716884848"
+              class="indexterm"></a><a
+              id="idm140492716883952"
+              class="indexterm"></a><a
+              id="idm140492716883056"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>文化</em></span> <span
+                        class="emphasis"><em>TAR</em></span>，磁带备份标准</strong></p></div></div></div><a
+              id="idm140492716880880"
+              class="indexterm"></a><a
+              id="idm140492716879728"
+              class="indexterm"></a><a
+              id="idm140492716878960"
+              class="indexterm"></a><div
+              class="para">
+				历史上，在Unix 上制作备份最简单的方法是将一个 <span
+                class="emphasis"><em>TAR</em></span> 档案存到磁带上。 <code
+                class="command">tar</code> 甚至得名于“Tape ARchive”。
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>上一页</strong>9.9. 配额</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>下一页</strong>9.11. 热插拔： 热插拔</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

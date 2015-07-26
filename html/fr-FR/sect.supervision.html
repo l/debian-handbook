@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.3. Supervision : prévention, détection, dissuasion</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Pare-feu, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="security.html"
+        title="Chapitre 14. Sécurité" /><link
+        rel="prev"
+        href="sect.firewall-packet-filtering.html"
+        title="14.2. Pare-feu ou filtre de paquets" /><link
+        rel="next"
+        href="sect.selinux.html"
+        title="14.4. Introduction à SELinux" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.supervision.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.firewall-packet-filtering.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.selinux.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.supervision"></a>14.3. Supervision : prévention, détection, dissuasion</h2></div></div></div><a
+          id="idm140565664670736"
+          class="indexterm"></a><a
+          id="idm140565664669776"
+          class="indexterm"></a><div
+          class="para">
+			La supervision fait partie intégrante d'une politique de sécurité. Elle est nécessaire à plusieurs titres : l'objectif de la sécurité n'est pas uniquement de garantir la confidentialité des données, mais aussi d'assurer le bon fonctionnement des services. Il est donc impératif de veiller à ce que tout fonctionne comme prévu et de détecter au plus tôt les comportements inhabituels et les changements dans la qualité du service fourni. Surveiller l'activité peut permettre de détecter des tentatives d'intrusion et donc de s'en protéger avant que cela ne porte à conséquences. Ce chapitre va passer en revue des outils servant à surveiller différents aspects d'un système Debian. Il complète la section dédiée à la supervision du <a
+            class="xref"
+            href="advanced-administration.html">Chapitre 12, <em>Administration avancée</em></a>.<a
+            id="idm140565664667232"
+            class="indexterm"></a>
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.logcheck"></a>14.3.1. Surveillance des logs avec <code
+                    class="command">logcheck</code></h3></div></div></div><a
+            id="idm140565664664928"
+            class="indexterm"></a><a
+            id="idm140565664663808"
+            class="indexterm"></a><a
+            id="idm140565664662368"
+            class="indexterm"></a><div
+            class="para">
+				Le programme <code
+              class="command">logcheck</code> scrute par défaut les fichiers de logs toutes les heures et envoie par courrier électronique à <code
+              class="literal">root</code> les messages les plus inhabituels pour aider à détecter tout nouveau problème.
+			</div><div
+            class="para">
+				La liste des fichiers scrutés se trouve dans le fichier <code
+              class="filename">/etc/logcheck/logcheck.logfiles</code> ; les choix par défaut conviendront si le fichier <code
+              class="filename">/etc/syslog.conf</code> n'a pas été complètement remodelé.
+			</div><div
+            class="para">
+				<code
+              class="command">logcheck</code> peut fonctionner en 3 modes plus ou moins détaillés : <span
+              class="foreignphrase"><em
+                class="foreignphrase">paranoid</em></span> (paranoïaque), <span
+              class="foreignphrase"><em
+                class="foreignphrase">server</em></span> (serveur) et <span
+              class="foreignphrase"><em
+                class="foreignphrase">workstation</em></span> (station de travail). Le premier étant le plus verbeux, on le réservera aux serveurs spécialisés (comme les pare-feu). Le deuxième mode, choisi par défaut, est recommandé pour les serveurs. Le dernier, prévu pour les stations de travail, élimine encore plus de messages.
+			</div><div
+            class="para">
+				Dans tous les cas, il faudra probablement paramétrer <code
+              class="command">logcheck</code> pour exclure des messages supplémentaires (selon les services installés) sous peine d'être envahi chaque heure par une multitude de messages inintéressants. Leur mécanisme de sélection étant relativement complexe, il faut lire à tête reposée le document <code
+              class="filename">/usr/share/doc/logcheck-database/README.logcheck-database.gz</code> pour bien le comprendre.
+			</div><div
+            class="para">
+				Plusieurs types de règles sont appliqués :
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						celles qui qualifient un message comme résultant d'une tentative d'attaque (elles sont stockées dans un fichier du répertoire <code
+                    class="filename">/etc/logcheck/cracking.d/</code>) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						celles qui annulent cette qualification (<code
+                    class="filename">/etc/logcheck/cracking.ignore.d/</code>) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						celles qui qualifient un message comme une alerte de sécurité (<code
+                    class="filename">/etc/logcheck/violations.d/</code>) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						celles qui annulent cette qualification (<code
+                    class="filename">/etc/logcheck/violations.ignore.d/</code>) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						et enfin celles qui s'appliquent à tous les messages restants (les <span
+                    class="foreignphrase"><em
+                      class="foreignphrase">System Events</em></span>, ou événements système).
+					</div></li></ul></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATTENTION</em></span> Ignorer un message</strong></p></div></div></div><div
+              class="para">
+				Tout message marqué comme une tentative d'attaque ou une alerte de sécurité (suite par exemple à une règle du fichier <code
+                class="filename">/etc/logcheck/violations.d/monfichier</code>) ne pourra être ignoré que par une règle des fichiers <code
+                class="filename">/etc/logcheck/violations.ignore.d/monfichier</code> ou <code
+                class="filename">/etc/logcheck/violations.ignore.d/monfichier-<em
+                  class="replaceable">extension</em></code>.
+			</div></div><div
+            class="para">
+				Un événement système sera systématiquement signalé, sauf si une règle de l'un des répertoires <code
+              class="filename">/etc/logcheck/ignore.d.{paranoid,server,workstation}/</code> dicte de l'ignorer. Évidemment, seuls les répertoires correspondant à des niveaux de verbosité supérieurs ou égaux au niveau sélectionné sont pris en compte.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ASTUCE</em></span> Vos logs en fond d'écran</strong></p></div></div></div><div
+              class="para">
+				Certains administrateurs aiment voir les messages de logs défiler en temps réel. Ils pourront les intégrer dans le fond d'écran de leur bureau graphique avec la commande <code
+                class="command">root-tail</code> (du paquet Debian éponyme). Le programme <code
+                class="command">xconsole</code> (du paquet <span
+                class="emphasis"><em>x11-apps</em></span>) les fera défiler dans une petite fenêtre ; les messages sont directement issus de <code
+                class="command">syslogd</code> par l'intermédiaire du tube nommé <code
+                class="filename">/dev/xconsole</code>.
+			</div><a
+              id="idm140565664637312"
+              class="indexterm"></a><a
+              id="idm140565664636192"
+              class="indexterm"></a></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.monitoring-activity"></a>14.3.2. Surveillance de l'activité</h3></div></div></div><a
+            id="idm140565664633504"
+            class="indexterm"></a><a
+            id="idm140565664632064"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.real-time-monitoring"></a>14.3.2.1. En temps réel</h4></div></div></div><div
+              class="para">
+					<code
+                class="command">top</code> est un utilitaire interactif qui affiche la liste des processus en cours d'exécution. Par défaut, son critère de tri est l'utilisation actuelle du processeur (touche <span
+                class="keycap"><strong>P</strong></span>), mais on peut opter pour la mémoire occupée (touche <span
+                class="keycap"><strong>M</strong></span>), le temps processeur consommé (touche <span
+                class="keycap"><strong>T</strong></span>) ou le numéro de processus ou PID (touche <span
+                class="keycap"><strong>N</strong></span>). La touche <span
+                class="keycap"><strong>k</strong></span> (comme <span
+                class="foreignphrase"><em
+                  class="foreignphrase">kill</em></span>) nécessite un numéro de processus à tuer. <span
+                class="keycap"><strong>r</strong></span> (comme <span
+                class="foreignphrase"><em
+                  class="foreignphrase">renice</em></span>) change la priorité d'un processus.
+				</div><a
+              id="idm140565664625264"
+              class="indexterm"></a><div
+              class="para">
+					Si le processeur semble être surchargé, il est ainsi possible d'observer quels processus se battent pour son contrôle ou consomment toute la mémoire disponible. Il est intéressant en particulier de vérifier si les processus qui consomment des ressources correspondent effectivement aux services réels que la machine héberge. Un processus au nom inconnu tournant sous l'utilisateur <code
+                class="literal">www-data</code> doit immédiatement attirer l'attention : la probabilité est forte que cela corresponde à un logiciel installé et exécuté sur la machine en exploitant une faille de sécurité d'une application web…
+				</div><div
+              class="para">
+					<code
+                class="command">top</code> est un outil de base très souple et sa page de manuel explique comment en personnaliser l'affichage pour l'adapter aux besoins et aux habitudes de chacun.
+				</div><div
+              class="para">
+					<code
+                class="command">gnome-system-monitor</code> et <code
+                class="command">qps</code>, outils graphiques similaires à <code
+                class="command">top</code>, en proposent les principales fonctionnalités.
+				</div><a
+              id="idm140565664619648"
+              class="indexterm"></a></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.monitoring-history"></a>14.3.2.2. Historique</h4></div></div></div><a
+              id="idm140565664617312"
+              class="indexterm"></a><div
+              class="para">
+					La charge du processeur, le trafic réseau et l'espace disque disponible sont des informations qui varient en permanence. Il est souvent intéressant de garder une trace de leur évolution pour mieux cerner l'usage qui est fait de l'ordinateur.
+				</div><a
+              id="idm140565664615632"
+              class="indexterm"></a><a
+              id="idm140565664614672"
+              class="indexterm"></a><div
+              class="para">
+					Il existe de nombreux outils dédié à cette tâche. La plupart peuvent récupérer des données via SNMP (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">Simple Network Management Protocol</em></span>, ou protocole simple de gestion du réseau) afin de centraliser ces informations. Cela permet en outre de récupérer des informations sur des éléments du réseau qui ne sont pas nécessairement des ordinateurs (comme des routeurs).
+				</div><div
+              class="para">
+					Ce livre traite en détail de Munin (voir <a
+                class="xref"
+                href="sect.monitoring.html#sect.munin">Section 12.4.1, « Mise en œuvre de Munin »</a>) dans le cadre du <a
+                class="xref"
+                href="advanced-administration.html">Chapitre 12: « <em>Administration avancée</em> »</a>. Debian dispose également de <span
+                class="pkg pkg">cacti</span>. Il est un peu plus complexe à mettre en œuvre : l'usage de SNMP est inévitable et malgré une interface web, les concepts de configuration restent difficiles à appréhender. La lecture de la documentation HTML (<code
+                class="filename">/usr/share/doc/cacti/html/index.html</code>) sera indispensable si l'on souhaite le mettre en œuvre.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>ALTERNATIVE</em></span> <code
+                          class="command">mrtg</code></strong></p></div></div></div><a
+                id="idm140565664607920"
+                class="indexterm"></a><div
+                class="para">
+					<code
+                  class="command">mrtg</code> (du paquet Debian éponyme) est un outil plus ancien et plus rustique capable d'agréger des données historiques et d'en faire des graphiques. Il dispose d'un certain nombre de scripts de récupération des données les plus couramment surveillées : charge, trafic réseau, impacts (<span
+                  class="foreignphrase"><em
+                    class="foreignphrase">hits</em></span>) web, etc.
+				</div><div
+                class="para">
+					Les paquets <span
+                  class="pkg pkg">mrtg-contrib</span> et <span
+                  class="pkg pkg">mrtgutils</span> contiennent des scripts d'exemples, prêts à l'emploi.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565664602736"></a>14.3.3. Détection des changements</h3></div></div></div><div
+            class="para">
+				Une fois le système installé et configuré, l'état de la majorité des fichiers et répertoires (hors données) n'a pas de raison d'évoluer (sauf mises à jour de sécurité). Il est donc intéressant de s'assurer que c'est bien le cas : tout changement inattendu est alors suspect. Les outils présentés dans cette section permettent de surveiller tous les fichiers et de prévenir les administrateurs en cas d'altération inattendue, ou alors simplement de diagnostiquer l'étendue des altérations.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.debsums"></a>14.3.3.1. Audit des paquets : l'outil <code
+                      class="command">debsums</code> et ses limites</h4></div></div></div><a
+              id="idm140565664599488"
+              class="indexterm"></a><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Se protéger des modifications en amont</strong></p></div></div></div><div
+                class="para">
+					<code
+                  class="command">debsums</code> peut être utilisé pour détecter les changements effectués sur les fichiers provenant d'un paquet Debian. Mais si le paquet Debian lui-même est compromis, il ne sera d'aucune utilité. Cela pourrait être le cas si le miroir Debian employé est lui-même compromis. Pour se protéger de ces attaques, il faut s'appuyer sur le mécanisme de vérification de signatures numériques intégré à APT (voir <a
+                  class="xref"
+                  href="sect.package-authentication.html">Section 6.5, « Vérification d'authenticité des paquets »</a>) et prendre soin de n'installer que des paquets dont l'origine a pu être certifiée.
+				</div></div><div
+              class="para">
+					<code
+                class="command">debsums</code> est un outil intéressant du point de vue de la sécurité puisqu'il permet de trouver facilement quels fichiers installés ont été modifiés (suite par exemple à des interventions malignes). Mais il convient de nuancer fortement cette affirmation : d'abord, tous les paquets Debian ne fournissent pas les empreintes nécessaires au fonctionnement de ce programme (quand elles existent, elles se trouvent dans un fichier <code
+                class="filename">/var/lib/dpkg/info/<em
+                  class="replaceable">paquet</em>.md5sums</code>). <a
+                id="idm140565664593136"
+                class="indexterm"></a> <a
+                id="idm140565664592496"
+                class="indexterm"></a> <a
+                id="idm140565664591856"
+                class="indexterm"></a> <a
+                id="idm140565664591216"
+                class="indexterm"></a> Rappelons qu'une empreinte est une valeur, généralement numérique (même si elle est codée en hexadécimal), constituant une sorte de signature caractéristique du contenu d'un fichier. Elle est calculée au moyen d'algorithmes (comme le célèbre MD5 ou le moins connu SHA1) qui garantissent dans la pratique que (presque) toute modification du fichier, aussi minime soit-elle, entraînera un changement de l'empreinte ; c'est l'« effet d'avalanche ». C'est pourquoi une empreinte numérique sert à vérifier que le contenu d'un fichier n'a pas été altéré. Ces algorithmes ne sont pas réversibles, c'est-à-dire que pour la plupart d'entre eux, il est impossible de retrouver un contenu inconnu à partir de la seule empreinte. De récentes découvertes scientifiques tendent à infirmer l'inviolabilité de ces principes, mais cela ne remet pas encore en cause leur usage puisque la création de contenus différents générant la même empreinte semble être très contraignante.
+				</div><div
+              class="para">
+					D'autre part, les fichiers <code
+                class="filename">md5sums</code> sont stockés sur le disque dur : un intrus consciencieux modifiera ces fichiers pour leur faire refléter les nouvelles sommes de contrôle des fichiers sur lesquels il sera intervenu.
+				</div><div
+              class="para">
+					On peut contourner le premier inconvénient en demandant à <code
+                class="command">debsums</code> d'utiliser directement un paquet <code
+                class="filename">.deb</code> pour effectuer le contrôle au lieu de se reposer sur le fichier <code
+                class="filename">md5sums</code>. Il faut au préalable télécharger les fichiers <code
+                class="filename">.deb</code> correspondants :
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>apt-get --reinstall -d install `debsums -l`</code></strong>
+<code
+                class="computeroutput">[ ... ]
+# </code><strong
+                class="userinput"><code>debsums -p /var/cache/apt/archives -g</code></strong>
+</pre><div
+              class="para">
+					En outre, dans sa configuration par défaut, <code
+                class="command">debsums</code> génère automatiquement les fichiers <code
+                class="filename">md5sums</code> manquants en effectuant l'opération ci-dessus chaque fois que APT est employé pour installer un nouveau paquet.
+				</div><div
+              class="para">
+					L'autre souci se contourne de la même manière : il suffit d'effectuer la vérification par rapport à un fichier <code
+                class="filename">.deb</code> intègre. Cela impose de disposer de tous les fichiers <code
+                class="filename">.deb</code> des paquets installés et d'être assuré de leur intégrité. Pour cela, le plus simple est de les reprendre depuis un miroir Debian. Cette opération étant plutôt lente et fastidieuse, ce n'est donc pas une technique à suivre systématiquement dans un but de prévention.
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>apt-get --reinstall -d install `grep-status -e 'Status: install ok installed' -n -s Package`</code></strong>
+<code
+                class="computeroutput">[ ... ]
+# </code><strong
+                class="userinput"><code>debsums -p /var/cache/apt/archives --generate=all</code></strong>
+</pre><div
+              class="para">
+					Attention, cet exemple a employé la commande <code
+                class="command">grep-status</code> du paquet <span
+                class="pkg pkg">grep-dctrl</span>, qui n'est pas installé en standard.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140565664576784"></a>14.3.3.2. Surveillance des fichiers : AIDE</h4></div></div></div><a
+              id="idm140565664576016"
+              class="indexterm"></a><div
+              class="para">
+					AIDE (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">Advanced Intrusion Detection Environment</em></span>) est un outil qui sert à vérifier l'intégrité des fichiers et à détecter toute altération par rapport à une image du système préalablement enregistrée et validée. Cette dernière prend la forme d'une base de données (<code
+                class="filename">/var/lib/aide/aide.db</code>) contenant les caractéristiques de tous les fichiers du système (permissions, horodatages, empreintes numériques, etc.). Cette base de données est initialisée une première fois par <code
+                class="command">aideinit</code> ; elle est ensuite employée pour vérifier quotidiennement (script <code
+                class="filename">/etc/cron.daily/aide</code>) que rien n'a changé. Si des changements sont détectés, le logiciel les enregistre dans des fichiers de journalisation (<code
+                class="filename">/var/log/aide/*.log</code>) et envoie un courrier à l'administrateur avec ses découvertes.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>EN PRATIQUE</em></span> Protection de la base de données</strong></p></div></div></div><div
+                class="para">
+					Puisque AIDE utilise une base de données pour comparer l'état des fichiers, il faut être conscient que la validité des résultats fournis dépend de la validité de la base de données. Sur un système compromis, un attaquant obtenant les droits <code
+                  class="literal">root</code> pourra remplacer la base de données et passer inaperçu. C'est pourquoi, pour plus de sécurité, il peut être intéressant de stocker la base de données de référence sur un support accessible en lecture seulement.
+				</div></div><div
+              class="para">
+					Le comportement du paquet <span
+                class="pkg pkg">aide</span> se paramètre grâce à de nombreuses options dans <code
+                class="filename">/etc/default/aide</code>. La configuration du logiciel proprement dit se trouve dans <code
+                class="filename">/etc/aide/aide.conf</code> et <code
+                class="filename">/etc/aide/aide.conf.d/</code> (en réalité, ces fichiers servent de base à <code
+                class="command">update-aide.conf</code> pour créer <code
+                class="filename">/var/lib/aide/aide.conf.autogenerated</code>). La configuration indique quelles propriétés de chaque fichier il faut vérifier. Ainsi, le contenu des fichiers de logs peut varier tant que les permissions associées ne varient pas, mais le contenu et les permissions d'un exécutable doivent être fixes. La syntaxe n'est pas très compliquée, mais elle n'est pas forcément intuitive pour autant. La lecture de la page de manuel <span
+                class="citerefentry"><span
+                  class="refentrytitle">aide.conf</span>(5)</span> est donc bénéfique.
+				</div><div
+              class="para">
+					Une nouvelle version de la base de données est générée chaque jour dans <code
+                class="filename">/var/lib/aide/aide.db.new</code> et peut être utilisée pour remplacer la base officielle si tous les changements constatés étaient légitimes.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>ALTERNATIVE</em></span> Tripwire et Samhain</strong></p></div></div></div><div
+                class="para">
+					Tripwire est très similaire à AIDE ; la syntaxe de son fichier de configuration est quasiment identique. Le paquet <span
+                  class="pkg pkg">tripwire</span> propose en outre un mécanisme de signature du fichier de configuration afin qu'un attaquant ne puisse pas le changer pour le faire pointer vers une version différente de la base de données.
+				</div><div
+                class="para">
+					Samhain offre des fonctionnalités similaires ainsi qu'un certain nombre de fonctions pour détecter la présence de <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">rootkits</em></span> (voir encadré DÉCOUVERTE). En outre, il peut être employé sur tout un réseau et enregistrer ses traces sur un serveur central après les avoir signées.
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DÉCOUVERTE</em></span> Les paquets <span
+                          class="pkg pkg">checksecurity</span> et <span
+                          class="pkg pkg">chkrootkit</span>/<span
+                          class="pkg pkg">rkhunter</span></strong></p></div></div></div><a
+                id="idm140565666113808"
+                class="indexterm"></a><div
+                class="para">
+					Le premier paquet contient plusieurs petits scripts qui effectuent des vérifications de base sur le système (mot de passe vide, détection de nouveaux fichiers setuid, etc.) et alertent l'administrateur si nécessaire. Malgré son nom explicite, il ne faut pas se fier seulement à ce paquet pour vérifier la sécurité d'un système Linux.
+				</div><div
+                class="para">
+					Les paquets <span
+                  class="pkg pkg">chkrootkit</span> et <span
+                  class="pkg pkg">rkhunter</span> recherchent de potentiels <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">rootkits</em></span> installés sur le système. Rappelons qu'il s'agit de logiciels destinés à dissimuler la compromission d'un système et à conserver un contrôle discret sur la machine. Les tests ne sont pas fiables à 100 %, mais ils permettent tout de même d'attirer l'attention de l'administrateur sur des problèmes potentiels.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.intrusion-detection"></a>14.3.4. Détection d'intrusion (IDS/NIDS)</h3></div></div></div><a
+            id="idm140565666107360"
+            class="indexterm"></a><a
+            id="idm140565666106432"
+            class="indexterm"></a><a
+            id="idm140565666105472"
+            class="indexterm"></a><a
+            id="idm140565666104512"
+            class="indexterm"></a><a
+            id="idm140565666103424"
+            class="indexterm"></a><a
+            id="idm140565666102464"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>B.A.-BA</em></span> Dénis de service</strong></p></div></div></div><a
+              id="idm140565666099584"
+              class="indexterm"></a><div
+              class="para">
+				Une attaque de type « déni de service » a pour seul objectif de rendre un service réseau inexploitable. Que cela soit en surchargeant le serveur de requêtes ou en exploitant un bogue de celui-ci, le résultat est toujours le même : le service en question n'est plus fonctionnel, les utilisateurs habituels sont mécontents et l'hébergeur du service réseau visé s'est fait une mauvaise publicité (en plus d'avoir éventuellement perdu des ventes, s'il s'agit par exemple d'un site de commerce en ligne).
+			</div><div
+              class="para">
+				Une telle attaque est parfois « distribuée », il s'agit alors de surcharger la machine avec un grand nombre de requêtes en provenance de nombreuses sources, afin que le serveur ne puisse plus répondre aux requêtes légitimes. En anglais, on parle de <span
+                class="foreignphrase"><em
+                  class="foreignphrase">(distributed) denial of service</em></span> (abrégé en <acronym
+                class="acronym">DoS</acronym> ou <acronym
+                class="acronym">DDoS</acronym>).
+			</div></div><div
+            class="para">
+				<code
+              class="command">snort</code> (du paquet Debian éponyme) est un outil de détection d'intrusions (NIDS — <span
+              class="foreignphrase"><em
+                class="foreignphrase">Network Intrusion Detection System</em></span>) : il écoute en permanence le réseau pour repérer les tentatives d'infiltration et/ou les actes malveillants (notamment les dénis de service). Tous ces événements sont enregistrés puis signalés quotidiennement à l'administrateur par un message électronique résumant les dernières 24 heures.
+			</div><a
+            id="idm140565666093680"
+            class="indexterm"></a><div
+            class="para">
+				Son installation demande de préciser la plage d'adresses couverte par le réseau local : il s'agit en réalité d'indiquer toutes les cibles potentielles d'attaques. Il est possible de configurer d'autres paramètres importants en exécutant <code
+              class="command">dpkg-reconfigure snort</code>, notamment l'interface réseau à surveiller. Il s'agit en général d'<code
+              class="literal">eth0</code> pour une connexion Ethernet, mais on pourra aussi trouver <code
+              class="literal">ppp0</code> pour une connexion ADSL ou RTC (Réseau Téléphonique Commuté, ou modem classique) voire <code
+              class="literal">wlan0</code> pour certaines cartes Wi-Fi.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Intégration avec <code
+                        class="command">prelude</code></strong></p></div></div></div><div
+              class="para">
+				Prelude offre une supervision centralisée des informations de sécurité. Pour cela, il dispose d'une architecture modulaire : un serveur (le <span
+                class="foreignphrase"><em
+                  class="foreignphrase">manager</em></span> du paquet <span
+                class="emphasis"><em>prelude-manager</em></span>) centralise les alertes détectées par des capteurs (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">sensors</em></span>) de plusieurs types.
+			</div><div
+              class="para">
+				Snort peut être configuré comme un de ces capteurs. Il existe aussi <span
+                class="emphasis"><em>prelude-lml</em></span> (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">Log Monitor Lackey</em></span>, ou laquais de surveillance de journaux système) qui surveille quant à lui les fichiers de <span
+                class="emphasis"><em>logs</em></span>, à l'instar de <code
+                class="command">logcheck</code> (voir <a
+                class="xref"
+                href="sect.supervision.html#sect.logcheck">Section 14.3.1, « Surveillance des logs avec <code
+                  class="command">logcheck</code> »</a>), déjà étudié.
+			</div><a
+              id="idm140565666083520"
+              class="indexterm"></a></div><div
+            class="para">
+				Le fichier de configuration de <code
+              class="command">snort</code> (<code
+              class="filename">/etc/snort/snort.conf</code>) est très long et ses abondants commentaires y détaillent le rôle de chaque directive. Il est fortement recommandé de le parcourir et de l'adapter à la situation locale pour en tirer le meilleur parti. En effet, il est possible d'y indiquer les machines hébergeant chaque service pour limiter le nombre d'incidents rapportés par <code
+              class="command">snort</code> (un déni de service sur une machine bureautique n'est pas aussi dramatique que sur un serveur DNS). On peut encore y renseigner les correspondances entre adresses IP et MAC (il s'agit d'un numéro unique identifiant chaque carte réseau) pour détecter les attaques par <span
+              class="foreignphrase"><em
+                class="foreignphrase">ARP-spoofing</em></span> (travestissement d'ARP), qui permettent à une machine compromise de se substituer à une autre (un serveur sensible par exemple).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATTENTION</em></span> Rayon d'action</strong></p></div></div></div><div
+              class="para">
+				<code
+                class="command">snort</code> est limité par le trafic qu'il voit transiter sur son interface réseau : il ne pourra évidemment rien détecter s'il n'observe rien. Branché sur un commutateur (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">switch</em></span>), il ne surveillera que les attaques ciblant la machine l'hébergeant, ce qui n'a qu'un intérêt assez limité. Pensez donc à relier la machine employant <code
+                class="command">snort</code> au port « miroir », qui permet habituellement de chaîner les commutateurs et sur lequel tout le trafic est dupliqué.
+			</div><div
+              class="para">
+				Pour un petit réseau doté d'un concentrateur (<span
+                class="foreignphrase"><em
+                  class="foreignphrase">hub</em></span>), le problème ne se pose pas : toutes les machines reçoivent tout le trafic.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.firewall-packet-filtering.html"><strong>Précédent</strong>14.2. Pare-feu ou filtre de paquets</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.selinux.html"><strong>Suivant</strong>14.4. Introduction à SELinux</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.supervision.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.supervision.html">da-DK</a></li><li><a
+              href="../de-DE/sect.supervision.html">de-DE</a></li><li><a
+              href="../el-GR/sect.supervision.html">el-GR</a></li><li><a
+              href="../en-US/sect.supervision.html">en-US</a></li><li><a
+              href="../es-ES/sect.supervision.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.supervision.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.supervision.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.supervision.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.supervision.html">id-ID</a></li><li><a
+              href="../it-IT/sect.supervision.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.supervision.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.supervision.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.supervision.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.supervision.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.supervision.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.supervision.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.supervision.html">zh-CN</a></li></ul></div></body></html>

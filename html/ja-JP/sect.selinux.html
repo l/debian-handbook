@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.4. SELinux の紹介</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="ファイヤーウォール, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="security.html"
+        title="第14章 セキュリティ" /><link
+        rel="prev"
+        href="sect.supervision.html"
+        title="14.3. 監督: 防止、検知、監査" /><link
+        rel="next"
+        href="sect.other-security-considerations.html"
+        title="14.5. セキュリティ関連で他に考慮すべき点" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.selinux.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.selinux"></a>14.4. SELinux の紹介</h2></div></div></div><a
+          id="idm140393307022384"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-principles"></a>14.4.1. 原理</h3></div></div></div><div
+            class="para">
+				SELinux (<span
+              class="emphasis"><em>Security Enhanced Linux</em></span>) は Linux の LSM (<span
+              class="emphasis"><em>Linux Security Modules</em></span>) インターフェース上に設けられた<span
+              class="emphasis"><em>強制アクセス制御</em></span> システムです。具体的に言えば、カーネルはそれぞれのシステムコールの前にシステムコールを発行したプロセスが指定された操作に対する権限を与えられているか SELinux に問い合わせます。
+			</div><div
+            class="para">
+				SELinux はまとめて<span
+              class="emphasis"><em>ポリシー</em></span>として知られているルール群を使い、操作の認可と禁止を行います。これらのルールの作成は難しいです。幸いなことに、設定作業の大部分を避けるために 2 種類の標準的なポリシー (<span
+              class="emphasis"><em>targeted</em></span> と <span
+              class="emphasis"><em>strict</em></span>) が提供されています。
+			</div><div
+            class="para">
+				SELinux を使うと、管理権限が伝統的な Unix システムとは全く違ったものになります。プロセスの権限は SELinux の<span
+              class="emphasis"><em>セキュリティコンテキスト</em></span>に依存します。SELinux の<span
+              class="emphasis"><em>セキュリティコンテキスト</em></span>は、プロセスを開始したユーザの<span
+              class="emphasis"><em>識別情報</em></span>、<span
+              class="emphasis"><em>ロール</em></span>、ユーザがプロセス開始時点で持っていた<span
+              class="emphasis"><em>ドメイン</em></span>、によって定義されます。権限は間違いなくドメインに依存しますが、ドメイン間の遷移はそのロールによって制御されます。最後にロール間の遷移の可否は識別情報に依存します。
+			</div><div
+            class="figure"><a
+              id="idm140393307012880"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-context.png"
+                  alt="セキュリティコンテキストと Unix ユーザ" /></div></div><p
+              class="title"><strong>図14.3 セキュリティコンテキストと Unix ユーザ</strong></p></div><div
+            class="para">
+				具体的に言えば、ログイン中のユーザはデフォルトのセキュリティコンテキストを割り当てられます (与えるロールに依存します)。これは現在のドメインを定義する事を意味しており、ここで定義されたドメインが新しい子プロセスに割り当てられます。ユーザが現在のロールとロール対応するドメインを変更したい場合、<code
+              class="command">newrole -r <em
+                class="replaceable">role_r</em> -t <em
+                class="replaceable">domain_t</em></code> を実行しなければいけません (通常は与えられたロールに対して単一のドメインだけが許されているため <code
+              class="literal">-t</code> パラメータは省略される事が多いです)。このコマンドはユーザに自分のパスワードを入力させることで認証を行います。この機能のお陰で、プログラムが自動的にロールを切り替える事を禁止できます。ロールの変更を行えるのは、ユーザが SELinux ポリシーに基いてロール変更を許可されている場合に限ります。
+			</div><div
+            class="para">
+				明らかに、この権限はすべての<span
+              class="emphasis"><em>オブジェクト</em></span> (ファイル、ディレクトリ、ソケット、デバイスなど) に適用しません。権限はオブジェクトによって異なります。これを実現するために、それぞれのオブジェクトは<span
+              class="emphasis"><em>タイプ</em></span> (ラベル付けとして知られています) に結び付けられています。このためドメインの権利はオブジェクトのタイプ (および、与えられたタイプによって間接的にラベル付けされたすべてのオブジェクト) に対する一連の許可された (されていない) 操作を使って表現されます。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EXTRA</em></span> ドメインとタイプは同じ</strong></p></div></div></div><div
+              class="para">
+				内部的に、ドメインはタイプに過ぎません。しかしタイプはプロセスにのみ適用されます。このため、ドメインはオブジェクトのタイプと同様に <code
+                class="literal">_t</code> を末尾に付けられています。
+			</div></div><div
+            class="para">
+				デフォルトで、プログラムはプログラムを起動したユーザに割り当てられたドメインを継承しますが、標準的な SELinux のポリシーは多くの重要なプログラムが専用のドメインで実行される事を期待しています。これを成し遂げるために、重要なプログラムの実行可能ファイルは専用のタイプでラベル付けされています (例えば、<code
+              class="command">ssh</code> は <code
+              class="literal">ssh_exec_t</code> でラベル付けされています。<code
+              class="command">ssh</code> プログラムが起動すると <code
+              class="command">ssh</code> プログラムは <code
+              class="literal">ssh_t</code> ドメインに自動的に切り替わります)。この自動ドメイン遷移メカニズムによって、それぞれのプログラムに対して必要な権限だけを認める事が可能です。これが SELinux の基本原則です。
+			</div><div
+            class="figure"><a
+              id="idm140393306998448"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/selinux-transitions.png"
+                  alt="ドメイン間の自動遷移" /></div></div><p
+              class="title"><strong>図14.4 ドメイン間の自動遷移</strong></p></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> セキュリティコンテキストの検索</strong></p></div></div></div><a
+              id="idm140393306993968"
+              class="indexterm"></a><a
+              id="idm140393306993040"
+              class="indexterm"></a><a
+              id="idm140393306992032"
+              class="indexterm"></a><div
+              class="para">
+				あるプロセスのセキュリティコンテキストを見つけるには、<code
+                class="command">ps</code> の <code
+                class="literal">Z</code> オプションを使うべきです。
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ps axZ | grep vstfpd</code></strong>
+<code
+                class="computeroutput">system_u:system_r:ftpd_t:s0   2094 ?    Ss  0:00 /usr/sbin/vsftpd</code></pre><div
+              class="para">
+				最初のフィールドをコロンで区切ると、識別情報、ロール、ドメイン、MCS レベルの情報が判ります。MCS レベル (<span
+                class="emphasis"><em>Multi-Category Security</em></span>) は機密性保護ポリシーのセットアップに干渉するパラメータで、ファイルの重要性に基いてファイルへのアクセスを管理するものです。この本では MCS の機能を説明しません。
+			</div><div
+              class="para">
+				現在のセキュリティコンテキストを見つけるには、<code
+                class="command">id -Z</code> を実行するべきです。
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>id -Z</code></strong>
+<code
+                class="computeroutput">unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</code></pre><div
+              class="para">
+				最後に、ファイルに割り当てられたタイプを見つけるには <code
+                class="command">ls -Z</code> を使います。
+			</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>ls -Z test /usr/bin/ssh</code></strong>
+<code
+                class="computeroutput">unconfined_u:object_r:user_home_t:s0 test
+     system_u:object_r:ssh_exec_t:s0 /usr/bin/ssh</code></pre><div
+              class="para">
+				ファイルに割り当てられた識別情報とロールには特別な重要性が無い (一切使われない) 点は注目に値しますが、統一性を保つ目的で、すべてのオブジェクトは完全なセキュリティコンテキストを割り当てられています。
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-setup"></a>14.4.2. SELinux のセットアップ</h3></div></div></div><div
+            class="para">
+				SELinux のサポートは Debian の提供する標準的なカーネルに組み込まれています。コア Unix ツールは SELinux をサポートしており、修正は必要ありません。このため、SELinux を有効化することは比較的簡単です。
+			</div><div
+            class="para">
+				<code
+              class="command">aptitude install selinux-basics selinux-policy-default</code> コマンドで、SELinux システムを設定するために必要なパッケージが自動的にインストールされます。
+			</div><div
+            class="para">
+				<span
+              class="pkg pkg">selinux-policy-default</span> パッケージには、標準的なルールが含まれています。デフォルトで、このポリシーは広範囲にわたって提供されるサービスへのアクセスを制限するだけです。ユーザセッションは制限されませんから、SELinux が正当なユーザ操作を妨害することはほとんどありません。しかしながら、これはマシンで実行されているシステムサービスのセキュリティを強化します。古い「strict」ルールと同じポリシーをセットアップするには、<code
+              class="literal">行動を制限されていない</code>モジュールを無効化しなければいけません (モジュール管理はこの節でより詳しく説明されています)。
+			</div><div
+            class="para">
+				「strict」ポリシーをインストールしたら、すべての利用可能なファイルをラベル付けするべきです (これはファイルにタイプを割り当てる事を意味します)。この操作は <code
+              class="command">fixfiles relabel</code> を使って手作業で開始しなければいけません。
+			</div><div
+            class="para">
+				これで SELinux システムの準備が整いました。SELinux を有効化するには、<code
+              class="literal">selinux=1</code> パラメータを Linux カーネルに追加する必要があります。<code
+              class="literal">audit=1</code> パラメータは SELinux のログ記録を有効化します。これはすべての拒否された操作を記録するものです。最後に<code
+              class="literal">enforcing=1</code> パラメータはルールをアプリケーションに強制します: <code
+              class="literal">enforcing=1</code> パラメータがなければ、SELinux はデフォルトの <span
+              class="emphasis"><em>permissive</em></span> モードで動作します。<span
+              class="emphasis"><em>permissive</em></span> モードの場合、拒否された操作はログ記録され、実行されます。GRUB ブートローダ設定ファイルを変更して、必要なパラメータを追加するべきです。これ簡単に行うには、<code
+              class="filename">/etc/default/grub</code> の中の <code
+              class="literal">GRUB_CMDLINE_LINUX</code> 変数を変更します。その後 <code
+              class="command">update-grub</code> を実行します。SELinux は再起動後に動作状態になります。
+			</div><div
+            class="para">
+				<code
+              class="command">selinux-activate</code> スクリプトがこれらの操作を自動化し、次回起動時にラベル付けを強制する (これは SELinux がまだ動作していなかった時とラベル付けの実行中にラベル付けされていないファイルが新しく作成される事を避ける) 点は注目に値します。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-management"></a>14.4.3. SELinux システムの管理</h3></div></div></div><a
+            id="idm140393306966336"
+            class="indexterm"></a><a
+            id="idm140393306965216"
+            class="indexterm"></a><div
+            class="para">
+				SELinux ポリシーはモジュール式のルール群で、SELinux はインストール時にインストール済みのサービスに基いて対応するモジュールを自動的に検出して有効化します。そのため、このシステムはすぐに利用可能になります。しかしながら、SELinux ポリシーを設定した後にサービスをインストールした場合、対応するモジュールを手作業で有効化する必要があります。これを行うのが <code
+              class="command">semodule</code> コマンドです。さらに、管理者はそれぞれのユーザに与えるロールを定義する能力を持っていなければいけません。これは <code
+              class="command">semanage</code> を使って行います。
+			</div><div
+            class="para">
+				このため <code
+              class="command">semodule</code> と <code
+              class="command">semanage</code> コマンドは <code
+              class="filename">/etc/selinux/default/</code> に保存されている現在の SELinux 設定を変更するために使われます。<code
+              class="filename">/etc/</code> に見つかる他の設定ファイルと異なり、すべてのファイルは手作業で修正しなければいけません。管理者はこれらのファイルを編集するために設計されたプログラムを使うべきです。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> 追加的文書</strong></p></div></div></div><div
+              class="para">
+				NSA は公式の文書を提供していないので、それを埋め合わせるためにコミュニティが wiki を設置しています。wiki は多くの情報を寄せ集めていますが、ほとんどの SELinux 貢献者が Fedora ユーザである点に気がつくでしょう (Fedora は SELinux をデフォルトで有効化しています)。そのため、この文書は Fedora の問題の対処に特化しています。<div
+                class="url">→ <a
+                  href="http://www.selinuxproject.org">http://www.selinuxproject.org</a></div>
+			</div><div
+              class="para">
+				管理者は専用の Debian wiki ページおよび Russell Coker さんのブログを見るべきです。Russell Coker さんは SELinux サポートに取り組んでいる、最も活動的な Debian 開発者の 1 人です。<div
+                class="url">→ <a
+                  href="http://wiki.debian.org/SELinux">http://wiki.debian.org/SELinux</a></div> <div
+                class="url">→ <a
+                  href="http://etbe.coker.com.au/tag/selinux/">http://etbe.coker.com.au/tag/selinux/</a></div>
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393306953744"></a>14.4.3.1. SELinux モジュールの管理</h4></div></div></div><div
+              class="para">
+					利用可能な SELinux モジュールは <code
+                class="filename">/usr/share/selinux/default/</code> ディレクトリに保存されています。現在の設定の中で SELinux モジュールの 1 つを有効化するには、<code
+                class="command">semodule -i <em
+                  class="replaceable">module.pp</em></code> を使うべきです。<span
+                class="emphasis"><em>pp</em></span> 拡張子は<span
+                class="emphasis"><em>ポリシーパッケージ</em></span>を意味しています。
+				</div><div
+              class="para">
+					現在の設定からモジュールを削除するには <code
+                class="command">semodule -r <em
+                  class="replaceable">module</em></code> を使います。最後に、<code
+                class="command">semodule -l</code> コマンドは現在有効化されているモジュールとそのバージョンをリストします。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -i /usr/share/selinux/default/aide.pp</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">aide    1.4.0
+apache  1.10.0
+apm     1.7.0
+[...]</code>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -r aide</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semodule -l</code></strong>
+<code
+                class="computeroutput">apache  1.10.0
+apm     1.7.0
+[...]</code></pre><div
+              class="para">
+					<code
+                class="command">semodule</code> は <code
+                class="literal">-n</code> オプションを付けない限り、すぐさま新しい設定を読み込みます。<code
+                class="command">semodule</code> プログラムがデフォルトで現在の設定に対して操作を行う点は注目に値します (現在の設定は <code
+                class="filename">/etc/selinux/config</code> 内の <code
+                class="literal">SELINUXTYPE</code> 変数によって表されます)。しかし、<code
+                class="literal">-s</code> オプションを使えば、これを他のものに変更する事が可能です。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393306940448"></a>14.4.3.2. ユーザの身元管理</h4></div></div></div><div
+              class="para">
+					ユーザはログイン時に毎回、SELinux 識別情報を割り当てられます。SELinux 識別情報はユーザに与えるロールを定義します。2 種類 (ユーザから識別情報へ、識別情報からロールへ) の対応付けは <code
+                class="command">semanage</code> コマンドを使って設定する事が可能です。
+				</div><div
+              class="para">
+					コマンドの構文はそのコマンドで管理するすべての概念に類似しているとは言うものの、管理者は <span
+                class="citerefentry"><span
+                  class="refentrytitle">semanage</span>(8)</span> マニュアルページを読むべきです。すべてのサブコマンドに対して共通のオプションがある事がわかるでしょう: <code
+                class="literal">-a</code> は追加、<code
+                class="literal">-d</code> は削除、<code
+                class="literal">-m</code> は修正、<code
+                class="literal">-l</code> はリスト、<code
+                class="literal">-t</code> はタイプ (またはドメイン) の指定を表します。
+				</div><div
+              class="para">
+					<code
+                class="command">semanage login -l</code> はユーザ識別情報と SELinux 識別情報の現在の対応付けをリストします。明確なエントリを持たないユーザは <code
+                class="literal">__default__</code> エントリであらわされる識別情報を獲得します。<code
+                class="command">semanage login -a -s user_u <em
+                  class="replaceable">user</em></code> コマンドは <span
+                class="emphasis"><em>user_u</em></span> 識別情報を指定されたユーザに対応付けます。最後に、<code
+                class="command">semanage login -d <em
+                  class="replaceable">user</em></code> は対指定したユーザに関連付けられた対応付けエントリを削除します。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -a -s user_u rhertzog</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage login -l</code></strong>
+<code
+                class="computeroutput">
+Login Name                SELinux User              MLS/MCS Range
+
+__default__               unconfined_u              s0-s0:c0.c1023
+rhertzog                  user_u                    None
+root                      unconfined_u              s0-s0:c0.c1023
+system_u                  system_u                  s0-s0:c0.c1023
+# </code><strong
+                class="userinput"><code>semanage login -d rhertzog</code></strong></pre><div
+              class="para">
+					<code
+                class="command">semanage user -l</code> は SELinux ユーザ識別情報と許可されたロールの対応付けをリストします。新しい識別情報を追加した場合、識別情報に対応するロールと、個人ファイル (<code
+                class="filename">/home/<em
+                  class="replaceable">user</em>/*</code>) にタイプを割り当てるために使われるプレフィックスのラベル付けが必要になります。このプレフィックスは <code
+                class="literal">user</code>、<code
+                class="literal">staff</code>、<code
+                class="literal">sysadm</code> のどれか 1 つを選ばなければいけません。「<code
+                class="literal">staff</code>」プレフィックスをつけるとファイルのタイプは「<code
+                class="literal">staff_home_dir_t</code>」になります。新しい SELinux ユーザ識別情報を作成するには <code
+                class="command">semanage user -a -R <em
+                  class="replaceable">roles</em> -P <em
+                  class="replaceable">prefix</em> <em
+                  class="replaceable">identity</em></code> を使います。最後に、SELinux ユーザ識別情報を削除するには <code
+                class="command">semanage user -d <em
+                  class="replaceable">identity</em></code> を使います。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -a -R 'staff_r user_r' -P staff test_u</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>semanage user -l</code></strong>
+<code
+                class="computeroutput">
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range        SELinux Roles
+
+root            sysadm     s0         s0-s0:c0.c1023   staff_r sysadm_r system_r
+staff_u         staff      s0         s0-s0:c0.c1023   staff_r sysadm_r
+sysadm_u        sysadm     s0         s0-s0:c0.c1023   sysadm_r
+system_u        user       s0         s0-s0:c0.c1023   system_r
+test_u          staff      s0         s0               staff_r user_r
+unconfined_u    unconfined s0         s0-s0:c0.c1023   system_r unconfined_r
+user_u          user       s0         s0               user_r
+# </code><strong
+                class="userinput"><code>semanage user -d test_u</code></strong></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393306917104"></a>14.4.3.3. ファイルコンテキスト、ポート、ブール値の管理</h4></div></div></div><div
+              class="para">
+					各 SELinux モジュールには、ファイルラベル付けルール群が含まれますが、さらに SELinux モジュールは特別な場合に応じてラベル付けルールをカスタマイズする事が可能です。例えば、ウェブサーバに <code
+                class="filename">/srv/www/</code> ファイル階層内のファイルを読む事を許可する場合、<code
+                class="command">semanage fcontext -a -t httpd_sys_content_t "/srv/www(/.*)?"</code> を実行し、その後 <code
+                class="command">restorecon -R /srv/www/</code> を実行します。最初のコマンドで新しいラベル付けルールを登録し、次のコマンドで現在のラベル付けルールに基いてファイルタイプを再設定します。
+				</div><div
+              class="para">
+					同様に、TCP/UDP ポートをラベル付けして、ポート番号とそのポートのリッスンを許可するデーモンを対応付ける事が可能です。例えば、ウェブサーバがポート 8080 番をリッスンする事を可能にしたい場合、<code
+                class="command">semanage port -m -t http_port_t -p tcp 8080</code> を実行します。
+				</div><div
+              class="para">
+					一部の SELinux モジュールでは、ブール値オプションを使ってデフォルトルールの挙動を微調整する事が可能です。<code
+                class="command">getsebool</code> ユーティリティを使ってブール値オプションを調査します (<code
+                class="command">getsebool <em
+                  class="replaceable">boolean</em></code> は 1 つのオプションを表示し、<code
+                class="command">getsebool -a</code> はすべてのオプションを表示します)。<code
+                class="command">setsebool <em
+                  class="replaceable">boolean</em> <em
+                  class="replaceable">value</em></code> コマンドはブール値オプションの現在の値を変更します。<code
+                class="literal">-P</code> オプションを付けるとこの修正が永続的なものになります。つまり、新しい値がデフォルトになり、再起動後も適用される事になります。以下の例では、ウェブサーバにホームディレクトリに対するアクセス権を与えています (ユーザが個人的なウェブサイトを <code
+                class="filename">~/public_html/</code> の下に作る場合、この設定を使うと便利です)。
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong>
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; off
+# </code><strong
+                class="userinput"><code>setsebool -P httpd_enable_homedirs on</code></strong>
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>getsebool httpd_enable_homedirs</code></strong> 
+<code
+                class="computeroutput">httpd_enable_homedirs --&gt; on</code></pre></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.selinux-custom-rules"></a>14.4.4. ルールの適用</h3></div></div></div><div
+            class="para">
+				SELinux ポリシーはモジュール式なので、モジュールの用意されていない (場合によっては特注の) アプリケーション用に新しいモジュールを開発することは興味深いです。新しいモジュールは<span
+              class="emphasis"><em>リファレンスポリシー</em></span>を満足させなければいけません。
+			</div><div
+            class="para">
+				新しいモジュールを作成するには、<span
+              class="pkg pkg">selinux-policy-dev</span> および <span
+              class="pkg pkg">selinux-policy-doc</span> パッケージが必要です。<span
+              class="pkg pkg">selinux-policy-doc</span> パッケージには、標準的なルールに関する文書 (<code
+              class="filename">/usr/share/doc/selinux-policy-doc/html/</code>) と新しいモジュールを作成するためのテンプレートとして使えるサンプルファイルが含まれます。これらのファイルをインストールし、更にしっかりと勉強して下さい:
+			</div><pre
+            class="screen"><code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/Makefile.example.gz &gt;Makefile</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.fc.gz &gt;example.fc</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/share/doc/selinux-policy-doc/example.if.gz &gt;example.if</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cp /usr/share/doc/selinux-policy-doc/example.te ./</code></strong></pre><div
+            class="para">
+				<code
+              class="filename">.te</code> ファイルは最も重要なファイルです。これがルールを定義します。<code
+              class="filename">.fc</code> ファイルは「ファイルコンテキスト」を定義します。「ファイルコンテキスト」はこのモジュールに関連するファイルに割り当てるタイプを意味します。<code
+              class="filename">.fc</code> ファイルに含まれるデータはファイルのラベル付け中に使われます。最後に、<code
+              class="filename">.if</code> ファイルはモジュールのインターフェースを定義します: これは一連の「公開関数」で、他のモジュールはこの関数を使ってここで作成されたモジュールと情報をやり取りします。
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393306892496"></a>14.4.4.1. <code
+                      class="filename">.fc</code> ファイルの書き方</h4></div></div></div><div
+              class="para">
+					以下の例を読めば、<code
+                class="filename">.fc</code> ファイルの構造を十分に理解する事が可能です。復数のファイルおよび完全なディレクトリツリーに対して、同じセキュリティコンテキストを割り当てるために、正規表現を使う事が可能です。
+				</div><div
+              class="example"><a
+                id="idm140393306890224"></a><p
+                class="title"><strong>例14.2 <code
+                    class="filename">example.fc</code> ファイル</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting scale"># myapp executable will have:
+# label: system_u:object_r:myapp_exec_t
+# MLS sensitivity: s0
+# MCS categories: &lt;none&gt;
+
+/usr/sbin/myapp         --      gen_context(system_u:object_r:myapp_exec_t,s0)</pre></div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393306887824"></a>14.4.4.2. <code
+                      class="filename">.if</code> ファイルの書き方</h4></div></div></div><div
+              class="para">
+					以下の例では、1 番目のインターフェース (「<code
+                class="literal">myapp_domtrans</code>」) はアプリケーションを実行できるユーザを制御します。2 番目のインターフェース (「<code
+                class="literal">myapp_read_log</code>」) はアプリケーションのログファイルに対する読み込み権限を制御します。
+				</div><div
+              class="para">
+					それぞれのインターフェースは <code
+                class="filename">.te</code> ファイルに組み込む事が可能な有効なルール群を生成しなければいけません。そんなわけで、管理者は (<code
+                class="literal">gen_require</code> マクロを使って) 使用するすべてのタイプを宣言し、権限を取得するために標準的な指示文を使うべきです。しかしながら、他のモジュールが提供するインターフェースを使う事が可能な点に注意してください。次の節では、これらの権限を表現する方法についてより詳しく説明します。
+				</div><div
+              class="example"><a
+                id="idm140393306883120"></a><p
+                class="title"><strong>例14.3 <code
+                    class="filename">example.if</code> ファイル</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">## &lt;summary&gt;Myapp example policy&lt;/summary&gt;
+## &lt;desc&gt;
+##      &lt;p&gt;
+##              More descriptive text about myapp.  The &lt;desc&gt;
+##              tag can also use &lt;p&gt;, &lt;ul&gt;, and &lt;ol&gt;
+##              html tags for formatting.
+##      &lt;/p&gt;
+##      &lt;p&gt;
+##              This policy supports the following myapp features:
+##              &lt;ul&gt;
+##              &lt;li&gt;Feature A&lt;/li&gt;
+##              &lt;li&gt;Feature B&lt;/li&gt;
+##              &lt;li&gt;Feature C&lt;/li&gt;
+##              &lt;/ul&gt;
+##      &lt;/p&gt;
+## &lt;/desc&gt;
+#
+
+########################################
+## &lt;summary&gt;
+##      Execute a domain transition to run myapp.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to transition.
+## &lt;/param&gt;
+#
+interface(`myapp_domtrans',`
+        gen_require(`
+                type myapp_t, myapp_exec_t;
+        ')
+
+        domtrans_pattern($1,myapp_exec_t,myapp_t)
+')
+
+########################################
+## &lt;summary&gt;
+##      Read myapp log files.
+## &lt;/summary&gt;
+## &lt;param name="domain"&gt;
+##      Domain allowed to read the log files.
+## &lt;/param&gt;
+#
+interface(`myapp_read_log',`
+        gen_require(`
+                type myapp_log_t;
+        ')
+
+        logging_search_logs($1)
+        allow $1 myapp_log_t:file r_file_perms;
+')</pre></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DOCUMENTATION</em></span> <span
+                          class="emphasis"><em>リファレンスポリシー</em></span>に関する説明</strong></p></div></div></div><div
+                class="para">
+					SELinux の<span
+                  class="emphasis"><em>リファレンスポリシー</em></span>はフリーソフトウェアプロジェクトのように発展しています: ボランティアからの貢献が発展を支えています。このプロジェクトは Tresys によってホストされています。Tresys は SELinux 分野における最も活発な企業の 1 つです。Tresys の wiki には、ルールを構築する方法と新しいルールを作成する方法が説明されています。<div
+                  class="url">→ <a
+                    href="http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted">http://oss.tresys.com/projects/refpolicy/wiki/GettingStarted</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393306875952"></a>14.4.4.3. <code
+                      class="filename">.te</code> ファイルの書き方</h4></div></div></div><div
+              class="para">
+					<code
+                class="filename">example.te</code> を見てみましょう:
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>GOING FURTHER</em></span> <code
+                          class="command">m4</code> マクロ言語</strong></p></div></div></div><div
+                class="para">
+					適切にポリシーを構築するために、SELinux 開発者はマクロコマンドプロセッサを使いました。沢山の類似した <span
+                  class="emphasis"><em>allow</em></span> 指示文を複製する代わりに、SELinux 開発者は高レベル論理を取り扱う「マクロ関数」を作成しました。「マクロ関数」のお陰で、ポリシーがとても読みやすくなりました。
+				</div><div
+                class="para">
+					具体的に言えば、<code
+                  class="command">m4</code> はルールをまとめるために使われます。マクロ関数は反対の操作を行います: マクロ関数はすべての高レベル指示文を <span
+                  class="emphasis"><em>allow</em></span> 指示文の巨大データベースに展開します。
+				</div><div
+                class="para">
+					SELinux 「インターフェース」はコンパイル時にルールの集合に置換されるただのマクロ関数です。同様に、実際のところ、幾つかの権限はコンパイル時に権限の値に置換される権限の集合に過ぎません。
+				</div></div><pre
+              class="programlisting">policy_module(myapp,1.0.0) <span
+                id="example.te.module"><img
+                  class="callout"
+                  src="Common_Content/images/1.png"
+                  alt="1" /></span>
+
+########################################
+#
+# Declarations
+#
+
+type myapp_t; <span
+                id="example.te.type"><img
+                  class="callout"
+                  src="Common_Content/images/2.png"
+                  alt="2" /></span>
+type myapp_exec_t;
+domain_type(myapp_t)
+domain_entry_file(myapp_t, myapp_exec_t) <span
+                id="example.te.domain"><img
+                  class="callout"
+                  src="Common_Content/images/3.png"
+                  alt="3" /></span>
+
+type myapp_log_t;
+logging_log_file(myapp_log_t) <span
+                id="example.te.interface"><img
+                  class="callout"
+                  src="Common_Content/images/4.png"
+                  alt="4" /></span>
+
+type myapp_tmp_t;
+files_tmp_file(myapp_tmp_t)
+
+########################################
+#
+# Myapp local policy
+#
+
+allow myapp_t myapp_log_t:file { read_file_perms append_file_perms }; <span
+                id="example.te.allow"><img
+                  class="callout"
+                  src="Common_Content/images/5.png"
+                  alt="5" /></span>
+
+allow myapp_t myapp_tmp_t:file manage_file_perms;
+files_tmp_filetrans(myapp_t,myapp_tmp_t,file)</pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.module"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							モジュールは名前とバージョン番号で識別されます。この指示文は必須です。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							モジュールによって新しいタイプが導入される場合、この種の指示文を使って新しいタイプを必ず宣言してください。多くの無駄な権限を与えるのでなく、必要な多くのタイプを作成してください。遠慮はいりません。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.domain"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							これらのインターフェースは <code
+                        class="literal">myapp_exec_t</code> ラベルを付けられた実行ファイルによって使われるプロセスドメインとして <code
+                        class="literal">myapp_t</code> タイプを定義します。暗黙のうちに、これはオブジェクトに <code
+                        class="literal">exec_type</code> 属性を追加します。このお陰で、他のモジュールは <code
+                        class="literal">myapp_exec_t</code> ラベルを付けられたプログラムを実行する権限を取得する事が可能になります: 例えば、<code
+                        class="literal">userdomain</code> モジュールを使うことで、<code
+                        class="literal">user_t</code>、<code
+                        class="literal">staff_t</code>、<code
+                        class="literal">sysadm_t</code> ドメインを持つプロセスは自分を実行する事が可能になります。他の閉じ込められたアプリケーションのドメインは、そのドメインに割り当てられたルールが同様の権限を取得しない限り (例えば <code
+                        class="literal">dpkg_t</code> ドメインを持つ <code
+                        class="command">dpkg</code> がこの場合に相当します)、<code
+                        class="literal">myapp_exec_t</code> ラベルを付けられたプログラムを実行する権限を持ちません。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.interface"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">logging_log_file</code> はリファレンスポリシーによって提供されるインターフェースです。これは指定されたタイプでラベル付けされたファイルはタイプに対応するルールから恩恵を受ける義務があるログファイルである事を表します (例えば、<code
+                        class="command">logrotate</code> がログファイルを処理する事を可能にするために、<code
+                        class="command">logrotate</code> に権限を与えます)。
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#example.te.allow"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">allow</code> 指示文は操作を許可するために使われる基本的な指示文です。1 番目のパラメータはこの操作を実行する事を許されたプロセスドメインです。2 番目のパラメータは 1 番目のパラメータはで指定したドメインのプロセスが操作する事が可能なオブジェクトを定義します。2 番目のパラメータは「<em
+                        class="replaceable">type</em>:<em
+                        class="replaceable">class</em>」の形で定義します。ここで <em
+                        class="replaceable">type</em> は SELinux タイプで <em
+                        class="replaceable">class</em> はオブジェクトの種類 (ファイル、ディレクトリ、ソケット、名前付きパイプなど) です。最後に、3 番目のパラメータはパーミッション (許可された操作) を表現します。
+						</div><div
+                      class="para">
+							パーミッションは許可された操作の一式として定義され、以下のテンプレートに従います: <code
+                        class="literal">{ <em
+                          class="replaceable">operation1</em> <em
+                          class="replaceable">operation2</em> }</code>。しかしながら、最も役に立つパーミッションを表すマクロを使う事も可能です。<code
+                        class="filename">/usr/share/selinux/default/include/support/obj_perm_sets.spt</code> には、利用可能なパーミッションのマクロが説明されています。
+						</div><div
+                      class="para">
+							以下のウェブページでは、オブジェクトクラスと取得されるパーミッションの比較的包括的なリストが載せられています。<div
+                        class="url">→ <a
+                          href="http://www.selinuxproject.org/page/ObjectClassesPerms">http://www.selinuxproject.org/page/ObjectClassesPerms</a></div>
+						</div></td></tr></table></div><div
+              class="para">
+					そして、対象のアプリケーションやサービスが正しく動くために必要な最低限のルールセットを見つけ出さなければいけません。これを行うには、アプリケーションの動作方法とアプリケーションが管理および生成するデータの種類に関する詳しい知識が必要です。
+				</div><div
+              class="para">
+					しかしながら、経験的なアプローチが使えます。対応するオブジェクトに対する正しいラベル付けが終わっていれば、アプリケーションを permissive モードで使う事が可能です: permissive モードでは、禁止されるであろう操作はログ記録されて実行されます。このログを解析することで、許可する操作を識別する事が可能になります。以下は permissive モードでアプリケーションを動かした場合に記録されるログエントリの例です。
+				</div><pre
+              class="programlisting">avc:  denied  { read write } for  pid=1876 comm="syslogd" name="xconsole" dev=tmpfs ino=5510 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=fifo_file</pre><div
+              class="para">
+					このメッセージをより詳しく理解するために、それぞれの要素について勉強しましょう。
+				</div><div
+              class="table"><a
+                id="idm140393304398432"></a><p
+                class="title"><strong>表14.1 SELinux メッセージの解析</strong></p><div
+                class="table-contents"><table
+                  xmlns:d="http://docbook.org/ns/docbook"
+                  class="lt-4-cols gt-7-rows"
+                  summary="SELinux メッセージの解析"><colgroup><col /><col /></colgroup><thead><tr><th>メッセージ</th><th>説明</th></tr></thead><tbody><tr><td><code
+                          class="computeroutput">avc: denied</code></td><td>操作が拒否されました。</td></tr><tr><td><code
+                          class="computeroutput">{ read write }</code></td><td>この操作には <code
+                          class="literal">read</code> と <code
+                          class="literal">write</code> パーミッションが必要です。</td></tr><tr><td><code
+                          class="computeroutput">pid=1876</code></td><td>PID 1876 のプロセスがこの操作を実行しました (または実行を試行しました)。</td></tr><tr><td><code
+                          class="computeroutput">comm="syslogd"</code></td><td>プロセスは <code
+                          class="literal">syslogd</code> プログラムのインスタンスです。</td></tr><tr><td><code
+                          class="computeroutput">name="xconsole"</code></td><td>対象のオブジェクトは <code
+                          class="literal">xconsole</code> と名付けられていました。</td></tr><tr><td><code
+                          class="computeroutput">dev=tmpfs</code></td><td>対象のオブジェクトをホストしているデバイスは <code
+                          class="literal">tmpfs</code> (メモリ内ファイルシステム) です。実ディスクの場合、オブジェクトをホストしているパーティション (例:「hda3」) になります。</td></tr><tr><td><code
+                          class="computeroutput">ino=5510</code></td><td>オブジェクトは inode 番号 5510 で識別されています。</td></tr><tr><td><code
+                          class="computeroutput">scontext=system_u:system_r:syslogd_t:s0</code></td><td>これは操作を実行したプロセスのセキュリティコンテキストです。</td></tr><tr><td><code
+                          class="computeroutput">tcontext=system_u:object_r:device_t:s0</code></td><td>これは対象オブジェクトのセキュリティコンテキストです。</td></tr><tr><td><code
+                          class="computeroutput">tclass=fifo_file</code></td><td>対象オブジェクトは FIFO ファイルです。</td></tr></tbody></table></div></div><div
+              class="para">
+					ログエントリを観察することで、その操作を許可するために必要なルールを構築する事が可能です。例: <code
+                class="literal">allow syslogd_t device_t:fifo_file { read write }</code>。この作業は自動化する事が可能です。これが (<span
+                class="pkg pkg">policycoreutils</span> パッケージに含まれる) <code
+                class="command">audit2allow</code> コマンドの役割です。設定する必要のある内容に応じて、様々なオブジェクトが既に正しくラベル付けされている場合にのみ、このアプローチは役に立ちます。いずれにせよ、管理者は必ず、生成されたルールを注意深く確認し、アプリケーションに対する知識に基いてルールの妥当性を検査しなければいけません。事実上、このアプローチはアプリケーションが本当に必要としている権限よりも多くの権限を与えようとします。ほとんどの場合、新しいタイプを作成し、作成したタイプだけに権限を与える事が適切な解決策と言えます。また、拒否された操作がアプリケーションにとって致命的でない場合もあります。この場合、「<code
+                class="literal">dontaudit</code>」ルールを追加するだけに留める事がより良い解決策かもしれません。こうすることで、実際の実行を拒否するのではなくログエントリの記録だけが拒否されます。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>COMPLEMENTS</em></span> ロールを設定されていないポリシールール</strong></p></div></div></div><div
+                class="para">
+					新しいルールを作成した際に、ロールが 1 つも設定されていないことは不思議に見えるかもしれません。SELinux は許されている操作の見つかったドメインだけを使います。ロールは、ユーザが他のドメインに切り替える事を許可することで、間接的に介在するだけです。SELinux は <span
+                  class="emphasis"><em>Type Enforcement</em></span> として知られる理論に基づき、タイプは権限を獲得する際に考慮される唯一の要素です。<a
+                  id="idm140393304373968"
+                  class="indexterm"></a> <a
+                  id="idm140393304373456"
+                  class="indexterm"></a>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393304372560"></a>14.4.4.4. ファイルのコンパイル</h4></div></div></div><div
+              class="para">
+					3 個のファイル (<code
+                class="filename">example.if</code>、<code
+                class="filename">example.fc</code>、<code
+                class="filename">example.te</code>) が新しいルールに関する管理者の期待と一致したら、<code
+                class="filename">example.pp</code> ファイルの中で <code
+                class="command">make</code> を実行してモジュールを生成します (<code
+                class="command">semodule -i example.pp</code> を使ってすぐさまこのモジュールを読み込む事が可能です)。復数のモジュールを定義した場合、<code
+                class="command">make</code> はすべての対応する <code
+                class="filename">.pp</code> ファイルを生成します。
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>戻る</strong>14.3. 監督: 防止、検知、監査</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.other-security-considerations.html"><strong>次へ</strong>14.5. セキュリティ関連で他に考慮すべき点</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.selinux.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.selinux.html">da-DK</a></li><li><a
+              href="../de-DE/sect.selinux.html">de-DE</a></li><li><a
+              href="../el-GR/sect.selinux.html">el-GR</a></li><li><a
+              href="../en-US/sect.selinux.html">en-US</a></li><li><a
+              href="../es-ES/sect.selinux.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.selinux.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.selinux.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.selinux.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.selinux.html">id-ID</a></li><li><a
+              href="../it-IT/sect.selinux.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.selinux.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.selinux.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.selinux.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.selinux.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.selinux.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.selinux.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.selinux.html">zh-CN</a></li></ul></div></body></html>

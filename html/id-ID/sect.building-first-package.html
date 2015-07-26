@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.2. Membangun Ulang Paket Pertama Anda</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-id-ID-1.0-1" /><meta
+        name="keywords"
+        content="Backport, Rebuild, Source package, Archive, Meta-package, Debian Developer, Maintainer" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="Bab 15. Membuat paket Debian" /><link
+        rel="prev"
+        href="debian-packaging.html"
+        title="Bab 15. Membuat paket Debian" /><link
+        rel="next"
+        href="sect.setup-apt-package-repository.html"
+        title="15.3. Membuat Repositori Paket untuk APT" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/id-ID/sect.building-first-package.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>Sebelumnya</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>Lanjut</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.building-first-package"></a>15.2. Membangun Ulang Paket Pertama Anda</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140170067563216"></a>15.2.1. Meta-Packages atau Paket Palsu</h3></div></div></div><div
+            class="para">
+				Paket palsu dan meta-packages, sebenarnya mirip. Keduanya merupakan shell kosong yang ada hanya untuk membuat meta-data mereka dimuat di dalam package handling stack.
+			</div><div
+            class="para">
+				Tujuan dari paket palsu adalah mengakali <code
+              class="command">dpkg</code> dan <code
+              class="command">apt</code> sehingga percaya bahwa paket ter-install biarpun hanya berupa shell kosong. Hal ini memungkinkan memenuhi dependensi dari paket saat perangkat lunak terkait ter-install di luar ruang lingkup sistem pemaketan. Metode seperti ini bekerja, namun sedapat mungkin dihindari, karena tidak ada jaminan bahwa perangkat lunak yang ter-install berperilaku persis seperti paket terkait dan paket lainnya yang tergantung padanya tidak bekerja sebagaimana mestinya.
+			</div><div
+            class="para">
+				Di sisi lain, sebuah meta-package mayoritas ada sebagai kumpulan dari dependensi, sehingga meng-install meta-package sesungguhnya akan mendatangkan paket lain dalam satu langkah.
+			</div><div
+            class="para">
+				Kedua jenis paket ini dapat dibuat dengan perintah <code
+              class="command">equivs-control</code> dan <code
+              class="command">equivs-build</code>. Perintah <code
+              class="command">equivs-control <em
+                class="replaceable">file</em></code> membuat berkas header paket Debian yang harus disunting agar terdapat nama dari paket yang diinginkan, nomor versinya, nama dari maintainer, dependensi, dan deskripsinya. Field lainnya tanpa nilai default adalah opsional dan dapat dihapus. Field <code
+              class="literal">Copyright</code>, <code
+              class="literal">Changelog</code>, <code
+              class="literal">Readme</code> dan <code
+              class="literal">Extra-Files</code> bukan merupakan field standar dalam paket Debian; mereka hanya relevan dalam ruang lingkup <code
+              class="command">equivs-build</code>, dan mereka tidak akan disimpan dalam header dari paket yang dihasilkan.
+			</div><div
+            class="example"><a
+              id="idm140170048911072"></a><p
+              class="title"><strong>Contoh 15.2. Berkas header dari <span
+                  class="emphasis"><em>libxml-libxml-perl</em></span> paket palsu</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Section: perl
+Priority: optional
+Standards-Version: 3.8.4
+
+Package: libxml-libxml-perl
+Version: 1.57-1
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Depends: libxml2 (&gt;= 2.6.6)
+Architecture: all
+Description: Fake package - module manually installed in site_perl
+ This is a fake package to let the packaging system
+ believe that this Debian package is installed. 
+ .
+ In fact, the package is not installed since a newer version
+ of the module has been manually compiled &amp; installed in the
+ site_perl directory.
+</pre></div></div><div
+            class="para">
+				Langkah selanjutnya adalah membuat paket Debian dengan perintah <code
+              class="command">equivs-build <em
+                class="replaceable">file</em></code>. Voilà: paket dibuat pada direktori saat ini dan dapat dapat diperlakukan sebagaimana paket Debian lainnya.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140170048907152"></a>15.2.2. Berkas Archive Sederhana</h3></div></div></div><div
+            class="para">
+				Administrator Falcot Corp butuh membuat paket Debian agar dapat mempermudah proses deployment sekian dokumen pada banyak mesin. Administrator yang bertanggung jawab akan pekerjaan ini pertama perlu membaca “New Maintainer's Guide” (Panduan Maintainer Baru), lalu mulai bekerja pada paket pertamanya.<div
+              class="url">→ <a
+                href="http://www.debian.org/doc/maint-guide/">http://www.debian.org/doc/maint-guide/</a></div>
+			</div><div
+            class="para">
+				Langkah pertama adalah membuat direktori <code
+              class="filename">falcot-data-1.0</code> berisi target dari paket sumber. Paket secara logika akan dinamakan <code
+              class="literal">falcot-data</code> dan dengan nomor versi <code
+              class="literal">1.0</code>. Administrator selanjutnya meletakkan berkas dokumen dalam subdirektori <code
+              class="filename">data</code>. Lalu mereka meng-invoke perintah <code
+              class="command">dh_make</code> (dari paket <span
+              class="pkg pkg">dh-make</span>) untuk menambah berkas yang dibutuhkan oleh proses pembuatan paket, yang akan disimpan dalam subdirektori <code
+              class="filename">debian</code>:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd falcot-data-1.0</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>dh_make --native</code></strong>
+<code
+              class="computeroutput">
+Type of package: single binary, indep binary, multiple binary, library, kernel module, kernel patch or cdbs?
+ [s/i/m/l/k/n/b] </code><strong
+              class="userinput"><code>i</code></strong>
+<code
+              class="computeroutput">
+Maintainer name : Raphael Hertzog
+Email-Address   : hertzog@debian.org
+Date            : Mon, 11 Apr 2011 15:11:36 +0200
+Package Name    : falcot-data
+Version         : 1.0
+License         : blank
+Usind dpatch    : no
+Type of Package : Independent
+Hit &lt;enter&gt; to confirm:
+Currently there is no top level Makefile. This may require additional tuning.
+Done. Please edit the files in the debian/ subdirectory now. You should also
+check that the falcot-data Makefiles install into $DESTDIR and not in / .
+$</code></pre><div
+            class="para">
+				Tipe paket yang dipilih (<span
+              class="emphasis"><em>single binary</em></span>) menandakan bahwa paket sumber ini akan menghasilkan sebuah paket binari single bergantung pada arsitektur (<code
+              class="literal">Architecture: any</code>). <span
+              class="emphasis"><em>indep binary</em></span> bertindak sebagai lawannya, dan menghasilkan paket binari single yang tidak bergantung pada arsitektur target (<code
+              class="literal">Architecture: all</code>). Dalam kasus ini, pilihan yang terakhir lebih relevan karena paket hanya mengandung dokumen dan tidak ada binari program, jadi dapat digunakan pada semua komputer dari semua arsitektur.
+			</div><div
+            class="para">
+				Tipe <span
+              class="emphasis"><em>multiple binary</em></span> terkait ke paket sumber yang menghasilkan beberapa paket binari. Pada kasus khusus, <span
+              class="emphasis"><em>library</em></span>, berguna untuk shared libraries, karena mereka perlu mengikuti aturan pemaketan yang ketat. Dalam kasus serupa, <span
+              class="emphasis"><em>kernel module</em></span> harus dibatasi ke paket yang mengandung modul kernel. Akhirnya, <span
+              class="emphasis"><em>cdbs</em></span> adalah paket build system spesifik; sebenarnya cenderung fleksibel, namun membutuhkan waktu untuk mempelajarinya. <a
+              id="idm140170048892080"
+              class="indexterm"></a> <a
+              id="idm140170048891440"
+              class="indexterm"></a>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> Nama dan alamat surel Maintainer</strong></p></div></div></div><div
+              class="para">
+				Kebanyakan program yang terlibat dalam pengelolaan paket akan mencari nama Anda dan alamat surel dalam variabel environment <code
+                class="varname">DEBFULLNAME</code> dan <code
+                class="varname">DEBEMAIL</code> atau <code
+                class="varname">EMAIL</code>. Definisikan variabel ini sekali dan selamanya akan menghindari Anda dari harus mengisi-nya berulang kali. Jika shell Anda adalah <code
+                class="command">bash</code>, sesederhana menambahkan dua baris berikut dalam <code
+                class="filename">~/.bashrc</code> dan <code
+                class="filename">~/.bash_profile</code> (tentunya Anda akan mengisi dengan nilai yang relevan!):
+			</div><pre
+              class="programlisting">
+export EMAIL="hertzog@debian.org"
+export DEBFULLNAME="Raphael Hertzog"
+</pre></div><div
+            class="para">
+				The <code
+              class="command">dh_make</code> command created a <code
+              class="filename">debian</code> subdirectory with many files. Some are required, in particular <code
+              class="filename">rules</code>, <code
+              class="filename">control</code>, <code
+              class="filename">changelog</code> and <code
+              class="filename">copyright</code>. Files with the <code
+              class="filename">.ex</code> extension are example files that can be used by modifying them (and removing the extension) when appropriate. When they are not needed, removing them is recommended. The <code
+              class="filename">compat</code> file should be kept, since it is required for the correct functioning of the <span
+              class="emphasis"><em>debhelper</em></span> suite of programs (all beginning with the <code
+              class="command">dh_</code> prefix) used at various stages of the package build process.
+			</div><div
+            class="para">
+				Berkas <code
+              class="filename">copyright</code> harus berisi informasi tentang penulis dari dokumen yang dimasukkan dalam paket, dan lisensi terkait. Dalam kasus kita, hal ini merupakan dokumen internal dan penggunaan mereka terbatas dalam perusahaan Falcot. Berkas default <code
+              class="filename">changelog</code> umumnya cukup; menggantikan “Rilis awal” dengan penjelasan yang lebih rinci dan mengubah distribusi dari <code
+              class="literal">unstable</code> ke <code
+              class="literal">internal</code> sudah cukup. <code
+              class="filename">control file</code> juga diperbaharui: bagian ini telah dibuah menjadi <span
+              class="emphasis"><em>misc</em></span> dan field <code
+              class="literal">Homepage</code>, <code
+              class="literal">Vcs-Git</code> dan <code
+              class="literal">Vcs-Browser</code> dihapus. Field <code
+              class="literal">Depends</code> dilengkapi dengan <code
+              class="literal">iceweasel | www-browser</code> untuk memastikan ketersediaan perambah web dapat menampilkan dokumen dalam paket.
+			</div><div
+            class="example"><a
+              id="idm140170048873792"></a><p
+              class="title"><strong>Contoh 15.3. Berkas <code
+                  class="filename">control</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Source: falcot-data
+Section: misc
+Priority: optional
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Build-Depends: debhelper (&gt;= 7.0.50~)
+Standards-Version: 3.8.4
+
+Package: falcot-data
+Architecture: all
+Depends: iceweasel | www-browser, ${misc:Depends}
+Description: Internal Falcot Corp Documentation
+ This package provides several documents describing the internal
+ structure at Falcot Corp.  This includes:
+  - organization diagram
+  - contacts for each department.
+ .
+ These documents MUST NOT leave the company.
+ Their use is INTERNAL ONLY.
+</pre></div></div><div
+            class="example"><a
+              id="idm140170048871504"></a><p
+              class="title"><strong>Contoh 15.4. Berkas <code
+                  class="filename">changelog</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+falcot-data (1.0) internal; urgency=low
+
+  * Initial Release.
+  * Let's start with few documents:
+    - internal company structure;
+    - contacts for each department.
+
+ -- Raphael Hertzog &lt;hertzog@debian.org&gt;  Mon, 11 Apr 2011 20:46:33 +0200
+</pre></div></div><div
+            class="example"><a
+              id="idm140170048869520"></a><p
+              class="title"><strong>Contoh 15.5. Berkas <code
+                  class="filename">copyright</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+This work was packaged for Debian by Raphael Hertzog &lt;hertzog@debian.org&gt;
+on Mon, 11 Apr 2011 20:46:33 +0200
+
+Copyright:
+
+    Copyright (C) 2004-2011 Falcot Corp
+
+License:
+
+    All rights reserved.
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>KEMBALI KE DASAR</em></span> Berkas <code
+                        class="filename">Makefile</code></strong></p></div></div></div><a
+              id="idm140170048866144"
+              class="indexterm"></a><div
+              class="para">
+				A <code
+                class="filename">Makefile</code> file is a script used by the <code
+                class="command">make</code> program; it describes rules for how to build a set of files from each other in a tree of dependencies (for instance, a program can be built from a set of source files). The <code
+                class="filename">Makefile</code> file describes these rules in the following format:
+			</div><pre
+              class="programlisting">
+target: source1 source2 ...
+        command1
+        command2
+</pre><div
+              class="para">
+				The interpretation of such a rule is as follows: if one of the <code
+                class="literal">source*</code> files is more recent than the <code
+                class="literal">target</code> file, then the target needs to be generated, using <code
+                class="command">command1</code> and <code
+                class="command">command2</code>.
+			</div><div
+              class="para">
+				Perhatikan bahwa command line harus dimulai dengan karakter tab; perhatikan juga bahwa saat command line dimulai dengan karakter dash (<code
+                class="literal">-</code>), kegagalan dari perintah meng-interupsi seluruh proses.
+			</div></div><div
+            class="para">
+				Berkas <code
+              class="filename">rules</code> umumnya berisi sekumpulan rules yang digunakan untuk meng-konfigurasi, build dan install perangkat lunak dalam subdirektori terdedikasi (dinamakan setelah paket binari dihasilkan). Isi dari subdirektori ini selanjutnya diarsipkan dalam paket Debian seolah sebagai root dari filesystem. Dalam kasus kami, berkas akan di-install dalam subdirektori <code
+              class="filename">debian/falcot-data/usr/share/falcot-data/</code>, jadi meng-install paket yang dihasilkan akan men-deploy berkas di bawah <code
+              class="filename">/usr/share/falcot-data/</code>. Berkas <code
+              class="filename">rules</code> digunakan sebagai <code
+              class="filename">Makefile</code>, dengan beberapa target standar (termasuk <code
+              class="literal">clean</code> dan <code
+              class="literal">binary</code>, digunakan untuk membersihkan direktori sumber dan menghasilkan paket binari).
+			</div><div
+            class="para">
+				Walaupun berkas ini merupakan jantung dari proses, lama kelamaan hanya berisi bare minimum untuk menjalankan sekumpulan perintah yang disediakan oleh perkakas <code
+              class="command">debhelper</code>. Sebagai contoh dalam kasus untuk berkas yang dihasilkan oleh <code
+              class="command">dh_make</code>. Untuk menginstall berkas kita, kita hanya perlu mengkonfigurasi perilaku dari perintah <code
+              class="command">dh_install</code> dengan membuat berkas berikut <code
+              class="filename">debian/falcot-data.install</code>:
+			</div><pre
+            class="programlisting">
+data/* usr/share/falcot-data/
+</pre><div
+            class="para">
+				At this point, the package can be created. We will however add a lick of paint. Since the administrators want the documents to be easily accessed from the Help menus of graphical desktop environments, we create an entry in the Debian menu system. This is simply done by renaming the <code
+              class="filename">debian/menu.ex</code> without its extension and editing it as follows:
+			</div><div
+            class="example"><a
+              id="idm140170049003584"></a><p
+              class="title"><strong>Contoh 15.6. Berkas <code
+                  class="filename">menu</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+?package(falcot-data):needs=X11|wm section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/x-www-browser /usr/share/falcot-data/index.html"
+?package(falcot-data):needs=text section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/www-browser /usr/share/falcot-data/index.html"
+</pre></div></div><div
+            class="para">
+				Field <code
+              class="literal">needs</code>, saat di-set menjadi <code
+              class="literal">X11|wm</code> menandakan bahwa entri ini hanya relevan dalam antarmuka grafis. Hal ini selanjutnya akan disatukan ke dalam menu dari aplikasi grafis (X11) dan window manager (karena <code
+              class="literal">wm</code>). Field <code
+              class="literal">section</code> menyatakan di mana menu dan akan ditampilkan. Dalam kasus kita, entri akan ditampilkan dalam menu Bantuan. Field <code
+              class="literal">title</code> berisi teks yang akan ditampilkan dalam menu. Akhirnya, field <code
+              class="literal">command</code> mendeskripsikan perintah yang perlu dijalankan saat pengguna memilih entri menu.
+			</div><div
+            class="para">
+				Entri kedua cocok dengan yang pertama, dengan adaptasi secukupnya mengadopsi mode teks konsol linux.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DEBIAN POLICY</em></span> Organisasi Menu</strong></p></div></div></div><div
+              class="para">
+				Menu Debian diatur dalam struktur formal, terdokumentasi dalam teks berikut: <div
+                class="url">→ <a
+                  href="http://www.debian.org/doc/packaging-manuals/menu-policy/">http://www.debian.org/doc/packaging-manuals/menu-policy/</a></div>
+			</div><div
+              class="para">
+				<code
+                class="literal">section</code> dalam <code
+                class="filename">menu</code> perlu dipilih dari daftar yang disebutkan dalam dokumen ini.
+			</div></div><div
+            class="para">
+				Cukup dengan membuat berkas <code
+              class="filename">debian/menu</code> dapat untuk mengaktifkan menu dalam paket, karena perintah <code
+              class="command">dh_installmenu</code> secara otomatis di-invoke oleh <code
+              class="command">dh</code> selama proses pembuatan paket.
+			</div><div
+            class="para">
+				Paket sumber kita sekarang sudah siap. Yang perlu dilakukan hanya membuat paket binari, dengan metode yang sama yang kita gunakan sebelumnya untuk membangun ulang paket: kita jalankan perintah <code
+              class="command">dpkg-buildpackage -us -uc</code> dari direktori <code
+              class="filename">falcot-data-1.0</code>.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>Sebelumnya</strong>Bab 15. Membuat paket Debian</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Induk</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Depan</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>Lanjut</strong>15.3. Membuat Repositori Paket untuk APT</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.building-first-package.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.building-first-package.html">da-DK</a></li><li><a
+              href="../de-DE/sect.building-first-package.html">de-DE</a></li><li><a
+              href="../el-GR/sect.building-first-package.html">el-GR</a></li><li><a
+              href="../en-US/sect.building-first-package.html">en-US</a></li><li><a
+              href="../es-ES/sect.building-first-package.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.building-first-package.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.building-first-package.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.building-first-package.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.building-first-package.html">id-ID</a></li><li><a
+              href="../it-IT/sect.building-first-package.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.building-first-package.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.building-first-package.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.building-first-package.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.building-first-package.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.building-first-package.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.building-first-package.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.building-first-package.html">zh-CN</a></li></ul></div></body></html>

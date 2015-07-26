@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.8. ブートローダの設定</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="設定, 地域化, ロケール, ネットワーク, 名前解決, ユーザ, グループ, アカウント, コマンドラインインタプリタ, シェル, 印刷, ブートローダ, カーネルのコンパイル" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="第8章 基本設定: ネットワーク、アカウント、印刷..." /><link
+        rel="prev"
+        href="sect.config-printing.html"
+        title="8.7. プリンタ設定" /><link
+        rel="next"
+        href="sect.config-misc.html"
+        title="8.9. その他の設定: 時刻同期、ログ、共有アクセス…" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.config-bootloader.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-printing.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.config-misc.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.config-bootloader"></a>8.8. ブートローダの設定</h2></div></div></div><a
+          id="idm140393324655040"
+          class="indexterm"></a><a
+          id="idm140393324653600"
+          class="indexterm"></a><div
+          class="para">
+			ブートローダは既に機能しているかもしれませんが、ブートローダがマスターブートレコードから消えてしまった状況に備えて、ブートローダの設定方法とイントール方法を知っておくのは常に良い考えです。この状況は、他のオペレーティングシステム、例えば Windows などをインストールした後に、起こる場合があります。以下の情報はブートローダ設定の変更が必要になった際にそれを変更するための助けになるでしょう。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>BACK TO BASICS</em></span> マスターブートレコード</strong></p></div></div></div><a
+            id="idm140393324650512"
+            class="indexterm"></a><a
+            id="idm140393324649552"
+            class="indexterm"></a><div
+            class="para">
+			マスターブートレコード (MBR) は最初のハードディスクの最初の 512 バイトを専有し、 BIOS は対象のオペレーティングシステムを起動できるプログラムに操作を受け渡すために真っ先に MBR を読み込みます。一般にブートローダは MBR にインストールされ、その前に MBR にあった情報は削除されます。
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.identify-disks"></a>8.8.1. ディスクの識別</h3></div></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> <span
+                        class="emphasis"><em>udev</em></span> と <code
+                        class="filename">/dev/</code></strong></p></div></div></div><div
+              class="para">
+				伝統的に、<code
+                class="filename">/dev/</code> ディレクトリは、システムの周辺機器 (傍注<a
+                class="xref"
+                href="sect.creating-accounts.html#sidebar.special-files"><span
+                  class="emphasis"><em>BACK TO BASICS</em></span> デバイスアクセスパーミッション</a>参照) を表す目的で、いわゆる「スペシャル」ファイルを保存する場所でした。昔 <code
+                class="filename">/dev/</code> ディレクトリには、潜在的に利用する可能性のあるすべてのスペシャルファイルが含まれていました。このやり方には多くの欠点がありました。特に、使うことのできるデバイスの数が制限されていた (ハードコードされた名前リストのために) 点、実際に使えるスペシャルファイルがどれなのか判らない点、です。
+			</div><div
+              class="para">
+				今日、スペシャルファイルの管理は完全に動的で、これはホットスワップ可能なコンピュータデバイスの性質と上手く合っています。カーネルは <span
+                class="emphasis"><em>udev</em></span> と協力し、対応するデバイスが取り付けられたり取り外され際に、スペシャルファイルを作成したり削除したりします。この理由により <code
+                class="filename">/dev/</code> が永続的である必要は無くなり、RAM ベースのファイルシステムでは、最初このディレクトリを空にしておき、関連するエントリだけを含めるようにしています。
+			</div><div
+              class="para">
+				カーネルは新たに追加されたデバイスに関する多くの情報をやりとりして、そのデバイスを識別するメジャー/マイナー番号の組を配布します。<code
+                class="command">udevd</code> はデバイスに必要なパーミッション設定と名前を付けたスペシャルファイルを作成します。さらに <code
+                class="command">udevd</code> は別名を作成し、追加的操作を実行する事も可能です (デバイスの初期化や登録作業など)。<code
+                class="command">udevd</code> の挙動は (カスタマイズ可能な) 巨大ルール群によって決定されます。
+			</div><div
+              class="para">
+				動的に名前を付けることで、あるデバイスに常に同じ名前を持たせる事が可能になります。名前は接続するコネクタや接続順に依存しないので、特に複数の USB 周辺機器を使う場合に便利です。1 台目のハードドライブの最初のパーティションは後方互換性を保つために <code
+                class="filename">/dev/sda1</code> と呼ばれます。しかしあなたがそう望むなら <code
+                class="filename">/dev/root-partition</code> と呼ぶ事も可能ですし、両方の名前を同時に使う事も可能です。なぜなら自動的にシンボリックリンクを作成するように <code
+                class="command">udevd</code> を設定できるからです。
+			</div><div
+              class="para">
+				古くは、一部のカーネルモジュールは関連するデバイスファイルにアクセスを試行した時点で自動的に読み込まれていました。この方針は現在使われておらず、モジュールを読み込む前に周辺機器のスペシャルファイルが存在することはありません; これは大きな問題ではありません。なぜなら、自動ハードウェア検出のお陰でほとんどのモジュールは起動時に読み込まれるからです。しかし、検出できない周辺機器 (非常に古いディスクドライブや PS/2 マウスなど) ではこの挙動が問題になります。<code
+                class="literal">floppy</code>、<code
+                class="literal">psmouse</code>、<code
+                class="literal">mousedev</code> モジュールを <code
+                class="filename">/etc/modules</code> に追加して、起動時に強制的にこれらのモジュールを読み込む事を検討してください。
+			</div></div><a
+            id="idm140393324631712"
+            class="indexterm"></a><a
+            id="idm140393324630784"
+            class="indexterm"></a><div
+            class="para">
+				ブートローダを設定するには、必ず様々なハードドライブとそのパーティションを識別しなければいけません。Linux はこの目的のために <code
+              class="filename">/dev/</code> ディレクトリ内で「ブロック」スペシャルファイルを使います。Debian <span
+              class="distribution distribution">Squeeze</span> 以降、ハードドライブの命名規則は Linux カーネルによって統一化されました。現在、すべてのハードドライブ (IDE/PATA、SATA、SCSI、USB、IEEE 1394) は <code
+              class="filename">/dev/sd*</code> と表されます。
+			</div><div
+            class="para">
+				それぞれのパーティションは自分が存在するディスク上の番号で表されます: 例えば、<code
+              class="filename">/dev/sda1</code> は 1 台目のディスクの最初のパーティションで、<code
+              class="filename">/dev/sdb3</code> は 2 台目のディスクの 3 番目のパーティションです。
+			</div><a
+            id="idm140393324625184"
+            class="indexterm"></a><a
+            id="idm140393324623744"
+            class="indexterm"></a><a
+            id="idm140393324622304"
+            class="indexterm"></a><a
+            id="idm140393324620864"
+            class="indexterm"></a><div
+            class="para">
+				PC アーキテクチャ (つまり「i386」およびそのいとこである「amd64」) では、長い間「MS-DOS」パーティションテーブルフォーマットを使うよう制限を受けていました。このフォーマットはディスク 1 台あたりに作れる「プライマリ」パーティションの数を 4 つに制限していました。この制限を超えるためには、プライマリパーティションの 1 つを「拡張」パーティションとして作成します。拡張パーティションには追加的な「セカンダリ」パーティションを含める事が可能です。このようなセカンダリパーティションには 5 以上の番号が割り振られます。最初のセカンダリパーティションは <code
+              class="filename">/dev/sda5</code>、2 番目は <code
+              class="filename">/dev/sda6</code> などのように割り振られるでしょう。
+			</div><div
+            class="para">
+				MS-DOS パーティションテーブルフォーマットのもう一つの制限は、2 TiB を超えるサイズのディスクを取り扱う事ができないという点です。この制限は現実的な問題になりつつあります。
+			</div><a
+            id="idm140393324616496"
+            class="indexterm"></a><a
+            id="idm140393324615088"
+            class="indexterm"></a><div
+            class="para">
+				GPT と呼ばれる新しいパーティションテーブルフォーマットを使うことで、上に挙げたパーティション数 (標準的な設定を使った場合、最大で 128 個のパーティション) とディスクサイズ (最大で 8 ZiB、80 億テラバイト以上です) の制限が緩和されます。1 台のディスクに多くの物理パーティションを作成する場合、ディスクのパーティショニングを行う際に、必ず GPT フォーマットでパーティションテーブルを作成するよう注意してください。
+			</div><div
+            class="para">
+				どのディスクがどの SATA コントローラに接続されているかを記憶するのは常に簡単というわけではありません。なぜなら、特にホットプラグ対応のハードドライブ (これにはほとんどの SATA ディスクや外部ディスクが含まれます) の名前は起動の度に変わるからです。幸いなことに、<code
+              class="command">udev</code> は <code
+              class="filename">/dev/sd*</code> に加えて、固有名のシンボリックリンクを作成します。曖昧でない方法でハードドライブを識別したい場合にはこのシンボリックリンクを使う事が可能です。これらのシンボリックリンクは <code
+              class="filename">/dev/disk/by-id</code> に保存されています。例えば 2 台の物理ディスクを備えるマシンでは以下のようなシンボリックリンクが見つかります:
+			</div><pre
+            class="screen">mirexpress:/dev/disk/by-id# <code
+              class="computeroutput"></code><strong
+              class="userinput"><code>ls -l</code></strong><code
+              class="computeroutput">
+合計 0
+lrwxrwxrwx 1 root root  9  7月 23 08:58 ata-STM3500418AS_9VM3L3KP -&gt; ../../sda
+lrwxrwxrwx 1 root root 10  7月 23 08:58 ata-STM3500418AS_9VM3L3KP-part1 -&gt; ../../sda1
+lrwxrwxrwx 1 root root 10  7月 23 08:58 ata-STM3500418AS_9VM3L3KP-part2 -&gt; ../../sda2
+[...]
+lrwxrwxrwx 1 root root  9  7月 23 08:58 ata-WDC_WD5001AALS-00L3B2_WD-WCAT00241697 -&gt; ../../sdb
+lrwxrwxrwx 1 root root 10  7月 23 08:58 ata-WDC_WD5001AALS-00L3B2_WD-WCAT00241697-part1 -&gt; ../../sdb1
+lrwxrwxrwx 1 root root 10  7月 23 08:58 ata-WDC_WD5001AALS-00L3B2_WD-WCAT00241697-part2 -&gt; ../../sdb2
+[...]
+lrwxrwxrwx 1 root root  9  7月 23 08:58 scsi-SATA_STM3500418AS_9VM3L3KP -&gt; ../../sda
+lrwxrwxrwx 1 root root 10  7月 23 08:58 scsi-SATA_STM3500418AS_9VM3L3KP-part1 -&gt; ../../sda1
+lrwxrwxrwx 1 root root 10  7月 23 08:58 scsi-SATA_STM3500418AS_9VM3L3KP-part2 -&gt; ../../sda2
+[...]
+lrwxrwxrwx 1 root root  9  7月 23 08:58 scsi-SATA_WDC_WD5001AALS-_WD-WCAT00241697 -&gt; ../../sdb
+lrwxrwxrwx 1 root root 10  7月 23 08:58 scsi-SATA_WDC_WD5001AALS-_WD-WCAT00241697-part1 -&gt; ../../sdb1
+lrwxrwxrwx 1 root root 10  7月 23 08:58 scsi-SATA_WDC_WD5001AALS-_WD-WCAT00241697-part2 -&gt; ../../sdb2
+[...]
+lrwxrwxrwx 1 root root  9  7月 23 16:48 usb-LaCie_iamaKey_3ed00e26ccc11a-0:0 -&gt; ../../sdc
+lrwxrwxrwx 1 root root 10  7月 23 16:48 usb-LaCie_iamaKey_3ed00e26ccc11a-0:0-part1 -&gt; ../../sdc1
+lrwxrwxrwx 1 root root 10  7月 23 16:48 usb-LaCie_iamaKey_3ed00e26ccc11a-0:0-part2 -&gt; ../../sdc2
+[...]
+lrwxrwxrwx 1 root root  9  7月 23 08:58 wwn-0x5000c50015c4842f -&gt; ../../sda
+lrwxrwxrwx 1 root root 10  7月 23 08:58 wwn-0x5000c50015c4842f-part1 -&gt; ../../sda1
+[...]
+mirexpress:/dev/disk/by-id# </code></pre><div
+            class="para">
+				幾つかのディスクは複数回リストされています (なぜなら、それらは ATA ディスクであり同時に SCSI ディスクとしても振る舞うからです) が、ディスクに固有の情報は主にディスクの製品番号とシリアル番号であるという点に注意してください。ここから、目的の周辺機器のシンボリックリンクを見つける事が可能です。
+			</div><div
+            class="para">
+				以下の節で挙げる設定ファイルの例は、同じセットアップに基いています: 1 台の SATA ディスクがあり、最初のパーティションに古い Windows がインストールされており、2 番目のパーティションに Debian GNU/Linux がインストールされている状態です。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-lilo"></a>8.8.2. LILO の設定</h3></div></div></div><a
+            id="idm140393324604032"
+            class="indexterm"></a><a
+            id="idm140393324603072"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="emphasis"><em>LILO</em></span> (LInux LOader) は最も古い - 実直だが素朴な - ブートローダです。<span
+              class="emphasis"><em>LILO</em></span> は MBR に起動するカーネルの物理アドレスを書くため、LILO を更新した際にはその後に必ず <code
+              class="command">lilo</code> コマンドを使わなければいけません。このルールを忘れて、古いカーネルを削除したり、置き換えた新しいカーネルを古いカーネルがあった場所と同じディスクの場所に置かなかったりすると、システムが起動できないと表示されます。
+			</div><div
+            class="para">
+				LILO の設定ファイルは <code
+              class="filename">/etc/lilo.conf</code> です; 標準的な設定を行う単純なファイルは以下の例のように書けます。
+			</div><div
+            class="example"><a
+              id="example.lilo.conf"></a><p
+              class="title"><strong>例8.3 LILO 設定ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# The disk on which LILO should be installed.
+# By indicating the disk and not a partition.
+# you order LILO to be installed on the MBR.
+boot=/dev/sda
+# the partition that contains Debian
+root=/dev/sda2
+# the item to be loaded by default
+default=Linux
+
+# the most recent kernel image
+image=/vmlinuz
+  label=Linux
+  initrd=/initrd.img
+  read-only
+
+# Old kernel (if the newly installed kernel doesn't boot)
+image=/vmlinuz.old
+  label=LinuxOLD
+  initrd=/initrd.img.old
+  read-only
+  optional
+
+# only for Linux/Windows dual boot
+other=/dev/sda1
+  label=Windows</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-grub"></a>8.8.3. GRUB 2 の設定</h3></div></div></div><a
+            id="idm140393324595120"
+            class="indexterm"></a><a
+            id="idm140393324594160"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="emphasis"><em>GRUB</em></span> (GRand Unified Bootloader) はより新しいブートローダです。カーネル更新の後に GRUB を実行する必要はありません; <span
+              class="emphasis"><em>GRUB</em></span> はファイルシステムを読む方法と自分でディスク上でカーネルの位置を見つける方法を知っています。GRUB を最初のディスクの MBR にインストールするためには、<code
+              class="command">grub-install /dev/sda</code> を実行してください。<a
+              id="idm140393324591136"
+              class="indexterm"></a>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NOTE</em></span> GRUB のディスク名</strong></p></div></div></div><div
+              class="para">
+				GRUB は BIOS から提供される情報に従ってハードドライブを識別します。<code
+                class="literal">(hd0)</code> は最初に検出されたディスクに対応し、<code
+                class="literal">(hd1)</code> は 2 番目に対応します。多くの場合、この順番は Linux 上でディスクが検出される普通の順番と完全に一致しますが、SCSI や IDE ディスクを使っている場合、問題が起きるかもしれません。GRUB は検出した対応関係を <code
+                class="filename">/boot/grub/device.map</code> ファイルの中に保存します。この点について何か間違いを見つけた場合 (BIOS がドライブを違う順番で検出するという事を知っている場合)、対応関係を修正して、再度 <code
+                class="command">grub-install</code> を実行してください。<code
+                class="command">grub-mkdevicemap</code> を使えば、<code
+                class="filename">device.map</code> ファイルのたたき台を作成する事が可能です。
+			</div><div
+              class="para">
+				GRUB はパーティションを識別する名前も使います。MS-DOS フォーマットの「標準的な」パーティションを使っている場合、最初のディスクの最初のパーティションは <code
+                class="literal">(hd0,msdos1)</code>、2 番目のパーティションは <code
+                class="literal">(hd0,msdos2)</code> です。
+			</div></div><div
+            class="para">
+				GRUB 2 の設定は <code
+              class="filename">/boot/grub/grub.cfg</code> に保存されていますが、このファイルは (Debian の場合) 別のファイルから生成されます。<code
+              class="filename">/boot/grub/grub.cfg</code> を直接変更しないでください。なぜなら、<code
+              class="command">update-grub</code> が実行されたら (様々なパッケージの更新時に実行される事があります) そのような部分的な変更は失われるからです。<code
+              class="filename">/boot/grub/grub.cfg</code> ファイルに対して、最も一般的な変更 (例えば、カーネルに渡すコマンドラインパラメータを追加したり、メニューの表示される時間を変える) を加えるには、<code
+              class="filename">/etc/default/grub</code> に含まれる変数を使います。メニューにエントリを追加するには、<code
+              class="filename">/boot/grub/custom.cfg</code> ファイルを作成するか、<code
+              class="filename">/etc/grub.d/50_custom</code> ファイルを変更してください。より複雑な設定をするには、<code
+              class="filename">/etc/grub.d</code> にある他のファイルを変更するか、このディレクトリにファイルを追加してください; このディレクトリに含まれるスクリプトは設定スニペットを返します。場合によっては外部プログラムを使用する事もあるかもしれません。このスクリプトは起動したいカーネルのリストを更新するものです: <code
+              class="filename">10_linux</code> はインストール済み Linux カーネルを考慮します; <code
+              class="filename">20_linux_xen</code> は Xen 仮想システムを考慮し、<code
+              class="filename">30_os-prober</code> は他のオペレーティングシステム(Windows、Mac OSX、Hurd) をリストアップします。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-yaboot"></a>8.8.4. Macintosh コンピュータ (PowerPC) の場合: Yaboot の設定</h3></div></div></div><a
+            id="idm140393324575296"
+            class="indexterm"></a><div
+            class="para">
+				Yaboot は PowerPC プロセッサを使う古い Macintosh コンピュータで使われるブートローダです。古い Macintosh コンピュータは PC のように起動せず、bootstrap パーティションを使って起動します。BIOS (または OpenFirmware) が bootstrap パーティションからローダを実行し、<code
+              class="command">ybin</code> プログラムが bootstrap パーティションに <code
+              class="command">yaboot</code> と設定ファイルをインストールします。設定ファイル <code
+              class="filename">/etc/yaboot.conf</code> (このファイルは bootstrap パーティションにコピーされ、<code
+              class="command">yaboot</code> がディスク上からカーネルのパーティションを見つける方法を知っています) が変更されたら、<code
+              class="command">ybin</code> コマンドを再度実行する必要があります。
+			</div><div
+            class="para">
+				<code
+              class="command">ybin</code> を実行する前に、適切な <code
+              class="filename">/etc/yaboot.conf</code> を作らなければいけません。以下は最低限の設定例です。<a
+              id="idm140393324569680"
+              class="indexterm"></a>
+			</div><div
+            class="example"><a
+              id="example.yaboot.conf"></a><p
+              class="title"><strong>例8.4 Yaboot 設定ファイル</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# bootstrap partition
+boot=/dev/sda2
+# the disk
+device=hd:
+# the Linux partition
+partition=3
+root=/dev/sda3
+# boot after 3 seconds of inactivity
+# (timeout is in tenths of seconds)
+timeout=30
+
+install=/usr/lib/yaboot/yaboot
+magicboot=/usr/lib/yaboot/ofboot
+enablecdboot
+
+# last kernel installed
+image=/vmlinux
+        label=linux
+        initrd=/initrd.img
+        read-only
+
+# old kernel
+image=/vmlinux.old
+        label=old
+        initrd=/initrd.img.old
+        read-only
+
+# only for Linux/Mac OSX dual-boot
+macosx=/dev/sda5
+
+# bsd=/dev/sdaX and macos=/dev/sdaX
+# are also possible</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-printing.html"><strong>戻る</strong>8.7. プリンタ設定</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.config-misc.html"><strong>次へ</strong>8.9. その他の設定: 時刻同期、ログ、共有アクセス…</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.config-bootloader.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.config-bootloader.html">da-DK</a></li><li><a
+              href="../de-DE/sect.config-bootloader.html">de-DE</a></li><li><a
+              href="../el-GR/sect.config-bootloader.html">el-GR</a></li><li><a
+              href="../en-US/sect.config-bootloader.html">en-US</a></li><li><a
+              href="../es-ES/sect.config-bootloader.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.config-bootloader.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.config-bootloader.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.config-bootloader.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.config-bootloader.html">id-ID</a></li><li><a
+              href="../it-IT/sect.config-bootloader.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.config-bootloader.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.config-bootloader.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.config-bootloader.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.config-bootloader.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.config-bootloader.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.config-bootloader.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.config-bootloader.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.4. Monitoring</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, Preseeding, Monitoring, Virtualization, Xen, LXC" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理员手册" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="第 12 章 Advanced Administration" /><link
+        rel="prev"
+        href="sect.automated-installation.html"
+        title="12.3. Automated Installation" /><link
+        rel="next"
+        href="workstation.html"
+        title="第 13 章 工作站" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.monitoring.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.automated-installation.html"><strong>上一页</strong></a></li><li
+          class="home">Debian 管理员手册</li><li
+          class="next"><a
+            accesskey="n"
+            href="workstation.html"><strong>下一页</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.monitoring"></a>12.4. Monitoring</h2></div></div></div><div
+          class="para">
+			Monitoring is a generic term, and the various involved activities have several goals: on the one hand, following usage of the resources provided by a machine allows anticipating saturation and the subsequent required upgrades; on the other hand, alerting the administrator as soon as a service is unavailable or not working properly means that the problems that do happen can be fixed sooner.
+		</div><div
+          class="para">
+			<span
+            class="emphasis"><em>Munin</em></span> covers the first area, by displaying graphical charts for historical values of a number of parameters (used RAM, occupied disk space, processor load, network traffic, Apache/MySQL load, and so on). <span
+            class="emphasis"><em>Nagios</em></span> covers the second area, by regularly checking that the services are working and available, and sending alerts through the appropriate channels (e-mails, text messages, and so on). Both have a modular design, which makes it easy to create new plug-ins to monitor specific parameters or services.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIVE</em></span> Zabbix, an integrated monitoring tool</strong></p></div></div></div><a
+            id="idm140492714390576"
+            class="indexterm"></a><div
+            class="para">
+			Although Munin and Nagios are in very common use, they are not the only players in the monitoring field, and each of them only handles half of the task (graphing on one side, alerting on the other). Zabbix, on the other hand, integrates both parts of monitoring; it also has a web interface for configuring the most common aspects. It has grown by leaps and bounds during the last few years, and can now be considered a viable contender; unfortunately, Zabbix isn't present in Debian <span
+              class="distribution distribution">Wheezy</span> due to timing issues in the release process, but packages will be provided as backports or in unofficial repositories. <div
+              class="url">→ <a
+                href="http://www.zabbix.org/">http://www.zabbix.org/</a></div>
+		</div></div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIVE</em></span> Icinga, a Nagios fork</strong></p></div></div></div><a
+            id="idm140492714386384"
+            class="indexterm"></a><div
+            class="para">
+			Spurred by divergences in opinions concerning the development model for Nagios (which is controlled by a company), a number of developers forked Nagios and use Icinga as their new name. Icinga is still compatible — so far — with Nagios configurations and plugins, but it also adds extra features. <div
+              class="url">→ <a
+                href="http://www.icinga.org/">http://www.icinga.org/</a></div>
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.munin"></a>12.4.1. Setting Up Munin</h3></div></div></div><a
+            id="idm140492714383168"
+            class="indexterm"></a><div
+            class="para">
+				The purpose of Munin is to monitor many machines; therefore, it quite naturally uses a client/server architecture. The central host — the grapher — collects data from all the monitored hosts, and generates historical graphs.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492714381760"></a>12.4.1.1. Configuring Hosts To Monitor</h4></div></div></div><div
+              class="para">
+					The first step is to install the <span
+                class="pkg pkg">munin-node</span> package. The daemon installed by this package listens on port 4949 and sends back the data collected by all the active plugins. Each plugin is a simple program returning a description of the collected data as well as the latest measured value. Plugins are stored in <code
+                class="filename">/usr/share/munin/plugins/</code>, but only those with a symbolic link in <code
+                class="filename">/etc/munin/plugins/</code> are really used.
+				</div><div
+              class="para">
+					When the package is installed, a set of active plugins is determined based on the available software and the current configuration of the host. However, this autoconfiguration depends on a feature that each plugin must provide, and it is usually a good idea to review and tweak the results by hand. It would be interesting to have comprehensive documentation for each plugin, but unfortunately there's no such official documentation. However, all plugins are scripts and most are rather simple and well-commented. Browsing <code
+                class="filename">/etc/munin/plugins/</code> is therefore a good way of getting an idea of what each plugin is about and determining which should be removed. Similarly, enabling an interesting plugin found in <code
+                class="filename">/usr/share/munin/plugins/</code> is a simple matter of setting up a symbolic link with <code
+                class="command">ln -sf /usr/share/munin/plugins/<em
+                  class="replaceable">plugin</em> /etc/munin/plugins/</code>. Note that when a plugin name ends with an underscore “_”, the plugin requires a parameter. This parameter must be stored in the name of the symbolic link; for instance, the “if_” plugin must be enabled with a <code
+                class="filename">if_eth0</code> symbolic link, and it will monitor network traffic on the eth0 interface.
+				</div><div
+              class="para">
+					Once all plugins are correctly set up, the daemon configuration must be updated to describe access control for the collected data. This involves <code
+                class="literal">allow</code> directives in the <code
+                class="filename">/etc/munin/munin-node.conf</code> file. The default configuration is <code
+                class="literal">allow ^127\.0\.0\.1$</code>, and only allows access to the local host. An administrator will usually add a similar line containing the IP address of the grapher host, then restart the daemon with <code
+                class="command">invoke-rc.d munin-node restart</code>.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>GOING FURTHER</em></span> Creating local plugins</strong></p></div></div></div><div
+                class="para">
+					Despite the lack of official documentation for standard plugins, Munin does include detailed documentation on how plugins should behave, and how to develop new plugins. <div
+                  class="url">→ <a
+                    href="http://munin-monitoring.org/wiki/Documentation">http://munin-monitoring.org/wiki/Documentation</a></div>
+				</div><div
+                class="para">
+					A plugin is best tested when run in the same conditions as it would be when triggered by munin-node; this can be simulated by running <code
+                  class="command">munin-run <em
+                    class="replaceable">plugin</em></code> as root. A potential second parameter given to this command (such as <code
+                  class="literal">config</code>) is passed to the plugin as a parameter.
+				</div><div
+                class="para">
+					When a plugin is invoked with the <code
+                  class="literal">config</code> parameter, it must describe itself by returning a set of fields:
+				</div><pre
+                class="screen"><code
+                  class="computeroutput">$ </code><strong
+                  class="userinput"><code>sudo munin-run load config
+</code></strong><code
+                  class="computeroutput">graph_title Load average
+graph_args --base 1000 -l 0
+graph_vlabel load
+graph_scale no
+graph_category system
+load.label load
+graph_info The load average of the machine describes how many processes are in the run-queue (scheduled to run "immediately").
+load.info 5 minute load average
+</code></pre><div
+                class="para">
+					The various available fields are described by the “configuration protocol” specification available on the Munin website. <div
+                  class="url">→ <a
+                    href="http://munin-monitoring.org/wiki/protocol-config">http://munin-monitoring.org/wiki/protocol-config</a></div>
+				</div><div
+                class="para">
+					When invoked without a parameter, the plugin simply returns the last measured values; for instance, executing <code
+                  class="command">sudo munin-run load</code> could return <code
+                  class="literal">load.value 0.12</code>.
+				</div><div
+                class="para">
+					Finally, when a plugin is invoked with the <code
+                  class="literal">autoconf</code> parameter, it should return “yes” (and a 0 exit status) or “no” (with a 1 exit status) according to whether the plugin should be enabled on this host.
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492714363648"></a>12.4.1.2. Configuring the Grapher</h4></div></div></div><div
+              class="para">
+					The “grapher” is simply the computer that aggregates the data and generates the corresponding graphs. The required software is in the <span
+                class="pkg pkg">munin</span> package. The standard configuration runs <code
+                class="command">munin-cron</code> (once every 5 minutes), which gathers data from all the hosts listed in <code
+                class="filename">/etc/munin/munin.conf</code> (only the local host is listed by default), saves the historical data in RRD files (<span
+                class="emphasis"><em>Round Robin Database</em></span>, a file format designed to store data varying in time) stored under <code
+                class="filename">/var/lib/munin/</code> and generates an HTML page with the graphs in <code
+                class="filename">/var/cache/munin/www/</code>.
+				</div><div
+              class="para">
+					All monitored machines must therefore be listed in the <code
+                class="filename">/etc/munin/munin.conf</code> configuration file. Each machine is listed as a full section with a name matching the machine and at least an <code
+                class="literal">address</code> entry giving the corresponding IP address.
+				</div><pre
+              class="programlisting">[ftp.falcot.com]
+    address 192.168.0.12
+    use_node_name yes
+</pre><div
+              class="para">
+					Sections can be more complex, and describe extra graphs that could be created by combining data coming from several machines. The samples provided in the configuration file are good starting points for customization.
+				</div><div
+              class="para">
+					The last step is to publish the generated pages; this involves configuring a web server so that the contents of <code
+                class="filename">/var/cache/munin/www/</code> are made available on a website. Access to this website will often be restricted, using either an authentication mechanism or IP-based access control. See <a
+                class="xref"
+                href="sect.http-web-server.html">第 11.2 节 “Web Server (HTTP)”</a> for the relevant details.
+				</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.nagios"></a>12.4.2. Setting Up Nagios</h3></div></div></div><a
+            id="idm140492714354496"
+            class="indexterm"></a><div
+            class="para">
+				Unlike Munin, Nagios does not necessarily require installing anything on the monitored hosts; most of the time, Nagios is used to check the availability of network services. For instance, Nagios can connect to a web server and check that a given web page can be obtained within a given time.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492714353024"></a>12.4.2.1. Installing</h4></div></div></div><div
+              class="para">
+					The first step in setting up Nagios is to install the <span
+                class="pkg pkg">nagios3</span>, <span
+                class="pkg pkg">nagios-plugins</span> and <span
+                class="pkg pkg">nagios3-doc</span> packages. Installing the packages configures the web interface and creates a first <code
+                class="literal">nagiosadmin</code> user (for which it asks for a password). Adding other users is a simple matter of inserting them in the <code
+                class="filename">/etc/nagios3/htpasswd.users</code> file with Apache's <code
+                class="command">htpasswd</code> command. If no Debconf question was displayed during installation, <code
+                class="command">dpkg-reconfigure nagios3-cgi</code> can be used to define the <code
+                class="literal">nagiosadmin</code> password.
+				</div><div
+              class="para">
+					Pointing a browser at <code
+                class="literal">http://<em
+                  class="replaceable">server</em>/nagios3/</code> displays the web interface; in particular, note that Nagios already monitors some parameters of the machine where it runs. However, some interactive features such as adding comments to a host do not work. These features are disabled in the default configuration for Nagios, which is very restrictive for security reasons.
+				</div><div
+              class="para">
+					As documented in <code
+                class="filename">/usr/share/doc/nagios3/README.Debian</code>, enabling some features involves editing <code
+                class="filename">/etc/nagios3/nagios.cfg</code> and setting its <code
+                class="literal">check_external_commands</code> parameter to “1”. We also need to set up write permissions for the directory used by Nagios, with commands such as the following:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>/etc/init.d/nagios3 stop</code></strong>
+<code
+                class="computeroutput">[...]
+# </code><strong
+                class="userinput"><code>dpkg-statoverride --update --add nagios www-data 2710 /var/lib/nagios3/rw
+</code></strong><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>dpkg-statoverride --update --add nagios nagios 751 /var/lib/nagios3
+</code></strong><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>/etc/init.d/nagios3 start</code></strong>
+<code
+                class="computeroutput">[...]</code></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140492714341520"></a>12.4.2.2. Configuring</h4></div></div></div><div
+              class="para">
+					The Nagios web interface is rather nice, but it does not allow configuration, nor can it be used to add monitored hosts and services. The whole configuration is managed via files referenced in the central configuration file, <code
+                class="filename">/etc/nagios3/nagios.cfg</code>.
+				</div><div
+              class="para">
+					These files should not be dived into without some understanding of the Nagios concepts. The configuration lists objects of the following types:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>host</em></span> is a machine to be monitored;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>hostgroup</em></span> is a set of hosts that should be grouped together for display, or to factor some common configuration elements;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>service</em></span> is a testable element related to a host or a host group. It will most often be a check for a network service, but it can also involve checking that some parameters are within an acceptable range (for instance, free disk space or processor load);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>servicegroup</em></span> is a set of services that should be grouped together for display;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>contact</em></span> is a person who can receive alerts;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>contactgroup</em></span> is a set of such contacts;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>timeperiod</em></span> is a range of time during which some services have to be checked;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a <span
+                      class="emphasis"><em>command</em></span> is the command line invoked to check a given service.
+						</div></li></ul></div><div
+              class="para">
+					According to its type, each object has a number of properties that can be customized. A full list would be too long to include, but the most important properties are the relations between the objects.
+				</div><div
+              class="para">
+					A <span
+                class="emphasis"><em>service</em></span> uses a <span
+                class="emphasis"><em>command</em></span> to check the state of a feature on a <span
+                class="emphasis"><em>host</em></span> (or a <span
+                class="emphasis"><em>hostgroup</em></span>) within a <span
+                class="emphasis"><em>timeperiod</em></span>. In case of a problem, Nagios sends an alert to all members of the <span
+                class="emphasis"><em>contactgroup</em></span> linked to the service. Each member is sent the alert according to the channel described in the matching <span
+                class="emphasis"><em>contact</em></span> object.
+				</div><div
+              class="para">
+					An inheritance system allows easy sharing of a set of properties across many objects without duplicating information. Moreover, the initial configuration includes a number of standard objects; in many cases, defining now hosts, services and contacts is a simple matter of deriving from the provided generic objects. The files in <code
+                class="filename">/etc/nagios3/conf.d/</code> are a good source of information on how they work.
+				</div><div
+              class="para">
+					The Falcot Corp administrators use the following configuration:
+				</div><div
+              class="example"><a
+                id="idm140492714323472"></a><p
+                class="title"><strong>例 12.3. <code
+                    class="filename">/etc/nagios3/conf.d/falcot.cfg</code> file</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">define contact{
+    name                            generic-contact
+    service_notification_period     24x7
+    host_notification_period        24x7
+    service_notification_options    w,u,c,r
+    host_notification_options       d,u,r
+    service_notification_commands   notify-service-by-email
+    host_notification_commands      notify-host-by-email
+    register                        0 ; Template only
+}
+define contact{
+    use             generic-contact
+    contact_name    rhertzog
+    alias           Raphael Hertzog
+    email           hertzog@debian.org
+}
+define contact{
+    use             generic-contact
+    contact_name    rmas
+    alias           Roland Mas
+    email           lolando@debian.org
+}
+
+define contactgroup{
+    contactgroup_name     falcot-admins
+    alias                 Falcot Administrators
+    members               rhertzog,rmas
+}
+
+define host{
+    use                   generic-host ; Name of host template to use
+    host_name             www-host
+    alias                 www.falcot.com
+    address               192.168.0.5
+    contact_groups        falcot-admins
+    hostgroups            debian-servers,ssh-servers
+}
+define host{
+    use                   generic-host ; Name of host template to use
+    host_name             ftp-host
+    alias                 ftp.falcot.com
+    address               192.168.0.6
+    contact_groups        falcot-admins
+    hostgroups            debian-servers,ssh-servers
+}
+
+# 'check_ftp' command with custom parameters
+define command{
+    command_name          check_ftp2
+    command_line          /usr/lib/nagios/plugins/check_ftp -H $HOSTADDRESS$ -w 20 -c 30 -t 35
+}
+
+# Generic Falcot service
+define service{
+    name                  falcot-service
+    use                   generic-service
+    contact_groups        falcot-admins
+    register              0
+}
+
+# Services to check on www-host
+define service{
+    use                   falcot-service
+    host_name             www-host
+    service_description   HTTP
+    check_command         check_http
+}
+define service{
+    use                   falcot-service
+    host_name             www-host
+    service_description   HTTPS
+    check_command         check_https
+}
+define service{
+    use                   falcot-service
+    host_name             www-host
+    service_description   SMTP
+    check_command         check_smtp
+}
+
+# Services to check on ftp-host
+define service{
+    use                   falcot-service
+    host_name             ftp-host
+    service_description   FTP
+    check_command         check_ftp2
+}
+</pre></div></div><div
+              class="para">
+					This configuration file describes two monitored hosts. The first one is the web server, and the checks are made on the HTTP (80) and secure-HTTP (443) ports. Nagios also checks that an SMTP server runs on port 25. The second host is the FTP server, and the check includes making sure that a reply comes within 20 seconds. Beyond this delay, a <span
+                class="emphasis"><em>warning</em></span> is emitted; beyond 30 seconds, the alert is deemed critical. The Nagios web interface also shows that the SSH service is monitored: this comes from the hosts belonging to the <code
+                class="literal">ssh-servers</code> hostgroup. The matching standard service is defined in <code
+                class="filename">/etc/nagios3/conf.d/services_nagios2.cfg</code>.
+				</div><div
+              class="para">
+					Note the use of inheritance: an object is made to inherit from another object with the “use <em
+                class="replaceable">parent-name</em>”. The parent object must be identifiable, which requires giving it a “name <em
+                class="replaceable">identifier</em>” property. If the parent object is not meant to be a real object, but only to serve as a parent, giving it a “register 0” property tells Nagios not to consider it, and therefore to ignore the lack of some parameters that would otherwise be required.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DOCUMENTATION</em></span> List of object properties</strong></p></div></div></div><div
+                class="para">
+					A more in-depth understanding of the various ways in which Nagios can be configured can be obtained from the documentation provided by the <span
+                  class="pkg pkg">nagios3-doc</span> package. This documentation is directly accessible from the web interface, with the “Documentation” link in the top left corner. It includes a list of all object types, with all the properties they can have. It also explains how to create new plugins.
+				</div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>GOING FURTHER</em></span> Remote tests with NRPE</strong></p></div></div></div><div
+                class="para">
+					Many Nagios plugins allow checking some parameters local to a host; if many machines need these checks while a central installation gathers them, the NRPE (<span
+                  class="emphasis"><em>Nagios Remote Plugin Executor</em></span>) plugin needs to be deployed. The <span
+                  class="pkg pkg">nagios-nrpe-plugin</span> package needs to be installed on the Nagios server, and <span
+                  class="pkg pkg">nagios-nrpe-server</span> on the hosts where local tests need to run. The latter gets its configuration from <code
+                  class="filename">/etc/nagios/nrpe.cfg</code>. This file should list the tests that can be started remotely, and the IP addresses of the machines allowed to trigger them. On the Nagios side, enabling these remote tests is a simple matter of adding matching services using the new <span
+                  class="emphasis"><em>check_nrpe</em></span> command.
+				</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.automated-installation.html"><strong>上一页</strong>12.3. Automated Installation</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上一级</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>起始页</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="workstation.html"><strong>下一页</strong>第 13 章 工作站</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.monitoring.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.monitoring.html">da-DK</a></li><li><a
+              href="../de-DE/sect.monitoring.html">de-DE</a></li><li><a
+              href="../el-GR/sect.monitoring.html">el-GR</a></li><li><a
+              href="../en-US/sect.monitoring.html">en-US</a></li><li><a
+              href="../es-ES/sect.monitoring.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.monitoring.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.monitoring.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.monitoring.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.monitoring.html">id-ID</a></li><li><a
+              href="../it-IT/sect.monitoring.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.monitoring.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.monitoring.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.monitoring.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.monitoring.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.monitoring.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.monitoring.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.monitoring.html">zh-CN</a></li></ul></div></body></html>

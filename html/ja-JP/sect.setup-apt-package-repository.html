@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.3. APT 用のパッケージリポジトリの作成</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="バックポート, 再ビルド, ソースパッケージ, アーカイブ, メタパッケージ, Debian 開発者, メンテナ" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="第15章 Debian パッケージの作成" /><link
+        rel="prev"
+        href="sect.building-first-package.html"
+        title="15.2. 最初のパッケージのビルド" /><link
+        rel="next"
+        href="sect.becoming-package-maintainer.html"
+        title="15.4. パッケージメンテナになる" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.setup-apt-package-repository.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.building-first-package.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.becoming-package-maintainer.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.setup-apt-package-repository"></a>15.3. APT 用のパッケージリポジトリの作成</h2></div></div></div><a
+          id="idm140393304561152"
+          class="indexterm"></a><a
+          id="idm140393304560224"
+          class="indexterm"></a><div
+          class="para">
+			Falcot Corp の保守する Debian パッケージの数は次第に増えました。この中には、既存のパッケージから手元で修正したパッケージや、内部データとプログラムを配布するために最初から作成したパッケージなどがあります。
+		</div><div
+          class="para">
+			パッケージの配備を簡単にするために、管理者はこれらのパッケージを APT から直接使う事が可能なパッケージアーカイブに統合したいと思っています。明らかなメンテナンス上の理由により、管理者は内部パッケージと手元で再ビルドしたパッケージを別にしたいと思っています。目標は <code
+            class="filename">/etc/apt/sources.list</code> ファイル内のエントリを以下のようにする事です:
+		</div><pre
+          class="programlisting">
+deb http://packages.falcot.com/ updates/
+deb http://packages.falcot.com/ internal/</pre><a
+          id="idm140393304555776"
+          class="indexterm"></a><div
+          class="para">
+			このため、管理者は内部 HTTP サーバ上に仮想ホストを設定して、APT リポジトリのルートとして <code
+            class="filename">/srv/vhosts/packages/</code> を割り当てます。アーカイブ自体の管理は <code
+            class="command">mini-dinstall</code> コマンド (よく似た名前のパッケージに含まれます) に委託されます。<code
+            class="command">mini-dinstall</code> ツールは <code
+            class="filename">incoming/</code> ディレクトリ (今回の場合、<code
+            class="filename">/srv/vhosts/packages/mini-dinstall/incoming/</code>) を監視して、新しいパッケージがこのディレクトリにアップロードされる事を待ちます; パッケージがアップロードされたら、<code
+            class="filename">/srv/vhosts/packages/</code> の Debian アーカイブにインストールされます。<code
+            class="command">mini-dinstall</code> コマンドは Debian パッケージが生成された時に作成される <code
+            class="filename">*.changes</code> ファイルを読みます。<code
+            class="filename">*.changes</code> ファイルには、パッケージのバージョンに対応するその他のファイル (<code
+            class="filename">*.deb</code>、<code
+            class="filename">*.dsc</code>、<code
+            class="filename">*.diff.gz</code>/<code
+            class="filename">*.debian.tar.gz</code>、<code
+            class="filename">*.orig.tar.gz</code>、他の圧縮ツールを使った場合の同等ファイル) のリストが含まれます。これらのファイルを使うことで、<code
+            class="command">mini-dinstall</code> はインストールするファイルを把握します。さらに <code
+            class="filename">*.changes</code> ファイルの中で、最新の <code
+            class="filename">debian/changelog</code> エントリで対象ディストリビューションの名前 (通常 <code
+            class="literal">unstable</code>) が言及されています。<code
+            class="command">mini-dinstall</code> はこの情報を使ってパッケージをインストールする場所を決めます。このため、管理者はパッケージをビルドする前にこのフィールドを必ず変更し、対象パッケージを配備する場所に従ってこのフィールドを <code
+            class="literal">internal</code> または <code
+            class="literal">updates</code> に設定しなければいけません。この後、<code
+            class="command">mini-dinstall</code> は APT が必要とする <code
+            class="filename">Packages.gz</code> 等のファイルを生成します。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIVE</em></span> <code
+                      class="command">apt-ftparchive</code></strong></p></div></div></div><a
+            id="idm140393304541504"
+            class="indexterm"></a><div
+            class="para">
+			必要な Debian アーカイブが <code
+              class="command">mini-dinstall</code> の手に余るほど複雑な場合、<code
+              class="command">apt-ftparchive</code> コマンドを使う事も可能です。<code
+              class="command">apt-ftparchive</code> ツールはディレクトリの内容を走査し、一致する <code
+              class="filename">Packages</code> ファイルを (標準出力に) 表示します。Falcot Corp の場合、管理者はパッケージを直接 <code
+              class="filename">/srv/vhosts/packages/updates/</code> や <code
+              class="filename">/srv/vhosts/packages/internal/</code> にアップロードする事が可能です。その後以下のコマンドを実行して <code
+              class="filename">Packages.gz</code> ファイルを作成します:
+		</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd /srv/vhosts/packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-ftparchive packages updates &gt;updates/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>gzip updates/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-ftparchive packages internal &gt;internal/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>gzip internal/Packages</code></strong></pre><div
+            class="para">
+			<code
+              class="command">apt-ftparchive sources</code> コマンドを使えば、同様の方法で <code
+              class="filename">Sources.gz</code> ファイルを作成する事が可能です。
+		</div></div><div
+          class="para">
+			<code
+            class="command">mini-dinstall</code> を設定するには、<code
+            class="filename">~/.mini-dinstall.conf</code> ファイルのセットアップが必要です; Falcot Corp の場合、内容は以下の通りです。
+		</div><pre
+          class="programlisting">
+[DEFAULT]
+archive_style = flat
+archivedir = /srv/vhosts/packages
+
+verify_sigs = 0
+mail_to = admin@falcot.com
+
+generate_release = 1
+release_origin = Falcot Corp
+release_codename = stable
+
+[updates]
+release_label = Recompiled Debian Packages
+
+[internal]
+release_label = Internal Packages</pre><div
+          class="para">
+			各アーカイブに対して <code
+            class="filename">Release</code> ファイルを作成することに決めた点は注目に値します。こうすることで、<code
+            class="filename">/etc/apt/preferences</code> 設定ファイルを使ってパッケージインストール優先度を管理することに役立ちます (詳細は<a
+            class="xref"
+            href="sect.apt-get.html#sect.apt.priorities">「パッケージ優先度の管理」</a>参照)。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SECURITY</em></span> <code
+                      class="command">mini-dinstall</code> とパーミッション</strong></p></div></div></div><div
+            class="para">
+			<code
+              class="command">mini-dinstall</code> は標準的なユーザとして実行されるように設計されています。root で実行される必要はありません。最も簡単な方法は Debian パッケージ作成担当の管理者グループに所属するユーザアカウント内ですべてを設定する事です。Debian パッケージ作成担当の管理者だけに <code
+              class="filename">incoming/</code> ディレクトリにファイルを追加するのに必要なパーミッションを持たせた場合、パッケージを追加する前に各パッケージの出自の確認は済んでいると考えられますし、<code
+              class="command">mini-dinstall</code> を使って再度パッケージの出自を再確認する必要も無くなります。このため、パラメータ <code
+              class="literal">verify_sigs = 0</code> が設定されています (これは <code
+              class="command">mini-dinstall</code> が署名を確認する必要がない事を意味します)。しかしながら、パッケージの内容が機密に関わるものであれば、この設定を逆にして、パッケージ作成担当者の公開鍵を含む鍵束 (<code
+              class="literal">extra_keyrings</code> パラメータを使って設定されます) を使ってパッケージの出自を確認するように設定する事が可能です; このように設定した場合、<code
+              class="command">mini-dinstall</code> は <code
+              class="filename">*.changes</code> ファイルに統合された署名を解析することによってアップロードされた各パッケージの出自を確認します。
+		</div></div><div
+          class="para">
+			<code
+            class="command">mini-dinstall</code> を実行すると、バックグラウンドでデーモンが開始されます。<code
+            class="command">mini-dinstall</code> デーモンが実行されている限り、デーモンは 30 分毎に <code
+            class="filename">incoming/</code> ディレクトリにアップロードされた新しいパッケージを確認します; 新しいパッケージがアップロードされると、パッケージはアーカイブに移動され、適切な <code
+            class="filename">Packages.gz</code> と <code
+            class="filename">Sources.gz</code> ファイルが再生成されます。デーモンの実行に問題がある場合、<code
+            class="filename">incoming/</code> ディレクトリにパッケージをアップロードしたら毎回、手作業で <code
+            class="command">mini-dinstall</code> をバッチモードで実行します (<code
+            class="literal">-b</code> オプションを付けます)。<code
+            class="command">mini-dinstall</code> 他の使い方は <span
+            class="citerefentry"><span
+              class="refentrytitle">mini-dinstall</span>(1)</span> マニュアルページで説明されています。
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>EXTRA</em></span> 署名済みアーカイブの生成</strong></p></div></div></div><div
+            class="para">
+			APT スイートは対象のパッケージをインストールする前にそのパッケージに含まれる一連の暗号署名を確認し (<span
+              class="distribution distribution">Etch</span> 以降、APT は署名を確認するようになりました)、そのパッケージの信頼性を確かめます (<a
+              class="xref"
+              href="sect.package-authentication.html">「パッケージ信頼性の確認」</a>参照)。この挙動はプライベート APT アーカイブにとって問題です。なぜなら、プライベート APT アーカイブを使うマシンでは署名されていないパッケージに関する警告が表示され続けるからです。真面目な管理者は安全な APT メカニズムを使ってプライベート APT アーカイブを統合するでしょう。
+		</div><div
+            class="para">
+			この作業を助けるために、<code
+              class="command">mini-dinstall</code> には、署名の生成に使うスクリプトを指定する <code
+              class="literal">release_signscript</code> 設定オプションが含まれます。<span
+              class="pkg pkg">mini-dinstall</span> パッケージによって提供された <code
+              class="filename">/usr/share/doc/mini-dinstall/examples/</code> 内に含まれる <code
+              class="filename">sign-release.sh</code> スクリプトが良い足掛かりとなるでしょう; 手元で修正が必要かもしれません。
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.building-first-package.html"><strong>戻る</strong>15.2. 最初のパッケージのビルド</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.becoming-package-maintainer.html"><strong>次へ</strong>15.4. パッケージメンテナになる</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.setup-apt-package-repository.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.setup-apt-package-repository.html">da-DK</a></li><li><a
+              href="../de-DE/sect.setup-apt-package-repository.html">de-DE</a></li><li><a
+              href="../el-GR/sect.setup-apt-package-repository.html">el-GR</a></li><li><a
+              href="../en-US/sect.setup-apt-package-repository.html">en-US</a></li><li><a
+              href="../es-ES/sect.setup-apt-package-repository.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.setup-apt-package-repository.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.setup-apt-package-repository.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.setup-apt-package-repository.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.setup-apt-package-repository.html">id-ID</a></li><li><a
+              href="../it-IT/sect.setup-apt-package-repository.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.setup-apt-package-repository.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.setup-apt-package-repository.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.setup-apt-package-repository.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.setup-apt-package-repository.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.setup-apt-package-repository.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.setup-apt-package-repository.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.setup-apt-package-repository.html">zh-CN</a></li></ul></div></body></html>

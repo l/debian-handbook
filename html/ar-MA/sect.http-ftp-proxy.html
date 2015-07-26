@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.6. بروكسي HTTP/FTP</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="network-services.html"
+        title="فصل 11. خدمات الشبكة: Postfix،‏ Apache،‏ NFS،‏ Samba،‏ Squid،‏ LDAP" /><link
+        rel="prev"
+        href="sect.windows-file-server-with-samba.html"
+        title="11.5. إعداد مشاركات ويندوز باستخدام سامبا" /><link
+        rel="next"
+        href="sect.ldap-directory.html"
+        title="11.7. دليل LDAP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.http-ftp-proxy.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.windows-file-server-with-samba.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ldap-directory.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.http-ftp-proxy"></a>11.6. بروكسي HTTP/FTP</h2></div></div></div><div
+          class="para">
+			يعمل بروكسي HTTP/FTP كوسيط في اتصالات HTTP و (أو) FTP. يتمثل دور البروكسي في جزأين:
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					التخبئة (Caching): تخزين نسخ من الملفات الأخيرة المسحوبة من الإنترنت محلياً، لتفادي تنزيلها عدة مرات.
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					الترشيح: إذا كان العميل مجبراً على استخدام البروكسي (وكانت الاتصالات الخارجة ممنوعة إلا إذا مَرَّت عبر البروكسي)، عندها يستطيع البروكسي التحكم بمنع الطلبات أو السماح بتنفيذها.
+				</div></li></ul></div><a
+          id="idm140225821789664"
+          class="indexterm"></a><a
+          id="idm140225821788896"
+          class="indexterm"></a><div
+          class="para">
+			اختارت شركة فلكوت Squid كمخدم بروكسي.
+		</div><a
+          id="idm140225821787664"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821786896"></a>11.6.1. التثبيت</h3></div></div></div><div
+            class="para">
+				The <span
+              class="pkg pkg">squid3</span> Debian package only contains the modular (caching) proxy. Turning it into a filtering server requires installing the additional <span
+              class="pkg pkg">squidguard</span> package. In addition, <span
+              class="pkg pkg">squid-cgi</span> provides a querying and administration interface for a Squid proxy.
+			</div><div
+            class="para">
+				قبل التثبيت، يجب الانتباه إلى التحقق من أن النظام يستطيع التعرّف على اسمه الكامل: يجب أن يعيد الأمر <code
+              class="command">hostname -f</code> اسماً كامل التوصيف fully-qualified (أي يتضمن اسم نطاق). إذا لم يُعِد ذلك، يجب تعديل الملف <code
+              dir="ltr"
+              class="filename">/etc/hosts</code> حتى يحوي الاسم الكامل للنظام (مثلاً، <code
+              class="literal">arrakis.falcot.com</code>). يجب التحقق من الاسم الرسمي للحاسوب مع مدير الشبكة لتفادي أي تضاربات.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821781264"></a>11.6.2. إعداد خدمة التخبئة</h3></div></div></div><div
+            class="para">
+				Enabling the caching server feature is a simple matter of editing the <code
+              class="filename">/etc/squid3/squid.conf</code> configuration file and allowing machines from the local network to run queries through the proxy. The following example shows the modifications made by the Falcot Corp administrators:
+			</div><div
+            class="example"><a
+              id="idm140225821779552"></a><p
+              class="title"><strong>مثال 11.30. The <code
+                  class="filename">/etc/squid3/squid.conf</code> file (excerpts)</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+
+# Example rule allowing access from your local networks. Adapt
+# to list your (internal) IP networks from where browsing should
+# be allowed
+acl our_networks src 192.168.1.0/24 192.168.2.0/24
+http_access allow our_networks
+http_access allow localhost
+# And finally deny all other access to this proxy
+http_access deny all
+</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225821777488"></a>11.6.3. إعداد خدمة الترشيح</h3></div></div></div><div
+            class="para">
+				<code
+              class="command">squid</code> نفسه لا يقدم خدمة الترشيح؛ بل يوكّل <code
+              class="command">squidGuard</code> بهذا العمل. يجب إعداد الأول حتى يتعامل مع الثاني. هذا يشمل إضافة التعليمة التوجيهية التالية إلى الملف <code
+              dir="ltr"
+              class="filename">/etc/squid/squid.conf</code>:
+			</div><a
+            id="idm140225821774784"
+            class="indexterm"></a><pre
+            class="programlisting">
+redirect_program /usr/bin/squidGuard -c /etc/squid/squidGuard.conf
+</pre><div
+            class="para">
+				كما يجب تثبيت برنامج CGI التالي أيضاً: <code
+              dir="ltr"
+              class="filename">/usr/lib/cgi-bin/squidGuard.cgi</code>، باستخدام <code
+              dir="ltr"
+              class="filename">/usr/share/doc/squidguard/examples/squidGuard.cgi.gz</code> كنقطة انطلاق. التعديلات المطلوبة على هذا السكربت هي المتغيرات <code
+              dir="ltr"
+              class="varname">$proxy</code> و<code
+              dir="ltr"
+              class="varname">$proxymaster</code> (اسم البروكسي والبريد الإلكتروني للتواصل مع مدير النظام). أما المتغيران <code
+              dir="ltr"
+              class="varname">$image</code> و<code
+              dir="ltr"
+              class="varname">$redirect</code> فيجب أن يشيرا إلى صور متاحة لاستخدامها للتعبير عن رفض الطلب.
+			</div><div
+            class="para">
+				يُفعّل المرشح بالأمر <code
+              dir="ltr"
+              class="command">/etc/init.d/squid reload</code>. لكن بما أن الحزمة <span
+              class="pkg pkg">squidguard</span> لا ترشّح أي شيء افتراضياً، فعلى مدير النظام تحديد سياسة الترشيح. يكون ذلك عبر إنشاء الملف <code
+              dir="ltr"
+              class="filename">/etc/squid/squidGuard.conf</code> (باستخدام القالب <code
+              dir="ltr"
+              class="filename">/etc/squidguard/squidGuard.conf.default</code> إذا اقتضت الحاجة).
+			</div><div
+            class="para">
+				يجب إعادة توليد قاعدة بيانات العمل باستخدام <code
+              class="command">update-squidguard</code> بعد كل تعديل على ملف ضبط <code
+              class="command">squidGuard</code> (أو تعديل إحدى قوائم النطافات أو عناوين URL التي يحويها). صيغة ملف الضبط موثّقة على الموقع التالي: <div
+              class="url">→ <a
+                href="http://www.squidguard.org/Doc/configure.html">http://www.squidguard.org/Doc/configure.html</a></div>
+			</div><a
+            id="idm140225821763568"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>بدائل</em></span> DansGuardian</strong></p></div></div></div><a
+              id="idm140225821761776"
+              class="indexterm"></a><a
+              id="idm140225821760640"
+              class="indexterm"></a><div
+              class="para">
+				الحزمة <span
+                class="pkg pkg">dansguardian</span> هي بديلة للحزمة <span
+                class="emphasis"><em>squidguard</em></span>. هذا البرنامج لا يعتمد ببساطة على قائمة سوداء بالعناوين المحظورة، بل يستطيع الاستفادة من نظام PICS ‏(<span
+                class="emphasis"><em>Platform for Internet Content Selection</em></span> منصة انتقاء محتوى الإنترنت) ليقرر إذا كانت الصفحة مقبولة اعتماداً على التحليل الديناميكي لمحتوياتها.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.windows-file-server-with-samba.html"><strong>السابق</strong>11.5. إعداد مشاركات ويندوز باستخدام سامبا</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ldap-directory.html"><strong>التالي</strong>11.7. دليل LDAP</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.http-ftp-proxy.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.http-ftp-proxy.html">da-DK</a></li><li><a
+              href="../de-DE/sect.http-ftp-proxy.html">de-DE</a></li><li><a
+              href="../el-GR/sect.http-ftp-proxy.html">el-GR</a></li><li><a
+              href="../en-US/sect.http-ftp-proxy.html">en-US</a></li><li><a
+              href="../es-ES/sect.http-ftp-proxy.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.http-ftp-proxy.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.http-ftp-proxy.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.http-ftp-proxy.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.http-ftp-proxy.html">id-ID</a></li><li><a
+              href="../it-IT/sect.http-ftp-proxy.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.http-ftp-proxy.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.http-ftp-proxy.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.http-ftp-proxy.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.http-ftp-proxy.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.http-ftp-proxy.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.http-ftp-proxy.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.http-ftp-proxy.html">zh-CN</a></li></ul></div></body></html>

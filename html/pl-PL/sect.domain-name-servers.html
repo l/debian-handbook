@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.6. Domain Name Servers (DNS)</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pl-PL-1.0-1" /><meta
+        name="keywords"
+        content="Network, Gateway, TCP/IP, IPv6, DNS, Bind, DHCP, QoS" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="Rozdział 10. Network Infrastructure" /><link
+        rel="prev"
+        href="sect.ipv6.html"
+        title="10.5. IPv6" /><link
+        rel="next"
+        href="sect.dhcp.html"
+        title="10.7. DHCP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pl-PL/sect.domain-name-servers.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ipv6.html"><strong>Poprzedni</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dhcp.html"><strong>Następny</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.domain-name-servers"></a>10.6. Domain Name Servers (DNS)</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dns-principe"></a>10.6.1. Principle and Mechanism</h3></div></div></div><a
+            id="idm140501359253376"
+            class="indexterm"></a><a
+            id="idm140501359252416"
+            class="indexterm"></a><div
+            class="para">
+				The <span
+              class="emphasis"><em>Domain Name Service</em></span> (DNS) is a fundamental component of the Internet: it maps host names to IP addresses (and vice-versa), which allows the use of <code
+              class="literal">www.debian.org</code> instead of <code
+              class="literal">5.153.231.4</code> or <code
+              class="literal">2001:41c8:1000:21::21:4</code>.
+			</div><div
+            class="para">
+				DNS records are organized in zones; each zone matches either a domain (or a subdomain) or an IP address range (since IP addresses are generally allocated in consecutive ranges). A primary server is authoritative on the contents of a zone; secondary servers, usually hosted on separate machines, provide regularly refreshed copies of the primary zone.
+			</div><a
+            id="idm140501359247648"
+            class="indexterm"></a><a
+            id="idm140501359246208"
+            class="indexterm"></a><div
+            class="para">
+				Each zone can contain records of various kinds (<span
+              class="emphasis"><em>Resource Records</em></span>):
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">A</code>: IPv4 address. <a
+                    id="idm140501359242400"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">CNAME</code>: alias (<span
+                    class="emphasis"><em>canonical name</em></span>). <a
+                    id="idm140501359239840"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MX</code>: <span
+                    class="emphasis"><em>mail exchange</em></span>, an email server. This information is used by other email servers to find where to send email addressed to a given address. Each MX record has a priority. The highest-priority server (with the lowest number) is tried first (see sidebar <a
+                    class="xref"
+                    href="network-services.html#sidebar.smtp"><span
+                      class="emphasis"><em>WRACAJĄC DO PODSTAW</em></span> SMTP</a>); other servers are contacted in order of decreasing priority if the first one does not reply. <a
+                    id="idm140501359236352"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PTR</code>: mapping of an IP address to a name. Such a record is stored in a “reverse DNS” zone named after the IP address range. For example, <code
+                    class="literal">1.168.192.in-addr.arpa</code> is the zone containing the reverse mapping for all addresses in the <code
+                    class="literal">192.168.1.0/24</code> range. <a
+                    id="idm140501359232816"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">AAAA</code>: IPv6 address. <a
+                    id="idm140501359230736"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">NS</code>: maps a name to a name server. Each domain must have at least one NS record. These records point at a DNS server that can answer queries concerning this domain; they usually point at the primary and secondary servers for the domain. These records also allow DNS delegation; for instance, the <code
+                    class="literal">falcot.com</code> zone can include an NS record for <code
+                    class="literal">internal.falcot.com</code>, which means that the <code
+                    class="literal">internal.falcot.com</code> zone is handled by another server. Of course, this server must declare an <code
+                    class="literal">internal.falcot.com</code> zone. <a
+                    id="idm140501359226528"
+                    class="indexterm"></a>
+					</div></li></ul></div><a
+            id="idm140501359225408"
+            class="indexterm"></a><a
+            id="idm140501359223968"
+            class="indexterm"></a><div
+            class="para">
+				The reference name server, Bind, was developed and is maintained by ISC (<span
+              class="emphasis"><em>Internet Software Consortium</em></span>). It is provided in Debian by the <span
+              class="pkg pkg">bind9</span> package. Version 9 brings two major changes compared to previous versions. First, the DNS server can now run under an unprivileged user, so that a security vulnerability in the server does not grant root privileges to the attacker (as was seen repeatedly with versions 8.x).
+			</div><div
+            class="para">
+				Furthermore, Bind supports the DNSSEC standard for signing (and therefore authenticating) DNS records, which allows blocking any spoofing of this data during man-in-the-middle attacks.
+			</div><a
+            id="idm140501359220432"
+            class="indexterm"></a><a
+            id="idm140501359219008"
+            class="indexterm"></a><a
+            id="idm140501359218048"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> DNSSEC</strong></p></div></div></div><a
+              id="idm140501359216000"
+              class="indexterm"></a><div
+              class="para">
+				The DNSSEC norm is quite complex; this partly explains why it's not in widespread usage yet (even if it perfectly coexists with DNS servers unaware of DNSSEC). To understand all the ins and outs, you should check the following article. <div
+                class="url">→ <a
+                  href="http://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions">http://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions</a></div>
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dns-config"></a>10.6.2. Configuring</h3></div></div></div><div
+            class="para">
+				Configuration files for <code
+              class="command">bind</code>, irrespective of version, have the same structure.
+			</div><div
+            class="para">
+				The Falcot administrators created a primary <code
+              class="literal">falcot.com</code> zone to store information related to this domain, and a <code
+              class="literal">168.192.in-addr.arpa</code> zone for reverse mapping of IP addresses in the local networks.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAUTION</em></span> Names of reverse zones</strong></p></div></div></div><a
+              id="idm140501359208352"
+              class="indexterm"></a><a
+              id="idm140501359206912"
+              class="indexterm"></a><a
+              id="idm140501359205952"
+              class="indexterm"></a><a
+              id="idm140501359204832"
+              class="indexterm"></a><a
+              id="idm140501359203712"
+              class="indexterm"></a><div
+              class="para">
+				Reverse zones have a particular name. The zone covering the <code
+                class="literal">192.168.0.0/16</code> network needs to be named <code
+                class="literal">168.192.in-addr.arpa</code>: the IP address components are reversed, and followed by the <code
+                class="literal">in-addr.arpa</code> suffix.
+			</div><div
+              class="para">
+				For IPv6 networks, the suffix is <code
+                class="literal">ip6.arpa</code> and the IP address components which are reversed are each character in the full hexadecimal representation of the IP address. As such, the <code
+                class="literal">2001:0bc8:31a0::/48</code> network would use a zone named <code
+                class="literal">0.a.1.3.8.c.b.0.1.0.0.2.ip6.arpa</code>.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> Testing the DNS server</strong></p></div></div></div><div
+              class="para">
+				The <code
+                class="command">host</code> command (in the <span
+                class="pkg pkg">bind9-host</span> package) queries a DNS server, and can be used to test the server configuration. For example, <code
+                class="command">host machine.falcot.com localhost</code> checks the local server's reply for the <code
+                class="literal">machine.falcot.com</code> query. <code
+                class="command">host <em
+                  class="replaceable">ipaddress</em> localhost</code> tests the reverse resolution.
+			</div><a
+              id="idm140501359193888"
+              class="indexterm"></a></div><div
+            class="para">
+				The following configuration excerpts, taken from the Falcot files, can serve as starting points to configure a DNS server:
+			</div><a
+            id="idm140501359192016"
+            class="indexterm"></a><a
+            id="idm140501359190896"
+            class="indexterm"></a><div
+            class="example"><a
+              id="example.bind-named.conf.local"></a><p
+              class="title"><strong>Przykład 10.12. Excerpt of <code
+                  class="filename">/etc/bind/named.conf.local</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+zone "falcot.com" {
+        type master;
+        file "/etc/bind/db.falcot.com";
+        allow-query { any; };
+        allow-transfer {
+                195.20.105.149/32 ; // ns0.xname.org
+                193.23.158.13/32 ; // ns1.xname.org
+        };
+};
+
+zone "internal.falcot.com" {
+        type master;
+        file "/etc/bind/db.internal.falcot.com";
+        allow-query { 192.168.0.0/16; };
+};
+
+zone "168.192.in-addr.arpa" {
+        type master;
+        file "/etc/bind/db.192.168";
+        allow-query { 192.168.0.0/16; };
+};
+</pre></div></div><div
+            class="example"><a
+              id="example.bind-db.falcot.com"></a><p
+              class="title"><strong>Przykład 10.13. Excerpt of <code
+                  class="filename">/etc/bind/db.falcot.com</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">; falcot.com Zone 
+; admin.falcot.com. =&gt; zone contact: admin@falcot.com
+$TTL    604800
+@       IN      SOA     falcot.com. admin.falcot.com. (
+                        20040121        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+; The @ refers to the zone name ("falcot.com" here)
+; or to $ORIGIN if that directive has been used
+;
+@       IN      NS      ns
+@       IN      NS      ns0.xname.org.
+
+internal IN      NS      192.168.0.2
+
+@       IN      A       212.94.201.10
+@       IN      MX      5 mail
+@       IN      MX      10 mail2
+
+ns      IN      A       212.94.201.10
+mail    IN      A       212.94.201.10
+mail2   IN      A       212.94.201.11
+www     IN      A       212.94.201.11
+
+dns     IN      CNAME   ns
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAUTION</em></span> Syntax of a name</strong></p></div></div></div><div
+              class="para">
+				The syntax of machine names follows strict rules. For instance, <code
+                class="literal">machine</code> implies <code
+                class="literal">machine.<em
+                  class="replaceable">domain</em></code>. If the domain name should not be appended to a name, said name must be written as <code
+                class="literal">machine.</code> (with a dot as suffix). Indicating a DNS name outside the current domain therefore requires a syntax such as <code
+                class="literal">machine.otherdomain.com.</code> (with the final dot).
+			</div></div><div
+            class="example"><a
+              id="example.bind-db.192.168"></a><p
+              class="title"><strong>Przykład 10.14. Excerpt of <code
+                  class="filename">/etc/bind/db.192.168</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">; Reverse zone for 192.168.0.0/16
+; admin.falcot.com. =&gt; zone contact: admin@falcot.com
+$TTL    604800
+@       IN      SOA     ns.internal.falcot.com. admin.falcot.com. (
+                        20040121        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+
+        IN      NS      ns.internal.falcot.com.
+
+; 192.168.0.1 -&gt; arrakis
+1.0     IN      PTR     arrakis.internal.falcot.com.
+; 192.168.0.2 -&gt; neptune
+2.0     IN      PTR     neptune.internal.falcot.com.
+
+; 192.168.3.1 -&gt; pau
+1.3     IN      PTR     pau.internal.falcot.com.
+</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ipv6.html"><strong>Poprzedni</strong>10.5. IPv6</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Początek rozdziału</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Spis treści</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dhcp.html"><strong>Następny</strong>10.7. DHCP</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.domain-name-servers.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.domain-name-servers.html">da-DK</a></li><li><a
+              href="../de-DE/sect.domain-name-servers.html">de-DE</a></li><li><a
+              href="../el-GR/sect.domain-name-servers.html">el-GR</a></li><li><a
+              href="../en-US/sect.domain-name-servers.html">en-US</a></li><li><a
+              href="../es-ES/sect.domain-name-servers.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.domain-name-servers.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.domain-name-servers.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.domain-name-servers.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.domain-name-servers.html">id-ID</a></li><li><a
+              href="../it-IT/sect.domain-name-servers.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.domain-name-servers.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.domain-name-servers.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.domain-name-servers.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.domain-name-servers.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.domain-name-servers.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.domain-name-servers.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.domain-name-servers.html">zh-CN</a></li></ul></div></body></html>

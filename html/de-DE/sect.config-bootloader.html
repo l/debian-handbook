@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.8. Den Boot-Loader konfigurieren</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Konfigurierung, Lokalisierung, Sprachumgebungen, Netzwerk, Namensauflösung, Benutzer, Gruppen, Benutzerkonten, Befehlszeileninterpreter, Shell, Drucken, Boot-Loader, Kernel-Kompilierung" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="Kapitel 8. Basis-Konfigurierung: Netzwerk, Benutzerkonten, Drucken..." /><link
+        rel="prev"
+        href="sect.config-printing.html"
+        title="8.7. Druckereinrichtung" /><link
+        rel="next"
+        href="sect.config-misc.html"
+        title="8.9. Weitere Konfigurationen: Zeitsynchronisation, Protokolle, Gemeinsamer Zugang…" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.config-bootloader.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-printing.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.config-misc.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.config-bootloader"></a>8.8. Den Boot-Loader konfigurieren</h2></div></div></div><a
+          id="idm139686928989456"
+          class="indexterm"></a><a
+          id="idm139686928988016"
+          class="indexterm"></a><div
+          class="para">
+			Er funktioniert wahrscheinlich schon, aber trotzdem ist es immer empfehlenswert zu wissen, wie der Boot-Loader konfiguriert und installiert wird für den Fall, dass er aus dem Master Boot Record verschwindet. Dies kann nach der Installierung eines anderen Betriebssystems, wie zum Beispiel Windows, passieren. Die folgenden Informationen können auch dabei helfen, die Konfiguration des Boot-Loaders, falls nötig, zu verändern.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ZURÜCK ZU DEN GRUNDLAGEN</em></span> Master Boot Record</strong></p></div></div></div><a
+            id="idm139686928985072"
+            class="indexterm"></a><a
+            id="idm139686928984112"
+            class="indexterm"></a><div
+            class="para">
+			Der Master Boot Record (MBR) belegt die ersten 512 Bytes der ersten Festplatte und ist die erste Sache, die vom BIOS geladen wird, um die Kontrolle an ein Programm zu übergeben, das in der Lage ist, das gewünschte Betriebssystem hochzufahren. Im allgemeinen wird der Boot-Loader in den MBR installiert und damit sein bisheriger Inhalt überschrieben.
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.identify-disks"></a>8.8.1. Die Festplatten kennzeichnen</h3></div></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>KULTUR</em></span> <span
+                        class="emphasis"><em>udev</em></span> und <code
+                        class="filename">/dev/</code></strong></p></div></div></div><div
+              class="para">
+				Traditionell enthält das Verzeichnis <code
+                class="filename">/dev/</code> sogenannte „spezielle“ (Geräte-)Dateien, die dazu dienten, Peripheriegeräte des Systems zu darzustellen (siehe <a
+                class="xref"
+                href="sect.creating-accounts.html#sidebar.special-files"><span
+                  class="emphasis"><em>ZURÜCK ZU DEN GRUNDLAGEN</em></span> Zugriffsberechtigungen für Geräte</a> in der Seitenleiste). Früher enthielt es alle möglicherweise benötigten Gerätedateien. Dieser Ansatz hat eine ganze Reihe von Nachteilen, wobei die Tatsache, dass die Anzahl der Geräte, die man nutzen konnte, (aufgrund der hart verdrahteten Namen in der Liste) beschränkt war und weil man nicht wissen konnte, welche Gerätedateien gebraucht würden.
+			</div><div
+              class="para">
+				Heute ist die Verwaltung der Gerätedateien vollständig dynamisch und passt besser zur "Hot-Swap"-Eigenschaft von Peripheriegeräten. Der Kernel kooperiert mit <span
+                class="emphasis"><em>udev</em></span> um sie zu erzeugen und zu entfernen, wenn die jeweiligen Geräte angeschlossen oder entfernt werden. Aus diesem Grund muss <code
+                class="filename">/dev/</code> nicht persistent (dauerhaft) sein und ist deshalb ein anfänglich leeres RAM-Dateisystem, das nur die benötigten Elementen enthält.
+			</div><div
+              class="para">
+				The kernel communicates lots of information about any newly added device and hands out a pair of major/minor numbers to identify it. With this <code
+                class="command">udevd</code> can create the special file under the name and with the permissions that it wants. It can also create aliases and perform additional actions (such as initialization or registration tasks). <code
+                class="command">udevd</code>'s behavior is driven by a large set of (customizable) rules.
+			</div><div
+              class="para">
+				Mit dynamisch zugewiesenen Namen kann man den selben Namen für ein bestimmtes Gerät beibehalten, egal welcher Anschluss in welcher Reihenfolge verwendet wird, was gerade bei Verwendung verschiedener USB-Geräte besonders hilfreich ist. Die erste Partition auf der ersten Festplatte kann dann <code
+                class="filename">/dev/sda1</code> benannt werden, um rückwärts kompatibel zu sein, oder <code
+                class="filename">/dev/root-partition</code> wenn gewünscht oder gar beides zur selben Zeit, da <code
+                class="command">udevd</code> so konfiguriert werden kann, dass eine symbolische Verknüpfung angelegt wird.
+			</div><div
+              class="para">
+				In ancient times, some kernel modules did automatically load when you tried to access the corresponding device file. This is no longer the case, and the peripheral's special file no longer exists prior to loading the module; this is no big deal, since most modules are loaded on boot thanks to automatic hardware detection. But for undetectable peripherals (such as very old disk drives or PS/2 mice), this doesn't work. Consider adding the modules, <code
+                class="literal">floppy</code>, <code
+                class="literal">psmouse</code> and <code
+                class="literal">mousedev</code> to <code
+                class="filename">/etc/modules</code> in order to force loading them on boot.
+			</div></div><a
+            id="idm139686930006912"
+            class="indexterm"></a><a
+            id="idm139686930005952"
+            class="indexterm"></a><div
+            class="para">
+				Configuration of the bootloader must identify the different hard drives and their partitions. Linux uses “block” special files stored in the <code
+              class="filename">/dev/</code> directory, for this purpose. Since Debian <span
+              class="distribution distribution">Squeeze</span>, the naming scheme for hard drives has been unified by the Linux kernel, and all hard drives (IDE/PATA, SATA, SCSI, USB, IEEE 1394) are now represented by <code
+              class="filename">/dev/sd*</code>.
+			</div><div
+            class="para">
+				Jede Partition wird durch ihre Nummer auf der Platte, auf der sie liegt, dargestellt: so ist zum Beispiel <code
+              class="filename">/dev/sda1</code> die erste Partition auf der ersten Platte, und <code
+              class="filename">/dev/sdb3</code> ist die dritte Partition auf der zweiten Platte.
+			</div><a
+            id="idm139686930000688"
+            class="indexterm"></a><a
+            id="idm139686929999248"
+            class="indexterm"></a><a
+            id="idm139686929997808"
+            class="indexterm"></a><a
+            id="idm139686929996368"
+            class="indexterm"></a><div
+            class="para">
+				The PC architecture (or “i386”, including its younger cousin “amd64”) has long been limited to using the “MS-DOS” partition table format, which only allows four “primary” partitions per disk. To go beyond this limitation under this scheme, one of them has to be created as an “extended” partition, and it can then contain additional “secondary” partitions. These secondary partitions are numbered from 5. Thus the first secondary partition could be <code
+              class="filename">/dev/sda5</code>, followed by <code
+              class="filename">/dev/sda6</code>, etc.
+			</div><div
+            class="para">
+				Another restriction of the MS-DOS partition table format is that it only allows disks up to 2 TiB in size, which is becoming less and less of a theoretical problem.
+			</div><a
+            id="idm139686929992384"
+            class="indexterm"></a><a
+            id="idm139686929990944"
+            class="indexterm"></a><div
+            class="para">
+				A new partition table format called GPT loosens these constraints on the number of partitions (it allows up to 128 partitions when using standard settings) and on the size of the disks (up to 8 ZiB, which is more than 8 billion terabytes). If you intend to create many physical partitions on the same disk, you should therefore ensure you're creating the partition table in the GPT format when partitioning your disk.
+			</div><div
+            class="para">
+				Es ist nicht immer leicht sich zu merken, welche Platte mit welchem SATA-Controller verbunden ist, oder welche in der SCSI-Kette an dritter Position steht, vor allem, da sich die Benennung von im laufenden Betrieb austauschbaren Festplatten (zu denen unter anderem die meisten SATA-Platten und externen Platten gehören) von einem Hochfahren zum nächsten ändern kann. Zum Glück erstellt <code
+              class="command">udev</code> zusätzlich zu <code
+              class="filename">/dev/sd*</code> symbolische Verknüpfungen mit festen Namen, die man dann verwenden kann, wenn man eine Festplatte unmissverständlich kennzeichnen möchte. Diese symbolischen Verknüpfungen sind in der Datei <code
+              class="filename">/dev/disk/by-id</code> gespeichert. Auf einem Rechner mit zwei physischen Platten könnte man zum Beispiel folgendes finden:
+			</div><pre
+            class="screen">mirexpress:/dev/disk/by-id# <code
+              class="computeroutput"></code><strong
+              class="userinput"><code>ls -l</code></strong><code
+              class="computeroutput">
+total 0
+lrwxrwxrwx 1 root root  9 23 jul. 08:58 ata-STM3500418AS_9VM3L3KP -&gt; ../../sda
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 ata-STM3500418AS_9VM3L3KP-part1 -&gt; ../../sda1
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 ata-STM3500418AS_9VM3L3KP-part2 -&gt; ../../sda2
+[...]
+lrwxrwxrwx 1 root root  9 23 jul. 08:58 ata-WDC_WD5001AALS-00L3B2_WD-WCAT00241697 -&gt; ../../sdb
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 ata-WDC_WD5001AALS-00L3B2_WD-WCAT00241697-part1 -&gt; ../../sdb1
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 ata-WDC_WD5001AALS-00L3B2_WD-WCAT00241697-part2 -&gt; ../../sdb2
+[...]
+lrwxrwxrwx 1 root root  9 23 jul. 08:58 scsi-SATA_STM3500418AS_9VM3L3KP -&gt; ../../sda
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 scsi-SATA_STM3500418AS_9VM3L3KP-part1 -&gt; ../../sda1
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 scsi-SATA_STM3500418AS_9VM3L3KP-part2 -&gt; ../../sda2
+[...]
+lrwxrwxrwx 1 root root  9 23 jul. 08:58 scsi-SATA_WDC_WD5001AALS-_WD-WCAT00241697 -&gt; ../../sdb
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 scsi-SATA_WDC_WD5001AALS-_WD-WCAT00241697-part1 -&gt; ../../sdb1
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 scsi-SATA_WDC_WD5001AALS-_WD-WCAT00241697-part2 -&gt; ../../sdb2
+[...]
+lrwxrwxrwx 1 root root  9 23 jul. 16:48 usb-LaCie_iamaKey_3ed00e26ccc11a-0:0 -&gt; ../../sdc
+lrwxrwxrwx 1 root root 10 23 jul. 16:48 usb-LaCie_iamaKey_3ed00e26ccc11a-0:0-part1 -&gt; ../../sdc1
+lrwxrwxrwx 1 root root 10 23 jul. 16:48 usb-LaCie_iamaKey_3ed00e26ccc11a-0:0-part2 -&gt; ../../sdc2
+[...]
+lrwxrwxrwx 1 root root  9 23 jul. 08:58 wwn-0x5000c50015c4842f -&gt; ../../sda
+lrwxrwxrwx 1 root root 10 23 jul. 08:58 wwn-0x5000c50015c4842f-part1 -&gt; ../../sda1
+[...]
+mirexpress:/dev/disk/by-id# </code></pre><div
+            class="para">
+				Beachten Sie, dass einige Platten mehrmals aufgeführt sind (da sie gleichzeitig als ATA-Platten und SCSI-Platten auftreten), aber die relevante Information besteht in erster Linie in den Modell- und Seriennummern der Platten, aufgrund derer man die Peripheriedatei finden kann.
+			</div><div
+            class="para">
+				Die in den folgenden Abschnitten als Beispiele benutzten Konfigurationsdateien basieren auf der gleichen Umgebung: eine einzelne SATA-Platte, auf der die erste Partition eine alte Windows-Installation, die zweite ein Debian GNU/Linux enthält.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-lilo"></a>8.8.2. LILO konfigurieren</h3></div></div></div><a
+            id="idm139686929980368"
+            class="indexterm"></a><a
+            id="idm139686929979408"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="emphasis"><em>LILO</em></span> (LInux LOader) ist der älteste Boot-Loader - solide aber derb. Er schreibt die physische Adresse des zu ladenden Kernels in den MBR, weshalb im Anschluss an jede Aktualisierung von LILO (oder seiner Konfigurationsdatei) der Befehl <code
+              class="command">lilo</code> ausgeführt werden muss. Wenn man dies vergisst, ist das System nicht mehr in der Lage hochzufahren, falls der alte Kernel entfernt oder ersetzt worden ist, da sich der neue auf der Platte nicht an derselben Stelle befindet.
+			</div><div
+            class="para">
+				LILOs Konfigurationsdatei ist <code
+              class="filename">/etc/lilo.conf</code>; eine einfache Datei für eine Standardkonfiguration ist in unten stehendem Beispiel wiedergegeben.
+			</div><div
+            class="example"><a
+              id="example.lilo.conf"></a><p
+              class="title"><strong>Beispiel 8.3. LILO-Konfigurationsdatei</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# The disk on which LILO should be installed.
+# By indicating the disk and not a partition.
+# you order LILO to be installed on the MBR.
+boot=/dev/sda
+# the partition that contains Debian
+root=/dev/sda2
+# the item to be loaded by default
+default=Linux
+
+# the most recent kernel image
+image=/vmlinuz
+  label=Linux
+  initrd=/initrd.img
+  read-only
+
+# Old kernel (if the newly installed kernel doesn't boot)
+image=/vmlinuz.old
+  label=LinuxOLD
+  initrd=/initrd.img.old
+  read-only
+  optional
+
+# only for Linux/Windows dual boot
+other=/dev/sda1
+  label=Windows
+</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-grub"></a>8.8.3. Konfigurierung von GRUB 2</h3></div></div></div><a
+            id="idm139686929971936"
+            class="indexterm"></a><a
+            id="idm139686929970976"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="emphasis"><em>GRUB</em></span> (GRand Unified Bootloader) ist neueren Datums. Man muss ihn nicht nach jeder Kernelaktualisierung aufrufen; <span
+              class="emphasis"><em>GRUB</em></span> kann die Dateisysteme lesen und die Position des Kernels auf der Platte selbst finden. Um ihn in den MBR der ersten Platte zu installieren, geben Sie einfach <code
+              class="command">grub-install /dev/sda</code> ein. <a
+              id="idm139686929968016"
+              class="indexterm"></a>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>HINWEIS</em></span> Plattennamen für GRUB</strong></p></div></div></div><div
+              class="para">
+				GRUB can only identify hard drives based on information provided by the BIOS. <code
+                class="literal">(hd0)</code> corresponds to the first disk thus detected, <code
+                class="literal">(hd1)</code> the second, etc. In most cases, this order corresponds exactly to the usual order of disks under Linux, but problems can occur when you associate SCSI and IDE disks. GRUB stores correspondences that it detects in the file <code
+                class="filename">/boot/grub/device.map</code>. If you find errors there (because you know that your BIOS detects drives in a different order), correct them manually and run <code
+                class="command">grub-install</code> again. <code
+                class="command">grub-mkdevicemap</code> can help creating a <code
+                class="filename">device.map</code> file from which to start.
+			</div><div
+              class="para">
+				Partitionen haben in GRUB ebenfalls besondere Namen. Wenn Sie „klassische“ Partitionen im MS-DOS-Format verwenden, wird die erste Partition auf der ersten Platte als <code
+                class="literal">(hd0,msdos1)</code> gekennzeichnet, die zweite als <code
+                class="literal">(hd0,msdos2)</code> usw.
+			</div></div><div
+            class="para">
+				Die Konfiguration von GRUB 2 ist in <code
+              class="filename">/boot/grub/grub.cfg</code> gespeichert, aber diese Datei wird (in Debian) aus anderen erzeugt. Achten Sie daher darauf, sie nicht von Hand zu verändern, da derartige lokale Veränderungen bei der nächsten Ausführung von <code
+              class="command">update-grub</code> verloren gehen (was nach einer Aktualisierung verschiedener Pakete geschehen kann). Die häufigsten Veränderungen der Datei <code
+              class="filename">/boot/grub/grub.cfg</code> (um zum Beispiel Befehlszeilen-Parameter zum Kernel hinzuzufügen oder die Anzeigedauer des Menüs zu ändern) werden durch die Variablen in der Datei <code
+              class="filename">/etc/default/grub</code> vorgenommen. Um Einträge zum Menü hinzuzufügen, können Sie entweder eine Datei namens <code
+              class="filename">/boot/grub/custom.cfg</code> erstellen oder die Datei <code
+              class="filename">/etc/grub.d/50_custom</code> ändern. Für komplexere Konfigurationen können Sie andere Dateien im Verzeichnis <code
+              class="filename">/etc/grub.d</code> ändern oder dort hinzufügen; diese Skripten sollten Konfigurationsausschnitte wiedergeben, möglicherweise unter Verwendung externer Programme. Die folgenden Skripten aktualisieren die Liste der zu ladenden Kernel: <code
+              class="filename">10_linux</code> berücksichtigt die installierten Linux-Kernel; <code
+              class="filename">20_linux_xen</code> beachtet virtuelle Systeme unter Xen, und <code
+              class="filename">30_os-prober</code> führt andere Betriebssysteme (Windows, Mac OSX, Hurd) auf.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-yaboot"></a>8.8.4. Für Macintosh-Computer (PowerPC): Yaboot konfigurieren</h3></div></div></div><a
+            id="idm139686929953440"
+            class="indexterm"></a><div
+            class="para">
+				Yaboot ist der von alten Macintosh-Rechnern mit PowerPC-Prozessoren verwendete Boot-Loader. Sie fahren nicht wie PCs hoch, sondern stützen sich auf eine “Bootstrap“-Partition, von der aus das BIOS (oder OpenFirmware) den Loader ausführt, und auf dem das Programm <code
+              class="command">ybin</code> <code
+              class="command">yaboot</code> und seine Konfigurationsdatei installiert. Man muss diesen Befehl nur ein weiteres Mal ausführen, wenn <code
+              class="filename">/etc/yaboot.conf</code> verändert wurde (sie liegt in Kopie auf der Bootstrap-Partition, und <code
+              class="command">yaboot</code> kann die Position des Kernels auf den Platten finden).
+			</div><div
+            class="para">
+				Bevor <code
+              class="command">ybin</code> ausgeführt wird, muss man zunächst eine gültige Version der Datei <code
+              class="filename">/etc/yaboot.conf</code> haben. Das Folgende ist ein Beispiel einer minimalen Konfiguration. <a
+              id="idm139686929948096"
+              class="indexterm"></a>
+			</div><div
+            class="example"><a
+              id="example.yaboot.conf"></a><p
+              class="title"><strong>Beispiel 8.4. Konfigurationsdatei für Yaboot</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+# bootstrap partition
+boot=/dev/sda2
+# the disk
+device=hd:
+# the Linux partition
+partition=3
+root=/dev/sda3
+# boot after 3 seconds of inactivity
+# (timeout is in tenths of seconds)
+timeout=30
+
+install=/usr/lib/yaboot/yaboot
+magicboot=/usr/lib/yaboot/ofboot
+enablecdboot
+
+# last kernel installed
+image=/vmlinux
+        label=linux
+        initrd=/initrd.img
+        read-only
+
+# old kernel
+image=/vmlinux.old
+        label=old
+        initrd=/initrd.img.old
+        read-only
+
+# only for Linux/Mac OSX dual-boot
+macosx=/dev/sda5
+
+# bsd=/dev/sdaX and macos=/dev/sdaX
+# are also possible
+</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-printing.html"><strong>Zurück</strong>8.7. Druckereinrichtung</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.config-misc.html"><strong>Weiter</strong>8.9. Weitere Konfigurationen: Zeitsynchronisation...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.config-bootloader.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.config-bootloader.html">da-DK</a></li><li><a
+              href="../de-DE/sect.config-bootloader.html">de-DE</a></li><li><a
+              href="../el-GR/sect.config-bootloader.html">el-GR</a></li><li><a
+              href="../en-US/sect.config-bootloader.html">en-US</a></li><li><a
+              href="../es-ES/sect.config-bootloader.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.config-bootloader.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.config-bootloader.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.config-bootloader.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.config-bootloader.html">id-ID</a></li><li><a
+              href="../it-IT/sect.config-bootloader.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.config-bootloader.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.config-bootloader.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.config-bootloader.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.config-bootloader.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.config-bootloader.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.config-bootloader.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.config-bootloader.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">Capítulo 15. Criando um Pacote Debian</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="Backport, Reconstruir, Pacote fonte, Arquivo, Meta-pacote, Desenvolvedor Debian, Mantenedor" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="prev"
+        href="sect.dealing-with-compromised-machine.html"
+        title="14.6. Lidando com uma máquina comprometida" /><link
+        rel="next"
+        href="sect.building-first-package.html"
+        title="15.2. Construindo seu Primeiro Pacote" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/debian-packaging.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dealing-with-compromised-machine.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.building-first-package.html"><strong>Próxima</strong></a></li></ul><div
+        xml:lang="pt-BR"
+        class="chapter"
+        lang="pt-BR"><div
+          class="titlepage"><div><div><h1
+                class="title"><a
+                  id="debian-packaging"></a>Capítulo 15. Criando um Pacote Debian</h1></div></div></div><div
+          class="toc"><dl
+            class="toc"><dt><span
+                class="section"><a
+                  href="debian-packaging.html#sect.rebuilding-package">15.1. Reconstruindo um Pacote a partir de suas Fontes</a></span></dt><dd><dl><dt><span
+                    class="section"><a
+                      href="debian-packaging.html#idm140035072146688">15.1.1. Pegando os Fontes</a></span></dt><dt><span
+                    class="section"><a
+                      href="debian-packaging.html#idm140035058466512">15.1.2. Fazendo Alterações</a></span></dt><dt><span
+                    class="section"><a
+                      href="debian-packaging.html#idm140035061966288">15.1.3. Começando a Reconstrução</a></span></dt></dl></dd><dt><span
+                class="section"><a
+                  href="sect.building-first-package.html">15.2. Construindo seu Primeiro Pacote</a></span></dt><dd><dl><dt><span
+                    class="section"><a
+                      href="sect.building-first-package.html#idm140035051172512">15.2.1. Meta-pacotes ou falsos pacotes</a></span></dt><dt><span
+                    class="section"><a
+                      href="sect.building-first-package.html#idm140035050808208">15.2.2. Depósito Simples de Arquivos</a></span></dt></dl></dd><dt><span
+                class="section"><a
+                  href="sect.setup-apt-package-repository.html">15.3. Criando um Repositório de Pacotes para o APT</a></span></dt><dt><span
+                class="section"><a
+                  href="sect.becoming-package-maintainer.html">15.4. Tornando-se um Mantenedor de Pacotes</a></span></dt><dd><dl><dt><span
+                    class="section"><a
+                      href="sect.becoming-package-maintainer.html#idm140035048273536">15.4.1. Aprendendo a Fazer Pacotes</a></span></dt><dt><span
+                    class="section"><a
+                      href="sect.becoming-package-maintainer.html#idm140035048207152">15.4.2. Processo de Aceitação</a></span></dt></dl></dd></dl></div><div
+          class="highlights"><div
+            class="para">
+		É muito comum, para um administrador que vem lidando com pacotes Debian de maneira regular, sentir eventualmente a necessidade de criar o seu próprio pacote, ou modificar um pacote existente. Este capítulo tem a intenção de responder as questões mais comuns neste campo, e prover os elementos necessários para tirar vantagem da infraestrutura do Debian da melhor maneira possível. Com alguma sorte, após testar sua mão em pacotes locais, você sinta a necessidade de se aprofundar e eventualmente juntar-se ao projeto Debian em si mesmo!
+	</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h2
+                  class="title"><a
+                    id="sect.rebuilding-package"></a>15.1. Reconstruindo um Pacote a partir de suas Fontes</h2></div></div></div><div
+            class="para">
+			Reconstruir um pacote binário é necessário sob diversas circunstâncias. Em alguns casos, o administrador precisa de uma funcionalidade que necessita que o programa seja compilado a partir de suas fontes, com uma opção particular de compilação; em outras, o programa empacotado na versão instalada do Debian não é suficientemente recente. Em último caso, o administrador irá usualmente construir um pacote mais recente retirado de uma versão mais recente do Debian — como <span
+              class="distribution distribution">Testing</span> ou até mesmo <span
+              class="distribution distribution">Unstable</span> — então este novo pacote funcionará em sua distribuição <span
+              class="distribution distribution">Stable</span>; esta operação é chamada “backporting”. Como de costume, alguma cautela deve ser tomada, antes de se empreender essa tarefa, para verificar se isto já não foi feito anteriormente — uma rápida olhada na página do Sistema de Rastreamento de pacote para pacote que irá revelar que a informação <div
+              class="url">→ <a
+                href="http://packages.qa.debian.org/">http://packages.qa.debian.org/</a></div> <a
+              id="idm140035058827520"
+              class="indexterm"></a>
+		</div><div
+            class="section"><div
+              class="titlepage"><div><div><h3
+                    class="title"><a
+                      id="idm140035072146688"></a>15.1.1. Pegando os Fontes</h3></div></div></div><div
+              class="para">
+				Reconstruir um pacote Debian começa com a obtenção de seu código fonte. A maneira mais fácil é usar o comando <code
+                class="command">apt-get source<em
+                  class="replaceable"> fonte-package-name</em></code>. Este comando requer uma linha <code
+                class="literal">deb-src</code> no arquivo <code
+                class="filename">/etc/apt/sources.list</code>, e os arquivos de índice atualizados (ou seja <code
+                class="command">apt-get update</code>). Estas condições já devem estar resolvidas se você seguiu as instruções no capítulo sobre a configuração do APT (veja em <a
+                class="xref"
+                href="apt.html#sect.apt-sources.list">Seção 6.1, “Preenchendo no arquivo <code
+                  class="filename">sources.list</code> Arquivo”</a>). Note, no entanto, que você estará baixando os pacotes fonte da versão Debian mencionada na linha <code
+                class="literal">deb-src</code>. Se você precisa de uma outra versão, você pode precisar baixá-lo manualmente a partir de um dos espelho Debian ou a partir do web site. Trata-se de buscar dois ou três arquivos (com extensões <code
+                class="filename">*.dsc</code> - para <span
+                class="emphasis"><em>Debian Source Control</em></span> (Controle do Fonte Debian) - <code
+                class="filename">*.tar.<em
+                  class="replaceable">comp</em></code>, e algumas vezes <code
+                class="filename">*.diff.gz</code> ou <code
+                class="filename">*.debian.tar.<em
+                  class="replaceable">comp</em></code> - <em
+                class="replaceable">comp</em> tendo um valor entre <code
+                class="literal">gz</code>, <code
+                class="literal">bz2</code>, <code
+                class="literal">lzma</code> ou <code
+                class="literal">xz</code>, dependendo da ferramenta de compressão em uso), em seguida, executando o comando <code
+                class="command">dpkg-source-x<em
+                  class="replaceable"> file.dsc</em></code>. Se o arquivo <code
+                class="filename">*.dsc</code> é diretamente acessível em uma determinada URL, há uma maneira ainda mais simples para buscar tudo, com o comando <code
+                class="command">dget<em
+                  class="replaceable"> URL</em></code>. Este comando (que pode ser encontrado no pacote <span
+                class="pkg pkg">devscripts</span>) obtém o arquivo <code
+                class="filename">*.dsc</code> no endereço fornecido, então analisa o seu conteúdo e vai buscar automaticamente o arquivo, ou arquivos, referenciados nele. Com a opção <code
+                class="literal">-x</code>, o pacote fonte ainda é descompactado localmente depois de ser baixado.
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h3
+                    class="title"><a
+                      id="idm140035058466512"></a>15.1.2. Fazendo Alterações</h3></div></div></div><div
+              class="para">
+				O fonte de um pacote está agora disponível em um diretório nomeado após o pacote fonte e sua versão (por exemplo, <span
+                class="emphasis"><em>samba-3.6.16</em></span>); este é o lugar onde nós vamos trabalhar em nossas mudanças locais.
+			</div><div
+              class="para">
+				A primeira coisa a se fazer é mudar o número de versão do pacote, para que a reconstrução possa ser distinguida do pacote original provido pelo Debian. Assumindo que a versão atual é <code
+                class="literal">3.6.16-2</code>, nós podemos criar uma versão <code
+                class="literal">3.6.16-2.falcot1</code>, na qual claramente indica a origem do pacote. Isto faz com que a versão do pacote seja maior do que a provida pelo Debian, então o pacote facilmente instalará como se fosse uma atualização do pacote original. Tal alteração é melhor realizada com o comando <code
+                class="command">dch</code> (<span
+                class="emphasis"><em>Debian CHangelog</em></span>) do pacote <span
+                class="pkg pkg">devscripts</span>, com um comando <code
+                class="command">dch --local falcot</code>. Isso chama um editor de texto (<code
+                class="command">sensible-editor</code> — este deveria ser seu editor de textos favorito se for mencionado na variável de ambiente <code
+                class="varname">VISUAL</code> ou <code
+                class="varname">EDITOR</code>, e o editor padrão de outra forma) para permitir a documentação das diferenças trazidas por esta reconstrução. Este editor nos mostra que <code
+                class="command">dch</code> realmente modificou o arquivo <code
+                class="filename">debian/changelog</code>.
+			</div><div
+              class="para">
+				Quando uma mudança nas opções de construção são necessárias, as mudanças precisam ser feitas em <code
+                class="filename">debian/rules</code>, o qual controla os passos para o processo de construção do pacote. Nos casos mais simples, as linhas relevantes as configurações iniciais (<code
+                class="literal">./configure …</code>) ou a construção verdadeira (<code
+                class="literal">$(MAKE) …</code> ou <code
+                class="literal">make …</code>) são fáceis de marcar. Se eles comandos são explicitamente chamados, eles provavelmente são efeitos colaterais de outro comando explícito, em cada caso por favor verifique a documentação para aprender mais sobre como modificar o comportamento padrão.
+			</div><div
+              class="para">
+				Dependendo das mudanças locais nos pacotes, uma atualização talvez seja necessária no arquivo <code
+                class="filename">debian/control</code> , o qual contém uma descrição dos pacotes gerados. Em particular, este arquivo contém linhas <code
+                class="literal">Build-Depends</code> que controlam uma lista de dependências que devem ser satisfeitas durante a construção do pacote. Estas geralmente se referem a versões de pacotes contidos na distribuição da qual o pacote fonte veio, mas quais talvez não estejam disponíveis na distribuição utilizada na reconstrução. Não há maneira automática para determinar se uma dependência é real ou apenas especificada para garantir que a construção seja apenas tentada com a última versão da biblioteca — esta é a única maneira de se forçar um <span
+                class="emphasis"><em>construtor automático</em></span> usar um pacote dado durante a construção, eis o porque dos mantenedores Debian frequentemente utilizarem versões restritas das dependências de construção.
+			</div><div
+              class="para">
+				Se você tem certeza de que estas dependências de compilação são muito rigorosos, você deve se sentir livre para relaxá-las localmente. Lendo os arquivos que documentam a forma padrão de construção do software - esses arquivos são chamados frequentemente <code
+                class="filename">INSTALL</code> - irão ajudar você a descobrir as dependências apropriadas. Idealmente, todas dependências devem ser satisfeitas a partir da distribuição utilizada para a reconstrução, se não forem, um processo recursivo começa, segundo o qual os pacotes mencionados no campo <code
+                class="literal">Build-Depends</code> deve ser reproduzidos diante do pacote de destino. Alguns pacotes podem não precisar reproduzir, e pode ser instalado como está durante o processo de criação (um exemplo notável é <span
+                class="pkg pkg">debhelper</span>). Note-se que o processo backports pode rapidamente tornar-se complexo, se você não for cuidadoso. Portanto, backports devem ser mantido a um mínimo estrito quando possível.
+			</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DICA</em></span> Instalando <code
+                          class="literal">Build-Depends</code></strong></p></div></div></div><div
+                class="para">
+				<a
+                  id="idm140035061970352"
+                  class="indexterm"></a> <code
+                  class="command">apt-get</code> permite instalar todos os pacotes mencionados nos campos <code
+                  class="literal">Build-Depends</code> de um pacote fonte disponível em uma distribuição mencionada na linha <code
+                  class="literal">deb-src</code> no arquivo <code
+                  class="filename">/etc/apt/sources.list</code>. Isto é uma questão de simplesmente executar o comando <code
+                  class="command">apt-get build-dep <em
+                    class="replaceable">source-package</em></code>.
+			</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h3
+                    class="title"><a
+                      id="idm140035061966288"></a>15.1.3. Começando a Reconstrução</h3></div></div></div><div
+              class="para">
+				Quando todas mudanças necessárias forem aplicadas aos fontes, podemos começar a gerar o verdadeiro pacote binário (arquivo <code
+                class="filename">.deb</code>). Todo o processo é gerenciado pelo comando <code
+                class="command">dpkg-buildpackage</code>.
+			</div><div
+              class="example"><a
+                id="idm140035061964000"></a><p
+                class="title"><strong>Exemplo 15.1. Reconstruindo um pacote</strong></p><div
+                class="example-contents"><pre
+                  class="screen">
+<code
+                    class="computeroutput">$ </code><strong
+                    class="userinput"><code>dpkg-buildpackage -us -uc</code></strong>
+[...]
+</pre></div></div><div
+              class="sidebar"><a
+                id="sidebar.fakeroot"></a><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>FERRAMENTA</em></span> <code
+                          class="command">fakeroot</code></strong></p></div></div></div><div
+                class="para">
+				Essencialmente, o processo de criação de pacotes é simplesmente uma questão de coletar em um arquivo um conjunto de arquivos existentes (ou construídos); a maioria dos arquivos irá acabar sendo de posse do <span
+                  class="emphasis"><em>root</em></span> no arquivo. Entretanto, contruir um pacote inteiro usando este usuário implicaria em riscos maiores, felizmente, isto pode ser evitado com o comando <code
+                  class="command">fakeroot</code>. Esta ferramenta pode ser usada para executar um programa e dá-lo a impressão que é executado como <span
+                  class="emphasis"><em>root</em></span> e criar arquivos com posse e permissões arbitrárias. Quando o programa criar o arquivo que se tornará o pacote Debian, ele é levado a criar um arquivo contendo arquivos marcados pertencendo a usuário arbitrários, incluindo <span
+                  class="emphasis"><em>root</em></span>. Esta configuração é tão conveniente que o <code
+                  class="command">dpkg-buildpackage</code> usa o <code
+                  class="command">fakeroot</code> por padrão quando cria pacotes.
+			</div><div
+                class="para">
+				Note que o programa é somente enganado a "acreditar" que está operando com uma conta privilegiada, e o processo de fato é executado como o usuário que executou o <code
+                  class="command"><em
+                    class="replaceable">programa</em> fakeroot</code> (e os arquivos são na verdade criados com as permissões daquele usuário). Em nenhum momento ele realmente consegue privilégios de root aos quais poderia abusar.
+			</div></div><div
+              class="para">
+				O comando anterior pode falhar se os campos <code
+                class="literal">Build-Depends</code> não foram atualizados, ou se os pacotes relacionados não foram instalados. Neste caso, é possível anular esta verificação passando a opção <code
+                class="literal">-d</code> para o <code
+                class="command">dpkg-buildpackage</code>. Entretanto, ignorando explicitamente essas dependências corre-se o risco do processo de construção falhar em um próximo estágio. Pior, o pacote pode parecer corretamente construído mas falhar ao ser executado: alguns programas automaticamente desabilitam algumas de suas funcionalidades quando uma biblioteca necessária não está disponível em tempo de construção.
+			</div><div
+              class="para">
+				Mais frequentemente do que nunca, os desenvolvedores Debian usam programas de alto nível como o <code
+                class="command">debuild</code>; ele executa <code
+                class="command">dpkg-buildpackage</code> como de costume, mas ele também incluí a execução de um programa que executa diversas verificações para validar a geração dos pacotes contra a política do Debian. Este script também limpa o ambiente para que variáveis locais não "poluam" a construção do pacote. O comando <code
+                class="command">debuild</code> é umas das ferramentas da suíte <span
+                class="emphasis"><em>devscripts</em></span>, que divide alguma consistência e configuração para tornar as tarefa dos mantenedores mais fácil.
+			</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>OLHADA RÁPIDA</em></span> <code
+                          class="command">pbuilder</code></strong></p></div></div></div><a
+                id="idm140035051274736"
+                class="indexterm"></a><div
+                class="para">
+				O comando <code
+                  class="command">pbuilder</code> (similarmente ao nome do pacote) permite a construção de um pacote Debian em um ambiente <span
+                  class="emphasis"><em>chrooted (enjaulado)</em></span>. Ele primeiramente cria um diretório temporário contendo um sistema mínimo necessário para a construção do pacote (incluindo os pacotes mencionados no campo <span
+                  class="emphasis"><em>Build-Depends</em></span>). Este diretório é então usado como diretório raiz (<code
+                  class="filename">/</code>), utilizando o comando <code
+                  class="command">chroot</code>, durante a fase de construção do pacote.
+			</div><div
+                class="para">
+				Está ferramenta permite ao processo de construção acontecer em um ambiente que não foi alterado pelo usuário. Isto também permite uma detecção rápida de um dependência perdida (já que a construção irá falhar a não ser que as dependência estejam documentadas). Finalmente, ele permite a construção de um pacote para a versão do Debian que não está sendo usada pelo sistema por completo: a máquina pode estar utilizando <span
+                  class="distribution distribution">Stable</span> para seu trabalho normal, e um <code
+                  class="command">pbuilder</code> rodando na mesma máquina pode estar utilizando <span
+                  class="distribution distribution">Unstable</span> para a construção dos pacotes.
+			</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dealing-with-compromised-machine.html"><strong>Anterior</strong>14.6. Lidando com uma máquina comprometida</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.building-first-package.html"><strong>Próxima</strong>15.2. Construindo seu Primeiro Pacote</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/debian-packaging.html">ar-MA</a></li><li><a
+              href="../da-DK/debian-packaging.html">da-DK</a></li><li><a
+              href="../de-DE/debian-packaging.html">de-DE</a></li><li><a
+              href="../el-GR/debian-packaging.html">el-GR</a></li><li><a
+              href="../en-US/debian-packaging.html">en-US</a></li><li><a
+              href="../es-ES/debian-packaging.html">es-ES</a></li><li><a
+              href="../fa-IR/debian-packaging.html">fa-IR</a></li><li><a
+              href="../fr-FR/debian-packaging.html">fr-FR</a></li><li><a
+              href="../hr-HR/debian-packaging.html">hr-HR</a></li><li><a
+              href="../id-ID/debian-packaging.html">id-ID</a></li><li><a
+              href="../it-IT/debian-packaging.html">it-IT</a></li><li><a
+              href="../ja-JP/debian-packaging.html">ja-JP</a></li><li><a
+              href="../pl-PL/debian-packaging.html">pl-PL</a></li><li><a
+              href="../pt-BR/debian-packaging.html">pt-BR</a></li><li><a
+              href="../ro-RO/debian-packaging.html">ro-RO</a></li><li><a
+              href="../ru-RU/debian-packaging.html">ru-RU</a></li><li><a
+              href="../tr-TR/debian-packaging.html">tr-TR</a></li><li><a
+              href="../zh-CN/debian-packaging.html">zh-CN</a></li></ul></div></body></html>

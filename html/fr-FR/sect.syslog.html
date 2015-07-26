@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.5. Les événements système de syslog</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Démarrage du système, Scripts d'initialisation, SSH, Telnet, Droits, Permissions, Supervision, Inetd, Cron, Sauvegarde, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Chapitre 9. Services Unix" /><link
+        rel="prev"
+        href="sect.administration-interfaces.html"
+        title="9.4. Interfaces d'administration" /><link
+        rel="next"
+        href="sect.inetd.html"
+        title="9.6. Le super-serveur inetd" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.syslog.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.syslog"></a>9.5. Les événements système de <code
+                  class="command">syslog</code></h2></div></div></div><a
+          id="idm140565684569872"
+          class="indexterm"></a><a
+          id="idm140565684568752"
+          class="indexterm"></a><a
+          id="idm140565684567312"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-principe"></a>9.5.1. Principe et fonctionnement</h3></div></div></div><div
+            class="para">
+				Le démon <code
+              class="command">rsyslogd</code> a pour charge de collecter les messages de service provenant des applications et du noyau puis de les répartir dans des fichiers de logs (habituellement stockés dans le répertoire <code
+              class="filename">/var/log/</code>). Il obéit au fichier de configuration <code
+              class="filename">/etc/rsyslog.conf</code>.
+			</div><div
+            class="para">
+				Chaque message de log est associé à un sous-système applicatif (nommé <span
+              class="foreignphrase"><em
+                class="foreignphrase">facility</em></span> dans la documentation) :
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">auth</code> et <code
+                    class="literal">authpriv</code> : concernent l'authentification ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">cron</code> : provient des services de planification de tâches, <code
+                    class="command">cron</code> et <code
+                    class="command">atd</code> ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">daemon</code> : concerne un démon sans classification particulière (serveur DNS, NTP, etc.) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ftp</code> : concerne le serveur FTP ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">kern</code> : message provenant du noyau ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">lpr</code> : provient du sous-système d'impression ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">mail</code> : provient de la messagerie électronique ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">news</code> : message du sous-système Usenet (notamment du serveur NNTP — <span
+                    class="foreignphrase"><em
+                      class="foreignphrase">Network News Transfer Protocol</em></span>, ou protocole de transfert des nouvelles sur le réseau — gérant les forums de discussion) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">syslog</code> : message du serveur <code
+                    class="command">syslogd</code> lui-même ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">user</code> : messages utilisateur (générique) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">uucp</code> : messages du sous-système UUCP (<span
+                    class="foreignphrase"><em
+                      class="foreignphrase">Unix to Unix Copy Program</em></span>, ou programme de copie d'Unix à Unix, un vieux protocole employé pour faire circuler entre autres des messages électroniques) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">local0</code> à <code
+                    class="literal">local7</code> : réservés pour les utilisations locales.
+					</div></li></ul></div><div
+            class="para">
+				À chaque message est également associé un niveau de priorité. En voici la liste par ordre décroissant :
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">emerg</code> : « Au secours ! » le système est probablement inutilisable ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">alert</code> : vite, il y a péril en la demeure, des actions doivent être entreprises immédiatement ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">crit</code> : les conditions sont critiques ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">err</code> : erreur ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">warn</code> : avertissement (erreur potentielle) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">notice</code> : condition normale mais message significatif ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">info</code> : message informatif ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">debug</code> : message de débogage.
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.syslog-config"></a>9.5.2. Le fichier de configuration</h3></div></div></div><div
+            class="para">
+				La syntaxe complexe du fichier <code
+              class="filename">/etc/rsyslog.conf</code> est détaillée dans la page de manuel <span
+              class="citerefentry"><span
+                class="refentrytitle">rsyslog.conf</span>(5)</span> mais aussi dans la documentation HTML disponible dans le paquet <span
+              class="pkg pkg">rsyslog-doc</span> (<code
+              class="filename">/usr/share/doc/rsyslog-doc/html/index.html</code>). Le principe global est d'écrire des paires « sélecteur » et « action ». Le sélecteur définit l'ensemble des messages concernés et l'action décrit comment le traiter.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-selector-syntax"></a>9.5.2.1. Syntaxe du sélecteur</h4></div></div></div><div
+              class="para">
+					Le sélecteur est une liste (ayant pour séparateur le point-virgule) de couples <code
+                class="literal"><em
+                  class="replaceable">sous-système</em></code>.<code
+                class="literal"><em
+                  class="replaceable">priorité</em></code> (exemple : <code
+                class="literal">auth.notice;mail.info</code>). L'astérisque peut y représenter tous les sous-systèmes ou toutes les priorités (exemples : <code
+                class="literal">*.alert</code> ou <code
+                class="literal">mail.*</code>). On peut regrouper plusieurs sous-systèmes en les séparant par une virgule (exemple : <code
+                class="literal">auth,mail.info</code>). La priorité indiquée recouvre aussi les messages de priorité supérieure ou égale : <code
+                class="literal">auth.alert</code> désigne donc les messages du sous-système <code
+                class="literal">auth</code> de priorités <code
+                class="literal">alert</code> ou <code
+                class="literal">emerg</code>. Préfixée par un point d'exclamation, elle désignera au contraire les priorités strictement inférieures : <code
+                class="literal">auth.!notice</code> désignera donc les messages issus de <code
+                class="literal">auth</code> et de priorité <code
+                class="literal">info</code> ou <code
+                class="literal">debug</code>. Préfixée par un signe égal, elle correspondra exactement à la seule priorité indiquée (<code
+                class="literal">auth.=notice</code> ne concernera donc que les messages de <code
+                class="literal">auth</code> de priorité <code
+                class="literal">notice</code>).
+				</div><div
+              class="para">
+					Au sein du sélecteur, chaque élément de la liste surcharge les éléments précédents. Il est donc possible de restreindre un ensemble ou d'en exclure certains éléments. À titre d'exemple, <code
+                class="literal">kern.info;kern.!err</code> définit les messages du noyau de priorité comprise entre <code
+                class="literal">info</code> et <code
+                class="literal">warn</code>. La priorité <code
+                class="literal">none</code> désigne l'ensemble vide (aucune des priorités) et peut servir pour exclure un sous-système d'un ensemble de messages. Ainsi, <code
+                class="literal">*.crit;kern.none</code> désigne tous les messages de priorité supérieure ou égale à <code
+                class="literal">crit</code> ne provenant pas du noyau.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.syslog-action-syntax"></a>9.5.2.2. Syntaxe des actions</h4></div></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>B.A.-BA</em></span> Le tube nommé, un tube persistant</strong></p></div></div></div><a
+                id="idm140565684506992"
+                class="indexterm"></a><a
+                id="idm140565684506032"
+                class="indexterm"></a><div
+                class="para">
+					Un tube nommé est un type particulier de fichier fonctionnant comme un tube traditionnel (le <span
+                  class="foreignphrase"><em
+                    class="foreignphrase">pipe</em></span> que l'on crée à l'aide du symbole « | » sur la ligne de commande), mais par l'intermédiaire d'un fichier. Ce mécanisme a l'avantage de pouvoir mettre en relation deux processus n'ayant aucun rapport de parenté. Toute écriture dans un tube nommé bloque le processus qui écrit jusqu'à ce qu'un autre processus tente d'y lire des données. Ce dernier lira alors les données écrites par l'autre partie, qui pourra donc reprendre son exécution.
+				</div><div
+                class="para">
+					Un tel fichier se crée avec la commande <code
+                  class="command">mkfifo</code>.
+				</div></div><div
+              class="para">
+					Les différentes actions possibles sont :
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							ajouter le message à un fichier (exemple : <code
+                      class="filename">/var/log/messages</code>) ;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							envoyer le message à un serveur <code
+                      class="command">syslog</code> distant (exemple : <code
+                      class="literal">@log.falcot.com</code>) ;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							envoyer le message dans un tube nommé préexistant (exemple : <code
+                      class="literal">|/dev/xconsole</code>) ;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							envoyer le message à un ou plusieurs utilisateurs s'ils sont connectés (exemple : <code
+                      class="literal">root,rhertzog</code>) ;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							envoyer le message à tous les utilisateurs connectés (exemple : <code
+                      class="literal">*</code>) ;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							écrire le message sur une console texte (exemple : <code
+                      class="literal">/dev/tty8</code>).
+						</div></li></ul></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>SÉCURITÉ</em></span> Déporter les logs</strong></p></div></div></div><a
+                id="idm140565684491328"
+                class="indexterm"></a><div
+                class="para">
+					C'est une bonne idée que d'enregistrer les logs les plus importants sur une machine séparée (voire dédiée), car cela empêchera un éventuel intrus de supprimer les traces de son passage (sauf à compromettre également cet autre serveur). Par ailleurs, en cas de problème majeur (tel qu'un plantage du noyau), disposer de logs sur une autre machine augmente les chances de retrouver le déroulement des événements.
+				</div><div
+                class="para">
+					Pour accepter les messages de log envoyés par d'autres machines, il faut reconfigurer <span
+                  class="emphasis"><em>rsyslog</em></span> : dans la pratique il suffit d'activer des directives prêtes à l'emploi qui sont déjà présentes dans <code
+                  class="filename">/etc/rsyslog.conf</code> (<code
+                  class="literal">$ModLoad imudp</code> et <code
+                  class="literal">$UDPServerRun 514</code>).
+				</div></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.administration-interfaces.html"><strong>Précédent</strong>9.4. Interfaces d'administration</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.inetd.html"><strong>Suivant</strong>9.6. Le super-serveur inetd</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.syslog.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.syslog.html">da-DK</a></li><li><a
+              href="../de-DE/sect.syslog.html">de-DE</a></li><li><a
+              href="../el-GR/sect.syslog.html">el-GR</a></li><li><a
+              href="../en-US/sect.syslog.html">en-US</a></li><li><a
+              href="../es-ES/sect.syslog.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.syslog.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.syslog.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.syslog.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.syslog.html">id-ID</a></li><li><a
+              href="../it-IT/sect.syslog.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.syslog.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.syslog.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.syslog.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.syslog.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.syslog.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.syslog.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.syslog.html">zh-CN</a></li></ul></div></body></html>

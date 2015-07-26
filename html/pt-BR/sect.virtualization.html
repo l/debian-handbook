@@ -1,0 +1,1223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.2. Virtualização</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, Pré-configuração, Monitoramento, Virtualização, Xen, LXC" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="Capítulo 12. Administração Avançada" /><link
+        rel="prev"
+        href="advanced-administration.html"
+        title="Capítulo 12. Administração Avançada" /><link
+        rel="next"
+        href="sect.automated-installation.html"
+        title="12.3. Instalação Automatizada" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.virtualization.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="advanced-administration.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automated-installation.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.virtualization"></a>12.2. Virtualização</h2></div></div></div><div
+          class="para">
+			Virtualização <a
+            id="idm140035069575520"
+            class="indexterm"></a> é um dos maiores avanços nos anos recentes da computação. O termo cobre várias abstrações e técnicas de simulação de computadores virtuais com um grau de variabilidade de independência do hardware real. Um servidor físico pode então hospedar vários sistemas que trabalham ao mesmo tempo e em isolamento. As aplicações são muitas, e geralmente derivam a partir desse isolamento: ambientes de teste com configurações variáveis por exemplo, ou separação de serviços hospedados entre diferentes máquinas virtuais para segurança.
+		</div><div
+          class="para">
+			Existem múltiplas soluções de virtualização, cada uma com seus prós e contras. Este livro focará no Xen, LXC e KVM, mas outras implementações dignas de nota são as seguintes:
+		</div><a
+          id="idm140035069573520"
+          class="indexterm"></a><a
+          id="idm140035069572400"
+          class="indexterm"></a><a
+          id="idm140035069571280"
+          class="indexterm"></a><a
+          id="idm140035069570160"
+          class="indexterm"></a><a
+          id="idm140035069569040"
+          class="indexterm"></a><a
+          id="idm140035069567920"
+          class="indexterm"></a><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					O QEMU é um emulador de software para um computador completo; o desempenho está longe da velocidade que se poderia alcançar rodando nativamente, mas ele permite rodar sistemas operacionais não modificados ou experimentais no hardware emulado. Ele também permite a emulação de uma arquitetura de hardware diferente: por exemplo, um sistema <span
+                  class="emphasis"><em>amd64</em></span> pode emular um computador <span
+                  class="emphasis"><em>arm</em></span>. O QEMU é software livre. <div
+                  class="url">→ <a
+                    href="http://www.qemu.org/">http://www.qemu.org/</a></div>
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Bochs é outra máquina virtual livre, mas somente emula as arquiteturas x86 (i386 e amd64).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					VMWare é uma máquina virtual proprietária; sendo uma das mais antigas que se tem por ai, também é uma das mais amplamente conhecidas. Ela funciona com princípios similares aos do QEMU. A VMWare propõe recursos avançados tais como "snapshotting" de uma máquina virtual em execução. <div
+                  class="url">→ <a
+                    href="http://www.vmware.com/">http://www.vmware.com/</a></div>
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					VirtualBox é uma máquina virtual que é quase toda software livre (alguns componentes extra estão disponíveis sob licença proprietária). Ela é mais jovem que a VMWare e restrita as arquiteturas i386 e amd64, mas ele ainda inclui alguns "snapshotting" e outras características interessantes. VirtualBox tem sido parte do Debian desde o <span
+                  class="distribution distribution">Lenny</span>. <div
+                  class="url">→ <a
+                    href="http://www.virtualbox.org/">http://www.virtualbox.org/</a></div>
+				</div></li></ul></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.xen"></a>12.2.1. Xen</h3></div></div></div><div
+            class="para">
+				Xen <a
+              id="idm140035069556192"
+              class="indexterm"></a> é uma solução de “paravirtualização”. Ele introduz uma fina camada de abstração, chamada de “hypervisor”, entre o hardware e os sistemas superiores; Ele age como um árbitro que controla o acesso ao hardware feito pelas máquinas virtuais. Entretanto, ele apenas lida com algumas das instruções, o resto é executado diretamente pelo hardware em nome dos sistemas. A principal vantagem é que o desempenho não se degradada, e os sistemas rodam perto da velocidade nativa; a desvantagem é que os núcleos dos sistemas operacionais que alguém deseja usar em um "hypervisor" Xen precisam ser adaptados para rodar o Xen.
+			</div><div
+            class="para">
+				Vamos gastar algum tempo com termos. O "hypervisor" é a camada mais baixa, que roda diretamente no hardware, até mesmo abaixo do núcleo. Esse "hypervisor" pode dividir o resto do software entre vários <span
+              class="emphasis"><em>domínios</em></span>, que podem ser vistos como muitas máquinas virtuais. Um desses domínios (o primeiro que for iniciado) é conhecido como <span
+              class="emphasis"><em>dom0</em></span>, e tem um papel especial, já que apenas esse domínio pode controlar o "hypervisor" e a execução de outros domínios. Esses outros domínios são conhecidos como <span
+              class="emphasis"><em>domU</em></span>. Em outras palavras, e a partir do ponto de vista do usuário, o <span
+              class="emphasis"><em>dom0</em></span> coincide com o “hospedeiro” de outros sistemas de virtualização, enquanto que o <span
+              class="emphasis"><em>domU</em></span> pode ser visto como um "convidado" (“guest”).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURA</em></span> Xen e as várias versões do Linux</strong></p></div></div></div><div
+              class="para">
+				O Xen foi inicialmente desenvolvido como um conjunto de patches que viviam fora da árvore oficial, e não integrados ao núcleo Linux. Ao mesmo tempo, vários sistemas de virtualização próximos (incluindo o KVM) necessitavam de algumas funções genéricas relacionadas a virtualização para facilitar suas integrações, e o núcleo Linux ganhou esse conjunto de funções (conhecidas como interface <span
+                class="emphasis"><em>paravirt_ops</em></span> ou <span
+                class="emphasis"><em>pv_ops</em></span>). Como os patches Xen estavam duplicando algumas das funcionalidades dessa interface, eles não podiam ser aceitos oficialmente.
+			</div><div
+              class="para">
+				A Xensource, a companhia por trás do Xen, portanto, tinha que portar o Xen para esse novo "framework", para que os patches do Xen pudessem ser incorporados ao núcleo Linux oficial. Isso significa um monte de códigos reescritos, e embora a Xensource logo tivesse uma versão em funcionamento com base na interface paravirt_ops, os patches eram apenas progressivamente incorporados no núcleo oficial. A fusão foi concluída no Linux 3.0. <div
+                class="url">→ <a
+                  href="http://wiki.xenproject.org/wiki/XenParavirtOps">http://wiki.xenproject.org/wiki/XenParavirtOps</a></div>
+			</div><div
+              class="para">
+				Como o <span
+                class="distribution distribution">Wheezy</span> é baseado na versão 3.2 do núcleo Linux, os pacotes padrão <span
+                class="pkg pkg">linux-image-686-pae</span> e <span
+                class="pkg pkg">linux-image-amd64</span> incluem o código necessário, e os patches específicos para <span
+                class="distribution distribution">Squeeze</span> e versões anteriores do Debian não são mais necessários. <div
+                class="url">→ <a
+                  href="http://wiki.xenproject.org/wiki/Xen_Kernel_Feature_Matrix">http://wiki.xenproject.org/wiki/Xen_Kernel_Feature_Matrix</a></div>
+			</div></div><div
+            class="para">
+				Utilizar o Xen com o Debian necessita de três componentes:
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NOTA</em></span> Arquiteturas compatíveis com Xen</strong></p></div></div></div><div
+              class="para">
+				O Xen está atualmente disponível apenas para as arquiteturas i386 e amd64. Além disso, ele usa instruções do processador que nem sempre foram fornecidas em todos os computadores classe i386. Note que a maioria dos processadores classe Pentium (ou melhor) feitos após 2001 irão funcionar, então essa restrição não se aplica em muitas situações.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURA</em></span> Xen e núcleos não-Linux</strong></p></div></div></div><div
+              class="para">
+				O Xen requer modificações em todos os sistemas operacionais em que alguém queira rodá-lo; nem todos os núcleos tem o mesmo nível de maturidade sobre esse assunto. Muitos são totalmente funcionais, tanto como dom0 quanto domU: Linux 3.0 e posteriores, NetBSD 4.0 e posteriores, e OpenSolaris. Outros, como OpenBSD 4.0, FreeBSD 8 e Plan 9, apenas funcionam como domU.
+			</div><div
+              class="para">
+				Contudo, se o Xen puder contar com funções de hardware dedicadas a virtualização (que apenas estão presentes em processadores mais recentes), até mesmo sistemas operacionais não modificados podem rodar como domU (incluindo o Windows).
+			</div></div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						O "hypervisor" ele próprio. De acordo com o hardware disponível, o pacote apropriado será ou <span
+                    class="pkg pkg">xen-hypervisor-4.1-i386</span> ou <span
+                    class="pkg pkg">xen-hypervisor-4.1-amd64</span>.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Um núcleo que rode nesse "hypervisor". Qualquer núcleo mais recente que o 3.0 irá servir, incluindo a versão 3.2 presente no <span
+                    class="distribution distribution">Wheezy</span>.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						A arquitetura i386 também requer uma biblioteca padrão com os patches apropriados para aproveitar o Xen; ela está no pacote <span
+                    class="pkg pkg">libc6-xen</span>.
+					</div></li></ul></div><div
+            class="para">
+				Para evitar o aborrecimento de selecionar esses componentes manualmente, a conveniência de alguns pacotes (tais com o <span
+              class="pkg pkg">xen-linux-system-686-pae</span> e o <span
+              class="pkg pkg">xen-linux-system-amd64</span>) foram colocados a disposição; todos eles puxam, em uma boa combinação, os pacotes "hypervisor" e núcleo apropriados. O "hypervisor" também trás o <span
+              class="pkg pkg">xen-utils-4.1</span>, que contém ferramentas para controlar o "hypervisor" a partir do dom0. Este, por sua vez, trás a biblioteca padrão apropriada. Durante a instalação de tudo isso, scripts de configuração também criam uma nova entrada no menu do carregador de inicialização Grub, a fim de iniciar o núcleo escolhido em um dom0 Xen. Note, contudo, que essa entrada geralmente não é definida para ser a primeira da lista, e portanto, não será selecionada por padrão. Se esse não é o comportamento desejado, os comandos a seguir irão mudar isso:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>mv /etc/grub.d/20_linux_xen /etc/grub.d/09_linux_xen
+</code></strong><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>update-grub
+</code></strong></pre><div
+            class="para">
+				Uma vez que esses pré-requisitos estejam instalados, o próximo passo é testar o comportamento do próprio dom0; isso envolve uma reinicialização do "hypervisor" e do núcleo Xen. O sistema deverá inicializar da maneira usual, com algumas mensagens extras no console, durante os passo iniciais da inicialização.
+			</div><div
+            class="para">
+				Agora é o momento de realmente instalar sistemas úteis nos sistemas domU, usando as ferramentas do <span
+              class="pkg pkg">xen-tools</span>. esse pacote provê o comando <code
+              class="command">xen-create-image</code>, que automatiza a tarefa em grande parte. O único parâmetro mandatório é o <code
+              class="literal">--hostname</code>, dando um nome ao domU; outras opções são importantes, mas podem ser armazenadas no arquivo de configuração <code
+              class="filename">/etc/xen-tools/xen-tools.conf</code>, e assim, a ausência dessas opções na linha de comando não dispara um error. É, portanto, importante ou checar o conteúdo desse arquivo antes de criar imagens, ou usar parâmetros extras na invocação do <code
+              class="command">xen-create-image</code>. Parâmetros que são importantes de notar são os seguintes:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--memory</code>, para definir o quantidade de RAM dedicada para o sistema recentemente criado;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--size</code> e <code
+                    class="literal">--swap</code>, para definir o tamanho dos "discos virtuais" disponíveis para o domU;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--debootstrap</code>, para fazer com que o novo sistema seja instalado com o <code
+                    class="command">debootstrap</code>; neste caso, a opção <code
+                    class="literal">--dist</code> irá também ser usada mais geralmente (com um nome de distribuição como o <span
+                    class="distribution distribution">wheezy</span>).
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>Aprofundamento</em></span> Instalando um sistema não Debian em um domU</strong></p></div></div></div><div
+                    class="para">
+						Em caso de sistemas não-Linux, um certo cuidado deve ser tomado ao definir qual domU o núcleo deve usar, usando a opção <code
+                      class="literal">--kernel</code>.
+					</div></div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">--dhcp</code> define que a configuração de rede do domU deve ser obtida por DHCP enquanto <code
+                    class="literal">--ip</code> permite a definição estática do endereço IP.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Por fim, um método de armazenamento tem que ser escolhido para as imagens a serem criadas (aquelas que serão vistas como unidades de disco rígido a partir do domU). O método mais simples, que corresponde a opção <code
+                    class="literal">--dir</code>, é criar um um arquivo no dom0 para cada dispositivo que o domU deveria fornecer. Para sistemas que usam o LVM, a alternativa é usar a opção <code
+                    class="literal">--lvm</code>, seguida pelo nome do grupo de volume; <code
+                    class="command">xen-create-image</code> irá então criar um novo volume lógico dentro desse grupo, e esse volume lógico se tornará disponível para o domU como uma unidade de disco rígido.
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>NOTA</em></span> Armazenamento em domU</strong></p></div></div></div><div
+                    class="para">
+						Entire hard disks can also be exported to the domU, as well as partitions, RAID arrays or pre-existing LVM logical volumes. These operations are not automated by <code
+                      class="command">xen-create-image</code>, however, so editing the Xen image's configuration file is in order after its initial creation with <code
+                      class="command">xen-create-image</code>.
+					</div></div></li></ul></div><div
+            class="para">
+				Assim que essas escolhas são feitas, podemos criar uma imagem para o nosso futuro Xen domU:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xen-create-image --hostname testxen --dhcp --dir /srv/testxen --size=2G --dist=wheezy --role=udev</code></strong>
+<code
+              class="computeroutput">
+[...]
+General Information
+--------------------
+Hostname       :  testxen
+Distribution   :  wheezy
+Mirror         :  http://ftp.debian.org/debian/
+Partitions     :  swap            128Mb (swap)
+                  /               2G    (ext3)
+Image type     :  sparse
+Memory size    :  128Mb
+Kernel path    :  /boot/vmlinuz-3.2.0-4-686-pae
+Initrd path    :  /boot/initrd.img-3.2.0-4-686-pae
+[...]
+Logfile produced at:
+         /var/log/xen-tools/testxen.log
+
+Installation Summary
+---------------------
+Hostname        :  testxen
+Distribution    :  wheezy
+IP-Address(es)  :  dynamic
+RSA Fingerprint :  0a:6e:71:98:95:46:64:ec:80:37:63:18:73:04:dd:2b
+Root Password   :  48su67EW
+</code></pre><div
+            class="para">
+				Agora temos uma máquina virtual, mas atualmente não está sendo executada (e portanto somente utilizando espaço de disco do dom0). Obviamente, podemos criar mais imagens, possivelmente com parâmetros diferentes.
+			</div><div
+            class="para">
+				Antes de ligarmos essas máquinas virtuais, nós precisamos definir como elas serão acessadas. Elas podem, é claro, serem consideradas como máquinas isoladas, apenas acessadas através de seus consoles de sistema, mas isso raramente coincide com o padrão de uso. Na maioria das vezes, um domU será considerado um servidor remoto, e apenas acessado através de uma rede. No entanto, seria bem inconveniente adicionar uma placa de rede para cada; e por isso é que o Xen permite a criação de interfaces virtuais, que cada domínio possa ver e usar da forma padrão. Note que essas interfaces, mesmo que elas sejam virtuais, só serão úteis uma vez conectadas a uma rede, mesmo que virtual. O Xen tem vários modelos de rede para isso:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						O modelo mais simples é o modelo de ponte <span
+                    class="emphasis"><em>bridge</em></span>; todos as placas de rede eth0 (tanto no caso do dom0 quanto nos sistemas domU) se comportam como se fossem diretamente conectadas em um switch de rede.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Em seguida vem o modelo <span
+                    class="emphasis"><em>routing</em></span>, onde o dom0 se comporta como um roteador que se põem entre sistemas domU e a rede (física) externa.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						Finalmente, no modelo <span
+                    class="emphasis"><em>NAT</em></span>, o dom0 novamente está entre os sistemas domU e o resto da rede, mas os sistemas domU não são diretamente acessíveis por fora, e todo o tráfego vai através de uma tradução de endereços de rede (NAT) para o dom0.
+					</div></li></ul></div><div
+            class="para">
+				Estes três nós de rede envolvem várias interfaces com nome incomuns, tais como <code
+              class="filename">vif*</code>, <code
+              class="filename">veth*</code>, <code
+              class="filename">peth*</code> e <code
+              class="filename">xenbr0</code>. O "hypervisor" Xen organiza-os de acordo com qualquer que seja o layout definido, sob o controle das ferramentas de espaço do usuário. Como o NAT e os modelos de roteamento adaptam-se apenas a casos particulares, nós só iremos abordar o modelo de "bridging".
+			</div><div
+            class="para">
+				A configuração padrão dos pacotes Xen não altera a configuração de rede de todo o sistema. No entanto, o daemon <code
+              class="command">xend</code> é configurado para integrar interfaces de rede virtual com qualquer bridge de rede pré-existente (com <code
+              class="filename">xenbr0</code> tendo precedência se várias dessas bridges existirem). Nós temos, portanto, de definir uma bridge em <code
+              class="filename">/etc/network/interfaces</code> (o que requer a instalação do pacote <span
+              class="pkg pkg">bridge-utils</span>, o que explica porque o pacote <span
+              class="pkg pkg">xen-utils-4.1</span> o recomenda) para substituir a entrada eth0 existente:
+			</div><pre
+            class="programlisting">auto xenbr0
+iface xenbr0 inet dhcp
+    bridge_ports eth0
+    bridge_maxwait 0
+</pre><div
+            class="para">
+				Depois de reinicializar o computador, para termos certeza que a bridge é criada automaticamente, nós podemos agora iniciar o domU com as ferramentas de controle do Xen, em particular o comando <code
+              class="command">xm</code>. Esse comando permite diferentes manipulações nos domínios, incluindo listando-os e, iniciando/parando eles.
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xm list</code></strong>
+<code
+              class="computeroutput">Name                                        ID   Mem VCPUs      State   Time(s)
+Domain-0                                     0   463     1     r-----      9.8
+# </code><strong
+              class="userinput"><code>xm create testxen.cfg</code></strong>
+<code
+              class="computeroutput">Using config file "/etc/xen/testxen.cfg".
+Started domain testxen (id=1)
+# </code><strong
+              class="userinput"><code>xm list</code></strong>
+<code
+              class="computeroutput">Name                                        ID   Mem VCPUs      State   Time(s)
+Domain-0                                     0   366     1     r-----     11.4
+testxen                                      1   128     1     -b----      1.1</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATENÇÃO</em></span> Somente utilize um domU por imagem!</strong></p></div></div></div><div
+              class="para">
+				Enquanto é claro que é possível ter vários sistemas domU rodando em paralelo, eles todos precisarão usar suas próprias imagens, já que cada domU é feito para acreditar que ele roda em sue próprio hardware (fora a pequena parte do núcleo que conversa com o "hypervisor"). Em particular, não é possível para dois sistemas domU rodando simultaneamente, compartilhar espaço de armazenamento. Se os sistemas domU não estiverem rodando ao mesmo tempo, é, no entanto, bem possível reutilizar uma única partição de troca (swap), ou a partição de hospeda o sistema de arquivos <code
+                class="filename">/home</code>.
+			</div></div><div
+            class="para">
+				Note que o <code
+              class="filename">testxen</code> domU usa memória real, retirada da RAM, que estaria de outra forma disponível para o dom0, não a memória simulada. Portanto, cuidados devem ser tomados quando se constrói um servidor objetivando hospedar instâncias Xen, disponibilizando a RAM física de acordo.
+			</div><div
+            class="para">
+				Voilà! Nossa máquina virtual está iniciando. Nós podemos acessá-la de uma de duas maneiras. A maneira usual é se conectar a ela “remotamente” através da rede, como nós nos conectaríamos a uma máquina real; isso geralmente irá requerer a configuração de um servidor DHCP ou alguma configuração de DNS. A outra maneira, que pode ser a única maneira se a configuração de rede estiver incorreta, é usar o console <code
+              class="filename">hvc0</code>, com o comando <code
+              class="command">xm console</code>:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xm console testxen</code></strong>
+<code
+              class="computeroutput">[...]
+
+Debian GNU/Linux 7.0 testxen hvc0
+
+testxen login: </code></pre><div
+            class="para">
+				Então pode-se abrir uma sessão, tal como se faria caso se estivesse sentado em frente ao teclado da máquina virtual. Desconectar-se desse console é possível através da combinação de teclas <span
+              class="keycap"><strong>Control</strong></span>+<span
+              class="keycap"><strong>]</strong></span>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DICA</em></span> Obtendo o console imediatamente</strong></p></div></div></div><div
+              class="para">
+				Ás vezes existe o desejo de iniciar um sistema domU e ir diretamente para o seu console; é por isso que o comando <code
+                class="command">xm create</code> tem uma opção <code
+                class="literal">-c</code>. Iniciar um domU com esse interruptor irá exibir todas as mensagens de inicialização do sistema.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>FERRAMENTA</em></span> OpenXenManager</strong></p></div></div></div><div
+              class="para">
+				O OpenXenManager (do pacote <span
+                class="pkg pkg">openxenmanager</span>) é uma interface gráfica que permite o gerenciamento remoto de domínios Xen via a API do Xen. Pode-se assim controlar domínios Xen remotamente. Ele provê a maiorias dos recursos do comando <code
+                class="command">xm</code>.
+			</div></div><div
+            class="para">
+				Uma vez que o domU está ativo, ele pode ser usado como qualquer outro servidor (a final de contas é um sistema GNU/Linux ). Contudo, seu status de máquina virtual permite algumas características extras. Por exemplo, um domU pode, temporariamente, ser pausado e então retomado através dos comandos <code
+              class="command">xm pause</code> e <code
+              class="command">xm unpause</code>. Note que embora um domU pausado não use qualquer recurso do processador, sua memória alocada ainda está em uso. Talvez possa ser interessante considerar os comandos <code
+              class="command">xm save</code> e <code
+              class="command">xm restore</code>: ao salvar o domU libera-se os recursos que eram usados previamente por esse domU, incluindo a RAM. Quando restaurado (ou retirado da pausa, por assim dizer), um domU não nota nada além da passagem do tempo. Se um domU estava rodando quando o dom0 é desligado,os scripts empacotados automaticamente salvam o domU, e o restaurarão na próxima inicialização. Isso irá, é claro, implicar na inconveniência padrão que ocorre quando se hiberna um computador laptop, por exemplo; em particular, se o domU é suspenso por muito tempo, as conexões de rede podem expirar. Note também que o Xen é, até agora, incompatível com uma grande parte do gerenciamento de energia do ACPI, o que impede suspensão do sistema hospedeiro (dom0).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DOCUMENTAÇÃO</em></span> <code
+                        class="command">xm</code> opções</strong></p></div></div></div><div
+              class="para">
+				A maioria dos subcomandos <code
+                class="command">xm</code> esperam um ou mais argumentos, muitas vezes um nome domU. Esses argumentos estão bem descritos na página de manual <span
+                class="citerefentry"><span
+                  class="refentrytitle">xm</span>(1)</span>.
+			</div></div><div
+            class="para">
+				Interromper ou reinicializar um domU pode ser feito tanto a partir de dentro do domU (com o comando <code
+              class="command">shutdown</code>) quanto a partir do dom0, com o <code
+              class="command">xm shutdown</code> ou <code
+              class="command">xm reboot</code>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>APROFUNDAMENTO</em></span> Xen avançado</strong></p></div></div></div><div
+              class="para">
+				O Xen tem muito mais recursos do que nós podemos descrever nesses poucos parágrafos. Em particular, o sistema é muito dinâmico, e muitos parâmetros para um domínio (como a quantidade de memoria alocada, os discos rígidos visíveis, o comportamento do agendador de tarefas, e assim por diante) podem ser ajustados até mesmo quando esse domínio está rodando. Um domU pode até mesmo ser migrado entre servidores sem ser desligado, e sem perder suas conexões de rede! Para todos esses aspectos avançados, a principal fonte de informação é a documentação oficial do Xen. <div
+                class="url">→ <a
+                  href="http://www.xen.org/support/documentation.html">http://www.xen.org/support/documentation.html</a></div>
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.lxc"></a>12.2.2. LXC</h3></div></div></div><div
+            class="para">
+				Mesmo que seja usado para construir “máquinas virtuais”, o LXC <a
+              id="idm140035069452048"
+              class="indexterm"></a> não é, estritamente falando, um sistema de virtualização, mas um sistema que isola grupos de processos uns dos outros mesmo que eles todos rodem no mesmo host. Ele tira proveito de um conjunto de evoluções recentes do núcleo Linux, coletivamente conhecidas como <span
+              class="emphasis"><em>control groups</em></span>, de maneira que diferentes conjuntos de processos chamados de “groups” tem diferentes visões de certos aspectos do sistema global. Os mais notáveis dentre esses aspectos são os identificadores de processo, a configuração de rede, e os pontos de montagem. Tais grupos de processos isolados não terão qualquer acesso a outros processos do sistema, e esses acessos ao sistema de arquivos podem ser restritos a um subconjunto específico. eles também podem ter sua própria interface de rede e tabela de roteamento, e também podem ser configurados para ver apenas um subconjunto de dispositivos disponíveis presentes no sistema.
+			</div><div
+            class="para">
+				Esses recursos podem ser combinados para isolar toda uma família de processos iniciando a partir do processo <code
+              class="command">init</code>, e o conjunto resultante se parece muito com uma máquina virtual. O nome oficial para tal configuração é um “container” (daí o apelido LXC: <span
+              class="emphasis"><em>LinuX Containers</em></span>), mas uma diferença bastante importanto com as máquinas virtuais “reais”, tais como as providas pelo Xen ou KVM é que não há um segundo núcleo; o container usa o mesmo núcleo que o sistema hospedeiro. Isso tem tanto prós quanto contras: as vantagens incluem excelente desempenho devido à total falta de sobrecarga, e o fato que o núcleo tem uma visão global de todos processos rodando no sistema, então o agendamento pode ser mais eficiente do que seria se dois núcleos independentes fossem agendar diferentes conjuntos de tarefas. Líder entre os inconvenientes está a impossibilidade de rodar um núcleo diferente em um container (seja uma versão diferente do Linux ou um sistema operacional diferente por completo).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NOTA</em></span> limites de isolamento do LXC</strong></p></div></div></div><div
+              class="para">
+				Contêineres LXC não provêm o mesmo nível de isolamento conseguido por emuladores ou virtualizadores. Em particular:
+			</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+						o núcleo padrão do <span
+                      class="distribution distribution">Wheezy</span> não permite a limitação de quantidade de memória disponível para um container; o recurso existe, e é parte interna do núcleo, mas é desabilitado por padrão porque ele tem um (pequeno) custo no desempenho geral do sistema; contudo, para habilitá-lo é uma simples questão de configurar a opção de linha de comando do núcleo <code
+                      class="command">cgroup_enable=memory</code> no momento da inicialização;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						já que o núcleo é compartilhado entre o sistema hospedeiro e os contêineres, processos restritos ao contêineres ainda podem acessar mensagens do núcleo, o qual pode levar ao vazamento de informação se as mensagem forem emitidas pelo contêiner;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						por razões parecidas, se o contêiner é comprometido e se uma vulnerabilidade do núcleo é explorada, os outros contêineres podem ser afetados também;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						no sistema de arquivos, o núcleo verifica as permissões de acordo com os identificadores numéricos para usuários e grupos; esses identificadores podem designar diferentes usuários e grupos dependendo do container, o que deve ser mantido em mente se as partes com permissão de escrita do sistema de arquivos são compartilhadas entre containers.
+					</div></li></ul></div></div><div
+            class="para">
+				Como nós estamos lidando com isolamento e virtualização não tão simples, a criação de containers LXC é mais complexa do que simplesmente rodar o debian-installer em uma máquina virtual. Nós iremos descrever alguns pré-requisitos e, em seguida, iremos para a configuração de rede; para então depois, sermos capazes de realmente criar o sistema para ser rodado no container.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069438192"></a>12.2.2.1. Etapas Preliminares</h4></div></div></div><div
+              class="para">
+					O pacote <span
+                class="pkg pkg">lxc</span> contém as ferramentas necessárias para executar o LXC, e devem portanto serem instaladas.
+				</div><div
+              class="para">
+					O LXC também necessita do sistema de configuração <span
+                class="emphasis"><em>control groups</em></span>, o qual é um sistema de arquivos virtual que é montado no <code
+                class="filename">/sys/fs/cgroup</code>. O <code
+                class="filename">/etc/fstab</code> deve portanto incluir a seguinte entrada:
+				</div><pre
+              class="programlisting scale"># /etc/fstab: static file system information.
+[...]
+cgroup            /sys/fs/cgroup           cgroup    defaults        0       0
+</pre><div
+              class="para">
+					<code
+                class="filename">/sys/fs/cgroup</code> será automaticamente montado na inicialização; se nenhuma reinicialização está planejada, o sistema de arquivos deve ser manualmente montado com <code
+                class="command">mount /sys/fs/cgroup</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.lxc.network"></a>12.2.2.2. Configuração de Rede</h4></div></div></div><div
+              class="para">
+					O objetivo de instalar o LXC é configurar máquinas virtuais; enquanto nós poderíamos, é claro, mantê-las isoladas da rede, e apenas nos comunicarmos com elas através do sistema de arquivos, a maioria dos casos de uso envolve dar, ao menos, um mínimo acesso de rede para os containers. No caso típico, cada container irá ter uma interface de rede virtual, conectada à rede real através de uma bridge. Essa interface virtual pode ser plugada tanto diretamente na interface de rede física do hospedeiro (e nesse caso o container está diretamente na rede), ou em outra interface virtual definida no hospedeiro (e o hospedeiro pode então filtrar ou rotear o tráfego). Em ambos os casos, o pacote <span
+                class="pkg pkg">bridge-utils</span> será necessário.
+				</div><div
+              class="para">
+					O caso simples é a penas uma questão de editar o <code
+                class="filename">/etc/network/interfaces</code>, e mover a configuração da interface física (por exemplo <code
+                class="literal">eth0</code>) para a interface bridge (usualmente <code
+                class="literal">br0</code>), e configurar a ligação entre elas. Por exemplo, se o arquivo de configuração da interface de rede inicialmente contém entradas como as seguintes:
+				</div><pre
+              class="programlisting">auto eth0
+iface eth0 inet dhcp</pre><div
+              class="para">
+					Devem ser desabilitados e substituídos pelo seguinte:
+				</div><pre
+              class="programlisting">#auto eth0
+#iface eth0 inet dhcp
+
+auto br0
+iface br0 inet dhcp
+  bridge-ports eth0</pre><div
+              class="para">
+					O efeito dessa configuração será similar ao que seria obtido se os containers fossem máquinas plugadas na mesma rede física como o hospedeiro. A configuração “bridge” gerencia o trânsito dos quadros Ethernet entre todas as interfaces "bridged", o que inclui a <code
+                class="literal">eth0</code> física, assim como as interfaces definidas para os containers.
+				</div><div
+              class="para">
+					Em casos onde essa configuração não pode ser usada (por exemplo, se nenhum endereço IP público pode ser atribuído aos containers), uma interface virtual <span
+                class="emphasis"><em>tap</em></span> será criada e conectada à brigde. A topologia de rede equivalente torna-se então de um host com uma segunda placa de rede conectada em um switch separado, com os containers também conectados nesse switch. O host tem então que atuar como um gateway para os containers caso eles sejam feitos para se comunicar com o mundo exterior.
+				</div><div
+              class="para">
+					Em adição ao <span
+                class="pkg pkg">bridge-utils</span>, essa “rica” configuração requer o pacote <span
+                class="pkg pkg">vde2</span>; o arquivo <code
+                class="filename">/etc/network/interfaces</code> então torna-se:
+				</div><pre
+              class="programlisting"># Interface eth0 is unchanged
+auto eth0
+iface eth0 inet dhcp
+
+# Virtual interface 
+auto tap0
+iface tap0 inet manual
+  vde2-switch -t tap0
+
+# Bridge for containers
+auto br0
+iface br0 inet static
+  bridge-ports tap0
+  address 10.0.0.1
+  netmask 255.255.255.0
+</pre><div
+              class="para">
+					A rede então pode ser configurada tanto estaticamente nos contêineres, quanto dinamicamente com um servidor DHCP rodando no host. Tal servidor DHCP deverá ser configurado para responder as consultas na interface <code
+                class="literal">br0</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069417536"></a>12.2.2.3. Configurando o Sistema</h4></div></div></div><div
+              class="para">
+					Deixe-nos agora configurar o sistema de arquivos a ser usado pelo container. Uma vez que essa “máquina virtual” não irá rodar diretamente no hardware, alguns ajustes são necessários quando comparados a um sistema de arquivos padrão, especialmente quando o núcleo, dispositivos e consoles estão em questão. Felizmente, o <span
+                class="pkg pkg">lxc</span> inclui scripts que praticamente automatizam essa configuração. Por exemlo, os comandos a seguir (que requerem os pacotes <span
+                class="pkg pkg">debootstrap</span> e <span
+                class="pkg pkg">rsync</span>) irão instalar um container Debian:
+				</div><pre
+              class="screen"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-create -n testlxc -t debian
+</code></strong><code
+                class="computeroutput">Note: Usually the template option is called with a configuration
+file option too, mostly to configure the network.
+For more information look at lxc.conf (5)
+
+debootstrap is /usr/sbin/debootstrap
+Checking cache download in /var/cache/lxc/debian/rootfs-wheezy-amd64 ... 
+Downloading debian minimal ...
+I: Retrieving Release
+I: Retrieving Release.gpg
+[...]
+Root password is 'root', please change !
+'debian' template installed
+'testlxc' created
+root@mirwiz:~# </code>
+</pre><div
+              class="para">
+					Note que o sistema de arquivo é inicialmente criado em <code
+                class="filename">/var/cache/lxc</code>, então é movido para o seu diretório de destino. Isto proporciona a criação de contêineres idênticos mais rapidamente, já que somente um cópia é necessária.
+				</div><div
+              class="para">
+					Note que o modelo de script de criação do debian aceita uma opção <code
+                class="option">--arch</code> para especificar a arquitetura do sistema a ser instalado e uma opção <code
+                class="option">--release</code> caso você queira instalar alguma coisa a mais que a atual versão estável do Debian. Você pode também definir a variável de ambiente <code
+                class="literal">MIRROR</code> para apontar para um espelho Debian local.
+				</div><div
+              class="para">
+					O sistema de arquivos recém criado agora contém um sistema Debian mínimo, e por padrão o container compartilha o dispositivo de rede com o sistema hospedeiro. Como isso não é realmente o que queremos, nós iremos editar o arquivo de configuração do container (<code
+                class="filename">/var/lib/lxc/testlxc/config</code>) e adicionar algumas entradas <code
+                class="literal">lxc.network.*</code>:
+				</div><pre
+              class="programlisting">lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br0
+lxc.network.hwaddr = 4a:49:43:49:79:20
+</pre><div
+              class="para">
+					Essas entradas significam, respectivamente, que uma interface virtual será criada no container; que ela irá, automaticamente, ser levantada quando o dito container for iniciado; que ela será, automaticamente, ser conectada a brigde <code
+                class="literal">br0</code> no hospedeiro; e que seu endereço MAC será o como especificado. Caso essa última entrada estaja faltando ou desabilitada, um endereço MAC aleatório será gerado.
+				</div><div
+              class="para">
+					Outra entrada útil nesse arquivo é a configuração de uma nome para o hospedeiro:
+				</div><pre
+              class="programlisting">lxc.utsname = testlxc
+</pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069403776"></a>12.2.2.4. Inicializando o Contêiner</h4></div></div></div><div
+              class="para">
+					Agora que nossa imagem da máquina virtual está pronta, vamos inicializar o contêiner:
+				</div><pre
+              class="screen scale"
+              width="94"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-start --daemon --name=testlxc
+</code></strong><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-console -n testlxc
+</code></strong><code
+                class="computeroutput">Debian GNU/Linux 7 testlxc tty1
+
+testlxc login: </code><strong
+                class="userinput"><code>root</code></strong><code
+                class="computeroutput">
+Password: 
+Linux testlxc 3.2.0-4-amd64 #1 SMP Debian 3.2.46-1+deb7u1 x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+root@testlxc:~# </code><strong
+                class="userinput"><code>ps auxwf</code></strong>
+<code
+                class="computeroutput">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0  10644   824 ?        Ss   09:38   0:00 init [3]  
+root      1232  0.0  0.2   9956  2392 ?        Ss   09:39   0:00 dhclient -v -pf /run/dhclient.eth0.pid 
+root      1379  0.0  0.1  49848  1208 ?        Ss   09:39   0:00 /usr/sbin/sshd
+root      1409  0.0  0.0  14572   892 console  Ss+  09:39   0:00 /sbin/getty 38400 console
+root      1410  0.0  0.1  52368  1688 tty1     Ss   09:39   0:00 /bin/login --     
+root      1414  0.0  0.1  17876  1848 tty1     S    09:42   0:00  \_ -bash
+root      1418  0.0  0.1  15300  1096 tty1     R+   09:42   0:00      \_ ps auxf
+root      1411  0.0  0.0  14572   892 tty2     Ss+  09:39   0:00 /sbin/getty 38400 tty2 linux
+root      1412  0.0  0.0  14572   888 tty3     Ss+  09:39   0:00 /sbin/getty 38400 tty3 linux
+root      1413  0.0  0.0  14572   884 tty4     Ss+  09:39   0:00 /sbin/getty 38400 tty4 linux
+root@testlxc:~# </code></pre><div
+              class="para">
+					Nós agora estamos dentro do container; nosso acesso aos processos é restrito apenas aqueles que foram iniciados a partir do próprio container, e nosso acesso ao sistema de arquivos é similarmente restrito ao subconjunto do sistema de arquivos completo dedicado (<code
+                class="filename">/var/lib/lxc/testlxc/rootfs</code>). Nós podemos sair do console com <span
+                class="keycap"><strong>Control</strong></span>+<span
+                class="keycap"><strong>a</strong></span> <span
+                class="keycap"><strong>q</strong></span>.
+				</div><div
+              class="para">
+					Note que nós executamos o container como um processo em segundo plano, graças a opção <code
+                class="option">--daemon</code> do <code
+                class="command">lxc-start</code>. Nós podemos interromper o container com um comando como <code
+                class="command">lxc-kill --name=testlxc</code>.
+				</div><div
+              class="para">
+					O pacote <span
+                class="pkg pkg">lxc</span> contém um script de inicialização que pode iniciar automaticamente um ou vários containers quando o hospedeiro inicializa; seu arquivo de configuração, <code
+                class="filename">/etc/default/lxc</code>, é relativamente simples; note que os arquivos de configuração do container precisam estar armazenados em <code
+                class="filename">/etc/lxc/auto/</code>; muitos usuários podem preferir ligações simbólicas, tais como as que podem ser criadas com <code
+                class="command">ln -s /var/lib/lxc/testlxc/config /etc/lxc/auto/testlxc.config</code>.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>APROFUNDAMENTO</em></span> Virtualização em massa</strong></p></div></div></div><div
+                class="para">
+					Como o LXC é um sistema de isolamento muito peso leve, ele pode ser particularmente adaptado par uma maciça hospedagem de servidores virtuais. A configuração de rede provavelmente será um pouco mais avançada do que a que nós descrevemos acima, mas a configuração “rica”, usando as interfaces <code
+                  class="literal">tap</code> e <code
+                  class="literal">veth</code> deverá ser suficiente em muitos casos.
+				</div><div
+                class="para">
+					Também pode fazer sentido compartilhar parte do sistema de arquivos, como os subdiretórios <code
+                  class="filename">/usr</code> e <code
+                  class="filename">/lib</code>, a fim de evitar a duplicação de software que possa ser comum a vários containers. Isso irá, geralmente, ser alcançado com as entradas <code
+                  class="literal">lxc.mount.entry</code> no arquivo de configuração dos containers. Um interessante efeito colateral é que os processos irão então usar menos memória física, já que o núcleo é capaz de detectar que os programas são compartilhados. O custo marginal de um container extra pode então ser reduzido a espaço de disco dedicado para seus dados específicos, e alguns processos extras que o núcleo tem que agendar e gerenciar.
+				</div><div
+                class="para">
+					Nós não descrevemos todas as opções disponíveis, é claro; informações mais completas podem ser obtidas a partir das páginas de manual <span
+                  class="citerefentry"><span
+                    class="refentrytitle">lxc</span>(7)</span> e <span
+                  class="citerefentry"><span
+                    class="refentrytitle">lxc.conf</span>(5)</span> e aquelas que elas referenciam.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035069379808"></a>12.2.3. Virtualização com KVM</h3></div></div></div><a
+            id="idm140035069379008"
+            class="indexterm"></a><div
+            class="para">
+				KVM, que significa <span
+              class="emphasis"><em>Kernel-based Virtual Machine</em></span>, é primeiro, e antes de tudo, um módulo do núcleo que fornece a maior parte da infraestrutura que pode ser usada por um virtualizador, mas não é por si só um virtualizador. O real control para a virtualização é tratado por um aplicativo com base no QEMU. Não se preocupe se essa seção menciona os comandos <code
+              class="command">qemu-*</code>: ela continua sendo sobre KVM.
+			</div><div
+            class="para">
+				Ao contrário de outros sistemas de virtualização, o KVM foi incorporado ao núcleo Linux desde o seu início. Seus desenvolvedores escolheram tirar vantagem do conjunto de instruções do processador dedicado a virtualização (Intel-VT e AMD-V), o que mantém o KVM leve, elegante e sem fome por recursos. A contraparte, claro, é que o KVM funciona principalmente em processadores i386 e amd64, e apenas os suficientemente recentes terão esse conjunto de instruções. Você pode garantir que você tem tal processador se você tem “vmx” ou “svm” nas flags da CPU listadas em <code
+              class="filename">/proc/cpuinfo</code>.
+			</div><div
+            class="para">
+				Com a Red Hat ativamente suportando seu desenvolvimento, o KVM se tornou mais ou menos a referência na virtualização do Linux.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069374256"></a>12.2.3.1. Etapas Preliminares</h4></div></div></div><a
+              id="idm140035069373456"
+              class="indexterm"></a><div
+              class="para">
+					Ao contrário de ferramentas como o VirtualBox, o KVM em si não inclui nenhuma interface de usuário para a criação de gerenciamento de máquinas virtuais. O pacote <span
+                class="pkg pkg">qemu-kvm</span> apenas fornece um executável capaz de iniciar uma máquina virtual, assim como um script de inicialização que carrega os módulos do núcleo apropriados.
+				</div><a
+              id="idm140035069370768"
+              class="indexterm"></a><a
+              id="idm140035069369808"
+              class="indexterm"></a><div
+              class="para">
+					Felizmente, a Red Hat também fornece outro conjunto de ferramentas para resolver esse problema, tendo desenvolvido a biblioteca <span
+                class="emphasis"><em>libvirt</em></span> e as ferramentas do <span
+                class="emphasis"><em>gerenciador de máquinas virtuais</em></span> associadas. A libvirt permite o gerenciamento de máquinas virtuais de maneira uniforme, independentemente do sistema de virtualização envolvido nos bastidores (ela atualmente suporta QEMU, KVM, Xen, LXC, OpenVZ, VirtualBox, VMWare e UML). O <code
+                class="command">virtual-manager</code> é uma interface gráfica que usa a libvirt para criar e gerenciar máquinas virtuais.
+				</div><a
+              id="idm140035069366064"
+              class="indexterm"></a><div
+              class="para">
+					Nós primeiro instalamos os pacotes necessários, com <code
+                class="command">apt-get install qemu-kvm libvirt-bin virtinst virt-manager virt-viewer</code>. O <span
+                class="pkg pkg">libvirt-bin</span> fornece o daemon <code
+                class="command">libvirtd</code>, que permite o gerenciamento (potencialmente remoto) de máquinas virtuais rodando no host, e inicia as VMs necessárias quando o host inicializa. Além disso, esse pacote fornece a ferramenta de linha de comando <code
+                class="command">virsh</code>, que permite o controle das máquinas gerenciadas pelo <code
+                class="command">libvirtd</code>.
+				</div><div
+              class="para">
+					O pacote <span
+                class="pkg pkg">virtinst</span> fornece o <code
+                class="command">virt-install</code>, o qual permite a criação de máquinas virtuais a partir da linha de comando. E finalmente, o <span
+                class="pkg pkg">virt-viewer</span> que permite o acessar o console gráfico das VM's.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069358304"></a>12.2.3.2. Configuração de Rede</h4></div></div></div><div
+              class="para">
+					Assim como no Xen e no LXC, a configuração de rede mais freqüente envolve uma brigde agrupando as intefaces de rede das máquinas virtuais (see <a
+                class="xref"
+                href="sect.virtualization.html#sect.lxc.network">Seção 12.2.2.2, “Configuração de Rede”</a>).
+				</div><div
+              class="para">
+					Alternativamente, e na configuração padrão fornecida pelo KVM, um endereço privado é atribuído a máquina virtual (no intervalo 192.168.122.0/24), e o NAT é configurado para que a VM possa acessar a rede externa.
+				</div><div
+              class="para">
+					O restante desta seção assume que o host tem uma interface física <code
+                class="literal">eth0</code> e uma bridge <code
+                class="literal">br0</code>, e que a primeira está conectada a última.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069354032"></a>12.2.3.3. Instalação com <code
+                      class="command">virt-install</code></h4></div></div></div><a
+              id="idm140035069352912"
+              class="indexterm"></a><div
+              class="para">
+					A criação de uma máquina virtual é muito similar a instalação de um sistema normal, exceto que as características da máquina virtual são descritas em uma linha de comando aparentemente interminável.
+				</div><div
+              class="para">
+					Em termos práticos, isso significa que nós iremos usar o instalador Debian, inicializando a máquina virtual pelo drive DVD-ROM virtual que é mapeado para uma imagem de DVD do Debian armazenada no sistema do host. A VM irá exportar seu console gráfico pelo protocolo VNC (see <a
+                class="xref"
+                href="sect.remote-login.html#sect.remote-desktops">Seção 9.2.2, “Usando Ambientes Gráficos Remotamente”</a> for details), o que irá nos permitir controlar o processo de instalação.
+				</div><div
+              class="para">
+					Nós primeiro precisamos avisar o libvirtd aonde armazenar as imagens de disco, a não ser que a localização padrão (<code
+                class="filename">/var/lib/libvirt/images/</code>) seja boa.
+				</div><pre
+              class="screen"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>mkdir /srv/kvm</code></strong>
+<code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>virsh pool-create-as srv-kvm dir --target /srv/kvm</code></strong>
+<code
+                class="computeroutput">Pool srv-kvm created
+
+root@mirwiz:~# </code></pre><div
+              class="para">
+					Vamos agora iniciar o processo de instalação da máquina virtual, e ter um olhar mais atento nas mais importantes opções do <code
+                class="command">virt-install</code>. Esse comando registra a máquina virtual e seus parâmetros no libvirtd, e então, a inicia, para que a sua instalação possa prosseguir.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virt-install --connect qemu:///system  <span
+                    id="virtinst.connect"><img
+                      class="callout"
+                      src="Common_Content/images/1.png"
+                      alt="1" /></span>
+               --virt-type kvm           <span
+                    id="virtinst.type"><img
+                      class="callout"
+                      src="Common_Content/images/2.png"
+                      alt="2" /></span>
+               --name testkvm            <span
+                    id="virtinst.name"><img
+                      class="callout"
+                      src="Common_Content/images/3.png"
+                      alt="3" /></span>
+               --ram 1024                <span
+                    id="virtinst.ram"><img
+                      class="callout"
+                      src="Common_Content/images/4.png"
+                      alt="4" /></span>
+               --disk /srv/kvm/testkvm.qcow,format=qcow2,size=10 <span
+                    id="virtinst.disk"><img
+                      class="callout"
+                      src="Common_Content/images/5.png"
+                      alt="5" /></span>
+               --cdrom /srv/isos/debian-7.2.0-amd64-netinst.iso  <span
+                    id="virtinst.cdrom"><img
+                      class="callout"
+                      src="Common_Content/images/6.png"
+                      alt="6" /></span>
+               --network bridge=br0      <span
+                    id="virtinst.network"><img
+                      class="callout"
+                      src="Common_Content/images/7.png"
+                      alt="7" /></span>
+               --vnc                     <span
+                    id="virtinst.vnc"><img
+                      class="callout"
+                      src="Common_Content/images/8.png"
+                      alt="8" /></span>
+               --os-type linux           <span
+                    id="virtinst.os"><img
+                      class="callout"
+                      src="Common_Content/images/9.png"
+                      alt="9" /></span>
+               --os-variant debianwheezy
+</code></strong><code
+                class="computeroutput">
+Starting install...
+Allocating 'testkvm.qcow'             |  10 GB     00:00
+Creating domain...                    |    0 B     00:00
+Cannot open display:
+Run 'virt-viewer --help' to see a full list of available command line options.
+Domain installation still in progress. You can reconnect
+to the console to complete the installation process.
+</code></pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.connect"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							A opção <code
+                        class="literal">--connect</code> especifica o “hypervisor” a ser usado. Sua forma é a de uma URL contendo o sistema de virtualização (<code
+                        class="literal">xen://</code>, <code
+                        class="literal">qemu://</code>, <code
+                        class="literal">lxc://</code>, <code
+                        class="literal">openvz://</code>, <code
+                        class="literal">vbox://</code>, e assim por diante) e a máquina que deve hospedar a VM (isso pode ser deixado vazio, no caso de ser um hospedeiro local). Além disso, no caso do QEMU/KVM, cada usuário pode gerenciar máquinas virtuais trabalhando com permissões restritas, e o caminho da URL permite diferenciar máquinas do “sistema” (<code
+                        class="literal">/system</code>) de outras (<code
+                        class="literal">/session</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							Como o KVM é gerenciado da mesma maneira que o QEMU, o <code
+                        class="literal">--virt-type kvm</code> permite especificar o uso do KVM, mesmo que a URL se pareça com a do QEMU.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.name"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							A opção <code
+                        class="literal">--name</code> define um nome (específico) para a máquina virtual.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.ram"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							A opção <code
+                        class="literal">--ram</code> permite especificar a quantidade de RAM (em MB) a ser alocada para a máquina virtual.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.disk"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							A <code
+                        class="literal">--disk</code> especifica a localização do arquivo de imagem que irá representar nosso disco rígido da máquina virtual; esse arquivo é criado, se não estiver presente, com tamanho(em GB) especificado pelo parâmetro <code
+                        class="literal">size</code>. O parâmetro <code
+                        class="literal">format</code> permite escolher, entre várias maneiras, o armazenamento do arquivo de imagem. O formato padrão (<code
+                        class="literal">raw</code>) é um arquivo único que corresponde exatamente ao tamanho do disco e seu conteúdo. Nós pegamos um formato mais avançado aqui, que é específico para o QEMU e permite iniciar com um pequeno arquivo que só cresce quando a máquina virtual realmente começa a usar espaço.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.cdrom"><img
+                          class="callout"
+                          src="Common_Content/images/6.png"
+                          alt="6" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							A opção <code
+                        class="literal">--cdrom</code> é usada para indicar aonde encontrar o disco ótico para usar na instalação. O caminho pode ser tanto um caminho local para um arquivo ISO, uma URL aonde o arquivo pode ser obtido, ou um arquivo de dispositivo de um drive físico de CD-ROM (por exemplo <code
+                        class="literal">/dev/cdrom</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.network"><img
+                          class="callout"
+                          src="Common_Content/images/7.png"
+                          alt="7" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							A <code
+                        class="literal">--network</code> especifica como a placa de rede virtual se integra na configuração de rede do hospedeiro. O comportamento padrão (o qual nós explicitamente forçamos em nosso exemplo) é para integrá-la em qualquer bridge de rede préexistente. Se tal bridge não existe, a máquina virtual irá apenas alcançar a rede física através de NAT, ficando em um intervalo de endereço da sub-rede privada (192.168.122.0/24).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.vnc"><img
+                          class="callout"
+                          src="Common_Content/images/8.png"
+                          alt="8" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							<code
+                        class="literal">--vnc</code> determina que o console gráfico de ser disponibilizado usando o VNC. O comprotamento padrão para o servidor VNC associado é para apenas escutar na interface local; se um cliente VNC tiver que ser executado em um host diferente, para estabelecer a conexão será necessário a configuração de um túnel SSH (veja <a
+                        class="xref"
+                        href="sect.remote-login.html#sect.ssh-port-forwarding">Seção 9.2.1.3, “Criando Túneis Criptografados com Encaminhamento de Porta”</a>). Alternativamente, a <code
+                        class="literal">--vnclisten=0.0.0.0</code> pode ser usada para que o servidor VNC seja acessível a partir de todas as interfaces; note que se você fizer isso, você realmente deve projetar seu firewall de maneira apropriada.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="left"><p><a
+                        href="#virtinst.os"><img
+                          class="callout"
+                          src="Common_Content/images/9.png"
+                          alt="9" /></a> </p></td><td
+                    valign="top"
+                    align="left"><div
+                      class="para">
+							As opções <code
+                        class="literal">--os-type</code> e <code
+                        class="literal">--os-variant</code> permitem a otimização de alguns parâmetros de máquina virtual, com base em algumas das conhecidas características do sistema operacional ali mencionadas.
+						</div></td></tr></table></div><div
+              class="para">
+					Nesse ponto, a máquina virtual está rodando, e nós precisamos nos conectar ao console gráfico para prosseguir com o processo de instalação. Se a operação prévia foi executada a partir de um ambiente gráfico, essa conexão deve ser iniciada automaticamente. Se não, ou se nós operamos remotamente, o <code
+                class="command">virt-viewer</code> pode ser rodado a partir de qualquer ambiente gráfico para abrir o console gráfico (note que a senha do root do host remoto é pedida duas vezes porque a operação requer 2 conexões SSH):
+				</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>virt-viewer --connect qemu+ssh://root@<em
+                    class="replaceable">server</em>/system testkvm
+</code></strong><code
+                class="computeroutput">root@server's password: 
+root@server's password: </code></pre><div
+              class="para">
+					Quando o processo de instalação terminar, a máquina virtual é reiniciada, e agora pronta para o uso.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049497152"></a>12.2.3.4. Gerenciando Máquina com <code
+                      class="command">virsh</code></h4></div></div></div><a
+              id="idm140035049496256"
+              class="indexterm"></a><div
+              class="para">
+					Agora que instalação está feita, vamos ver como lidar com as máquinas virtuais disponíveis. A primeira coisa a tentar é pedir ao <code
+                class="command">libvirtd</code> a lista de máquinas virtuais que ele gerencia:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system list --all
+ Id Name                 State
+----------------------------------
+  - testkvm              shut off
+</code></strong></pre><div
+              class="para">
+					Vamos iniciar nossa máquina virtual de teste:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system start testkvm
+</code></strong><code
+                class="computeroutput">Domain testkvm started</code></pre><div
+              class="para">
+					Nós podemos agora pegar as instruções de conexão para o console gráfico (o visor VNC retornado pode ser dado como parâmetro para o <code
+                class="command">vncviewer</code>):
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system vncdisplay testkvm
+</code></strong><code
+                class="computeroutput">:0</code></pre><div
+              class="para">
+					Outros subcomandos disponíveis para o <code
+                class="command">virsh</code> incluem:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">reboot</code> reinicia uma máquina virtual;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">shutdown</code> para ativar um desligamento limpo;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">destroy</code>, para parar abruptamente;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">suspend</code> para pausar a mesma;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">resume</code> para despausar a mesma;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">autostart</code> para habilitar (ou desabilitar, com a opção <code
+                      class="literal">--disable</code>) o início da máquina virtual automaticamente quando o hospedeiro é iniciado;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">undefine</code> para remover todos os registros de uma máquina virtual do <code
+                      class="command">libvirtd</code>.
+						</div></li></ul></div><div
+              class="para">
+					Todos esses subcomandos têm como parâmetro a identificação da máquina virtual.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049479552"></a>12.2.3.5. Instalando um sistema baseado em RPM no Debian com o yum</h4></div></div></div><div
+              class="para">
+					Se a máquina virtual está destinada a rodar um Debian (ou um dos seus derivados), o sistema pode ser inicializado com o <code
+                class="command">debootstrap</code>, como descrito acima. Mas se a máquina virtual for para ser instalada em um sistema baseado em RPM (como o Fedora, CentOS ou Scientific Linux), a configuração terá de ser feita usando o utilitário <code
+                class="command">yum</code> (disponível pelo pacote de mesmo nome).
+				</div><div
+              class="para">
+					O procedimento requer configurar um arquivo <code
+                class="filename">yum.conf</code> contendo os parâmetros necessários, incluindo o caminho para os repositórios fontes RPM, o caminho para a configuração da extensão, e a pasta de destino. Para este exemplo, nós iremos assumir que o ambiente será armazenado em <code
+                class="filename">/var/tmp/yum-bootstrap</code>. O arquivo <code
+                class="filename">/var/tmp/yum-bootstrap/yum.conf</code> deve parecer com isso:
+				</div><pre
+              class="programlisting">[main]
+reposdir=/var/tmp/yum-bootstrap/repos.d
+pluginconfpath=/var/tmp/yum-bootstrap/pluginconf.d
+cachedir=/var/cache/yum
+installroot=/path/to/destination/domU/install
+exclude=$exclude
+keepcache=1
+#debuglevel=4  
+#errorlevel=4
+pkgpolicy=newest
+distroverpkg=centos-release
+tolerant=1
+exactarch=1
+obsoletes=1
+gpgcheck=1
+plugins=1
+metadata_expire=1800</pre><div
+              class="para">
+					O diretório <code
+                class="filename">/var/tmp/yum-bootstrap/repos.d</code> deve conter as descrições dos repositórios de fontes RPM, assim como em <code
+                class="filename">/etc/yum.repos.d</code> em um sistema baseado em RPM já instalado. Aqui está um exemplo para uma instalação do CentOS 6:
+				</div><pre
+              class="programlisting">[base]
+name=CentOS-6 - Base
+#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=os
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+   
+[updates]
+name=CentOS-6 - Updates
+#baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=updates
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+
+[extras]
+name=CentOS-6 - Extras
+#baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=extras
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+
+[centosplus]
+name=CentOS-6 - Plus
+#baseurl=http://mirror.centos.org/centos/$releasever/centosplus/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=centosplus
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+</pre><div
+              class="para">
+					Finalmente, o arquivo <code
+                class="filename">pluginconf.d/installonlyn.conf</code> deve conter o seguinte:
+				</div><pre
+              class="programlisting">[main]
+enabled=1
+tokeep=5
+</pre><div
+              class="para">
+					Quando tudo estiver instalado, certifique-se que os bancos de dados <code
+                class="command">rpm</code> sejam inicializados corretamente, com um comando como <code
+                class="command">rpm --rebuilddb</code>. Uma instalação do CentOS 6 é, então, uma questão do seguinte:
+				</div><pre
+              class="screen"><strong
+                class="userinput"><code>yum -c /var/tmp/yum-bootstrap/yum.conf -y install coreutils basesystem centos-release yum-basearchonly initscripts</code></strong></pre></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="advanced-administration.html"><strong>Anterior</strong>Capítulo 12. Administração Avançada</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automated-installation.html"><strong>Próxima</strong>12.3. Instalação Automatizada</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.virtualization.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.virtualization.html">da-DK</a></li><li><a
+              href="../de-DE/sect.virtualization.html">de-DE</a></li><li><a
+              href="../el-GR/sect.virtualization.html">el-GR</a></li><li><a
+              href="../en-US/sect.virtualization.html">en-US</a></li><li><a
+              href="../es-ES/sect.virtualization.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.virtualization.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.virtualization.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.virtualization.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.virtualization.html">id-ID</a></li><li><a
+              href="../it-IT/sect.virtualization.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.virtualization.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.virtualization.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.virtualization.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.virtualization.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.virtualization.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.virtualization.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.virtualization.html">zh-CN</a></li></ul></div></body></html>

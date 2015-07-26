@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">B.5. L'espace utilisateur</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="BIOS, Noyau, Unix, Processus, Arborescence, Commandes de base" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="short-remedial-course.html"
+        title="Annexe B. Petit cours de rattrapage" /><link
+        rel="prev"
+        href="sect.kernel-role-and-tasks.html"
+        title="B.4. Quelques fonctions remplies par le noyau" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.user-space.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-role-and-tasks.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.user-space"></a>B.5. L'espace utilisateur</h2></div></div></div><a
+          id="idm140565663192464"
+          class="indexterm"></a><a
+          id="idm140565663191504"
+          class="indexterm"></a><div
+          class="para">
+			“User-space” refers to the runtime environment of normal (as opposed to kernel) processes. This does not necessarily mean these processes are actually started by users because a standard system normally has several “daemon” (or background) processes running before the user even opens a session. Daemon processes are also considered user-space processes.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.process-basics"></a>B.5.1. Processus</h3></div></div></div><a
+            id="idm140565663188656"
+            class="indexterm"></a><div
+            class="para">
+				When the kernel gets past its initialization phase, it starts the very first process, <code
+              class="command">init</code>. Process #1 alone is very rarely useful by itself, and Unix-like systems run with many additional processes.
+			</div><a
+            id="idm140565663186512"
+            class="indexterm"></a><div
+            class="para">
+				First of all, a process can clone itself (this is known as a <span
+              class="emphasis"><em>fork</em></span>). The kernel allocates a new (but identical) process memory space, and another process to use it. At this time, the only difference between these two processes is their <span
+              class="emphasis"><em>pid</em></span>. The new process is usually called a child process, and the original process whose <span
+              class="emphasis"><em>pid</em></span> doesn't change, is called the parent process.
+			</div><div
+            class="para">
+				Sometimes, the child process continues to lead its own life independently from its parent, with its own data copied from the parent process. In many cases, though, this child process executes another program. With a few exceptions, its memory is simply replaced by that of the new program, and execution of this new program begins. This is the mechanism used by the init process (with process number 1) to start additional services and execute the whole startup sequence. At some point, one process among <code
+              class="command">init</code>'s offspring starts a graphical interface for users to log in to (the actual sequence of events is described in more details in <a
+              class="xref"
+              href="unix-services.html#sect.system-boot">Section 9.1, « Démarrage du système »</a>).
+			</div><div
+            class="para">
+				Lorsqu'un processus finit la tâche qui lui était dévolue, il se termine. Le noyau récupère alors la mémoire qui lui était affectée et cesse de lui distribuer des intervalles de temps d'exécution. Le processus père est informé de la destruction du fils : cela permet entre autres au père d'attendre la complétion d'une tâche sous-traitée. On retrouve ce mode de fonctionnement dans les interpréteurs de commandes (shells) : lorsque l'on tape une commande dans un shell, on ne retrouve l'invite que lorsqu'elle s'est terminée. La plupart des shells permettent cependant de ne pas attendre la fin de l'exécution d'une commande : il suffit pour cela de faire suivre le nom du programme à exécuter par <strong
+              class="userinput"><code>&amp;</code></strong>. On retrouve alors l'invite aussitôt, ce qui peut poser des problèmes si la commande a des données à afficher.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.daemons"></a>B.5.2. Démons</h3></div></div></div><a
+            id="idm140565663178352"
+            class="indexterm"></a><a
+            id="idm140565663177392"
+            class="indexterm"></a><div
+            class="para">
+				Un démon est un processus lancé automatiquement au démarrage et qui fonctionne en tâche de fond pour accomplir certaines tâches de maintenance ou fournir des services aux autres processus. Cette notion de « tâche de fond » est arbitraire et ne correspond à rien de particulier du point de vue du système : ce sont des processus comme les autres, qui sont exécutés chacun à son tour pendant un bref intervalle de temps de la même manière que les applications visibles. La distinction est simplement humaine : un processus qui fonctionne sans interaction avec l'utilisateur (sans interface graphique, notamment) est dit fonctionner en tâche de fond ou en tant que démon.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>VOCABULAIRE</em></span> Démon, un terme péjoratif ?</strong></p></div></div></div><div
+              class="para">
+				Le terme démon est en réalité une transcription un peu hâtive de l'anglais <span
+                class="foreignphrase"><em
+                  class="foreignphrase">daemon</em></span>. Bien que l'origine grecque de ce mot ait également donné le mot <span
+                class="foreignphrase"><em
+                  class="foreignphrase">demon</em></span>, au sens de créature diabolique, le <span
+                class="foreignphrase"><em
+                  class="foreignphrase">daemon</em></span> est simplement à interpréter comme un aide, un auxiliaire (tout en gardant une dimension surnaturelle). Il n'y a pas en français de mot réellement adapté à ce concept, le sens du <span
+                class="foreignphrase"><em
+                  class="foreignphrase">daemon</em></span> anglais s'est donc retrouvé projeté sur le « démon » français et l'usage a consacré ce choix bien qu'il ne soit pas très heureux.
+			</div></div><div
+            class="para">
+				Plusieurs de ces démons sont détaillés dans le <a
+              class="xref"
+              href="unix-services.html">Chapitre 9, <em>Services Unix</em></a>.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ipc"></a>B.5.3. Communications entre processus</h3></div></div></div><a
+            id="idm140565663169264"
+            class="indexterm"></a><a
+            id="idm140565663168304"
+            class="indexterm"></a><div
+            class="para">
+				Qu'il s'agisse de démons ou d'applications interactives, un processus isolé n'est souvent pas très utile. Il existe donc différentes méthodes permettant à des processus séparés de communiquer entre eux, soit pour s'échanger des données soit pour se contrôler l'un l'autre. Le terme générique les désignant est <span
+              class="foreignphrase"><em
+                class="foreignphrase">InterProcess Communications</em></span> (IPC) soit « communications inter-processus ».
+			</div><div
+            class="para">
+				Le système le plus simple est le fichier : le processus qui souhaite émettre des données les écrit dans un fichier dont le nom est convenu à l'avance ; le processus destinataire n'a alors qu'à lire ce fichier pour y récupérer les données.
+			</div><a
+            id="idm140565663165440"
+            class="indexterm"></a><div
+            class="para">
+				In the case where you do not wish to store data on disk, you can use a <span
+              class="emphasis"><em>pipe</em></span>, which is simply an object with two ends; bytes written in one end are readable at the other. If the ends are controlled by separate processes, this leads to a simple and convenient inter-process communication channel. Pipes can be classified into two categories: named pipes, and anonymous pipes. A named pipe is represented by an entry on the filesystem (although the transmitted data is not stored there), so both processes can open it independently if the location of the named pipe is known beforehand. In cases where the communicating processes are related (for instance, a parent and its child process), the parent process can also create an anonymous pipe before forking, and the child inherits it. Both processes will then be able to exchange data through the pipe without needing the filesystem.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EN PRATIQUE</em></span> Un exemple concret</strong></p></div></div></div><div
+              class="para">
+				Étudions ce qui se passe lorsqu'on lance une commande complexe (un <span
+                class="foreignphrase"><em
+                  class="foreignphrase">pipeline</em></span>) dans un shell. Supposons que nous ayons un processus <code
+                class="command">bash</code> (le shell standard sous Debian), de <span
+                class="foreignphrase"><em
+                  class="foreignphrase">pid</em></span> 4 374, dans lequel nous tapons la commande <code
+                class="command">ls | sort</code>.
+			</div><div
+              class="para">
+				Le shell commence par interpréter la commande saisie. En l'occurrence, il s'agit de deux programmes (<code
+                class="command">ls</code> et <code
+                class="command">sort</code>), avec un flux de données de l'un vers l'autre (noté par le caractère <strong
+                class="userinput"><code>|</code></strong>, dit <span
+                class="foreignphrase"><em
+                  class="foreignphrase">pipe</em></span>). <code
+                class="command">bash</code> crée donc un tube anonyme (qui n'existe pour l'instant que pour lui seul).
+			</div><div
+              class="para">
+				Puis il se duplique ; on obtient donc un nouveau processus <code
+                class="command">bash</code>, de <span
+                class="foreignphrase"><em
+                  class="foreignphrase">pid</em></span> 4 521 (les <span
+                class="foreignphrase"><em
+                  class="foreignphrase">pids</em></span> sont de simples numéros abstraits et n'ont généralement pas de signification particulière). Ce processus n°4 521 hérite du tuyau anonyme, il pourra donc écrire du côté « entrée » ; <code
+                class="command">bash</code> redirige d'ailleurs le flux de sortie standard vers cette entrée du tuyau. Il se remplace ensuite par le programme <code
+                class="command">ls</code>, qui va lister le contenu du répertoire courant ; comme il écrit sur sa sortie standard et que celle-ci a été au préalable redirigée, le résultat est effectivement envoyé dans le tuyau.
+			</div><div
+              class="para">
+				Une opération similaire est effectuée pour la deuxième commande : <code
+                class="command">bash</code> se duplique de nouveau, on obtient alors un nouveau processus <code
+                class="command">bash</code> de numéro 4 522. Comme ce dernier est également un fils du n°4 374, il hérite aussi du tuyau ; <code
+                class="command">bash</code> branche alors la sortie du tuyau sur son flux d'entrée standard, puis se remplace par le programme <code
+                class="command">sort</code>, dont la vocation est de trier les données reçues et d'afficher le résultat.
+			</div><div
+              class="para">
+				Toutes les pièces sont maintenant en place : <code
+                class="command">ls</code> parcourt le répertoire courant et envoie la liste des fichiers dans le tuyau ; <code
+                class="command">sort</code> lit cette liste, puis la trie par ordre alphabétique et affiche le résultat. Les processus n°4 521 et n°4 522 se terminent alors et le 4 374, qui s'était mis en attente, reprend la main et affiche l'invite pour permettre à l'utilisateur de saisir une nouvelle commande.
+			</div></div><div
+            class="para">
+				Not all inter-process communications are used to move data around, though. In many situations, the only information that needs to be transmitted are control messages such as “pause execution” or “resume execution”. Unix (and Linux) provides a mechanism known as <span
+              class="emphasis"><em>signals</em></span>, through which a process can simply send a specific signal (chosen from a predefined list of signals) to another process. The only requirement is to know the <span
+              class="emphasis"><em>pid</em></span> of the target.
+			</div><div
+            class="para">
+				For more complex communications, there are also mechanisms allowing a process to open access, or share, part of its allocated memory to other processes. Memory now shared between them can be used to move data between the processes.
+			</div><div
+            class="para">
+				Enfin, les connexions par le réseau peuvent également servir à faire communiquer différents processus, susceptibles de s'exécuter sur des ordinateurs différents (voire séparés de milliers de kilomètres).
+			</div><div
+            class="para">
+				Tous ces mécanismes sont utilisés, à des degrés divers, dans le fonctionnement normal d'un système Unix typique.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.libraries"></a>B.5.4. Bibliothèques</h3></div></div></div><a
+            id="idm140565663143936"
+            class="indexterm"></a><div
+            class="para">
+				Les bibliothèques de fonctions jouent un rôle crucial dans le fonctionnement d'un système d'exploitation Unix. Ce ne sont pas à proprement parler des programmes, puisqu'elles ne s'exécutent pas indépendamment, mais des collections de fragments de programmes qui sont utilisés par des programmes classiques. Parmi les bibliothèques les plus courantes, citons par exemple :
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						la bibliothèque C standard (<span
+                    class="emphasis"><em>glibc</em></span>), qui contient des fonctions de base telles celles permettant d'ouvrir des fichiers ou des connexions réseau, mais aussi de faciliter les interactions avec le noyau ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						les boîtes à outils graphiques (<span
+                    class="foreignphrase"><em
+                      class="foreignphrase">toolkits</em></span>), Gtk+ et Qt, qui permettent à de nombreux programmes de réutiliser les objets graphiques qu'elles proposent ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						la bibliothèque <span
+                    class="emphasis"><em>libpng</em></span>, qui charge, interprète et sauvegarde des images au format PNG.
+					</div></li></ul></div><div
+            class="para">
+				Thanks to those libraries, applications can reuse existing code. Application development is simplified since many applications can reuse the same functions. With libraries often developed by different persons, the global development of the system is closer to Unix's historical philosophy.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> La méthode Unix : une chose à la fois</strong></p></div></div></div><div
+              class="para">
+				One of the fundamental concepts that underlies the Unix family of operating systems is that each tool should only do one thing, and do it well; applications can then reuse these tools to build more advanced logic on top. This philosophy can be seen in many incarnations. Shell scripts may be the best example: they assemble complex sequences of very simple tools (such as <code
+                class="command">grep</code>, <code
+                class="command">wc</code>, <code
+                class="command">sort</code>, <code
+                class="command">uniq</code> and so on). Another implementation of this philosophy can be seen in code libraries: the <span
+                class="emphasis"><em>libpng</em></span> library allows reading and writing PNG images, with different options and in different ways, but it does only that; no question of including functions that display or edit images.
+			</div></div><div
+            class="para">
+				De plus, ces bibliothèques sont souvent dites « partagées », parce que le noyau est capable de ne les charger qu'une fois en mémoire même si plusieurs processus y font appel. Si le code qu'elles contiennent était au contraire intégré dans les applications, il serait présent en mémoire autant de fois qu'il y a de processus qui l'utilisent.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.kernel-role-and-tasks.html"><strong>Précédent</strong>B.4. Quelques fonctions remplies par le noyau</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.user-space.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.user-space.html">da-DK</a></li><li><a
+              href="../de-DE/sect.user-space.html">de-DE</a></li><li><a
+              href="../el-GR/sect.user-space.html">el-GR</a></li><li><a
+              href="../en-US/sect.user-space.html">en-US</a></li><li><a
+              href="../es-ES/sect.user-space.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.user-space.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.user-space.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.user-space.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.user-space.html">id-ID</a></li><li><a
+              href="../it-IT/sect.user-space.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.user-space.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.user-space.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.user-space.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.user-space.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.user-space.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.user-space.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.user-space.html">zh-CN</a></li></ul></div></body></html>

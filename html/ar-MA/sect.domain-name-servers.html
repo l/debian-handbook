@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.6. مخدمات أسماء النطاقات Domain Name Servers ‏(DNS)</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="شبكة, البوابات, ‏TCP/IP, ‏IPv6, ‏DNS, ‏Bind, ‏DHCP, ‏QoS" /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="فصل 10. البنية التحتية للشبكات" /><link
+        rel="prev"
+        href="sect.ipv6.html"
+        title="10.5. ‏IPv6" /><link
+        rel="next"
+        href="sect.dhcp.html"
+        title="10.7. ‏DHCP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.domain-name-servers.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ipv6.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dhcp.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.domain-name-servers"></a>10.6. مخدمات أسماء النطاقات Domain Name Servers ‏(DNS)</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dns-principe"></a>10.6.1. المبدأ والآلية</h3></div></div></div><a
+            id="idm140225827875392"
+            class="indexterm"></a><a
+            id="idm140225827874432"
+            class="indexterm"></a><div
+            class="para">
+				خدمة أسماء النطاقات <span
+              class="emphasis"><em>Domain Name Service</em></span>‏ (DNS) هي مكون أساسي في شبكة الإنترنت: فهي تقابل أسماء الحواسيب بعناوين IP (والعكس أيضًا)، وهذا ما يسمح باستخدام <code
+              class="literal">www.debian.org</code> بدلاً من <code
+              dir="ltr"
+              class="literal">5.153.231.4</code> أو <code
+              dir="ltr"
+              class="literal">2001:41c8:1000:21::21:4</code>.
+			</div><div
+            class="para">
+				تصنف سجلات DNS في مناطق – zones؛ كل منطقة تقابل نطاقاً (أو نطاقاً فرعياً) أو مجالاً من عناوين IP (بما أن عناوين IP عموماً تحجز بشكل مجالات متسلسلة). يتحكم المخدم الأساسي بمحتويات المنطقة؛ أما المخدمات الفرعية، التي تعمل عادة على أجهزة منفصلة، توفر نسخاً تُحدّث بانتظام عن المنطقة الأساسية.
+			</div><a
+            id="idm140225827868848"
+            class="indexterm"></a><a
+            id="idm140225827867408"
+            class="indexterm"></a><div
+            class="para">
+				يمكن أن تحوي كل منطقة سجلات من أنواع مختلفة (<span
+              class="emphasis"><em>Resource Records</em></span>):
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">A</code>: عنوان IPv4. <a
+                    id="idm140225827863600"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">CNAME</code>: لقب (<span
+                    class="emphasis"><em>canonical name</em></span>). <a
+                    id="idm140225827861040"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MX</code>: ‏<span
+                    class="emphasis"><em>mail exchange</em></span>، مخدم بريد إلكتروني. تستخدم مخدمات البريد الإلكتروني الأخرى هذه المعلومات لتعرف المخدم الموافق لعنوان الوجهة الذي سترسل البريد إليه. لكل سجل MX هناك أولوية. يستقبل المخدم ذا الأولوية الأعلى (صاحب الرقم الأصغر) اتصال SMTP أولاً (انظر الملاحظة الجانبية <a
+                    class="xref"
+                    href="network-services.html#sidebar.smtp"><span
+                      class="emphasis"><em>أساسيات</em></span> SMTP</a>)؛ وإذا لم يجب، يتم الاتصال بالمخدمات التي تليه حسب ترتيب الأولوية. <a
+                    id="idm140225827857312"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PTR</code>: رقم IP الموافق للاسم. هذه السجلات تخزن في ”المناطق العكسية“ التي تسمى تبعاً لمجال عناوين IP. مثلاً، <code
+                    dir="ltr"
+                    class="literal">1.168.192.in-addr.arpa</code> هي المنطقة العكسية لجميع العناوين في المجال <code
+                    class="literal">192.168.1.0/24</code>. <a
+                    id="idm140225827853520"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">AAAA</code>: عنوان IPv6. <a
+                    id="idm140225827851440"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">NS</code>: الاسم المقابل لمخدم DNS. كل نطاق يجب أن يحوي سجل NS واحد على الأقل. تشير هذه السجلات إلى مخدم DNS الذي يستطيع الإجابة على الطلبات المتعلقة بهذا النطاق؛ عادة ما تشير هذه السجلات إلى مخدمات أساسية وثانوية للنطاق. تسمح هذه السجلات أيضًا بما يعرف بانتداب DNS‏ – DNS delegation، مثلاً، يمكن أن يحوي النطاق <code
+                    class="literal">falcot.com</code> سجل NS بالاسم <code
+                    class="literal">internal.falcot.com</code>، وهذا يعني أن النطاق <code
+                    class="literal">internal.falcot.com</code> يديره مخدم DNS آخر. طبعاً، يجب أن يصرح هذا المخدم الأخير عن المنطقة <code
+                    class="literal">internal.falcot.com</code>. <a
+                    id="idm140225827846880"
+                    class="indexterm"></a>
+					</div></li></ul></div><a
+            id="idm140225827845760"
+            class="indexterm"></a><a
+            id="idm140225827844320"
+            class="indexterm"></a><div
+            class="para">
+				إن مخدم الأسماء المرجعي (Bind) قد طوره ويعمل على صيانته ISC ‏(<span
+              class="emphasis"><em>Internet Software Consortium</em></span>). تقدم دبيان هذا المخدم في الحزمة bind9. تقدم النسخة 9 تغيرين كبيرين عن النسخ السابقة. أولاً، يستطيع مخدم DNS الآن العمل بصلاحيات المستخدم العادي، بحيث لا تمنح الثغرات الأمنية security vulnerabilities في المخدم صلاحيات الجذر للمهاجمين (كما تكرر مع النسخ ‎8.x مرات عديدة).
+			</div><div
+            class="para">
+				بالإضافة لذلك، أصبح Bind يدعم معيار DNSSEC لتوقيع سجلات DNS (ومصادقتها أيضاً)، وهذا يسمح بمنع تزوير (spoofing) هذه البيانات عبر هجمات man-in-the-middle.
+			</div><a
+            id="idm140225827841168"
+            class="indexterm"></a><a
+            id="idm140225827839744"
+            class="indexterm"></a><a
+            id="idm140225827838784"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ثقافة</em></span> DNSSEC</strong></p></div></div></div><a
+              id="idm140225827836736"
+              class="indexterm"></a><div
+              class="para">
+				معيار DNSSEC معقد جداً؛ وهذا يفسر جزئياً عدم انتشار استخدامه حتى الآن (رغم أنه يتعايش بشكل ممتاز مع مخدمات DNS التي لا تدعم DNSSEC). لفهم مناحي هذا المعيار، عليك الاطلاع على المقالة التالية. <div
+                class="url">→ <a
+                  href="http://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions">http://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions</a></div>
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.dns-config"></a>10.6.2. الإعداد</h3></div></div></div><div
+            class="para">
+				مهما كان إصدار <code
+              class="command">bind</code>، فإن ملفات إعداده لها البنية نفسها.
+			</div><div
+            class="para">
+				أنشأ مديرو النظم في شركة فلكوت منطقة أساسية <code
+              class="literal">falcot.com</code> لتخزين المعلومات المتعلقة بهذا النطاق، ومنطقة <code
+              dir="ltr"
+              class="literal">168.192.in-addr.arpa</code> للمقابلة العكسية (reverse mapping) لعناوين IP في الشبكات المحلية.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> أسماء المناطق العكسية</strong></p></div></div></div><a
+              id="idm140225827828672"
+              class="indexterm"></a><a
+              id="idm140225827827232"
+              class="indexterm"></a><a
+              id="idm140225827826272"
+              class="indexterm"></a><a
+              id="idm140225827825152"
+              class="indexterm"></a><a
+              id="idm140225827824032"
+              class="indexterm"></a><div
+              class="para">
+				Reverse zones have a particular name. The zone covering the <code
+                class="literal">192.168.0.0/16</code> network needs to be named <code
+                class="literal">168.192.in-addr.arpa</code>: the IP address components are reversed, and followed by the <code
+                class="literal">in-addr.arpa</code> suffix.
+			</div><div
+              class="para">
+				بالنسبة لشبكات IPv6، فاللاحقة هي <code
+                class="literal">ip6.arpa</code> كما تكتب أجزاء عنوان IP المعكوسة بالتمثيل الست عشري الكامل لعناوين IP. بالتالي، يجب تسمية المنطقة الخاصة بالشبكة <code
+                dir="ltr"
+                class="literal">2001:0bc8:31a0::/48</code> كالتالي: <code
+                dir="ltr"
+                class="literal">0.a.1.3.8.c.b.0.1.0.0.2.ip6.arpa</code>.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تلميح</em></span> اختبار مخدم DNS</strong></p></div></div></div><div
+              class="para">
+				The <code
+                class="command">host</code> command (in the <span
+                class="pkg pkg">bind9-host</span> package) queries a DNS server, and can be used to test the server configuration. For example, <code
+                class="command">host machine.falcot.com localhost</code> checks the local server's reply for the <code
+                class="literal">machine.falcot.com</code> query. <code
+                class="command">host <em
+                  class="replaceable">ipaddress</em> localhost</code> tests the reverse resolution.
+			</div><a
+              id="idm140225827813456"
+              class="indexterm"></a></div><div
+            class="para">
+				يمكن أن تساعد المقتطفات التالية، المأخوذة من ملفات شركة فلكوت، على ضبط مخدم DNS:
+			</div><a
+            id="idm140225827811552"
+            class="indexterm"></a><a
+            id="idm140225827810432"
+            class="indexterm"></a><div
+            class="example"><a
+              id="example.bind-named.conf.local"></a><p
+              class="title"><strong>مثال 10.12. مقتطفات من <code
+                  dir="ltr"
+                  class="filename">/etc/bind/named.conf.local</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+zone "falcot.com" {
+        type master;
+        file "/etc/bind/db.falcot.com";
+        allow-query { any; };
+        allow-transfer {
+                195.20.105.149/32 ; // ns0.xname.org
+                193.23.158.13/32 ; // ns1.xname.org
+        };
+};
+
+zone "internal.falcot.com" {
+        type master;
+        file "/etc/bind/db.internal.falcot.com";
+        allow-query { 192.168.0.0/16; };
+};
+
+zone "168.192.in-addr.arpa" {
+        type master;
+        file "/etc/bind/db.192.168";
+        allow-query { 192.168.0.0/16; };
+};
+</pre></div></div><div
+            class="example"><a
+              id="example.bind-db.falcot.com"></a><p
+              class="title"><strong>مثال 10.13. مقتطفات من <code
+                  dir="ltr"
+                  class="filename">/etc/bind/db.falcot.com</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">; falcot.com Zone 
+; admin.falcot.com. =&gt; zone contact: admin@falcot.com
+$TTL    604800
+@       IN      SOA     falcot.com. admin.falcot.com. (
+                        20040121        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+; The @ refers to the zone name ("falcot.com" here)
+; or to $ORIGIN if that directive has been used
+;
+@       IN      NS      ns
+@       IN      NS      ns0.xname.org.
+
+internal IN      NS      192.168.0.2
+
+@       IN      A       212.94.201.10
+@       IN      MX      5 mail
+@       IN      MX      10 mail2
+
+ns      IN      A       212.94.201.10
+mail    IN      A       212.94.201.10
+mail2   IN      A       212.94.201.11
+www     IN      A       212.94.201.11
+
+dns     IN      CNAME   ns
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> صيغة الاسم</strong></p></div></div></div><div
+              class="para">
+				تتبع صيغة أسماء الأجهزة قواعد صارمة. مثلاً، كلمة <code
+                class="literal">machine</code> تعني ضمنيًا <code
+                class="literal">machine.<em
+                  class="replaceable">domain</em></code>. في حال كانت إضافة اسم النطاق غير مرغوبة، فيجب كتابة الاسم بالشكل <code
+                dir="ltr"
+                class="literal">machine.</code> (مع إضافة النقطة إلى نهاية الاسم). وللإشارة إلى اسم DNS يقع خارج النطاق الحالي كتابة الاسم كما في <code
+                dir="ltr"
+                class="literal">machine.otherdomain.com.</code> (مع نقطة في النهاية).
+			</div></div><div
+            class="example"><a
+              id="example.bind-db.192.168"></a><p
+              class="title"><strong>مثال 10.14. مقتطفات من <code
+                  dir="ltr"
+                  class="filename">/etc/bind/db.192.168</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">; Reverse zone for 192.168.0.0/16
+; admin.falcot.com. =&gt; zone contact: admin@falcot.com
+$TTL    604800
+@       IN      SOA     ns.internal.falcot.com. admin.falcot.com. (
+                        20040121        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+
+        IN      NS      ns.internal.falcot.com.
+
+; 192.168.0.1 -&gt; arrakis
+1.0     IN      PTR     arrakis.internal.falcot.com.
+; 192.168.0.2 -&gt; neptune
+2.0     IN      PTR     neptune.internal.falcot.com.
+
+; 192.168.3.1 -&gt; pau
+1.3     IN      PTR     pau.internal.falcot.com.
+</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.ipv6.html"><strong>السابق</strong>10.5. ‏IPv6</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dhcp.html"><strong>التالي</strong>10.7. ‏DHCP</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.domain-name-servers.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.domain-name-servers.html">da-DK</a></li><li><a
+              href="../de-DE/sect.domain-name-servers.html">de-DE</a></li><li><a
+              href="../el-GR/sect.domain-name-servers.html">el-GR</a></li><li><a
+              href="../en-US/sect.domain-name-servers.html">en-US</a></li><li><a
+              href="../es-ES/sect.domain-name-servers.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.domain-name-servers.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.domain-name-servers.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.domain-name-servers.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.domain-name-servers.html">id-ID</a></li><li><a
+              href="../it-IT/sect.domain-name-servers.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.domain-name-servers.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.domain-name-servers.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.domain-name-servers.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.domain-name-servers.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.domain-name-servers.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.domain-name-servers.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.domain-name-servers.html">zh-CN</a></li></ul></div></body></html>

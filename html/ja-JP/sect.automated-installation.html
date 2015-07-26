@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.3. 自動インストール</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, Preseeding, 監視, 仮想化, Xen, LXC" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="第12章 高度な管理" /><link
+        rel="prev"
+        href="sect.virtualization.html"
+        title="12.2. 仮想化" /><link
+        rel="next"
+        href="sect.monitoring.html"
+        title="12.4. 監視" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.automated-installation.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtualization.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.monitoring.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.automated-installation"></a>12.3. 自動インストール</h2></div></div></div><a
+          id="idm140393305845552"
+          class="indexterm"></a><a
+          id="idm140393305844784"
+          class="indexterm"></a><div
+          class="para">
+			巨大な IT サービスの管理者と同様、Falcot Corp の管理者もまた、可能であれば自動的に新しいマシンへ素早くインストール (または再インストール) するツールを必要とします。
+		</div><div
+          class="para">
+			これらの要求に応えるための様々な解決策が存在します。一方では、SystemImager などの一般的なツールが存在します。これはテンプレートマシンに基づくイメージを作成し、そのイメージを目標のシステムで展開します; 他方では、標準的な Debian インストーラが存在します。これはインストール作業中に尋ねられる質問の回答を含めた設定ファイルを使って preseed を実行します。両者の折衷案として、FAI (<span
+            class="emphasis"><em>Fully Automatic Installer</em></span>) などのハイブリッドツールが存在します。これはパッケージ化システムを使ってインストールし、自分自身の機能を使って大規模な配備に特有のタスク (起動、パーティショニング、設定など) をこなします。
+		</div><div
+          class="para">
+			これらの解決策には、利点と欠点があります: SystemImager は特定のパッケージ化システムに依存しません。この事により、復数の Linux ディストリビューションを使う数多くのマシン群を管理する事が可能です。SystemImager には、再インストール要らずの更新システムが含まれていますが、この更新システムを信頼できるのは、各マシンは個別に変更されないという仮定が満足される場合だけです; 言い換えれば、ユーザは自分のマシンにインストールされたソフトウェアを更新する事ができないし、他のソフトウェアをインストールする事もできません。同様に、セキュリティ更新を自動的に行ってはいけません。なぜなら、セキュリティ更新は SystemImager が保守する中央集権化された基準イメージによって提供されるからです。また SystemImager による解決策では、管理される側のマシンの種類が同じである必要があります。異種マシンを管理する場合、多くの異なるイメージを保守管理する必要があります (i386 用のイメージを powerpc マシンに使うことはできません)。
+		</div><div
+          class="para">
+			逆に、debian-installer を使ってインストールを自動化する場合、マシンごとの違いに適合したシステムをインストールする事が可能です: インストーラは対応するリポジトリから適切なカーネルとソフトウェアパッケージを取得し、利用可能なハードウェアを検出し、利用可能な領域全体を生かしてハードディスク全体をパーティショニングし、対応する Debian システムをインストールし、適切なブートローダを設定します。しかしながら、標準的なインストーラはベースシステムと事前に選択された「tasks」を含む標準的な Debian バージョンをインストールするだけです; パッケージ化されていないアプリケーションを備えた特製のシステムをインストールする事ができません。この特別な必要性を満足させるにはインストーラのカスタマイズが必要です… 幸いなことに、インストーラはとてもモジュール化されており、カスタマイズに必要なほとんどの仕事を自動化するツールが存在します。最も重要なツールは simple-CDD です (CDD は <span
+            class="emphasis"><em>Custom Debian Derivative</em></span> の頭字語です)。しかしながら simple-CDD が取り扱う事が可能なのは最初のインストールだけです; これは通常問題になりません。なぜなら、APT ツールのお陰でインストール後の更新作業は効果的に行う事が可能だからです。
+		</div><div
+          class="para">
+			FAI については大まかな概要を説明し、(もはや Debian に含まれない) SystemImager については完全に省略し、Debian だけのシステムではより興味深い debian-installer と simple-CDD に特に注目します。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.fai"></a>12.3.1. Fully Automatic Installer (FAI)</h3></div></div></div><a
+            id="idm140393305835744"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="foreignphrase"><em
+                class="foreignphrase">Fully Automatic Installer</em></span> はおそらく最も古い Debian 用の自動配備システムで、基準としての地位を確立しています; しかし FAI の高い柔軟性は FAI の複雑性を補っています。
+			</div><div
+            class="para">
+				FAI には、配備情報を保存してネットワークから目標のマシンを起動する事を可能にするために、サーバシステムが必要です。サーバシステムには、<span
+              class="pkg pkg">fai-server</span> パッケージ (または <span
+              class="pkg pkg">fai-quickstart</span>、これには、標準的な設定に必要な要素が含まれています) が必要です。
+			</div><div
+            class="para">
+				FAI は特殊なやり方で、インストール可能なプロファイルを定義します。単純に基準のインストールを複製する代わりに、FAI は本格的なインストーラで、サーバに保存されているファイルとスクリプトを通じて完全に設定可能です; デフォルトの位置 <code
+              class="filename">/srv/fai/config/</code> は自動的に作成されません。このため管理者は対応するファイルと一緒にこれも作成する必要があります。大体の場合、これらのファイルは例ファイルからカスタマイズされます。このファイルは <span
+              class="pkg pkg">fai-doc</span> パッケージの文書の中、より具体的に言えば <code
+              class="filename">/usr/share/doc/fai-doc/examples/simple/</code> ディレクトリの中、に含まれています。
+			</div><div
+            class="para">
+				プロファイルを定義したら、<code
+              class="command">fai-setup</code> コマンドを使って FAI のインストールを開始するために必要な要素を生成します; これはインストール中に使われる最小限のシステム (NFS-root) の準備と更新を行う事を意味します。別の方法として、<code
+              class="command">fai-cd</code> を使って専用の CD を生成する事も可能です。
+			</div><div
+            class="para">
+				これらすべての設定ファイルを作成するには、FAI の動作方法を理解する必要があります。典型的なインストール作業は以下の順番で進みます:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						ネットワークからカーネルを取得して起動します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						NFS で root ファイルシステムをマウントします;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="command">/usr/sbin/fai</code> を実行します、これはインストール作業を制御します (このスクリプトが以降の各段階を初期化します);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						サーバから <code
+                    class="filename">/fai/</code> に設定領域をコピーします;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="command">fai-class</code> を実行します。<code
+                    class="filename">/fai/class/[0-9][0-9]*</code> スクリプトが順番に実行され、インストールされるマシンに適用する「クラス」の名前を返します; この情報は以降の各段階の基礎としての機能を果たします。これを使うことで、インストールおよび設定されるサービスを定義する際にいくらかの柔軟性を持たせる事が可能です。
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						対応するクラスに基づき、設定変数を取得します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">/fai/disk_config/<em
+                      class="replaceable">class</em></code> で定義された情報に基づいて、ディスクのパーティショニングとパーティションのフォーマットを行います;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						指定されたパーティションをマウントします;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						ベースシステムをインストールします;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="command">fai-debconf</code> を使って Debconf データベースを事前配布します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						APT で利用可能なパッケージのリストを取得します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="filename">/fai/package_config/<em
+                      class="replaceable">class</em></code> にリストされたパッケージをインストールします;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						事後設定スクリプト <code
+                    class="filename">/fai/scripts/<em
+                      class="replaceable">class</em>/[0-9][0-9]*</code> を実行します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						インストールログを記録し、パーティションをアンマウントし、再起動します。
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.d-i-preseeding"></a>12.3.2. Debian-Installer の preseed</h3></div></div></div><a
+            id="idm140393305809584"
+            class="indexterm"></a><a
+            id="idm140393305808816"
+            class="indexterm"></a><div
+            class="para">
+				結局のところ、Debian システムをインストールする最良のツールは必然的に公式の Debian インストーラということになるでしょう。このため、当初から debian-installer は <span
+              class="pkg pkg">debconf</span> の提供するインフラを活用して自動的に使えるように設計されています。<span
+              class="pkg pkg">debconf</span> を使うことで、尋ねられる質問の数を減らしたり (隠された質問に対する回答はデフォルトが使われます)、質問に対する回答を個別に事前指定したりする事が可能です。この事により、インストールを非対話的に進める事が可能です。質問に対する回答の事前指定機能は <span
+              class="emphasis"><em>preseeding</em></span> として知られています。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>GOING FURTHER</em></span> 集中型データベースを用いる Debconf</strong></p></div></div></div><a
+              id="idm140393305804400"
+              class="indexterm"></a><div
+              class="para">
+				Preseed を使うことで、インストール時に尋ねられる Debconf 質問に対する回答を事前に提供する事が可能です。しかし、これらの回答は静的なもので、時間経過に従い変化しません。既にインストールされたマシンは更新が必要かもしれませんし、新しい回答が必要かもしれません。このため <code
+                class="filename">/etc/debconf.conf</code> 設定ファイルから、Debconf が外部のデータソース (LDAP ディレクトリサーバ、NFS や Samba 経由でアクセスされるリモートファイル) を使うようにセットアップする事が可能です。お互いに補完し合う復数の外部データソースを同時に定義する事が可能です。ローカルデータベースは使えます (読み書きアクセス可能です) が、リモートデータベースは読み込みのみに制限されている事が多いです。<span
+                class="citerefentry"><span
+                  class="refentrytitle">debconf.conf</span>(5)</span> マニュアルページではすべての可能性が詳細に説明されています。
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393305800640"></a>12.3.2.1. Preseed ファイルの利用</h4></div></div></div><div
+              class="para">
+					インストーラが preseeding ファイルを取得する事が可能な場所には幾つかあります;
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							マシンを開始するために使われる initrd の中; この場合、インストールの最初から preseeding を行い、すべての質問を回避する事が可能です。preseeding ファイルの名前は必ず <code
+                      class="filename">preseed.cfg</code> にして initrd のルートに保存しなければいけません。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							起動メディア (CD や USB メモリ) の中; メディアがマウントされた直後から preseeding が始まります。これは言語とキーボードレイアウトに関する質問の直後を意味します。<code
+                      class="literal">preseed/file</code> 起動パラメータを使って preseeding ファイルの場所を指定する事が可能です (例えば、インストールが CD-ROM から開始された場合は <code
+                      class="filename">/cdrom/preseed.cfg</code>、USB メモリから開始された場合は <code
+                      class="filename">/hd-media/preseed.cfg</code> などです)。
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							ネットワークから; ネットワークが (自動的に) 設定された直後から preseeding が始まります; 対応する起動パラメータは <code
+                      class="literal">preseed/url=http://<em
+                        class="replaceable">server</em>/preseed.cfg</code> です。
+						</div></li></ul></div><div
+              class="para">
+					一見すると、preseeding ファイルを initrd の中に含める事が最も上手い解決策のように見えます; しかし、実際のところこれはほとんど行われません。なぜなら、インストーラの initrd を生成することはかなり複雑だからです。その他の 2 種類の解決策はよく使われます。なぜなら起動パラメータを使うことで、インストール作業の最初の質問の回答を他のやり方で事前指定する事が可能だからです。インストール毎に起動パラメータを手作業で打ち込む手間を省くためによく使われる方法は <code
+                class="command">isolinux</code> (CD-ROM の場合) や <code
+                class="command">syslinux</code> (USB メモリの場合) の設定ファイルに起動パラメータを保存する事です。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393305791440"></a>12.3.2.2. preseed ファイルの作成</h4></div></div></div><div
+              class="para">
+					preseed ファイルはプレーンテキストファイルで、各行に 1 つの Debconf 質問に対する回答が含まれます。行は空白 (スペースかタブ) で区切られた 4 種類のフィールドに分割されます。例えば <code
+                class="literal">d-i mirror/suite string stable</code> のようになります:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							最初のフィールドはこの質問の「所有者」です; インストーラに関する質問の場合「d-i」を使い、Debian パッケージからの質問の場合パッケージ名を使う事も可能です;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							2 番目のフィールドは質問の識別子です;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							3 番目のフィールドは質問の種類です;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							4 番目と最後のフィールドは質問に対する回答を含みます。3 番目のフィールドの後ろに必ず 1 つの空白を含めなければいけない点に注意してください; 1 つ以上の回答が有る場合、続く空白文字は回答の一部として取り扱われます。
+						</div></li></ul></div><div
+              class="para">
+					preseed ファイルを書く最も簡単な方法はシステムを手作業でインストールする方法です。インストール完了後に <code
+                class="command">debconf-get-selections --installer</code> を実行してインストーラに関連する回答を取得します。<code
+                class="command">debconf-get-selections</code> を使えば、他のパッケージに関連する回答を取得する事が可能です。しかしながら、最も明確な解決策は記載例と基準文書を参考にしながら手作業で preseed ファイルを書く事です: このような取り扱い方をすることで、デフォルト回答に対して上書きが必要な質問だけに回答を事前指定する事が可能です; <code
+                class="literal">priority=critical</code> 起動パラメータ使うことで、Debconf が重要な質問だけを尋ね、他の質問にはデフォルトの回答を使うようにする事が可能です。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DOCUMENTATION</em></span> インストールガイドの付録</strong></p></div></div></div><div
+                class="para">
+					オンライン上で利用可能なインストールガイドの付録には、preseed ファイルの使い方に関する詳細な文書が含まれます。また、コメントの形で詳細を説明された見本ファイルが含まれます。これは自分用カスタマイズのひな形として使えるように用意されています。<div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/amd64/apb.html">http://www.debian.org/releases/wheezy/amd64/apb.html</a></div> <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/example-preseed.txt">http://www.debian.org/releases/wheezy/example-preseed.txt</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393305779648"></a>12.3.2.3. カスタマイズされた起動メディアの作成</h4></div></div></div><div
+              class="para">
+					preseed ファイルを保存する場所を知ること大変結構な事ですが、場所がすべてではありません: 起動パラメータを変更し preseed ファイルを追加するためには、いずれにせよインストール用の起動メディアを改造しなければいけません。
+				</div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140393305778288"></a>12.3.2.3.1. ネットワークからの起動</h5></div></div></div><div
+                class="para">
+						コンピュータをネットワークから起動する場合、初期化要素を送信するサーバが起動パラメータを定義します。このため、変更は起動サーバの PXE 設定の中で行う必要があります; より具体的に言えば <code
+                  class="filename">/tftpboot/pxelinux.cfg/default</code> 設定ファイルの中です。事前にネットワーク起動をセットアップする事が必要です; 詳しくはインストールガイドをご覧ください。<div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/amd64/ch04s05.html">http://www.debian.org/releases/wheezy/amd64/ch04s05.html</a></div>
+					</div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140393305775456"></a>12.3.2.3.2. 起動可能な USB メモリの準備</h5></div></div></div><div
+                class="para">
+						起動可能な USB メモリを用意した場合 (<a
+                  class="xref"
+                  href="installation.html#sect.install-usb">「USB メモリから起動」</a>参照)、幾つかの追加的な操作が必要です。USB メモリの内容は <code
+                  class="filename">/media/usbdisk/</code> で利用可能とします:
+					</div><div
+                xmlns:d="http://docbook.org/ns/docbook"
+                class="itemizedlist"><ul><li
+                    class="listitem"><div
+                      class="para">
+								<code
+                        class="filename">/media/usbdisk/preseed.cfg</code> に preseed ファイルをコピーします
+							</div></li><li
+                    class="listitem"><div
+                      class="para">
+								<code
+                        class="filename">/media/usbdisk/syslinux.cfg</code> を編集して、必要な起動パラメータを追加します (以下の例をご覧ください)。
+							</div></li></ul></div><div
+                class="example"><a
+                  id="idm140393305770560"></a><p
+                  class="title"><strong>例12.2 syslinux.cfg ファイルと preseeding パラメータ</strong></p><div
+                  class="example-contents"><pre
+                    class="programlisting">default vmlinuz
+append preseed/file=/hd-media/preseed.cfg locale=en_US console-keymaps-at/keymap=us languagechooser/language-name=English countrychooser/shortlist=US vga=normal initrd=initrd.gz  --</pre></div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140393305769072"></a>12.3.2.3.3. CD-ROM イメージの作成</h5></div></div></div><a
+                id="idm140393305768432"
+                class="indexterm"></a><div
+                class="para">
+						USB メモリは読み書きメディアなので、ファイルを追加したり幾つかのパラメータを変更する事が簡単に可能です。CD-ROM の場合、この操作は更に複雑になります。なぜなら、完全な ISO イメージを再生成する必要があるからです。<span
+                  class="pkg pkg">debian-cd</span> がこの作業を担当しますが、<span
+                  class="pkg pkg">debian-cd</span> ツールは少し使いにくいです: <span
+                  class="pkg pkg">debian-cd</span> ツールを使うには、ローカルミラーと <code
+                  class="filename">/usr/share/debian-cd/CONF.sh</code> によって提供されるすべてのオプションについて理解する必要があります。そしてさらに、<code
+                  class="command">make</code> を複数回実行する必要があります。このため、<code
+                  class="filename">/usr/share/debian-cd/README</code> を一読する事を強く推奨します。
+					</div><div
+                class="para">
+						そうは言っても、debian-cd の挙動は仕方は常に同じです: CD-ROM の内容を展開した「image」ディレクトリが生成され、その後 <code
+                  class="command">genisoimage</code>、<code
+                  class="command">mkisofs</code>、<code
+                  class="command">xorriso</code> 等のツールを使って ISO ファイルに変換します。image ディレクトリは debian-cd の <code
+                  class="command">make image-trees</code> 段階の後に仕上げられます。この時点で、preseed ファイルを適切なディレクトリ (通常 <code
+                  class="filename">$TDIR/wheezy/CD1/</code> です、$TDIR は<code
+                  class="filename">CONF.sh</code> 設定ファイルによって定義されるパラメータの 1 つです) に挿入します。CD-ROM は <code
+                  class="command">isolinux</code> をブートローダとして使います。必要な起動パラメータを挿入するためには、<code
+                  class="command">isolinux</code> の設定ファイル (ファイルは <code
+                  class="filename">$TDIR/wheezy/boot1/isolinux/isolinux.cfg</code> にあります) を debian-cd が生成した内容に適合させなければいけません。この後、「通常の」プロセスを再開し、<code
+                  class="command">make image CD=1</code> (または <code
+                  class="command">make images</code> 復数の CD-ROM を生成する場合) を実行して ISO イメージを生成します。
+					</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.simple-cdd"></a>12.3.3. Simple-CDD: 一体型の解決策</h3></div></div></div><a
+            id="idm140393305756832"
+            class="indexterm"></a><div
+            class="para">
+				単純に preseed を使うだけでは、大規模な配備に要求されるすべてを満足させることはできません。preseed を使うことで、通常のインストール作業の最後に幾つかのスクリプトを実行する事が可能とは言うものの、インストールするパッケージ群の選択にはまだ大きな制限があります (基本的に「tasks」を選択できるだけです); より重要なこととして、preseed は公式の Debian パッケージをインストールすることは可能ですが、その場で生成されたものをインストールすることは不可能です。
+			</div><div
+            class="para">
+				逆に、debian-cd を使えば外部パッケージを統合する事が可能で、debian-installer を使えばインストール作業に新しい段階を挿入するように拡張する事が可能です。これらの機能を組み合わせることで、自分の要求を完全に満足するカスタマイズされたインストーラを作成する事が可能です; 更にこの方針を取ることで、必要なパッケージを展開した後、幾つかのサービスを設定する事が可能です。幸いなことに、この方針は全くの仮説に過ぎないわけではありません。なぜなら、これこそが Simple-CDD (<span
+              class="pkg pkg">simple-cdd</span> パッケージに含まれます) の方針だからです。
+			</div><div
+            class="para">
+				Simple-CDD の目的とは、利用可能なパッケージの一部を選択したり、Debconf を使ってパッケージを事前設定したり、特定のソフトウェアを追加したり、インストール作業の最後にカスタムスクリプトを実行することで、誰でも簡単に Debian の派生ディストリビューションを作成する事です。これは「ユニバーサルオペレーティングシステム」の原理に一致します。なぜなら、このことにより誰でも自分自身の要求にオペレーティングシステムを適合させる事が可能だからです。
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393305752192"></a>12.3.3.1. プロファイルの作成</h4></div></div></div><div
+              class="para">
+					Simple-CDD は FAI における 「クラス」の概念に対応する「プロファイル」を定義し、マシンは (インストール時に定義される) 復数のプロファイルを持つ事が可能です。プロファイルは <code
+                class="filename">profiles/<em
+                  class="replaceable">profile</em>.*</code> ファイルを使って定義されます:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="filename">.description</code> ファイルには、プロファイルに関する 1 行の説明が含まれます;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="filename">.packages</code> ファイルには、プロファイルが選択された場合に自動的にインストールするパッケージがリストされています;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="filename">.downloads</code> ファイルには、インストールメディアに保存するがインストールの必要が無いパッケージがリストされています;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="filename">.preseed</code> ファイルには、(インストーラおよびパッケージの) Debconf 質問に関する preseeding 情報が含まれます;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="filename">.postinst</code> ファイルには、インストール作業の最後に実行されるスクリプトが含まれます;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							最後に、<code
+                      class="filename">.conf</code> ファイルを使うことで、イメージに保存されるプロファイルに基づいて幾つかの Simple-CDD パラメータを修正する事が可能です。
+						</div></li></ul></div><div
+              class="para">
+					<code
+                class="literal">default</code> プロファイルは特別な役割を担います。なぜなら <code
+                class="literal">default</code> プロファイルは常に選択されれるからです; <code
+                class="literal">default</code> プロファイルには、Simple-CDD を動作させるために最低限必要な要素が含まれています。通常 <code
+                class="literal">default</code> プロファイルの中でカスタマイズが必要なのは <code
+                class="literal">simple-cdd/profiles</code> preseed パラメータだけです: これは Simple-CDD によって追加されたインストールするプロファイルの選択に関する質問を避けます。
+				</div><div
+              class="para">
+					コマンドは <code
+                class="filename">profiles</code> ディレクトリの親ディレクトリから実行する必要がある点に注意してください。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393305737984"></a>12.3.3.2. <code
+                      class="command">build-simple-cdd</code> の設定と利用</h4></div></div></div><a
+              id="idm140393305737088"
+              class="indexterm"></a><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>QUICK LOOK</em></span> 詳細説明を含む設定ファイル</strong></p></div></div></div><div
+                class="para">
+					すべての利用可能なパラメータを含む Simple-CDD 設定ファイルの例 (<code
+                  class="filename">/usr/share/doc/simple-cdd/examples/simple-cdd.conf.detailed.gz</code>) がパッケージに含まれています。カスタム設定ファイルを作成する際に、この例を足掛かりとして使う事が可能です。
+				</div></div><div
+              class="para">
+					Simple-CDD を完全に動作させるには多くのパラメータが必要です。通常、パラメータは設定ファイルの中にまとめられ、<code
+                class="command">build-simple-cdd</code> は <code
+                class="literal">--conf</code> オプションを使って設定ファイルを指定します。しかし、パラメータは専用パラメータを <code
+                class="command">build-simple-cdd</code> に渡すことでも指定する事も可能です。以下は <code
+                class="command">build-simple-cdd</code> の挙動とパラメータの使われ方をおおまかに説明したものです:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">profiles</code> パラメータは生成する CD-ROM イメージに含めるプロファイルをリストします;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							Simple-CDD は要求されるパッケージのリストに基いて、<code
+                      class="literal">server</code> で指定されているサーバから適切なファイルをダウンロードし、(後に debian-cd に渡される) ローカルミラーにまとめます;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							また <code
+                      class="literal">local_packages</code> で指定されたカスタムパッケージがこのローカルミラーの中に統合されます;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							この後、統合するパッケージのリストを使って debian-cd が実行されます (実行場所は <code
+                      class="literal">debian_cd_dir</code> 変数を使って設定されたデフォルト位置です);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							debian-cd がディレクトリを用意したら、Simple-CDD は幾つかの変更をこのディレクトリに加えます:
+						</div><div
+                    class="itemizedlist"><ul><li
+                        class="listitem"><div
+                          class="para">
+									プロファイルを含むファイルが <code
+                            class="filename">simple-cdd</code> サブディレクトリに追加されます (CD-ROM に追加されます);
+								</div></li><li
+                        class="listitem"><div
+                          class="para">
+									<code
+                            class="literal">all_extras</code> パラメータで指定された他のファイルも追加されます;
+								</div></li><li
+                        class="listitem"><div
+                          class="para">
+									起動パラメータが調整され、preseeding が有効化されます。言語と国に関する質問を避けるには、これらの情報を <code
+                            class="literal">language</code> と <code
+                            class="literal">country</code> 変数に保存します。
+								</div></li></ul></div></li><li
+                  class="listitem"><div
+                    class="para">
+							この後、debian-cd が最終的な ISO イメージを生成します。
+						</div></li></ul></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140393305719312"></a>12.3.3.3. ISO イメージの生成</h4></div></div></div><div
+              class="para">
+					設定ファイルの記述と自分のプロファイルの定義が完了したら、<code
+                class="command">build-simple-cdd --conf simple-cdd.conf</code> を実行します。数分後、必要なイメージが <code
+                class="filename">images/debian-7.0-amd64-CD-1.iso</code> に完成します。
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtualization.html"><strong>戻る</strong>12.2. 仮想化</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.monitoring.html"><strong>次へ</strong>12.4. 監視</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.automated-installation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.automated-installation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.automated-installation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.automated-installation.html">el-GR</a></li><li><a
+              href="../en-US/sect.automated-installation.html">en-US</a></li><li><a
+              href="../es-ES/sect.automated-installation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.automated-installation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.automated-installation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.automated-installation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.automated-installation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.automated-installation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.automated-installation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.automated-installation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.automated-installation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.automated-installation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.automated-installation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.automated-installation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.automated-installation.html">zh-CN</a></li></ul></div></body></html>

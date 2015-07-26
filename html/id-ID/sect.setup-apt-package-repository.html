@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.3. Membuat Repositori Paket untuk APT</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-id-ID-1.0-1" /><meta
+        name="keywords"
+        content="Backport, Rebuild, Source package, Archive, Meta-package, Debian Developer, Maintainer" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="Bab 15. Membuat paket Debian" /><link
+        rel="prev"
+        href="sect.building-first-package.html"
+        title="15.2. Membangun Ulang Paket Pertama Anda" /><link
+        rel="next"
+        href="sect.becoming-package-maintainer.html"
+        title="15.4. Menjadi seorang Maintainer Paket" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/id-ID/sect.setup-apt-package-repository.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.building-first-package.html"><strong>Sebelumnya</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.becoming-package-maintainer.html"><strong>Lanjut</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.setup-apt-package-repository"></a>15.3. Membuat Repositori Paket untuk APT</h2></div></div></div><a
+          id="idm140170048988960"
+          class="indexterm"></a><a
+          id="idm140170048988000"
+          class="indexterm"></a><div
+          class="para">
+			Falcor Corp perlahan mulai mengelola sejumlah paket Debian baik dimodifikasi lokal dari paket yang sudah ada atau membuat dari awal untuk mendistribusikan data internal dan program.
+		</div><div
+          class="para">
+			Untuk membuat deployent lebih mudah, mereka ingin mengintegrasikan paket-paket ke dalam sebuah arsip paket yang dapat digunakan langsung oleh APT. Untuk alasan pengelolaan, mereka ingin memisahkan paket internal dari paket yang dibangun-ulang-lokal. Tujuannya adalah untuk menyamakan entri berkas <code
+            class="filename">/etc/apt/sources.list</code> sebagai berikut:
+		</div><pre
+          class="programlisting">
+deb http://packages.falcot.com/ updates/
+deb http://packages.falcot.com/ internal/
+</pre><a
+          id="idm140170048983728"
+          class="indexterm"></a><div
+          class="para">
+			The administrators therefore configure a virtual host on their internal HTTP server, with <code
+            class="filename">/srv/vhosts/packages/</code> as the root of the associated web space. The management of the archive itself is delegated to the <code
+            class="command">mini-dinstall</code> command (in the similarly-named package). This tool keeps an eye on an <code
+            class="filename">incoming/</code> directory (in our case, <code
+            class="filename">/srv/vhosts/packages/mini-dinstall/incoming/</code>) and waits for new packages there; when a package is uploaded, it is installed into a Debian archive at <code
+            class="filename">/srv/vhosts/packages/</code>. The <code
+            class="command">mini-dinstall</code> command reads the <code
+            class="filename">*.changes</code> file created when the Debian package is generated. These files contain a list of all other files associated with the version of the package (<code
+            class="filename">*.deb</code>, <code
+            class="filename">*.dsc</code>, <code
+            class="filename">*.diff.gz</code>/<code
+            class="filename">*.debian.tar.gz</code>, <code
+            class="filename">*.orig.tar.gz</code>, or their equivalents with other compression tools), and these allow <code
+            class="command">mini-dinstall</code> to know which files to install. <code
+            class="filename">*.changes</code> files also contain the name of the target distribution (often <code
+            class="literal">unstable</code>) mentioned in the latest <code
+            class="filename">debian/changelog</code> entry, and <code
+            class="command">mini-dinstall</code> uses this information to decide where the package should be installed. This is why administrators must always change this field before building a package, and set it to <code
+            class="literal">internal</code> or <code
+            class="literal">updates</code>, depending on the target location. <code
+            class="command">mini-dinstall</code> then generates the files required by APT, such as <code
+            class="filename">Packages.gz</code>.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIF</em></span> <code
+                      class="command">apt-ftparchive</code></strong></p></div></div></div><a
+            id="idm140170048970576"
+            class="indexterm"></a><div
+            class="para">
+			If <code
+              class="command">mini-dinstall</code> seems too complex for your Debian archive needs, you can also use the <code
+              class="command">apt-ftparchive</code> command. This tool scans the contents of a directory and displays (on its standard output) a matching <code
+              class="filename">Packages</code> file. In the Falcot Corp case, administrators could upload the packages directly into <code
+              class="filename">/srv/vhosts/packages/updates/</code> or <code
+              class="filename">/srv/vhosts/packages/internal/</code>, then run the following commands to create the <code
+              class="filename">Packages.gz</code> files:
+		</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd /srv/vhosts/packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-ftparchive packages updates &gt;updates/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>gzip updates/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>apt-ftparchive packages internal &gt;internal/Packages</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>gzip internal/Packages</code></strong></pre><div
+            class="para">
+			Perintah <code
+              class="command">apt-ftparchive sources</code> mengizinkan membuat berkas <code
+              class="filename">Sources.gz</code> dengan cara yang mirip.
+		</div></div><div
+          class="para">
+			Mengkonfigurasi <code
+            class="command">mini-dinstall</code> membutuhkan menyiapkan sebuah berkas <code
+            class="filename">~/.mini-dinstall.conf</code>; dalam kasus Falcot Corp, isinya adalah sebagai berikut:
+		</div><pre
+          class="programlisting">
+[DEFAULT]
+archive_style = flat
+archivedir = /srv/vhosts/packages
+
+verify_sigs = 0
+mail_to = admin@falcot.com
+
+generate_release = 1
+release_origin = Falcot Corp
+release_codename = stable
+
+[updates]
+release_label = Recompiled Debian Packages
+
+[internal]
+release_label = Internal Packages
+</pre><div
+          class="para">
+			One decision worth noting is the generation of <code
+            class="filename">Release</code> files for each archive. This can help manage package installation priorities using the <code
+            class="filename">/etc/apt/preferences</code> configuration file (see <a
+            class="xref"
+            href="sect.apt-get.html#sect.apt.priorities">Bagian 6.2.5, “Mengelola Prioritas Paket”</a> for details).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SECURITY</em></span> <code
+                      class="command">mini-dinstall</code> dan permission</strong></p></div></div></div><div
+            class="para">
+			...
+		</div></div><div
+          class="para">
+			...
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>EKSTRA</em></span> Membuat sebuah signed archive</strong></p></div></div></div><div
+            class="para">
+			APT suite memeriksa rantai tanda tangan kriptografik dari paket ... sebelum meng-install mereka (dan telah dilakukan sejak <span
+              class="distribution distribution">Etch</span>), untuk memastikan keaslian (lihat <a
+              class="xref"
+              href="sect.package-authentication.html">Bagian 6.5, “Pemeriksaan Otentikasi Paket”</a>). Arsip APT privat dapat menjadi masalah, karena mesin yang menggunakan mereka akan terus menampilkan peringatan tentang paket tanpa-tanda-tangan. Administrator yang rajin akan memeriksa arsip ... dengan mekanisme secure APT.
+		</div><div
+            class="para">
+			Untuk membantu dengan proses ini, <code
+              class="command">mini-dinstall</code> memuat <code
+              class="literal">release_signscript</code> opsi konfigurasi yang memungkinkan menspesifikasikan sebuah script untuk digunakan untuk menghasilkan signature. Titik mulai yang bagus adalah script <code
+              class="filename">sign-release.sh</code> yang disediakan oleh <span
+              class="pkg pkg">mini-dinstall</span> paket <code
+              class="filename">/usr/share/doc/mini-dinstall/examples/</code>; perubahan lokal bisa jadi relevan.
+		</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.building-first-package.html"><strong>Sebelumnya</strong>15.2. Membangun Ulang Paket Pertama Anda</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Induk</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Depan</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.becoming-package-maintainer.html"><strong>Lanjut</strong>15.4. Menjadi seorang Maintainer Paket</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.setup-apt-package-repository.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.setup-apt-package-repository.html">da-DK</a></li><li><a
+              href="../de-DE/sect.setup-apt-package-repository.html">de-DE</a></li><li><a
+              href="../el-GR/sect.setup-apt-package-repository.html">el-GR</a></li><li><a
+              href="../en-US/sect.setup-apt-package-repository.html">en-US</a></li><li><a
+              href="../es-ES/sect.setup-apt-package-repository.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.setup-apt-package-repository.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.setup-apt-package-repository.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.setup-apt-package-repository.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.setup-apt-package-repository.html">id-ID</a></li><li><a
+              href="../it-IT/sect.setup-apt-package-repository.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.setup-apt-package-repository.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.setup-apt-package-repository.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.setup-apt-package-repository.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.setup-apt-package-repository.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.setup-apt-package-repository.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.setup-apt-package-repository.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.setup-apt-package-repository.html">zh-CN</a></li></ul></div></body></html>

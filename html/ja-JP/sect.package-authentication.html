@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">6.5. パッケージ信頼性の確認</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="apt-get, apt-cache, aptitude, synaptic, sources.list, apt-cdrom" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="apt.html"
+        title="第6章 保守と更新: APT ツール" /><link
+        rel="prev"
+        href="sect.apt-frontends.html"
+        title="6.4. フロントエンド: aptitude、synaptic" /><link
+        rel="next"
+        href="sect.dist-upgrade.html"
+        title="6.6. 安定版から次のディストリビューションへのアップグレード" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.package-authentication.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.apt-frontends.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dist-upgrade.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.package-authentication"></a>6.5. パッケージ信頼性の確認</h2></div></div></div><a
+          id="idm140393325828672"
+          class="indexterm"></a><a
+          id="idm140393325827232"
+          class="indexterm"></a><a
+          id="idm140393325825792"
+          class="indexterm"></a><a
+          id="idm140393325824352"
+          class="indexterm"></a><a
+          id="idm140393325822912"
+          class="indexterm"></a><div
+          class="para">
+			Falcot Corp の管理者にとって、セキュリティはとても重要です。つまり管理者は、パッケージが途中で改竄されていないこと、確かに Debian から提供されている事を確認し、確認のとれたパッケージだけをインストールしなければいけません。コンピュータクラッカーは、他の合法的なパッケージに悪意あるコードを追加しようと試みます。そのようなパッケージがインストールされた場合、クラッカーが設計したことは何でも、例えばパスワードや機密情報の漏洩などでも、実行されます。この危険性を回避するために、Debian は不正加工を防ぐ封印を提供し、インストール時にそのパッケージが、公式メンテナから提供されたものと本当に同じこと、第三者によって変更されていないこと、を保証します。
+		</div><div
+          class="para">
+			この封印は一連の暗号学的ハッシュと署名を使って行われます。署名されたファイルは <code
+            class="filename">Release</code> ファイルで、Debian ミラーから提供されます。このファイルには、<code
+            class="filename">Packages</code> ファイル (<code
+            class="filename">Packages.gz</code>、<code
+            class="filename">Packages.bz2</code>、そして増分バージョンの圧縮形式など) のリストが改竄されていない事を保証するための MD5、SHA1、SHA256 ハッシュと一緒に含まれています。<code
+            class="filename">Packages</code> ファイルには、ミラーで提供されている Debian パッケージのリストがパッケージの内容が変更されていない事を保証するハッシュと一緒に含まれています。
+		</div><a
+          id="idm140393325816640"
+          class="indexterm"></a><a
+          id="idm140393325815520"
+          class="indexterm"></a><a
+          id="idm140393325814096"
+          class="indexterm"></a><a
+          id="idm140393325812976"
+          class="indexterm"></a><div
+          class="para">
+			信頼された鍵は <span
+            class="pkg pkg">apt</span> パッケージから提供される <code
+            class="command">apt-key</code> コマンドで管理されます。このプログラムは GnuPG 公開鍵の鍵束を保守し、この鍵束はミラーから提供される <code
+            class="filename">Release.gpg</code> ファイルに含まれる署名を検証するために使われます。新しい鍵を手作業で追加する場合 (非公式ミラーでこれが必要な場合) にも使われます。しかしながら一般的に、公式の Debian 鍵以外は不要です。これらの鍵は <span
+            class="pkg pkg">debian-archive-keyring</span> パッケージによって自動的に最新の状態に維持されます (対応する鍵束を <code
+            class="filename">/etc/apt/trusted.gpg.d</code> に格納します)。しかしながら、<span
+            class="pkg pkg">debian-archive-keyring</span> パッケージを初めてインストールする際には用心が必要です: たとえ <span
+            class="pkg pkg">debian-archive-keyring</span> パッケージが他のパッケージと同様に署名されていたとしても、その署名を外部から検証できません。そんなわけで、注意深い管理者なら、新しいパッケージをインストールするために取り込まれた鍵を信用する前にその鍵の指紋を確認するべきです:
+		</div><pre
+          class="screen scale"># <strong
+            class="userinput"><code>apt-key fingerprint</code></strong>
+/etc/apt/trusted.gpg.d/debian-archive-jessie-automatic.gpg
+----------------------------------------------------------
+pub   4096R/2B90D010 2014-11-21 [満了: 2022-11-19]
+                 指紋 = 126C 0D24 BD8A 2942 CC7D  F8AC 7638 D044 2B90 D010
+uid                  Debian Archive Automatic Signing Key (8/jessie) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-jessie-security-automatic.gpg
+-------------------------------------------------------------------
+pub   4096R/C857C906 2014-11-21 [満了: 2022-11-19]
+                 指紋 = D211 6914 1CEC D440 F2EB  8DDA 9D6D 8F6B C857 C906
+uid                  Debian Security Archive Automatic Signing Key (8/jessie) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-jessie-stable.gpg
+-------------------------------------------------------
+pub   4096R/518E17E1 2013-08-17 [満了: 2021-08-15]
+                 指紋 = 75DD C3C4 A499 F1A1 8CB5  F3C8 CBF8 D6FD 518E 17E1
+uid                  Jessie Stable Release Key &lt;debian-release@lists.debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-squeeze-automatic.gpg
+-----------------------------------------------------------
+pub   4096R/473041FA 2010-08-27 [満了: 2018-03-05]
+                 指紋 = 9FED 2BCB DCD2 9CDF 7626  78CB AED4 B06F 4730 41FA
+uid                  Debian Archive Automatic Signing Key (6.0/squeeze) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-squeeze-stable.gpg
+--------------------------------------------------------
+pub   4096R/B98321F9 2010-08-07 [満了: 2017-08-05]
+                 指紋 = 0E4E DE2C 7F3E 1FC0 D033  800E 6448 1591 B983 21F9
+uid                  Squeeze Stable Release Key &lt;debian-release@lists.debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-wheezy-automatic.gpg
+----------------------------------------------------------
+pub   4096R/46925553 2012-04-27 [満了: 2020-04-25]
+                 指紋 = A1BD 8E9D 78F7 FE5C 3E65  D8AF 8B48 AD62 4692 5553
+uid                  Debian Archive Automatic Signing Key (7.0/wheezy) &lt;ftpmaster@debian.org&gt;
+
+/etc/apt/trusted.gpg.d/debian-archive-wheezy-stable.gpg
+-------------------------------------------------------
+pub   4096R/65FFB764 2012-05-08 [満了: 2019-05-07]
+                 指紋 = ED6D 6527 1AAC F0FF 15D1  2303 6FB2 A1C2 65FF B764
+uid                  Wheezy Stable Release Key &lt;debian-release@lists.debian.org&gt;</pre><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>IN PRACTICE</em></span> 信頼された鍵の追加</strong></p></div></div></div><a
+            id="idm140393325801312"
+            class="indexterm"></a><a
+            id="idm140393325800352"
+            class="indexterm"></a><div
+            class="para">
+			第三者のパッケージソースを <code
+              class="filename">sources.list</code> に追加したら、APT にパッケージソースに対応する GPG 認証鍵を信頼する事を伝える必要があります (そうでなければ、APT はそのパッケージソースから提供されるパッケージの信頼性を保証できないとエラーを出し続けます)。最初のステップはもちろん公開鍵を手に入れる事です。大抵の場合、公開鍵は小さなテキストファイルの形で配布されています。以降の例ではこの公開鍵を <code
+              class="filename">key.asc</code> と呼びます。
+		</div><div
+            class="para">
+			信頼された鍵束に鍵を追加するために、管理者は <code
+              class="command">apt-key add &lt; key.asc</code> を実行します。また、<code
+              class="command">synaptic</code> グラフィカルインターフェースを利用する事も可能です: <span
+              class="guimenu"><strong>設定(S)</strong></span> → <span
+              class="guisubmenu"><strong>リポジトリ(R)</strong></span> メニューの「認証」タブで <code
+              class="filename">key.asc</code> から鍵を取り込みます。
+		</div><a
+            id="idm140393325794048"
+            class="indexterm"></a><div
+            class="para">
+			専用のアプリケーションを使いたくなかったり、信頼された鍵の詳細を知りたい人は <code
+              class="command">gui-apt-key</code> (同名のパッケージに含まれます) を使う事も可能です。これは質素なユーザインタフェースで、信頼された鍵束を管理します。
+		</div></div><div
+          class="para">
+			適切な鍵を鍵束の中に追加すれば、APT は危険性の高い操作の前に署名を確認します。こうすることで、信頼性が確定できないパッケージをインストールするよう要求された場合に、フロントエンドは警告を表示するようになります。
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.apt-frontends.html"><strong>戻る</strong>6.4. フロントエンド: aptitude、synaptic</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.dist-upgrade.html"><strong>次へ</strong>6.6. 安定版から次のディストリビューションへのアップグレード</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.package-authentication.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.package-authentication.html">da-DK</a></li><li><a
+              href="../de-DE/sect.package-authentication.html">de-DE</a></li><li><a
+              href="../el-GR/sect.package-authentication.html">el-GR</a></li><li><a
+              href="../en-US/sect.package-authentication.html">en-US</a></li><li><a
+              href="../es-ES/sect.package-authentication.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.package-authentication.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.package-authentication.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.package-authentication.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.package-authentication.html">id-ID</a></li><li><a
+              href="../it-IT/sect.package-authentication.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.package-authentication.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.package-authentication.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.package-authentication.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.package-authentication.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.package-authentication.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.package-authentication.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.package-authentication.html">zh-CN</a></li></ul></div></body></html>

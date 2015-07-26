@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.3. Instalação Automatizada</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, Pré-configuração, Monitoramento, Virtualização, Xen, LXC" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="Capítulo 12. Administração Avançada" /><link
+        rel="prev"
+        href="sect.virtualization.html"
+        title="12.2. Virtualização" /><link
+        rel="next"
+        href="sect.monitoring.html"
+        title="12.4. Monitoramento" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.automated-installation.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtualization.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.monitoring.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.automated-installation"></a>12.3. Instalação Automatizada</h2></div></div></div><a
+          id="idm140035049467536"
+          class="indexterm"></a><a
+          id="idm140035049466768"
+          class="indexterm"></a><div
+          class="para">
+			Os administradores da Falcot Corp, como muitos administradores de grandes serviços de TI, precisam de ferramentas para instalar (ou reinstalar) rapidamente, e automaticamente se possível, suas novas máquinas.
+		</div><div
+          class="para">
+			Essas exigências podem ser atendidas por uma ampla gama de soluções. Por um lado, ferramentas genéricas como a SystemImager lidam com isso criando uma imagem baseada em uma máquina modelo, e então, implantam essa imagem nos sistemas alvo; no extremo oposto do espectro, o instalador Debian padrão pode ser pré alimentado com um arquivo de configuração contendo as repostas das questões perguntadas durante o processo de instalação. Como um tipo de meio termo, uma ferramenta híbrida como a FAI (<span
+            class="emphasis"><em>Fully Automatic Installer</em></span>) instala máquinas usando o sistema de empacotamento, mas ela também usa sua própria infraestrutura para tarefas que são mais específicas para implantações em massa (como iniciação, particionamento, configuração e assim por diante).
+		</div><div
+          class="para">
+			Cada uma dessas soluções tem seus prós e contras: o SystemImager trabalha de maneira independente de qualquer sistema de empacotamento em particular, o que permite a ele gerenciar grandes conjuntos de máquinas usando várias distribuições Linux distintas. Ele também inclui um sistema de atualização que não requer uma reinstalação, mas esse sistema de atualização só será confiável se as máquinas não forem modificadas de forma independente; em outras palavras, o usuário não pode atualizar nenhum software por conta própria, ou instalar qualquer outro software. De maneira similar, atualizações de segurança não podem ser automatizadas, porque elas tem que passar pela imagem de referência centralizada mantida pelo SystemImager. Essa solução também requer que as máquinas alvo sejam homogêneas, caso contrário muitas imagens diferentes teriam que ser mantidas e gerenciadas (uma imagem i386 não caberia em uma máquina powerpc, e assim por diante).
+		</div><div
+          class="para">
+			Por outro lado, uma instalação automatizada usando o debian-installer pode ser adaptada para as especificações de cada máquina: o instalador irá buscar o núcleo apropriado e pacotes de software nos repositórios relevantes, detectar o hardware disponível, particionar todo o disco rígido para tirar vantagem de todo o espaço disponível, instalar o sistema Debian correspondente, e configurar um gerenciador de inicialização de maneira apropriada. Contudo, o instalador padrão irá apenas instalar as versões padrão do Debian, com o sistema base e um conjunto de "tarefas" pré selecionadas; isso exclui a instalação de um sistema específico com aplicações não empacotáveis. Preencher essa necessidade em particular requer customizar o instalador… Felizmente, o instalador é muito modular, e existem ferramentas para automatizar a maior parte do trabalho necessário para essa customização, a mais importante o simple-CDD (CDD sendo um acrônimo para <span
+            class="emphasis"><em>Custom Debian Derivative</em></span>). Mas mesmo a solução simple-CDD, entretanto, apenas lida com instalações iniciais; mas isso geralmente não é um problema, já que as ferramentas APT permitem uma implantação eficiente de atualizações posteriormente.
+		</div><div
+          class="para">
+			Nós iremos apenas dar uma olhada grosseira no FAI, e pular o SystemImager de uma vez (que não está mais no Debian), a fim de focar mais atentamente no debian-installer e simple-CDD, que são mais interessantes num contexto somente Debian.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.fai"></a>12.3.1. Instalador Completamente Automático (FAI)</h3></div></div></div><a
+            id="idm140035049458512"
+            class="indexterm"></a><div
+            class="para">
+				<span
+              class="foreignphrase"><em
+                class="foreignphrase">Instalador Completamente Automático (Fully Automatic Installer)</em></span> é provavelmente o mais antigo sistema de implantação automatizada para Debian, o que explica seu status como uma referência; mas sua natureza muito flexível apenas compensa a complexidade que ele envolve.
+			</div><div
+            class="para">
+				O FAI requer um sistema de serivdor para armazenar informação da implantação e permitir que as máquinas alvo inicializem a partir da rede. Esse servidor requer o pacote <span
+              class="pkg pkg">fai-server</span> (ou <span
+              class="pkg pkg">fai-quickstart</span>, que também traz os elementos necessários para uma configuração padrão).
+			</div><div
+            class="para">
+				O FAI usa uma abordagem específica para definir os vários perfis instaláveis. Em vez de simplesmente duplicar uma instalação de referência, o FAI é um instalador de pleno direito (full-fledged), totalmente configurável através de um conjunto de arquivos e scripts armazenados no servidor; a localização padrão <code
+              class="filename">/srv/fai/config/</code> não é criado automaticamente, então o administrador precisa criá-lo juntamente com os arquivos relevantes. Na maioria das vezes, esses arquivos serão customizados a partir de arquivos exemplo disponíveis na documentação do pacote <span
+              class="pkg pkg">fai-doc</span>, mais particularmente no diretório <code
+              class="filename">/usr/share/doc/fai-doc/examples/simple/</code>.
+			</div><div
+            class="para">
+				Uma vez que os perfis estejam definidos, o comando <code
+              class="command">fai-setup</code> gera os elementos necessários para iniciar uma instalação FAI; isso significa principalmente preparar uo atualizar um sistema mínimo (NFS-root) usado durante a instalação. Uma alternativa é gerar um CD de inicialização dedicado com o <code
+              class="command">fai-cd</code>.
+			</div><div
+            class="para">
+				Para criar todos esses arquivos de configuração é necessário algum entendimento da maneira a qual o FAI funciona. Um processo de instalação típico é feito dos passos seguintes:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						pegar um núcleo da rede, e iniciá-lo;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						montar um sistema de arquivo raiz de um NFS;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						executar <code
+                    class="command">/usr/sbin/fai</code>, o qual controla o resto do processo (os próximos passos portanto são iniciados por este roteiro);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						copiar o espaço de configuração do servidor para <code
+                    class="filename">/fai/</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						rodando <code
+                    class="command">fai-class</code>. Os scripts <code
+                    class="filename">/fai/class/[0-9][0-9]*</code> são executados em turnos, e retornam nomes de “classes” que se aplicam a máquina que está sendo instalada; essa informação irá servir como base para as etapas seguintes. Isso permite alguma flexibilidade na definição de serviços a serem instalados e configurados.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						buscando várias variáveis de configuração, dependendo das classes relevantes;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						particionar os discos e formatar as partições com base nas informações fornecidas em <code
+                    class="filename">/fai/disk_config/<em
+                      class="replaceable">class</em></code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						montar essas partições;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						instalar o sistema base;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						preparar o banco de dados Debconf com <code
+                    class="command">fai-debconf</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						buscar a lista de pacotes disponíveis para o APT;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						instalar os pacotes listados em <code
+                    class="filename">/fai/package_config/<em
+                      class="replaceable">class</em></code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						executar os scripts de pós configuração, <code
+                    class="filename">/fai/scripts/<em
+                      class="replaceable">class</em>/[0-9][0-9]*</code>;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						gravar os registros de instalação, desmontar as partições e reinicializar o computador.
+					</div></li></ul></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.d-i-preseeding"></a>12.3.2. Preseeding Debian-Installer</h3></div></div></div><a
+            id="idm140035049433168"
+            class="indexterm"></a><a
+            id="idm140035049432400"
+            class="indexterm"></a><div
+            class="para">
+				No final das contas, a melhor ferramenta para instalar sistemas Debian deve ser, logicamente, o instalador Debian oficial. Isso é porque, desde sua concepção, o debian-installer tem sido projetado para o uso automatizado, tirando vantagem da infraestrutura fornecida pelo <span
+              class="pkg pkg">debconf</span>. Esse último permite, por um lado, reduzir o número de perguntas feitas (perguntas ocultas irão usar as respostas padrão fornecidas), e por outro lado, para fornecer respostas padrão separadamente, para que a instalação possa ser não-interativa. Essa última característica é conhecida como <span
+              class="emphasis"><em>preseeding</em></span>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>INDO ALÉM</em></span> Debconf com um banco de dados centralizado</strong></p></div></div></div><a
+              id="idm140035049428720"
+              class="indexterm"></a><div
+              class="para">
+				O Preseeding permite fornecer um conjunto de respostas as perguntas do Debconf no momento da instalação, mas essas respostas são estáticas e não evoluem com o passar do tempo. Como máquinas já instaladas talvez precisem de atualização, e novas respostas talvez venham a ser necessárias, o arquivo de configuração <code
+                class="filename">/etc/debconf.conf</code> pode ser configurado para que o Debconf use fontes de dados externas (como um servidor de diretório LDAP, ou um arquivo remoto acessado via NFS ou Samba). Várias fontes de dados externas podem sr definidas ao mesmo tempo, e elas se complementam. O banco de dados local ainda é usado used (para acesso leitura-escrita), mas os bancos de dados remotos são, geralmente, restritos a leitura. A página de manual <span
+                class="citerefentry"><span
+                  class="refentrytitle">debconf.conf</span>(5)</span> descreve todas as possibilidades em detalhes.
+			</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049425248"></a>12.3.2.1. Usando um Arquivo Preseed</h4></div></div></div><div
+              class="para">
+					Existem vários lugares aonde o instalador pode obter um arquivo preseeding:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							Dentro do initrd ,usado para iniciar a máquina; neste caso, o preseeding acontece bem no início da instalação, e todas as perguntas podem ser evitadas. O arquivo apenas precisa ser chamado <code
+                      class="filename">preseed.cfg</code> e armazenado dentro da raiz do initrd.
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							na mídia de inicialização (CD ou dispositivo USB); o preseeding então acontece assim que a mídia é montada, o que significa ser logo após as perguntas sobre idioma e layout do teclado. O parâmetro de inicialização <code
+                      class="literal">preseed/file</code> pode ser usado para indicar a localização do arquivo preseeding (por exemplo, <code
+                      class="filename">/cdrom/preseed.cfg</code> quando a instalação é feita por um CD-ROM, ou <code
+                      class="filename">/hd-media/preseed.cfg</code> no caso de um dispositivo USB).
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							a partir da rede; o preseeding então apenas acontece após a rede ser configurada (automaticamente); o parâmetro de inicialização relevante é então <code
+                      class="literal">preseed/url=http://<em
+                        class="replaceable">server</em>/preseed.cfg</code>.
+						</div></li></ul></div><div
+              class="para">
+					De relance, incluir o arquivo preseeding dentro do initrd parece ser a solução mais interessante; no entanto, ela raramente é usada na prática, porque gerar um initrd instalador é bem complexo. As outras duas soluções são muito mais comuns, especialmente quando os parâmetros de inicialização fornecem outra maneira de fazer "preseed" das respostas para as primeiras perguntas do processo de instalação. A maneira usual de evitar o incômodo de digitar esses parâmetro de inicialização a manualmente a cada instalação é salvá-los na configuração do <code
+                class="command">isolinux</code> (no caso do CD-ROM) ou <code
+                class="command">syslinux</code> (dispositivo USB).
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049416512"></a>12.3.2.2. Criando um Arquivo Preseed</h4></div></div></div><div
+              class="para">
+					Um arquivo preseed é um arquivo de texto puro, aonde cada linha contém a resposta para uma pergunta do Debconf. A linha é dividida em quatro campos separados por espaço em branco (espaços ou tabs), com em, por exemplo, <code
+                class="literal">d-i mirror/suite string stable</code>:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							o primeiro campo é o “dono” da pergunta; “d-i” é usado para perguntas relevantes para o instalador, mas ele também pode ser um nome de pacote para perguntas vindas a partir de pacotes Debian;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o segundo campo é um identificador para a pergunta;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							terceiro, o tipo de pergunta;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o quarto e último campo contém o valor para a resposta. Note que ele tem que ser separador do terceiro campo com um único espaço; se existir mais de um, os caracteres espaço seguintes serão considerados parte do valor.
+						</div></li></ul></div><div
+              class="para">
+					A maneira mais simples de escrever um arquivo preseed é instalar o sistema manualmente. Então o <code
+                class="command">debconf-get-selections --installer</code> irá prover as respostas com relação ao instalador. Respostas sobre outros pacotes podem ser obtidas com <code
+                class="command">debconf-get-selections</code>. No entanto, uma solução mais limpa é escrever o arquivo preseed manualmente, iniciando a partir de um exemplo e da documentação de referência: com tal abordagem, apenas perguntas aonde a resposta padrão precisa ser sobrescrita podem se submeter ao preseeded; usando o parâmetro de inicialização <code
+                class="literal">priority=critical</code> irá instruir o Debconf a apenas perguntar questões criticas, e usar a resposta padrão para as outras.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>DOCUMENTAÇÃO</em></span> Apêndice do guia de instalação</strong></p></div></div></div><div
+                class="para">
+					O guia de instalação, disponível online, inclui documentação detalhada sobre o uso de um arquivo preseed em um apêndice. Ele também inclui um arquivo de amostra detalhado e comentado, que pode servir como base para customizações locais. <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/amd64/apb.html">http://www.debian.org/releases/wheezy/amd64/apb.html</a></div> <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/example-preseed.txt">http://www.debian.org/releases/wheezy/example-preseed.txt</a></div>
+				</div></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049405232"></a>12.3.2.3. Criando uma Mídia de Inicialização Customizada</h4></div></div></div><div
+              class="para">
+					Saber aonde armazenar um arquivo preseed é muito bom, mas a localização não é tudo: é preciso, de uma forma ou de outra, alterar a mídia de inicialização de instalação para mudar os parâmetros de inicialização e adicionar o arquivo preseed.
+				</div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140035049403920"></a>12.3.2.3.1. Inicializando a Partir da Rede</h5></div></div></div><div
+                class="para">
+						Quando um computador é inicializado a partir da rede, o servidor que envia os elementos de inicialização também define os parâmetros de inicialização. Assim, a alteração precisa ser feita na configuração PXE do servidor de inicialização; mais especificamente, no seu arquivo de configuração <code
+                  class="filename">/tftpboot/pxelinux.cfg/default</code>. Configurar a inicialização pela rede é um pré requisito; veja o Guia de Instalação para detalhes. <div
+                  class="url">→ <a
+                    href="http://www.debian.org/releases/wheezy/amd64/ch04s05.html">http://www.debian.org/releases/wheezy/amd64/ch04s05.html</a></div>
+					</div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140035049401104"></a>12.3.2.3.2. Preparando um Dispositivo USB Inicializável</h5></div></div></div><div
+                class="para">
+						Uma vez que um dispositivo inicializável tenha sido preparado (veja <a
+                  class="xref"
+                  href="installation.html#sect.install-usb">Seção 4.1.2, “Iniciando a partir de um pendrive”</a>), algumas operações extras são necessárias. Assumindo que o conteúdo do dispositivo está disponível em <code
+                  class="filename">/media/usbdisk/</code>:
+					</div><div
+                xmlns:d="http://docbook.org/ns/docbook"
+                class="itemizedlist"><ul><li
+                    class="listitem"><div
+                      class="para">
+								copiar o arquivo preseed para <code
+                        class="filename">/media/usbdisk/preseed.cfg</code>
+							</div></li><li
+                    class="listitem"><div
+                      class="para">
+								editar <code
+                        class="filename">/media/usbdisk/syslinux.cfg</code> e adicionar os parâmetros de inicialização necessários (veja o exemplo abaixo).
+							</div></li></ul></div><div
+                class="example"><a
+                  id="idm140035049396176"></a><p
+                  class="title"><strong>Exemplo 12.2. arquivo syslinux.cfg e parâmetros preseeding</strong></p><div
+                  class="example-contents"><pre
+                    class="programlisting">default vmlinuz
+append preseed/file=/hd-media/preseed.cfg locale=en_US console-keymaps-at/keymap=us languagechooser/language-name=English countrychooser/shortlist=US vga=normal initrd=initrd.gz  --
+</pre></div></div></div><div
+              class="section"><div
+                class="titlepage"><div><div><h5
+                      class="title"><a
+                        id="idm140035049394688"></a>12.3.2.3.3. Criando uma Imagem de CD-ROM</h5></div></div></div><a
+                id="idm140035049394048"
+                class="indexterm"></a><div
+                class="para">
+						Um dispositivo USB é uma mídia de leitura-escrita, então foi fácil para nós adicionar um arquivo lá e alterar alguns parâmetros. No caso do CD-ROM, a operação é mais complexa, já que nós precisamos refazer uma imagem ISO completa. Essa tarefa é feita pelo <span
+                  class="pkg pkg">debian-cd</span>, mas essa ferramenta é um pouco mais complicada de usar: ela precisa de um espelho local, e requer o entendimento de todas as opções fornecidas pelo <code
+                  class="filename">/usr/share/debian-cd/CONF.sh</code>; mesmo assim, o <code
+                  class="command">make</code> tem que ser invocado várias vezes. <code
+                  class="filename">/usr/share/debian-cd/README</code> é, portanto, uma leitura muito recomendada.
+					</div><div
+                class="para">
+						Dito isso, o debian-cd sempre opera de maneira similar: um diretório “imagem” com o conteúdo exato do CD-ROM é gerado, e então convertido em um arquivo ISO com uma ferramental tal como a <code
+                  class="command">genisoimage</code>, <code
+                  class="command">mkisofs</code> ou <code
+                  class="command">xorriso</code>. O diretório da imagem é finalizado após o passo <code
+                  class="command">make image-trees</code> do debian-cd. Nesse ponto, nós inserimos o arquivo preseed dentro do diretório apropriado (usualmente <code
+                  class="filename">$TDIR/wheezy/CD1/</code>, $TDIR sendo um dos parâmetros definidos pelo arquivo de configuração <code
+                  class="filename">CONF.sh</code>). O CD-ROM usa <code
+                  class="command">isolinux</code> como seu carregador de inicialização, e seu arquivo de configuração tem que ser adaptado a partir do que o debian-cd gerou, a fim de inserir os parâmetros de inicialização necessários (o arquivo específico é <code
+                  class="filename">$TDIR/wheezy/boot1/isolinux/isolinux.cfg</code>). Então o processo “normal” pode ser retomado e nós podemos continuar a gerar a imagem ISO com <code
+                  class="command">make image CD=1</code> (ou <code
+                  class="command">make images</code> se for para gerar vários CD-ROMs).
+					</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.simple-cdd"></a>12.3.3. Simple-CDD: A Solução Tudo-Em-Um</h3></div></div></div><a
+            id="idm140035049384368"
+            class="indexterm"></a><div
+            class="para">
+				Simplesmente usar um arquivo preseed não é o suficiente para preencher todos os requerimentos que possam aparecer em grandes implantações. Mesmo que seja possível executar alguns scripts no final de processos normais de instalação, a seleção de um conjunto de pacotes a instalar ainda não é muito flexível (basicamente, apenas “tarefas” podem ser selecionadas); mais importante, isso apenas permite a instalação de pacotes Debian oficiais e impede os gerados localmente.
+			</div><div
+            class="para">
+				Por outro lado, o debian-cd é capaz de integrar pacotes externos, e o debian-installer pode ser estendido através da inserção de novas etapas no processo de instalação. Pela combinação dessas capacidades, devesse ser possível criar um instalador customizado que preencha nossas necessidades; deve até ser possível configurar alguns serviços após o desempacotamento dos pacotes requeridos. Felizmente, isso não é mera hipótese, já que é exatamente isso que o Simple-CDD (do pacote <span
+              class="pkg pkg">simple-cdd</span>) faz.
+			</div><div
+            class="para">
+				O propósito do Simple-CDD é permitir que qualquer um crie, com facilidade, uma distribuição derivada do Debian, pela seleção de um subconjunto dos pacotes disponíveis, pré configuração deles com o Debconf, adição de software específico, e execução de scripts customizados no final do processo de instalação. Isso confirma a filosofia “sistema operacional universal”, já que qualquer um pode adaptar o Debian à sua própria necessidade.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049380320"></a>12.3.3.1. Criando Perfis</h4></div></div></div><div
+              class="para">
+					O Simple-CDD define “perfis” que coincidem com o conceito “classes” FAI e uma máquina pode ter vários perfis (determinados no momento da instalação). Um perfil é definido por um conjunto de arquivos <code
+                class="filename">profiles/<em
+                  class="replaceable">profile</em>.*</code>:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							o arquivo <code
+                      class="filename">.description</code> contém uma descrição de uma linha para o perfil;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o arquivo <code
+                      class="filename">.packages</code> lista os pacotes que irão ser instalados automaticamente caso o perfil seja selecionado;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o arquivo <code
+                      class="filename">.downloads</code> lista os pacotes que serão armazenados na mídia de instalação, mas não necessariamente instalados;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o arquivo <code
+                      class="filename">.preseed</code> contém as informações preseeding para as perguntas do Debconf (para o instalador e/ou para os pacotes);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o arquivo <code
+                      class="filename">.postinst</code> contém um script que será executado no final do processo de instalação;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							por fim, o arquivo <code
+                      class="filename">.conf</code> permite alterar alguns parâmetros do Simple-CDD com base nos perfis a serem incluídos em uma imagem.
+						</div></li></ul></div><div
+              class="para">
+					O perfil <code
+                class="literal">padrão</code> tem uma função em particular, já que ele está sempre selecionado; el contém o mínimo necessário para o Simple-CDD funcionar. A única coisa que geralmente é customizada nesse perfil é o parâmetro preseed <code
+                class="literal">simple-cdd/profiles</code>: isso permite evitar a pergunta, introduzida pelo Simple-CDD, sobre quais perfis instalar.
+				</div><div
+              class="para">
+					Note também que os comandos precisam ser invocados a partir do diretório pai do diretório <code
+                class="filename">profiles</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049367824"></a>12.3.3.2. Configurando e Usando o <code
+                      class="command">build-simple-cdd</code></h4></div></div></div><a
+              id="idm140035049366928"
+              class="indexterm"></a><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>OLHADA RÁPIDA</em></span> Arquivo de configuração detalhado</strong></p></div></div></div><div
+                class="para">
+					Um exemplo do arquivo de configuração do Simple-CDD, com todos os parâmetros possíveis, está incluído no pacote (<code
+                  class="filename">/usr/share/doc/simple-cdd/examples/simple-cdd.conf.detailed.gz</code>). Ele pode sr usado como ponto de partida ao criar um arquivo de configuração customizado.
+				</div></div><div
+              class="para">
+					O Simple-CDD requer muitos parâmetros para operar plenamente. Eles irão, na maioria das vezes, estar reunidos em um arquivo de configuração, o qual pode ser informado ao <code
+                class="command">build-simple-cdd</code> com a opção <code
+                class="literal">--conf</code>, mas eles também podem ser especificados via parâmetros dedicados dados ao <code
+                class="command">build-simple-cdd</code>. Aqui está uma visão geral de como esse comando se comporta, e como seus parâmetros são usados:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							o parâmetro <code
+                      class="literal">profiles</code> lista os perfis que serão incluídos na imagem CD-ROM gerada;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							com base na lista de pacotes requeridos, o Simple-CDD baixa os arquivos apropriados do servidor mencionado em <code
+                      class="literal">server</code>, e os reúne em um espelho parcial (que mais tarde será dado ao debian-cd);
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							os pacotes customizados mencionados em <code
+                      class="literal">local_packages</code> também são integrados neste espelho local;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							o debian-cd é então executado (dentro de uma local padrão que pode ser configurada com a variável <code
+                      class="literal">debian_cd_dir</code>), com a lista de pacotes para integrar;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							uma vez que o debian-cd tenha preparado seu diretório, o Simple-CDD aplica algumas mudanças nesse diretório:
+						</div><div
+                    class="itemizedlist"><ul><li
+                        class="listitem"><div
+                          class="para">
+									arquivos contendo os perfis são adicionados em um subdiretório <code
+                            class="filename">simple-cdd</code> (que irá terminar no CD-ROM);
+								</div></li><li
+                        class="listitem"><div
+                          class="para">
+									outros arquivos listados no parâmetro <code
+                            class="literal">all_extras</code> também são adicionados;
+								</div></li><li
+                        class="listitem"><div
+                          class="para">
+									os parâmetros de inicialização são ajustados a fim de habilitar o preseeding. Perguntas com relação a idioma e país podem ser evitadas se a informação requerida está armazenada nas variáveis <code
+                            class="literal">language</code> e <code
+                            class="literal">country</code>.
+								</div></li></ul></div></li><li
+                  class="listitem"><div
+                    class="para">
+							o debian-cd então gera a imagem ISO final.
+						</div></li></ul></div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035049350096"></a>12.3.3.3. Gerando uma imagem ISO</h4></div></div></div><div
+              class="para">
+					Uma vez que nós tenhamos escrito um arquivo de configuração e definido nossos perfis, a etapa restante é invocar <code
+                class="command">build-simple-cdd --conf simple-cdd.conf</code>. Após alguns minutos, nós teremos a imagem requerida em <code
+                class="filename">images/debian-7.0-amd64-CD-1.iso</code>.
+				</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.virtualization.html"><strong>Anterior</strong>12.2. Virtualização</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.monitoring.html"><strong>Próxima</strong>12.4. Monitoramento</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.automated-installation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.automated-installation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.automated-installation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.automated-installation.html">el-GR</a></li><li><a
+              href="../en-US/sect.automated-installation.html">en-US</a></li><li><a
+              href="../es-ES/sect.automated-installation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.automated-installation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.automated-installation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.automated-installation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.automated-installation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.automated-installation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.automated-installation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.automated-installation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.automated-installation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.automated-installation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.automated-installation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.automated-installation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.automated-installation.html">zh-CN</a></li></ul></div></body></html>

@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.8. ネットワーク診断ツール</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ja-JP-1.0-1" /><meta
+        name="keywords"
+        content="ネットワーク, ゲートウェイ, TCP/IP, IPv6, DNS, Bind, DHCP, QoS" /><link
+        rel="home"
+        href="index.html"
+        title="Debian 管理者ハンドブック" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="第10章 ネットワークインフラ" /><link
+        rel="prev"
+        href="sect.dhcp.html"
+        title="10.7. DHCP" /><link
+        rel="next"
+        href="network-services.html"
+        title="第11章 ネットワークサービス: Postfix、Apache、NFS、Samba、Squid、LDAP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ja-JP/sect.network-diagnosis-tools.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dhcp.html"><strong>戻る</strong></a></li><li
+          class="home">Debian 管理者ハンドブック</li><li
+          class="next"><a
+            accesskey="n"
+            href="network-services.html"><strong>次へ</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.network-diagnosis-tools"></a>10.8. ネットワーク診断ツール</h2></div></div></div><div
+          class="para">
+			ネットワークアプリケーションが思った通りに動かない場合、中身を確かめる事が重要です。すべてが問題なく動いているように見える場合でも、ネットワーク診断を実行すればすべてがあるべき姿で動いている事を確かめる手助けになります。この目的で復数の診断ツールが存在します; 各ツールは異なるレベルを診断します。
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.netstat"></a>10.8.1. ローカルの診断: <code
+                    class="command">netstat</code></h3></div></div></div><a
+            id="idm140393326206240"
+            class="indexterm"></a><div
+            class="para">
+				最初に (<span
+              class="pkg pkg">net-tools</span> パッケージに含まれる) <code
+              class="command">netstat</code> コマンドを紹介します; これはマシンのその瞬間のネットワーク活動に関する要約を表示します。何も引数を渡さずに実行した場合、このコマンドは開けられた接続をリストします;このリストはとても長くなる場合があります。なぜなら、このリストには多くの Unix ドメインソケット (デーモンによって広く使われている) が含まれるからです。Unix ドメインソケットはネットワークに関与しません (例えば、<code
+              class="literal">dbus</code> 通信、<code
+              class="literal">X11</code> トラフィック、仮想ファイルシステムとデスクトップ間の通信などです)。
+			</div><div
+            class="para">
+				<code
+              class="command">netstat</code> を実行する際には一般的に標準の挙動を変更するオプションを使います。最も頻繁に使われるオプションを以下に挙げます:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-t</code>、TCP 接続のみを表示します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-u</code>、UDP 接続のみを表示します; これらのオプションは同時に使えます、Unix ドメインソケットの表示を抑制するにはどちらか一方を使うだけで十分です;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-a</code>、リッスンしている (入って来る接続を待っている) ソケットも表示します;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-n</code>、結果を数値的に表示します: IP アドレス (DNS で名前解決しない)、ポート番号 (<code
+                    class="filename">/etc/services</code> の定義する別名を使わない)、ユーザ id (ログイン名無し) を使います;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-p</code>、関係付けられたプロセスを表示します; <code
+                    class="command">netstat</code>を root 権限で実行した場合にのみ、このオプションは便利です。なぜなら、普通のユーザは自分のプロセス以外を見る事ができないからです;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-c</code>、継続的に接続リストを更新します。
+					</div></li></ul></div><div
+            class="para">
+				<span
+              class="citerefentry"><span
+                class="refentrytitle">netstat</span>(8)</span> マニュアルページに書かれている他のオプションを使えば、表示される結果をさらに細かく制御する事が可能です。具体的にいえば、上に挙げたオプションの内最初の 5 種類を組み合わせて使う事が多いため、結果としてシステムとネットワークの管理者は事実上 <code
+              class="command">netstat -tupan</code> を習得します。負荷の高くないマシンでは、以下の様な典型的な結果を返します:
+			</div><pre
+            class="screen scale">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>netstat -tupan</code></strong>
+<code
+              class="computeroutput">稼働中のインターネット接続 (サーバと確立)
+Proto 受信-Q 送信-Q 内部アドレス            外部アドレス            状態        PID/Program name
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      397/rpcbind     
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      431/sshd        
+tcp        0      0 0.0.0.0:36568           0.0.0.0:*               LISTEN      407/rpc.statd   
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      762/exim4       
+tcp        0    272 192.168.1.242:22        192.168.1.129:44452     ESTABLISHED 1172/sshd: roland [
+tcp6       0      0 :::111                  :::*                    LISTEN      397/rpcbind     
+tcp6       0      0 :::22                   :::*                    LISTEN      431/sshd        
+tcp6       0      0 ::1:25                  :::*                    LISTEN      762/exim4       
+tcp6       0      0 :::35210                :::*                    LISTEN      407/rpc.statd   
+udp        0      0 0.0.0.0:39376           0.0.0.0:*                           916/dhclient    
+udp        0      0 0.0.0.0:996             0.0.0.0:*                           397/rpcbind     
+udp        0      0 127.0.0.1:1007          0.0.0.0:*                           407/rpc.statd   
+udp        0      0 0.0.0.0:68              0.0.0.0:*                           916/dhclient    
+udp        0      0 0.0.0.0:48720           0.0.0.0:*                           451/avahi-daemon: r
+udp        0      0 0.0.0.0:111             0.0.0.0:*                           397/rpcbind     
+udp        0      0 192.168.1.242:123       0.0.0.0:*                           539/ntpd        
+udp        0      0 127.0.0.1:123           0.0.0.0:*                           539/ntpd        
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           539/ntpd        
+udp        0      0 0.0.0.0:5353            0.0.0.0:*                           451/avahi-daemon: r
+udp        0      0 0.0.0.0:39172           0.0.0.0:*                           407/rpc.statd   
+udp6       0      0 :::996                  :::*                                397/rpcbind     
+udp6       0      0 :::34277                :::*                                407/rpc.statd   
+udp6       0      0 :::54852                :::*                                916/dhclient    
+udp6       0      0 :::111                  :::*                                397/rpcbind     
+udp6       0      0 :::38007                :::*                                451/avahi-daemon: r
+udp6       0      0 fe80::5054:ff:fe99::123 :::*                                539/ntpd        
+udp6       0      0 2001:bc8:3a7e:210:a:123 :::*                                539/ntpd        
+udp6       0      0 2001:bc8:3a7e:210:5:123 :::*                                539/ntpd        
+udp6       0      0 ::1:123                 :::*                                539/ntpd        
+udp6       0      0 :::123                  :::*                                539/ntpd        
+udp6       0      0 :::5353                 :::*                                451/avahi-daemon: r
+</code></pre><div
+            class="para">
+				予想通り、確立された接続、この場合 2 つの SSH 接続と、入って来る接続を待つアプリケーション (<code
+              class="literal">LISTEN</code> と記載)、特に 25 番をリッスンしている Exim4 電子メールサーバが表示されます。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.nmap"></a>10.8.2. リモートの診断: <code
+                    class="command">nmap</code></h3></div></div></div><a
+            id="idm140393326179488"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">nmap</code> (よく似た名前のパッケージに含まれます) は、ある意味で、リモートに対する <code
+              class="command">netstat</code> に相当します。これは 1 台または数台のリモートサーバに対して「well-known」ポート群をスキャンし、入ってきた接続に応答したアプリケーションの見つかったポートをリストします。更に、<code
+              class="command">nmap</code> は一部のアプリケーションを識別する事が可能です。場合によってはアプリケーションのバージョン番号さえも識別する事が可能です。<code
+              class="command">nmap</code> に対する問題点として、<code
+              class="command">nmap</code> はリモートから実行されるため、プロセスやユーザの情報を提供する事ができないという点が挙げられます; しかしながら、<code
+              class="command">nmap</code> は復数のターゲットに一気に実行できます。
+			</div><div
+            class="para">
+				<code
+              class="command">nmap</code> を実行する際の典型例は、<code
+              class="literal">-A</code> オプション (<code
+              class="command">nmap</code> は見つかったサーバソフトウェアのバージョンを識別しようとします) だけを使い、その後ろにスキャンする 1 つか復数の IP アドレスまたは DNS 名を渡す事です。繰り返しになりますが、さらに多くのオプションが存在し、<code
+              class="command">nmap</code> の挙動をさらに細かく制御する事が可能です。<span
+              class="citerefentry"><span
+                class="refentrytitle">nmap</span>(1)</span> マニュアルページを参照してください。
+			</div><pre
+            class="screen scale"
+            width="80">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>nmap mirtuel</code></strong>
+<code
+              class="computeroutput">
+Starting Nmap 6.47 ( http://nmap.org ) at 2015-03-10 00:46 JST
+Nmap scan report for mirtuel (192.168.1.242)
+Host is up (0.000013s latency).
+rDNS record for 192.168.1.242: mirtuel.internal.placard.fr.eu.org
+Not shown: 998 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+
+Nmap done: 1 IP address (1 host up) scanned in 2.41 seconds
+# </code><strong
+              class="userinput"><code>nmap -A localhost</code></strong>
+<code
+              class="computeroutput">
+Starting Nmap 6.47 ( http://nmap.org ) at 2015-03-10 00:46 JST
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000013s latency).
+Other addresses for localhost (not scanned): 127.0.0.1
+Not shown: 997 closed ports
+PORT    STATE SERVICE VERSION
+22/tcp  open  ssh     OpenSSH 6.7p1 Debian 3 (protocol 2.0)
+|_ssh-hostkey: ERROR: Script execution failed (use -d to debug)
+25/tcp  open  smtp    Exim smtpd 4.84
+| smtp-commands: mirtuel Hello localhost [127.0.0.1], SIZE 52428800, 8BITMIME, PIPELINING, HELP, 
+|_ Commands supported: AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP 
+111/tcp open  rpcbind 2-4 (RPC #100000)
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2,3,4        111/tcp  rpcbind
+|   100000  2,3,4        111/udp  rpcbind
+|   100024  1          36568/tcp  status
+|_  100024  1          39172/udp  status
+Device type: general purpose
+Running: Linux 3.X
+OS CPE: cpe:/o:linux:linux_kernel:3
+OS details: Linux 3.7 - 3.15
+Network Distance: 0 hops
+Service Info: Host: mirtuel; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.54 seconds
+</code></pre><div
+            class="para">
+				予想通り、SSH と Exim4 アプリケーションが表示されます。すべてのアプリケーションがすべての IP アドレスをリッスンしているわけではない点に注意してください; Exim4 は <code
+              class="literal">lo</code> ループバックインターフェースからのみアクセス可能ですから、<code
+              class="literal">localhost</code> の解析にのみ表示され、<code
+              class="literal">mirtuel</code> (これは同じマシンの <code
+              class="literal">eth0</code> インターフェースに対応付けられています) をスキャンした時には表示されません。
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.sniffers"></a>10.8.3. スニファ: <code
+                    class="command">tcpdump</code> と <code
+                    class="command">wireshark</code></h3></div></div></div><div
+            class="para">
+				しばしば実際にワイヤを行き来する情報をパケット毎に見る必要がある場合があります。この際に使われるツールは「フレームアナライザ」と呼ばれ、<span
+              class="emphasis"><em>スニファ</em></span> としても広く知られています。これらのツールはあるネットワークに到達したすべてのパケットを観察し、ユーザにわかりやすい方法でパケットを表示します。
+			</div><a
+            id="idm140393307371136"
+            class="indexterm"></a><div
+            class="para">
+				この分野における由緒あるツールが <code
+              class="command">tcpdump</code> で、これは広範囲のプラットフォームで利用可能な標準的なツールです。<code
+              class="command">tcpdump</code> を使うと、多くの種類のネットワークトラフィックをキャプチャできますが、トラフィックの表現は比較的分かりにくいです。このため <code
+              class="command">tcpdump</code> について詳しく説明しません。
+			</div><a
+            id="idm140393307368384"
+            class="indexterm"></a><div
+            class="para">
+				より最近の (そしてより現代的な) ツールである <code
+              class="command">wireshark</code> (<span
+              class="pkg pkg">wireshark</span> パッケージに含まれます) は、キャプチャされたパケットの解析を単純化する多くのデコーディングモジュールのお陰で、ネットワークトラフィック解析分野における新しい標準的なツールになりました。パケットはプロトコルの層に基いてグラフィカルに表示されます。<code
+              class="command">wireshark</code> を使うと、ユーザはあるパケットに関わるすべてのプロトコルを可視化する事が可能です。例えば、HTTP リクエストを含むパケットに対して、<code
+              class="command">wireshark</code> は物理層、イーサネット層、IP パケット情報、TCP 接続パラメータ、最後に HTTP リクエスト自身に関連する情報を別々に表示します。
+			</div><div
+            class="figure"><a
+              id="figure.wireshark"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/wireshark.png"
+                  alt="wireshark ネットワークトラフィックアナライザ" /></div></div><p
+              class="title"><strong>図10.1 <code
+                  class="command">wireshark</code> ネットワークトラフィックアナライザ</strong></p></div><div
+            class="para">
+				上の例では、SSH を通じて移動するパケットを (<code
+              class="literal">!tcp.port == 22</code> フィルタを使って) 除去しています。現在詳細を表示されているパケットは HTTP 層で作られたものです。
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> グラフィカルインターフェースを持たない <code
+                        class="command">wireshark</code>: <code
+                        class="command">tshark</code></strong></p></div></div></div><a
+              id="idm140393307358832"
+              class="indexterm"></a><div
+              class="para">
+				グラフィカルインターフェースを実行できない場合や何らかの理由で実行したくない場合に備えて、<code
+                class="command">wireshark</code> のテキスト版 <code
+                class="command">tshark</code> (<span
+                class="pkg pkg">tshark</span> パッケージに分割されています) が存在します。キャプチャとデコード機能のほとんどを利用可能ですが、グラフィカルインターフェースが無いことでプログラムとのやり取りが制限されます (例えば、パケットがキャプチャされた後にフィルタをかけたり、ある TCP 接続を追跡する事ができません)。しかし <code
+                class="command">tshark</code> を足掛かりとして使う事が可能です。さらなる操作が必要だったり、グラフィカルインターフェースが必要な操作をを行う場合、パケットをファイルに保存して、そのファイルを別のマシンで実行されているグラフィカルな <code
+                class="command">wireshark</code> で読み込む事が可能です。
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> <code
+                        class="command">ethereal</code> と <code
+                        class="command">wireshark</code></strong></p></div></div></div><a
+              id="idm140393307352816"
+              class="indexterm"></a><a
+              id="idm140393307351920"
+              class="indexterm"></a><div
+              class="para">
+				<code
+                class="command">wireshark</code> は比較的若いように見えます; しかしながら、<code
+                class="command">wireshark</code> は <code
+                class="command">ethereal</code> として知られていたソフトウェアの新しい名前に過ぎません。<code
+                class="command">ethereal</code> の主開発者は雇用されていた会社を離れた時、登録済みの商標の移動を手配できませんでした。代案として、彼は名前を変えました; 実際のところ、<code
+                class="command">wireshark</code> は <code
+                class="command">ethereal</code> の名前とアイコンだけを変えたものに過ぎません。
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dhcp.html"><strong>戻る</strong>10.7. DHCP</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>上に戻る</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>ホーム</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="network-services.html"><strong>次へ</strong>第11章 ネットワークサービス: Postfix、Apache、NFS、Samba、Squid、L...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.network-diagnosis-tools.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.network-diagnosis-tools.html">da-DK</a></li><li><a
+              href="../de-DE/sect.network-diagnosis-tools.html">de-DE</a></li><li><a
+              href="../el-GR/sect.network-diagnosis-tools.html">el-GR</a></li><li><a
+              href="../en-US/sect.network-diagnosis-tools.html">en-US</a></li><li><a
+              href="../es-ES/sect.network-diagnosis-tools.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.network-diagnosis-tools.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.network-diagnosis-tools.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.network-diagnosis-tools.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.network-diagnosis-tools.html">id-ID</a></li><li><a
+              href="../it-IT/sect.network-diagnosis-tools.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.network-diagnosis-tools.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.network-diagnosis-tools.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.network-diagnosis-tools.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.network-diagnosis-tools.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.network-diagnosis-tools.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.network-diagnosis-tools.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.network-diagnosis-tools.html">zh-CN</a></li></ul></div></body></html>

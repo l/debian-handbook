@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. Sauvegarde</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Démarrage du système, Scripts d'initialisation, SSH, Telnet, Droits, Permissions, Supervision, Inetd, Cron, Sauvegarde, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Chapitre 9. Services Unix" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. Les quotas" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. Branchements « à chaud » : hotplug" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.backup.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. Sauvegarde</h2></div></div></div><div
+          class="para">
+			L'une des responsabilités principales de tout administrateur, la sauvegarde reste un sujet complexe dont les outils puissants sont en général difficiles à maîtriser.
+		</div><a
+          id="idm140565666574128"
+          class="indexterm"></a><a
+          id="idm140565666573360"
+          class="indexterm"></a><div
+          class="para">
+			De nombreux logiciels existent : citons <code
+            class="command">amanda</code>, <code
+            class="command">bacula</code> et <code
+            class="command">BackupPC</code>. Il s'agit de systèmes client/serveur dotés de nombreuses options, dont la configuration peut être difficile. Certains disposent d'une interface de configuration web. Des dizaines d'autres paquets Debian sont dédiés à des solutions de sauvegarde, comme vous le montrera la commande <code
+            class="command">apt-cache search backup</code>.
+		</div><a
+          id="idm140565666570368"
+          class="indexterm"></a><a
+          id="idm140565666569472"
+          class="indexterm"></a><a
+          id="idm140565666568576"
+          class="indexterm"></a><div
+          class="para">
+			Plutôt que de détailler le fonctionnement de certains d'entre eux, nous prenons le parti d'exposer la réflexion menée par les administrateurs de Falcot SA pour définir leur stratégie de sauvegarde.
+		</div><div
+          class="para">
+			Chez Falcot SA, les sauvegardes répondent à deux besoins : récupérer des fichiers supprimés par erreur et remettre en route rapidement tout ordinateur (serveur ou bureautique) dont le disque dur subit une panne.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565666566448"></a>9.10.1. Sauvegarde avec <code
+                    class="command">rsync</code></h3></div></div></div><div
+            class="para">
+				Les sauvegardes sur bandes ayant été jugées trop lentes et trop coûteuses, les données seront sauvegardées sur les disques durs d'un serveur dédié, où l'emploi du RAID logiciel (détaillé dans la <a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">Section 12.1.1, « RAID logiciel »</a>) les protégera d'une défaillance du disque. Les ordinateurs bureautiques ne sont pas sauvegardés individuellement, mais les utilisateurs sont informés que leur compte personnel, situé sur le serveur de fichiers de leur département, sera sauvegardé. La commande <code
+              class="command">rsync</code> (du paquet éponyme) sauvegarde quotidiennement ces différents serveurs.
+			</div><a
+            id="idm140565666563680"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>B.A.-BA</em></span> Le lien dur, un deuxième nom pour le fichier</strong></p></div></div></div><a
+              id="idm140565666561888"
+              class="indexterm"></a><a
+              id="idm140565666560736"
+              class="indexterm"></a><div
+              class="para">
+				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+			</div><div
+              class="para">
+				Le lien dur se crée avec la commande <code
+                class="command">ln <em
+                  class="replaceable">cible</em> <em
+                  class="replaceable">lien</em></code>. Le fichier <em
+                class="replaceable">lien</em> est alors un nouveau nom du fichier <em
+                class="replaceable">cible</em>. Les liens durs ne peuvent être créés qu'au sein d'un même système de fichiers, alors que les liens symboliques ne souffrent pas de cette limitation.
+			</div></div><div
+            class="para">
+				L'espace disque disponible interdit la mise en place d'une sauvegarde complète quotidienne. C'est pourquoi la synchronisation par <code
+              class="command">rsync</code> est précédée d'une duplication du contenu de la dernière sauvegarde par des liens durs (<span
+              class="foreignphrase"><em
+                class="foreignphrase">hard links</em></span>), qui évitent de consommer trop d'espace disque. Le processus <code
+              class="command">rsync</code> ne remplacera ensuite que les fichiers modifiés depuis la dernière sauvegarde. Ce mécanisme permet de conserver un grand nombre de sauvegardes sur un volume réduit. Toutes les sauvegardes étant accessibles en même temps (par exemple dans des répertoires différents d'un même volume accessible à travers le réseau), on pourra effectuer rapidement des comparaisons entre deux dates données.
+			</div><a
+            id="idm140565666554288"
+            class="indexterm"></a><a
+            id="idm140565666553520"
+            class="indexterm"></a><a
+            id="idm140565666552368"
+            class="indexterm"></a><div
+            class="para">
+				Ce mécanisme de sauvegarde se met facilement en place à l'aide du programme <code
+              class="command">dirvish</code>. Il emploie un espace de stockage des sauvegardes (<span
+              class="foreignphrase"><em
+                class="foreignphrase">bank</em></span>, dans son vocabulaire) dans lequel il place les différentes copies horodatées des ensembles de fichiers sauvegardés (ces ensembles sont nommés <span
+              class="foreignphrase"><em
+                class="foreignphrase">vaults</em></span>, donc « chambre forte », dans la documentation de <code
+              class="command">dirvish</code>).
+			</div><div
+            class="para">
+				La configuration principale se trouve dans le fichier <code
+              class="filename">/etc/dirvish/master.conf</code>. Elle indique l'emplacement de l'espace de stockage des sauvegardes, la liste des ensembles à sauvegarder ainsi que des valeurs par défaut pour l'expiration des sauvegardes. Le reste de la configuration se trouve dans les fichiers <code
+              class="filename"><em
+                class="replaceable">bank</em>/<em
+                class="replaceable">vault</em>/dirvish/default.conf</code> et contient à chaque fois la configuration spécifique à l'ensemble de fichiers en question.
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>Exemple 9.3. Fichier <code
+                  class="filename">/etc/dirvish/master.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1
+</pre></div></div><div
+            class="para">
+				Le paramètre <code
+              class="literal">bank</code> indique le répertoire dans lequel les sauvegardes sont stockées. Le paramètre <code
+              class="literal">exclude</code> permet d'indiquer des fichiers (ou des formes de noms de fichiers) à exclure de la sauvegarde. Le paramètre <code
+              class="literal">Runall</code> est la liste des ensembles de fichiers à sauvegarder avec un horodatage pour chaque ensemble, ce dernier permet simplement d'attribuer la bonne date à la copie au cas où la sauvegarde ne se déclencherait pas exactement à l'heure prévue. Il faut indiquer un horaire légèrement inférieur à l'horaire réel d'exécution (qui est 22h04 par défaut sur un système Debian, selon <code
+              class="filename">/etc/cron.d/dirvish</code>). Enfin les paramètres <code
+              class="literal">expire-default</code> et <code
+              class="literal">expire-rule</code> définissent la politique d'expiration (donc de conservation) des sauvegardes. L'exemple ci-dessus conserve pour toujours les sauvegardes générées le premier dimanche de chaque trimestre, détruit après un an celles du premier dimanche de chaque mois et après 3 mois celles des autres dimanches. Les autres sauvegardes quotidiennes sont conservées 15 jours. L'ordre des règles compte : dirvish emploie la dernière règle qui correspond, ou celle mentionnée dans <code
+              class="literal">expire-default</code> si aucune des règles de <code
+              class="literal">expire-rule</code> ne correspond.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EN PRATIQUE</em></span> Expiration planifiée</strong></p></div></div></div><div
+              class="para">
+				Les règles d'expiration ne sont pas employées par <code
+                class="command">dirvish-expire</code> pour faire son travail. En réalité, les règles d'expiration interviennent au moment de la création d'une nouvelle copie de sauvegarde pour définir une date d'expiration associée à cette copie. <code
+                class="command">dirvish-expire</code> se contente de parcourir les copies stockées et de supprimer celles dont la date d'expiration est dépassée.
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>Exemple 9.4. Fichier <code
+                  class="filename">/backup/root/dirvish/default.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak
+</pre></div></div><div
+            class="para">
+				L'exemple ci-dessus précise l'ensemble de fichiers à sauvegarder : il s'agit de fichiers sur la machine <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> (pour une sauvegarde de données locales, il faut simplement préciser le nom de la machine locale tel que <code
+              class="command">hostname</code> le rapporte), en particulier ceux qui sont dans l'arborescence racine (<code
+              class="literal">tree: /</code>) à l'exclusion de ceux listés dans <code
+              class="literal">exclude</code>. La sauvegarde restera limitée au contenu d'un seul système de fichiers (<code
+              class="literal">xdev: 1</code>), elle n'inclura pas les fichiers d'autres montages. Un index des fichiers sauvegardés sera généré (<code
+              class="literal">index: gzip</code>) et l'image sera nommée selon la date du jour (<code
+              class="literal">image-default: %Y%m%d</code>).
+			</div><div
+            class="para">
+				De nombreuses options existent, toutes documentées dans la page de manuel <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span>. Une fois ces fichiers de configuration mis en place, il faut initialiser chaque ensemble de fichiers avec la commande <code
+              class="command">dirvish --vault <em
+                class="replaceable">vault</em> --init</code>. Puis l'invocation quotidienne de <code
+              class="command">dirvish-runall</code> créera automatiquement une nouvelle copie de sauvegarde juste après avoir supprimé celles qui devaient l'être.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>EN PRATIQUE</em></span> Sauvegarde distante par SSH</strong></p></div></div></div><div
+              class="para">
+				Lorsque <code
+                class="command">dirvish</code> doit sauvegarder des données d'une machine distante, il va employer <code
+                class="command">ssh</code> pour s'y connecter et y démarrer <code
+                class="command">rsync</code> en tant que serveur. Cela nécessite donc que l'utilisateur root puisse se connecter automatiquement à la machine en question. L'emploi d'une clé d'authentification SSH permet précisément cela (voir <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">Section 9.2.1.1, « Authentification par clé »</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140565666525904"></a>9.10.2. Restauration des machines non sauvegardées</h3></div></div></div><div
+            class="para">
+				Les ordinateurs bureautiques, qui ne sont pas sauvegardés, pourront être réinstallés à partir des DVD-Rom personnalisés préparés avec <span
+              class="emphasis"><em>Simple-CDD</em></span> (voir <a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">Section 12.3.3, « Simple-CDD : la solution tout en un »</a>). Comme il s'agit d'une installation à partir de zéro, cela perdra toute configuration qui aura été faite après l'installation initiale ; cela ne pose pas de problème, puisque tous les systèmes sont connectés à un annuaire LDAP qui centralise les comptes utilisateurs et la plupart des applications bureautiques sont préconfigurées par le biais de <code
+              class="command">dconf</code> (voir <a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">Section 13.3.1, « GNOME »</a> à ce propos).
+			</div><div
+            class="para">
+				Les administrateurs de Falcot SA sont conscients des limites de leur politique de sauvegarde. Ne pouvant pas protéger le serveur de sauvegarde aussi bien qu'une bande dans un coffre ignifugé, ils l'ont installé dans une pièce séparée de sorte qu'un sinistre tel qu'un incendie se déclarant dans la salle des serveurs ne détruise pas aussi les sauvegardes. Par ailleurs, ils réalisent une sauvegarde incrémentale sur DVD-Rom une fois par semaine — seuls les fichiers modifiés depuis la dernière sauvegarde sont concernés.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Sauvegarde SQL, LDAP</strong></p></div></div></div><div
+              class="para">
+				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
+                class="command">diff</code> each day, which is created with a command of the type <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code>. The <code
+                class="command">xdelta</code> program produces incremental differences from binary dumps.
+			</div><a
+              id="idm140565666517936"
+              class="indexterm"></a><a
+              id="idm140565666517040"
+              class="indexterm"></a><a
+              id="idm140565666516144"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> <span
+                        class="emphasis"><em>TAR</em></span>, standard de sauvegarde sur bande</strong></p></div></div></div><a
+              id="idm140565666513840"
+              class="indexterm"></a><a
+              id="idm140565666512688"
+              class="indexterm"></a><a
+              id="idm140565666511920"
+              class="indexterm"></a><div
+              class="para">
+				Historiquement, le moyen le plus simple de réaliser une sauvegarde sous Unix était de stocker sur bande une archive au format <span
+                class="emphasis"><em>TAR</em></span>. La commande <code
+                class="command">tar</code> tire d'ailleurs son nom de <span
+                class="foreignphrase"><em
+                  class="foreignphrase">Tape ARchive</em></span> (« archive sur bande »).
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Précédent</strong>9.9. Les quotas</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Suivant</strong>9.11. Branchements « à chaud » : hotplug</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

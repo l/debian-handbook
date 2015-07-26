@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">8.10. Compilation d'un noyau</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Configuration, Francisation, locales, Locales, Réseau, Résolution de noms, Utilisateurs, Groupes, Création de comptes, Interpréteur de commandes, Shell, Impression, Chargeur de démarrage, Compilation de noyau" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="basic-configuration.html"
+        title="Chapitre 8. Configuration de base : réseau, comptes, impression..." /><link
+        rel="prev"
+        href="sect.config-misc.html"
+        title="8.9. Autres configurations : synchronisation, logs, partages…" /><link
+        rel="next"
+        href="sect.kernel-installation.html"
+        title="8.11. Installation d'un noyau" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.kernel-compilation.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-misc.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.kernel-installation.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.kernel-compilation"></a>8.10. Compilation d'un noyau</h2></div></div></div><a
+          id="idm140565685097648"
+          class="indexterm"></a><a
+          id="idm140565685096208"
+          class="indexterm"></a><div
+          class="para">
+			Les noyaux fournis par Debian intègrent le plus grand nombre possible de fonctionnalités ainsi qu'un maximum de pilotes, afin de couvrir le plus grand spectre de configurations matérielles existantes. C'est pourquoi certains utilisateurs préfèrent recompiler le noyau pour n'y inclure que le strict nécessaire. Il existe deux raisons à ce choix. Premièrement, cela peut être pour optimiser la consommation de mémoire, puisque le code du noyau, même s'il n'est jamais utilisé, occupe de la mémoire pour rien (et ne « descend » jamais sur l'espace d'échange, donc c'est de vraie mémoire vive qu'il s'agit), ce qui peut diminuer les performances globales du système. Il peut également s'agir de limiter le risque de failles de sécurité (le code compilé portant alors sur une fraction plus faible du code existant).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ATTENTION</em></span> Mises à jour de sécurité</strong></p></div></div></div><div
+            class="para">
+			Si l'on choisit de compiler son propre noyau, il faut en accepter les conséquences : Debian n'assurera pas les mises à jour de sécurité de ce noyau. En restant avec un noyau fourni par Debian, on bénéficie des mises à jour préparées par l'équipe sécurité du projet.
+		</div></div><div
+          class="para">
+			La recompilation du noyau est aussi nécessaire si l'on souhaite employer certaines fonctionnalités non intégrées dans sa version standard mais disponibles sous forme de correctifs, ou patches.
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>POUR ALLER PLUS LOIN</em></span> Le Manuel du noyau Debian</strong></p></div></div></div><a
+            id="idm140565685089696"
+            class="indexterm"></a><div
+            class="para">
+			L'équipe en charge du noyau dans Debian maintient le « Manuel du noyau Debian » (également disponible dans le paquet <span
+              class="pkg pkg">debian-kernel-handbook</span>), qui contient une mine d'informations à propos de la plupart des tâches liées au noyau et à la manière dont les paquets Debian du noyau sont traités. C'est le premier endroit où chercher des informations qui manqueraient à la présente section. <div
+              class="url">→ <a
+                href="http://kernel-handbook.alioth.debian.org">http://kernel-handbook.alioth.debian.org</a></div>
+		</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-compilation-prerequisites"></a>8.10.1. Introduction et prérequis</h3></div></div></div><div
+            class="para">
+				Comme on peut s'y attendre, Debian gère le noyau sous forme de paquet, ce qui n'est pas la manière traditionnelle de le compiler et de l'installer. Les noyaux restant sous le contrôle du système de paquetage, ils peuvent être rapidement supprimés ou déployés sur plusieurs machines. De plus, les scripts associés à ces paquets permettent également une meilleure interaction avec le chargeur de démarrage et le générateur d'images de démarrage (<span
+              class="foreignphrase"><em
+                class="foreignphrase">initrd</em></span>).
+			</div><div
+            class="para">
+				Les sources amont du noyau Linux contiennent tout ce qui est requis pour construire un paquet Debian du noyau. Vous aurez simplement besoin d'installer le paquet <span
+              class="pkg pkg">build-essential</span>, qui contient les outils de compilation standards pour générer un paquet Debian. Par ailleurs, la configuration du noyau nécessitera le paquet <span
+              class="emphasis"><em>libncurses5-dev</em></span>. Enfin, le paquet <span
+              class="emphasis"><em>fakeroot</em></span> permettra de créer le paquet Debian sans utiliser les droits de l'administrateur.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> Le bon vieux temps de <span
+                        class="pkg pkg">kernel-package</span></strong></p></div></div></div><a
+              id="idm140565685078944"
+              class="indexterm"></a><div
+              class="para">
+				À l'époque où le système de compilation du noyau Linux ne permettait pas encore de créer directement des paquets Debian, la manière recommandée de créer ces paquets était d'utiliser l'outil <code
+                class="command">make-kpkg</code> fourni par le paquet <span
+                class="pkg pkg">kernel-package</span>.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-sources"></a>8.10.2. Récupérer les sources</h3></div></div></div><a
+            id="idm140565685074096"
+            class="indexterm"></a><a
+            id="idm140565685073136"
+            class="indexterm"></a><a
+            id="idm140565685071696"
+            class="indexterm"></a><div
+            class="para">
+				Comme tout ce qui peut être utile sur un système Debian, les sources du noyau Linux sont disponibles en paquet. Pour les récupérer, il faudra donc installer un paquet <span
+              class="pkg pkg">linux-source-<em
+                class="replaceable">version</em></span>. Une requête <code
+              class="command">apt-cache search ^linux-source</code> permet d'obtenir la liste des différentes versions du noyau empaquetées par Debian. Les dernières versions en date sont vraisemblablement disponibles dans la distribution <span
+              class="distribution distribution">Unstable</span> : on peut les y récupérer sans grands risques (surtout si votre APT est configuré conformément aux instructions de la <a
+              class="xref"
+              href="sect.apt-get.html#sect.apt-mix-distros">Section 6.2.6, « Travailler avec plusieurs distributions »</a>). Il est à noter que les codes sources contenus dans ces paquets ne correspondent pas exactement à ceux que publient Linus Torvalds et les développeurs du noyau : Debian applique en effet un certain nombre de patches — comme toutes les distributions. Ces modifications incluent des correctifs (dont certains concernent des failles de sécurité) ou des fonctionnalités qui sont en attente d'intégration dans une version ultérieure du noyau, ainsi que quelques fonctionnalités spécifiques à Debian.
+			</div><div
+            class="para">
+				The remainder of this section focuses on the 3.16 version of the Linux kernel, but the examples can, of course, be adapted to the particular version of the kernel that you want.
+			</div><div
+            class="para">
+				We assume the <span
+              class="pkg pkg">linux-source-3.16</span> package has been installed. It contains <code
+              class="filename">/usr/src/linux-source-3.16.tar.xz</code>, a compressed archive of the kernel sources. You must extract these files in a new directory (not directly under <code
+              class="filename">/usr/src/</code>, since there is no need for special permissions to compile a Linux kernel): <code
+              class="filename">~/kernel/</code> is appropriate.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>mkdir ~/kernel; cd ~/kernel</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>tar -xaf /usr/src/linux-source-3.16.tar.xz</code></strong></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURE</em></span> Emplacement des sources du noyau</strong></p></div></div></div><div
+              class="para">
+				Traditionnellement, les sources du noyau Linux ont toujours été placées sous <code
+                class="filename">/usr/src/linux/</code>, nécessitant donc les droits root pour la compilation. Comme vous le savez, il faut pourtant éviter de travailler inutilement avec les droits de l'administrateur. Il existe bien un groupe <code
+                class="literal">src</code> qui permet à ses membres de travailler dans ce répertoire, mais on évitera malgré tout de recourir à <code
+                class="filename">/usr/src/</code>. En conservant les sources du noyau dans un répertoire personnel, vous optez pour la sécurité à tout point de vue : pas de fichiers inconnus du système de paquetage dans <code
+                class="filename">/usr/</code>, ni de risque d'induire en erreur les programmes qui scrutent <code
+                class="filename">/usr/src/linux/</code> pour obtenir des informations sur le noyau employé.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.config-noyau"></a>8.10.3. Configuration du noyau</h3></div></div></div><a
+            id="idm140565685054720"
+            class="indexterm"></a><a
+            id="idm140565685053280"
+            class="indexterm"></a><a
+            id="idm140565685051840"
+            class="indexterm"></a><div
+            class="para">
+				La prochaine étape consiste à configurer le noyau conformément à ses besoins. Le mode opératoire dépend des objectifs.
+			</div><div
+            class="para">
+				Si l'on recompile une version plus récente du noyau (éventuellement dotée d'un patch supplémentaire), le plus probable est qu'on veuille rester aussi près que possible de la configuration standard proposée par Debian. Dans ce cas, et au lieu de tout reconfigurer depuis zéro, il est bon de copier le fichier <code
+              class="filename">/boot/config-<em
+                class="replaceable">version</em></code> (la version est celle du noyau employé actuellement — <code
+              class="command">uname -r</code> vous la révélera au besoin) en <code
+              class="filename">.config</code> dans le répertoire des sources du noyau :
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cp /boot/config-3.16.0-4-amd64 ~/kernel/linux-source-3.16/.config</code></strong></pre><div
+            class="para">
+				Si vous ne souhaitez pas changer la configuration, vous pouvez en rester là et sauter directement à la section suivante. Dans le cas contraire, ou si vous avez décidé de tout reconfigurer depuis zéro, il faudra prendre le temps de configurer votre noyau. Pour cela, il propose différentes interfaces, qu'on invoque depuis le répertoire des sources par la commande <code
+              class="command">make</code> suivie d'un argument.
+			</div><div
+            class="para">
+				<code
+              class="command">make menuconfig</code> compiles and executes a text-mode interface (this is where the <span
+              class="pkg pkg">libncurses5-dev</span> package is required) which allows navigating the options available in a hierarchical structure. Pressing the <span
+              class="keycap"><strong>Space</strong></span> key changes the value of the selected option, and <span
+              class="keycap"><strong>Enter</strong></span> validates the button selected at the bottom of the screen; <span
+              class="guibutton"><strong>Select</strong></span> returns to the selected sub-menu; <span
+              class="guibutton"><strong>Exit</strong></span> closes the current screen and moves back up in the hierarchy; <span
+              class="guibutton"><strong>Help</strong></span> will display more detailed information on the role of the selected option. The arrow keys allow moving within the list of options and buttons. To exit the configuration program, choose <span
+              class="guibutton"><strong>Exit</strong></span> from the main menu. The program then offers to save the changes you've made; accept if you are satisfied with your choices.
+			</div><div
+            class="para">
+				Les autres interfaces ont un fonctionnement similaire, mais inscrit dans des interfaces graphiques plus modernes : <code
+              class="command">make xconfig</code> emploie la boîte à outils Qt et <code
+              class="command">make gconfig</code> recourt à GTK+. La première a besoin de <span
+              class="pkg pkg">libqt4-dev</span> tandis que la seconde requiert <span
+              class="pkg pkg">libglade2-dev</span> et <span
+              class="pkg pkg">libgtk2.0-dev</span>.
+			</div><div
+            class="para">
+				Lorsque l'on utilise une de ces interfaces de configuration, il est généralement conseillé de partir d'une configuration par défaut raisonnable. Le noyau fournit de telles configurations dans <code
+              class="filename">arch/<em
+                class="replaceable">architecture</em>/configs/*_defconfig</code> et il est possible de les mettre en place avec une commande telle que <code
+              class="command">make x86_64_defconfig</code> (pour un PC 64 bits) ou <code
+              class="command">make i386_defconfig</code> (pour un PC 32 bits).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ASTUCE</em></span> Que faire d'un <code
+                        class="filename">.config</code> obsolète ?</strong></p></div></div></div><div
+              class="para">
+				Lorsque l'on fournit un fichier <code
+                class="filename">.config</code> qui provient d'une autre version du noyau (généralement plus ancienne), ce fichier doit être mis à jour. Cela se fait avec <code
+                class="command">make oldconfig</code>, qui va poser interactivement les questions portant sur les nouvelles options de configuration. Pour utiliser les réponses par défaut à toutes ces questions, on préfèrera <code
+                class="command">make olddefconfig</code>. Pour finir, la commande <code
+                class="command">make oldnoconfig</code> répondra par la négative à toutes ces nouvelles questions,
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-build"></a>8.10.4. Compilation et génération du paquet</h3></div></div></div><a
+            id="idm140565685027952"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATTENTION</em></span> Nettoyer avant de recommencer</strong></p></div></div></div><div
+              class="para">
+				Si vous avez déjà construit un noyau dans le répertoire et si vous voulez tout reconstruire depuis zéro (par exemple après avoir changé la configuration du noyau de manière substantielle), il faudra lancer <code
+                class="command">make clean</code>, qui supprimera les fichiers compilés. <code
+                class="command">make distclean</code> fait un ménage encore plus fort et supprime tous les fichiers générés, y compris votre <code
+                class="filename">.config</code> ; faites-en une sauvegarde au préalable !
+			</div></div><div
+            class="para">
+				Once the kernel configuration is ready, a simple <code
+              class="command">make deb-pkg</code> will generate up to 5 Debian packages: <span
+              class="pkg pkg">linux-image-<em
+                class="replaceable">version</em></span> that contains the kernel image and the associated modules, <span
+              class="pkg pkg">linux-headers-<em
+                class="replaceable">version</em></span> which contains the header files required to build external modules, <span
+              class="pkg pkg">linux-image-<em
+                class="replaceable">version</em>-dbg</span> which contains the debugging symbols for the kernel image and its modules, and <span
+              class="pkg pkg">linux-libc-dev</span> which contains headers relevant to some user space libraries like GNU glibc.
+			</div><div
+            class="para">
+				La <em
+              class="replaceable">version</em> est construite à partir de la version amont (définie par les variables <code
+              class="literal">VERSION</code>, <code
+              class="literal">PATCHLEVEL</code>, <code
+              class="literal">SUBLEVEL</code> et <code
+              class="literal">EXTRAVERSION</code> dans le fichier <code
+              class="filename">Makefile</code>), du paramètre de configuration <code
+              class="literal">LOCALVERSION</code> et de la variable d'environnement <code
+              class="literal">LOCALVERSION</code>. La version du paquet réutilise la même chaîne de version, avec une révision qui est régulièrement incrémentée (et stockée dans le fichier <code
+              class="filename">.version</code>), sauf si elle est explicitement surchargée par la variable d'environnement <code
+              class="literal">KDEB_PKGVERSION</code>.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>make deb-pkg LOCALVERSION=-falcot KDEB_PKGVERSION=1</code></strong>
+[...]
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>ls ../*.deb</code></strong>
+<code
+              class="computeroutput">../linux-headers-3.16.7-ckt4-falcot_1_amd64.deb
+../linux-image-3.16.7-ckt4-falcot_1_amd64.deb
+../linux-image-3.16.7-ckt4-falcot-dbg_1_amd64.deb
+../linux-libc-dev_1_amd64.deb
+</code></pre></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.modules-build"></a>8.10.5. Compilation de modules externes</h3></div></div></div><a
+            id="idm140565685009152"
+            class="indexterm"></a><a
+            id="idm140565685007712"
+            class="indexterm"></a><a
+            id="idm140565685006272"
+            class="indexterm"></a><div
+            class="para">
+				Some modules are maintained outside of the official Linux kernel. To use them, they must be compiled alongside the matching kernel. A number of common third party modules are provided by Debian in dedicated packages, such as <span
+              class="pkg pkg">xtables-addons-source</span> (extra modules for iptables) or <span
+              class="pkg pkg">oss4-source</span> (Open Sound System, some alternative audio drivers).
+			</div><div
+            class="para">
+				Il est difficile de dresser la liste des modules externes disponibles sous forme de sources dans Debian, mais la commande <code
+              class="command">apt-cache search source$</code> permet de restreindre le champ de la recherche. De toute façon, cette liste n'apporte rien puisqu'il n'y a pas de raison particulière de compiler des modules externes sauf quand on sait qu'on en a besoin — auquel cas la documentation du périphérique vous renseignera.
+			</div><div
+            class="para">
+				For example, let's look at the <span
+              class="pkg pkg">xtables-addons-source</span> package: after installation, a <code
+              class="filename">.tar.bz2</code> of the module's sources is stored in <code
+              class="filename">/usr/src/</code>. While we could manually extract the tarball and build the module, in practice we prefer to automate all this using DKMS. Most modules offer the required DKMS integration in a package ending with a <code
+              class="literal">-dkms</code> suffix. In our case, installing <span
+              class="pkg pkg">xtables-addons-dkms</span> is all that is needed to compile the kernel module for the current kernel provided that we have the <span
+              class="pkg pkg">linux-headers-*</span> package matching the installed kernel. For instance, if you use <span
+              class="pkg pkg">linux-image-amd64</span>, you would also install <span
+              class="pkg pkg">linux-headers-amd64</span>.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>sudo apt-get install xtables-addons-common-dkms</code></strong>
+<code
+              class="computeroutput">
+[...]
+Setting up xtables-addons-dkms (2.6-1) ...
+Loading new xtables-addons-2.6 DKMS files...
+First Installation: checking all kernels...
+Building only for 3.16.0-4-amd64
+Building initial module for 3.16.0-4-amd64
+Done.
+
+xt_ACCOUNT:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/3.16.0-4-amd64/updates/dkms/
+[...]
+DKMS: install completed.
+$ </code><strong
+              class="userinput"><code>sudo dkms status</code></strong>
+<code
+              class="computeroutput">xtables-addons, 2.6, 3.16.0-4-amd64, x86_64: installed
+$ </code><strong
+              class="userinput"><code>sudo modinfo xt_ACCOUNT</code></strong>
+<code
+              class="computeroutput">filename:       /lib/modules/3.16.0-4-amd64/updates/dkms/xt_ACCOUNT.ko
+license:        GPL
+alias:          ipt_ACCOUNT
+author:         Intra2net AG &lt;opensource@intra2net.com&gt;
+description:    Xtables: per-IP accounting for large prefixes
+[...]
+</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ALTERNATIVE</em></span> module-assistant</strong></p></div></div></div><a
+              id="idm140565684990608"
+              class="indexterm"></a><div
+              class="para">
+				Before DKMS, <span
+                class="pkg pkg">module-assistant</span> was the simplest solution to build and deploy kernel modules. It can still be used, in particular for packages lacking DKMS integration: with a simple command like <code
+                class="command">module-assistant auto-install xtables-addons</code> (or <code
+                class="command">m-a a-i xtables-addons</code> for short), the modules are compiled for the current kernel, put in a new Debian package, and that package gets installed on the fly.
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.kernel-patch"></a>8.10.6. Emploi d'un patch sur le noyau</h3></div></div></div><a
+            id="idm140565684985264"
+            class="indexterm"></a><a
+            id="idm140565684983824"
+            class="indexterm"></a><div
+            class="para">
+				Certaines fonctionnalités ne sont pas intégrées au noyau standard faute de stabilité ou d'accord des mainteneurs du noyau. Dans ce cas, il arrive qu'elles soient diffusées sous la forme de correctif (ou patch), que chacun est alors libre d'appliquer sur les sources du noyau.
+			</div><div
+            class="para">
+				Debian diffuse certains de ces patches par le biais des paquets <span
+              class="pkg pkg">linux-patch-*</span> ou <span
+              class="pkg pkg">kernel-patch-*</span> (exemple : <span
+              class="pkg pkg">linux-patch-grsecurity2</span> qui renforce la sécurité assurée par le noyau). Ces paquets installent des fichiers dans <code
+              class="filename">/usr/src/kernel-patches/</code>.
+			</div><div
+            class="para">
+				Pour appliquer un ou plusieurs des patches installés, il faudra utiliser la commande <code
+              class="command">patch</code> sur le répertoire de sources, puis lancer la compilation du noyau comme précédemment.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd ~/kernel/linux-source-3.16</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>make clean</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>zcat /usr/src/kernel-patches/diffs/grsecurity2/grsecurity-3.0-3.17.1-201410250027.patch.gz | patch -p1</code></strong></pre><div
+            class="para">
+				Attention, un patch ne fonctionnant pas forcément avec toutes les versions des noyaux, il est possible que <code
+              class="command">patch</code> échoue à l'appliquer sur les sources du noyau. Un message vous en informera alors : dans ce cas, référez-vous à la documentation disponible dans le paquet Debian du patch (dans le répertoire <code
+              class="filename">/usr/share/doc/linux-patch-*/</code>). Il est probable que le mainteneur indique pour quelles versions du noyau il a été prévu.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.config-misc.html"><strong>Précédent</strong>8.9. Autres configurations : synchronisation, log...</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.kernel-installation.html"><strong>Suivant</strong>8.11. Installation d'un noyau</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.kernel-compilation.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.kernel-compilation.html">da-DK</a></li><li><a
+              href="../de-DE/sect.kernel-compilation.html">de-DE</a></li><li><a
+              href="../el-GR/sect.kernel-compilation.html">el-GR</a></li><li><a
+              href="../en-US/sect.kernel-compilation.html">en-US</a></li><li><a
+              href="../es-ES/sect.kernel-compilation.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.kernel-compilation.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.kernel-compilation.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.kernel-compilation.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.kernel-compilation.html">id-ID</a></li><li><a
+              href="../it-IT/sect.kernel-compilation.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.kernel-compilation.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.kernel-compilation.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.kernel-compilation.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.kernel-compilation.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.kernel-compilation.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.kernel-compilation.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.kernel-compilation.html">zh-CN</a></li></ul></div></body></html>

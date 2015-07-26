@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.2. Firewall ou Filtragem de pacotes</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="Firewall, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="security.html"
+        title="Capítulo 14. Segurança" /><link
+        rel="prev"
+        href="security.html"
+        title="Capítulo 14. Segurança" /><link
+        rel="next"
+        href="sect.supervision.html"
+        title="14.3. Supervisão: Prevenção, Detecção, Desencorajamento" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.firewall-packet-filtering.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="security.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.supervision.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.firewall-packet-filtering"></a>14.2. Firewall ou Filtragem de pacotes</h2></div></div></div><a
+          id="idm140035060825696"
+          class="indexterm"></a><a
+          id="idm140035060824736"
+          class="indexterm"></a><a
+          id="idm140035070967184"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>DE VOLTA AO BASICO</em></span> Firewall</strong></p></div></div></div><a
+            id="idm140035070965104"
+            class="indexterm"></a><div
+            class="para">
+			Um <span
+              class="emphasis"><em>firewall</em></span> é uma peça de equipamento de informática com hardware e/ou software que classifica os pacotes de entrada ou saída de rede (chegando ou de uma rede local) e só deixa passar aqueles combinando certas condições pré-definidas.
+		</div></div><div
+          class="para">
+			Um firewall é uma porta de filtragem da saida de rede e é efetiva apenas em pacotes que devem passar por isso. Portanto, só pode ser eficaz quando passar pelo firewall é a única rota para estes pacotes.
+		</div><div
+          class="para">
+			A falta de uma configuração padrão (e do lema "processo e não produto") explica a falta de uma solução chave. Há, no entanto, as ferramentas que tornam mais simples configurar os firewall <span
+            class="emphasis"><em>netfilter</em></span>, com uma representação gráfica das regras de filtragem. <code
+            class="command">fwbuilder</code> está, sem dúvida entre os melhores delas.
+		</div><a
+          id="idm140035070960096"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>CASO ESPECIFICO</em></span> Firewall Local</strong></p></div></div></div><div
+            class="para">
+			Um firewall pode ser restrito a uma determinada máquina (em oposição a uma rede completa), caso em que seu papel é o de filtrar ou restringir o acesso a alguns serviços, ou possivelmente para evitar que as conexões de saída por softwares maliciosos que um usuário poderia, por vontade própria ou não, ter instalado.
+		</div></div><div
+          class="para">
+			O kernel do Linux incorpora o firewall <span
+            class="emphasis"><em>netfilter</em></span>. Ele pode ser controlado a partir do espaço do usuário com os comandos <code
+            class="command">iptables</code> e <code
+            class="command">ip6tables</code>. A diferença entre estes dois comandos é que o primeiro atua sobre rede IPv4, enquanto que o último sobre o IPv6. Uma vez que ambas pilhas de protocolo de rede provavelmente estarão circulando por muitos anos, ambas as ferramentas serão utilizadas em paralelo.
+		</div><a
+          id="idm140035050627040"
+          class="indexterm"></a><a
+          id="idm140035050625920"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.netfilter"></a>14.2.1. Funcionamento do Netfilter</h3></div></div></div><div
+            class="para">
+				<span
+              class="emphasis"><em>netfilter</em></span> utiliza quatro tabelas distintas que armazenam regras que regulam três tipos de operações sobre pacotes:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">filtro</code> preocupa com as regras de filtragem (aceitando, recusando ou ignorando um pacote);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">nat</code> diz respeito a tradução de origem ou destino, endereços e portas de pacotes, observe que esta tabela existe apenas para IPv4;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">mangle</code> diz respeito a outras alterações nos pacotes IP (incluindo os TOS - <span
+                    class="emphasis"><em>Tipo de Serviço</em></span> - campo e opções);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">raw</code> permite outras modificações manuais em pacotes antes de chegar ao sistema de rastreamento de conexões.
+					</div></li></ul></div><div
+            class="para">
+				Cada tabela contém listas das chamadas regras <span
+              class="emphasis"><em>cadeias</em></span>. O firewall usa padrão para lidar com cadeias de pacotes com base em circunstâncias pré-definidas. O administrador pode criar outras cadeias, o que só será usado quando referido por uma das cadeias padrão.
+			</div><a
+            id="idm140035070568320"
+            class="indexterm"></a><a
+            id="idm140035070567360"
+            class="indexterm"></a><div
+            class="para">
+				A tabela <code
+              class="literal">filter (filtro)</code> possui tres cadeias padrao:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">INPUT (ENTRADA)</code>: preocupa se com os pacotes cujo destino é o proprio firewall;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OUTPUT (SAIDA)</code>: preocupa se com os pacotes emitidos pelo firewall;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">FORWARD (PASSAR PARA FRENTE)</code>: preocupa se com os pacotes em trânsito através do firewall (que não é nem a sua origem nem o seu destino).
+					</div></li></ul></div><div
+            class="para">
+				A tabela <code
+              class="literal">nat</code> também tem três cadeias de padrão:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">PREROUTING (PRE ROTEAMENTO)</code>: altera pacotes assim que eles chegam;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">POSTROUTING (pos roteamento)</code>: altera pacotes quando eles estão prontos para partir ao seu caminho;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">OUTPUT (SAÍDA)</code>: altera pacotes gerados pelo próprio firewall.
+					</div></li></ul></div><div
+            class="figure"><a
+              id="figure.chaines-netfilter"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/netfilter.png"
+                  alt="Como cadeias netfilter são chamadas" /></div></div><p
+              class="title"><strong>Figura 14.1. Como cadeias <span
+                  class="emphasis"><em>netfilter</em></span> são chamadas</strong></p></div><div
+            class="para">
+				Cada cadeia é uma lista de regras, cada regra é um conjunto de condições e uma ação a ser executada quando as condições forem satisfeitas. Ao processar um pacote, o firewall examina a cadeia se for o caso, uma regra após a outra, quando as condições para uma regra estão reunidas, "pula" (daí a opção <code
+              class="literal">-j </code> nos comandos) para a especificada ação para continuar o processamento. Os comportamentos mais comuns são padronizados, e existem ações específicas para eles. O processamento da cadeia toma uma destas ações de interrupções padrão, uma vez que o destino do pacote já está selado (salvo uma exceção mencionada a seguir):
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DE VOLTA AO BASICO</em></span> ICMP</strong></p></div></div></div><div
+              class="para">
+				ICMP (<span
+                class="emphasis"><em>Internet Control Message</em></span> Protocol) é o protocolo usado para transmitir informações complementares sobre as comunicações. Permite testar a conectividade de rede com o comando <code
+                class="command">ping</code> (que envia uma mensagem ICMP <span
+                class="emphasis"><em>echo request</em></span> (solicitação de eco), que o beneficiário se destina a responder com uma mensagem ICMP <span
+                class="emphasis"><em>echo reply</em></span>) (resposta echo). É sinal de um firewall rejeitando um pacote, indica um estouro de memoria no buffer de recebimento, propõe uma melhor rota para os pacotes seguintes na conexão, e assim por diante. Este protocolo é definido por vários documentos RFC, o inicial RFC777 e RFC792 logo foram concluídos e ampliados. <div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc777.html">http://www.faqs.org/rfcs/rfc777.html</a></div> <div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc792.html">http://www.faqs.org/rfcs/rfc792.html</a></div>
+			</div><div
+              class="para">
+				Para referência, um buffer de recepção é uma pequena região de memória para armazenamento de dados entre o tempo que chega na rede e o tempo que o kernel o manipula. Se esta regiao está cheia, os novos dados não podem ser recebidos, e o ICMP sinaliza o problema, de modo que o emissor possa abrandar a sua taxa de transferência (que devem, idealmente, chegar a um equilíbrio após algum tempo).
+			</div><a
+              id="idm140035050351920"
+              class="indexterm"></a><a
+              id="idm140035050350960"
+              class="indexterm"></a><a
+              id="idm140035050350032"
+              class="indexterm"></a><a
+              id="idm140035050349072"
+              class="indexterm"></a><a
+              id="idm140035050347632"
+              class="indexterm"></a><div
+              class="para">
+				Observe que, embora uma rede IPv4 possa funcionar sem ICMP, ICMPv6 é estritamente necessário para uma rede IPv6, uma vez que combina várias funções que eram, no mundo IPv4, espalhados por ICMPv4, IGMP (<span
+                class="emphasis"><em>Internet Group Membership Protocol</em></span>) e ARP (<span
+                class="emphasis"><em>Address Resolution Protocol</em></span>). ICMPv6 é definido na RFC4443. <div
+                class="url">→ <a
+                  href="http://www.faqs.org/rfcs/rfc4443.html">http://www.faqs.org/rfcs/rfc4443.html</a></div>
+			</div></div><div
+            class="para">
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ACCEPT</code>: permite que o pacote siga seu caminho;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">REJECT</code>: rejeita o pacote com um erro ICMP (o <code
+                    class="literal">--reject-with <em
+                      class="replaceable">tipo</em></code> opção para <code
+                    class="command">iptables</code> permite seleccionar o tipo de erro);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DROP</code>: apaga (ignora) o pacote;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">LOG</code>: log (via <code
+                    class="command">syslogd</code>) uma mensagem com uma descrição do pacote, observe que esta ação não interrompe o processamento, e a execução da cadeia continua na próxima regra, razão pela qual recusou registro de pacotes, requer as regras tanto LOG quanto REJECT/DROP;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ULOG</code>: registrar uma mensagem via <code
+                    class="command">ulogd</code>, que pode ser melhor adaptada e mais eficiente do que <code
+                    class="command">syslogd</code> para lidar com um grande número de mensagens, observe que esta ação, como LOG, também retorna o processamento para a próxima regra na cadeia chamada;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<em
+                    class="replaceable">chain_name</em>: Vá para a cadeia e avalie as suas regras;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">RETURN</code>: interrompe o processamento da cadeia atual, e volta para a cadeia de chamada; no caso a cadeia atual é padrão, não há nenhuma cadeia de chamada, de modo que a ação padrão (definida com a opção <code
+                    class="literal">- P</code> para o <code
+                    class="command">iptables</code>) é executada em vez disto;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SNAT</code> (apenas na tabela <code
+                    class="literal">nat</code>, portanto, somente em IPv4 no <span
+                    class="distribution distribution">Whezzy</span> - o suporte NAT para IPv6 apareceu no kernel Linux 3.7): aplicar <span
+                    class="emphasis"><em>Nat de origem</em></span> (opções extra descrevem as alterações exatas para aplicar);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">DNAT</code> (apenas na tabela <code
+                    class="literal">nat</code>, portanto, somente em IPv4 no <span
+                    class="distribution distribution">Whezzy</span>: aplica <span
+                    class="emphasis"><em>NAT de Destino</em></span> (opções extra descrevem as alterações exatas para aplicar);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MASQUERADE</code> (apenas na tabela <code
+                    class="literal">nat</code>, portanto, somente em IPv4 no <span
+                    class="distribution distribution">Whezzy</span>): aplica <span
+                    class="emphasis"><em>masquerading</em></span> (um caso especial de <span
+                    class="emphasis"><em>NAT de origem</em></span>);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">REDIRECT</code> (apenas na tabela <code
+                    class="literal">nat</code>, portanto, somente em IPv4 no <span
+                    class="distribution distribution">Whezzy</span>): redireciona um pacote para uma determinada porta do firewall, isto pode ser usado para configurar um proxy web transparente que funciona sem nenhuma configuração no lado do cliente, uma vez que o cliente pensa que ele se conecta ao destinatário e as comunicações realmente passam pelo proxy.
+					</div></li></ul></div><div
+            class="para">
+				Outras ações, particularmente as relativas à tabela <code
+              class="literal">mangle</code>, estão fora do escopo deste texto. O <span
+              class="citerefentry"><span
+                class="refentrytitle">iptables</span>(8)</span> e <span
+              class="citerefentry"><span
+                class="refentrytitle">ip6tables</span>(8)</span> tem um lista completa.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.iptables"></a>14.2.2. Sintaxe do <code
+                    class="command">iptables</code> e do <code
+                    class="command">ip6tables</code></h3></div></div></div><div
+            class="para">
+				Os comandos <code
+              class="command">iptables</code> e <code
+              class="command">ip6tables</code> permitem manipulação de tabelas, cadeias e regrass. Sua opção <code
+              class="literal"><em
+                class="replaceable">tabela</em> -t</code> indica em qual tabela operar (por padrão, <code
+              class="literal">filtro</code>).
+			</div><a
+            id="idm140035050986448"
+            class="indexterm"></a><a
+            id="idm140035050985328"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.iptables-command"></a>14.2.2.1. Comandos</h4></div></div></div><div
+              class="para">
+					A opção <code
+                class="literal">-N <em
+                  class="replaceable">cadeia</em></code> cria uma nova cadeia. A <code
+                class="literal">-X <em
+                  class="replaceable">cadeia</em></code> exclui uma cadeia vazia e sem uso. A <code
+                class="literal">-A <em
+                  class="replaceable">cadeia</em> <em
+                  class="replaceable">regra</em></code> adiciona uma regra no final da cadeia dada. A opção <code
+                class="literal">-I <em
+                  class="replaceable">cadeia</em> <em
+                  class="replaceable">número_regra</em> <em
+                  class="replaceable">regra</em></code> insere uma regra antes da regra número <em
+                class="replaceable">número_regra</em>. A opção <code
+                class="literal">-D <em
+                  class="replaceable">cadeia</em> <em
+                  class="replaceable">número_regra</em></code> (ou <code
+                class="literal">-D <em
+                  class="replaceable">cadeia</em> <em
+                  class="replaceable">regra</em></code>) remove uma regra na cadeia, a primeira sintaxe identifica a regra a ser removida pelo seu número, enquanto o segundo o identifica pelo seu conteúdo. A opção <code
+                class="literal">-F <em
+                  class="replaceable">cadeia</em></code> esvazia uma cadeia (remove todas suas regras); se nenhuma cadeia é mencionada, todas as regras da tabela são removidas. A opção <code
+                class="literal">-L <em
+                  class="replaceable">cadeia</em></code> lista as regras na cadeia. Finalmente, a opção <code
+                class="literal">-P <em
+                  class="replaceable">cadeia</em> <em
+                  class="replaceable">ação</em></code> define a ação padrão, ou "política", para uma dada cadeia; observe que apenas as cadeias padrão podem ter essa política.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.iptables-rules"></a>14.2.2.2. Regras</h4></div></div></div><a
+              id="idm140035050970688"
+              class="indexterm"></a><div
+              class="para">
+					Cada regra é expressa como <code
+                class="literal"><em
+                  class="replaceable">condições</em> -j <em
+                  class="replaceable">ação</em> <em
+                  class="replaceable">opcoes_acoes</em></code>. Se várias condições são descritas na mesma regra, então o critério é a conjunção (lógica <span
+                class="emphasis"><em>e</em></span>) das condições, que é pelo menos tão restritiva quanto cada condição individual.
+				</div><div
+              class="para">
+					A condição <code
+                class="literal">-p <em
+                  class="replaceable">protocolo</em></code> corresponde ao campo protocolo do pacote IP. Os valores mais comuns são <code
+                class="literal">tcp</code>, <code
+                class="literal">udp</code>, <code
+                class="literal">icmp</code>, e <code
+                class="literal">ICMPv6</code>. Prefixando a condição com um ponto de exclamação nega a condição, que se transforma numa correspondência para "todos os pacotes com um protocolo diferente da especificada". Este mecanismo de negação não é específico para a opção <code
+                class="literal">-p</code> e também pode ser aplicada a todas outras condições.
+				</div><div
+              class="para">
+					A condição <code
+                class="literal">-s <em
+                  class="replaceable">endereço</em></code> ou <code
+                class="literal">-s <em
+                  class="replaceable">rede/máscara</em></code> corresponde o endereço de origem do pacote. Do mesmo modo, <code
+                class="literal">-d <em
+                  class="replaceable">endereço</em></code> ou <code
+                class="literal">-d <em
+                  class="replaceable">rede/máscara</em></code> corresponde o endereço de destino.
+				</div><div
+              class="para">
+					A condicao <code
+                class="literal">-i <em
+                  class="replaceable">interface</em></code> seleciona os pacotes provenientes da interface de rede. <code
+                class="literal">-o <em
+                  class="replaceable">interface</em></code> seleciona pacotes saindo em uma interface específica.
+				</div><div
+              class="para">
+					Existem condições mais específicas, dependendo das condições genéricas acima descritas. Por exemplo, a condição <code
+                class="literal">-p TCP</code> pode ser complementada com condições sobre as portas TCP, com cláusulas como <code
+                class="literal">-- porta-origem <em
+                  class="replaceable">porta</em></code> e <code
+                class="literal">--porta-destino <em
+                  class="replaceable">porta</em></code>.
+				</div><div
+              class="para">
+					A condição <code
+                class="literal">--estado <em
+                  class="replaceable">estado</em></code> corresponde ao estado de um pacote em uma conexão (isto requer o módulo <code
+                class="command">ipt_conntrack</code> do kernel, para rastreamento de conexões). O estado <code
+                class="literal">NEW</code> descreve um pacote iniciando uma nova conexão; O pacote <code
+                class="literal">ESTABLISHED</code> corresponde aos pacotes pertencentes a uma conexão já existente, e <code
+                class="literal">RELATED</code> correspondem aos pacotes iniciando uma nova conexão relacionada a um já existente (o que é útil para as conexões <code
+                class="literal">ftp-data</code> no modo "active" do protocolo FTP).
+				</div><div
+              class="para">
+					A seção anterior lista as ações disponíveis, mas não suas respectivas opções. A ação <code
+                class="literal">LOG</code>, por exemplo, tem as seguintes opções:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">--log-priority</code>, com valor padrão <code
+                      class="literal">aviso</code>, indica a prioridade da mensagem <code
+                      class="command">syslog</code>;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">--log-prefix</code> permite especificar um prefixo de texto para diferenciar mensagens registradas;
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">--log-tcp-sequence</code>, <code
+                      class="literal">--log-tcp-options</code> e <code
+                      class="literal">--log-ip-options</code> indicam dados extras a serem integrados na mensagem: respectivamente, o número de seqüência TCP, opções TCP, e as opções IP.
+						</div></li></ul></div><div
+              class="para">
+					A acao <code
+                class="literal">DNAT</code> fornece a <code
+                class="literal">--to-destination <em
+                  class="replaceable">endereço</em>: opção <em
+                  class="replaceable">porta</em></code> para indicar o novo endereço IP de destino e/ou porta. Da mesma forma, <code
+                class="literal">SNAT</code> fornece <code
+                class="literal">--to-source <em
+                  class="replaceable">endereço</em>:<em
+                  class="replaceable">porta</em></code> para indicar o novo endereço IP de origem e/ou porta.
+				</div><div
+              class="para">
+					A ação <code
+                class="literal">REDIRECT</code> (disponível apenas se o NAT está disponível - no <span
+                class="distribution distribution">Wheezy</span>, que significa IPv4 somente) fornece a opção <code
+                class="literal">--to-ports <em
+                  class="replaceable">porta(s)</em></code> para indicar a porta, ou intervalo de portas, onde os pacotes devem ser redirecionados.
+				</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.creating-rules"></a>14.2.3. Criando Regras</h3></div></div></div><div
+            class="para">
+				Cada criação de regra exige uma invocação de <code
+              class="command">iptables</code>/<code
+              class="command">ip6tables</code>. Digitando estes comandos manualmente pode ser tedioso, por isso as chamadas são normalmente armazenados em um script para que a mesma configuração seja criada automaticamente a cada vez que a máquina inicia. Este script pode ser escrito à mão, mas também pode ser interessante prepará lo com uma ferramenta de alto nível, tais como <code
+              class="command">fwbuilder</code>.
+			</div><div
+            class="para">
+				O princípio é simples. Na primeira etapa, é preciso descrever todos os elementos que estarão envolvidos nas atuais regras:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						o firewall, com suas interfaces de rede;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						as redes, com suas faixas de IP correspondentes;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						os servidores;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						as portas que pertencem aos serviços hospedados nos servidores.
+					</div></li></ul></div><div
+            class="para">
+				As regras são então criadas com simples ações de arrastar-e-soltar nos objetos. Alguns menus contextuais podem alterar a condição (negando o, por exemplo). Em seguida, a ação deve ser escolhida e configurada.
+			</div><div
+            class="para">
+				Quanto IPv6 está ativo, pode se criar dois conjuntos de regras distintas para IPv4 e IPv6, ou criar uma só e deixar <code
+              class="command">fwbuilder</code> traduzir as regras de acordo com os endereços atribuídos aos objetos.
+			</div><div
+            class="figure"><a
+              id="figure.fwbuilder"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/fwbuilder.png"
+                  alt="janela principal do Fwbuilder" /></div></div><p
+              class="title"><strong>Figura 14.2. janela principal do Fwbuilder</strong></p></div><a
+            id="idm140035050924448"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">fwbuilder</code> pode gerar um script de configuração do firewall de acordo com as regras que foram definidas. Sua arquitetura modular lhe confere a capacidade de gerar scripts que visam diferentes sistemas (<code
+              class="command">iptables</code> para Linux, <code
+              class="command">ipf</code> para o FreeBSD e <code
+              class="command">pf</code> para OpenBSD).
+			</div><div
+            class="para">
+				Versões do pacote <span
+              class="pkg pkg">fwbuilder</span> desde <span
+              class="distribution distribution">Squeeze</span> contém tanto a interface gráfica e os módulos de cada sistema de firewall (estes foram previamente divididos em vários pacotes, um para cada sistema de destino):
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aptitude install fwbuilder</code></strong></pre></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.install-rules-at-boot"></a>14.2.4. Instalando as Regras em cada inicializacao</h3></div></div></div><div
+            class="para">
+				Se o firewall serve para proteger uma conexão de rede intermitente PPP, a maneira mais simples de implantar o script é instalá lo como <code
+              class="filename">/etc/ppp/ip-up.d/0iptables</code> (observe que apenas os arquivos sem um ponto em seu nome são levados em conta). O firewall irá assim ser recarregado a cada vez que uma conexão PPP for estabelecida.
+			</div><div
+            class="para">
+				Em outros casos, a maneira recomendada é registrar o script de configuração em uma directiva <code
+              class="literal">up</code> do <code
+              class="filename">/etc/network/interfaces</code>. No exemplo a seguir, o script é armazenado em <code
+              class="filename">/usr/local/etc/arrakis.fw</code>.
+			</div><div
+            class="example"><a
+              id="example.network-interfaces-firewall"></a><p
+              class="title"><strong>Exemplo 14.1. arquivo <code
+                  class="filename">interfaces</code> chamando script firewall</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">auto eth0
+iface eth0 inet static
+    address 192.168.0.1
+    network 192.168.0.0
+    netmask 255.255.255.0
+    broadcast 192.168.0.255
+    up /usr/local/etc/arrakis.fw
+</pre></div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="security.html"><strong>Anterior</strong>Capítulo 14. Segurança</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.supervision.html"><strong>Próxima</strong>14.3. Supervisão: Prevenção, Detecção, Desencoraj...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.firewall-packet-filtering.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.firewall-packet-filtering.html">da-DK</a></li><li><a
+              href="../de-DE/sect.firewall-packet-filtering.html">de-DE</a></li><li><a
+              href="../el-GR/sect.firewall-packet-filtering.html">el-GR</a></li><li><a
+              href="../en-US/sect.firewall-packet-filtering.html">en-US</a></li><li><a
+              href="../es-ES/sect.firewall-packet-filtering.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.firewall-packet-filtering.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.firewall-packet-filtering.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.firewall-packet-filtering.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.firewall-packet-filtering.html">id-ID</a></li><li><a
+              href="../it-IT/sect.firewall-packet-filtering.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.firewall-packet-filtering.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.firewall-packet-filtering.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.firewall-packet-filtering.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.firewall-packet-filtering.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.firewall-packet-filtering.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.firewall-packet-filtering.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.firewall-packet-filtering.html">zh-CN</a></li></ul></div></body></html>

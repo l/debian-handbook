@@ -1,0 +1,1279 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">12.2. الحوسبة الظاهرية</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-ar-MA-1.0-1" /><meta
+        name="keywords"
+        content="RAID, LVM, FAI, تغذية, المراقبة, الحوسبة الظاهرية, ‏Xen, ‏LXC " /><link
+        rel="home"
+        href="index.html"
+        title="دفتر مدير دبيان" /><link
+        rel="up"
+        href="advanced-administration.html"
+        title="فصل 12. الإدارة المتقدمة" /><link
+        rel="prev"
+        href="advanced-administration.html"
+        title="فصل 12. الإدارة المتقدمة" /><link
+        rel="next"
+        href="sect.automated-installation.html"
+        title="12.3. التثبيت المؤتمت" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/ar-MA/sect.virtualization.html" /></head><body
+      dir="rtl"
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="advanced-administration.html"><strong>السابق</strong></a></li><li
+          class="home">دفتر مدير دبيان</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automated-installation.html"><strong>التالي</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.virtualization"></a>12.2. الحوسبة الظاهرية</h2></div></div></div><div
+          class="para">
+			<a
+            id="idm140225821984048"
+            class="indexterm"></a> الحوسبة الظاهرية (virtualization) هي إحدى أهم تطورات الحوسبة في السنوات الأخيرة. يغطي المصطلح العديد من المفاهيم والتقنيات المستخدمة لمحاكاة الحواسيب الظاهرية بدرجات متفاوتة من الاستقلال عن العتاد الفعلي. يمكن لمخدم فيزيائي واحد عندها أن يستضيف العديد من الأنظمة التي تعمل في الوقت نفسه بمعزل عن بعضها. تطبيقات هذه التقنية عديدة، وهي مشتقة غالبًا من فكرة العزل: كاختبار بيئات لها إعدادات مختلفة مثلاً، أو فصل الخدمات المقدمة عبر حواسيب ظاهرية (virtual) مختلفة لزيادة الأمن.
+		</div><div
+          class="para">
+			هناك الكثير من حلول الحوسبة الظاهرية، لكل منها ميزاته وعيوبه. يركز هذا الكتاب على Xen، و LXC، وKVM، لكن هناك حلول أخرى تستحق الذكر منها:
+		</div><a
+          id="idm140225821981712"
+          class="indexterm"></a><a
+          id="idm140225821980592"
+          class="indexterm"></a><a
+          id="idm140225828740704"
+          class="indexterm"></a><a
+          id="idm140225828739584"
+          class="indexterm"></a><a
+          id="idm140225828738464"
+          class="indexterm"></a><a
+          id="idm140225828737344"
+          class="indexterm"></a><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					QEMU هو محاك برمجي لحاسوب كامل؛ الأداء بعيد عن السرعة التي تحصل عليها من العمل بشكل مباشر على العتاد (natively)، لكنه يسمح بتشغيل نظم تشغيل غير معدلة أو نظم تجريبية على عتاد ظاهري. كما يسمح أيضًا بمحاكاة معماريات عتادية مختلفة: مثلاً، يستطيع نظام <span
+                  class="emphasis"><em>amd64</em></span> محاكاة حاسوب <span
+                  class="emphasis"><em>arm</em></span>.‏ QEMU برنامج حر. <div
+                  class="url">→ <a
+                    href="http://www.qemu.org/">http://www.qemu.org/</a></div>
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					Bochs هو نظام محاكاة حر آخر، لكنه يحاكي معماريات x86 فقط (i386 و amd64).
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					VMWare هو نظام محاكاة احتكاري (مملوك – proprietary)؛ بما أنه أقدم الحلول المتوفرة فهو أيضًا أكثرها شهرة. يعتمد على مبادئ تشبه مبادئ QEMU. يقدم VMWare ميزات متقدمة مثل أخذ لقطة (snapshot) لحالة حاسوب ظاهري قيد العمل. <div
+                  class="url">→ <a
+                    href="http://www.vmware.com/">http://www.vmware.com/</a></div>
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					VirtualBox هو نظام محاكاة معظمه برمجيات حرة (رغم أن بعض المكونات الإضافية متوفرة برخص احتكارية). هو أقل عمراً من VMWare ومقيد بمعماريتي i386 و amd64، لكنه يتضمن مع ذلك ميزة snapshot وبعض الميزات المشوقة الأخرى. أصبح VirtualBox جزءاً من دبيان منذ إصدار <span
+                  class="distribution distribution">ليني</span>. <div
+                  class="url">→ <a
+                    href="http://www.virtualbox.org/">http://www.virtualbox.org/</a></div>
+				</div></li></ul></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.xen"></a>12.2.1. ‏Xen</h3></div></div></div><div
+            class="para">
+				Xen<a
+              id="idm140225828724688"
+              class="indexterm"></a> هو حل محاكاة ”شبه ظاهرية – paravirtualization“. يقدم Xen طبقة عزل رقيقة، تدعى ”المشرف – hypervisor“، بين العتاد والأنظمة العليا؛ تعمل بمثابة مرجع يتحكم بالوصول للعتاد من الحواسيب الظاهرية. لكنها تعالج عدداً قليلاً من التعليمات، أما البقية فتنفذ مباشرة على العتاد بالنيابة عن الأنظمة الظاهرية. الميزة الأساسية هي أن مستوى الأداء لا ينخفض، والنظم تعمل بسرعات تقترب من السرعة الأصلية؛ لكن نقطة الضعف هي أن نوى نظم التشغيل التي يمكن استخدامها مع مشرف Xen يجب تعديلها لتناسب العمل على Xen.
+			</div><div
+            class="para">
+				لنمض بعض الوقت في التعرف على المصطلحات. المُشرف هو أدنى طبقة، يعمل مباشرة على العتاد، بل تحت النواة حتى. يستطيع هذا المشرف تقسيم البرمجيات الأخرى إلى عدة نطاقات domains، التي يمكن اعتبارها كحواسيب ظاهرية متعددة. يدعى أحد هذه النطاقات (أول نطاق يتم تشغيله) باسم dom0، ويتمتع بدور خاص، حيث يستطيع هذا النطاق فقط التحكم بالمشرف وتنفيذ النطاقات الأخرى. تعرف هذه النطاقات الأخرى باسم domU. بكلمات أخرى، من وجهة نظر المستخدم، يقابل dom0 ”المستضيف – host“ في نظم المحاكاة الأخرى، بينما يمكن اعتبار domU على أنه ”الضيف – guest“.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ثقافة</em></span> Xen والإصدارات المختلفة من لينكس</strong></p></div></div></div><div
+              class="para">
+				تم تطوير Xen أساسًا كمجموعة من الترقيعات التي بقيت خارج الشجرة الرسمية، ولم تدمج في النواة لينكس. في الوقت نفسه، تطلبت عدة نظم محاكاة جديدة (بما فيها KVM) بعض الدوال العامة المتعلقة بالمحاكاة لتسهيل دمجها، وأضيفت هذه الدوال إلى النواة لينكس (التي تعرف بواجهة <span
+                class="emphasis"><em>paravirt_ops</em></span> أو <span
+                class="emphasis"><em>pv_ops</em></span>). وبما أن رقع Xen كانت تكرر بعض وظائف هذه الواجهة، لم يعد قبولها رسميًا ممكنًا.
+			</div><div
+              class="para">
+				كان على Xensource، وهي الشركة وراء تطوير Xen، نقل Xen لإطار العمل الجديد هذا، حتى يمكن دمج رقع Xen في شجرة النواة لينكس الرسمية. هذا يعني الكثير من إعادة كتابة الكود، وبالرغم من أن Xensource وصلت سريعاً إلى نسخة فعالة اعتماداً على واجهة paravirt_ops، إلا أن الرقع لم تدمج إلا تدريجيًا في النواة الرسمية. تم إكمال الدمج في لينكس 3.0. <div
+                class="url">→ <a
+                  href="http://wiki.xenproject.org/wiki/XenParavirtOps">http://wiki.xenproject.org/wiki/XenParavirtOps</a></div>
+			</div><div
+              class="para">
+				بما أن <span
+                class="distribution distribution">ويزي</span> تعتمد على الإصدار 3.2 من النواة لينكس، فإن الحزم النظامية <span
+                class="pkg pkg">linux-image-686-pae</span> و<span
+                class="pkg pkg">linux-image-amd64</span> تحوي الكود اللازم، والترقيع الخاص بالتوزيعة الذي كان لازماً مع <span
+                class="distribution distribution">سكويز</span> والنسخ السابقة من دبيان لم يعد مطلوباً. <div
+                class="url">→ <a
+                  href="http://wiki.xenproject.org/wiki/Xen_Kernel_Feature_Matrix">http://wiki.xenproject.org/wiki/Xen_Kernel_Feature_Matrix</a></div>
+			</div></div><div
+            class="para">
+				استخدام Xen في دبيان يحتاج ثلاثة مكونات:
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ملاحظة</em></span> المعماريات المتوافقة مع Xen</strong></p></div></div></div><div
+              class="para">
+				حاليًا Xen متوفر فقط لمعمارية i386 و amd64. بالإضافة لذلك، فهو يستخدم تعليمات للمعالج لم تكن متوفرة دومًا في جميع حواسيب i386. لاحظ أن معظم معالجات بنتيوم (أو الأحدث) التي صنعت بعد 2001 سوف تعمل، لذلك لا ينطبق هذا القيد على الكثير من الحالات.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ثقافة</em></span> Xen والنوى المختلفة عن لينكس</strong></p></div></div></div><div
+              class="para">
+				يحتاج Xen لتعديل جميع نظم التشغيل التي يريد المرء تشغيلها عليه؛ لا تتمتع جميع النوى بدرجة النضج نفسها في هذا المجال. العديد من النوى تعمل بالكامل، سواء في dom0 أو domU: لينكس 3.0 وما بعد، وNetBSD 4.0 وما بعد، وOpenSolaris. أما النوى الأخرى مثل OpenBSD 4.0، وFreeBSD 8 و Plan 9، تعمل فقط في domU.
+			</div><div
+              class="para">
+				لكن إذا كان Xen يستطيع الاعتماد على تعليمات العتاد المختصة بالمحاكاة (المتوفرة فقط في المعالجات الأحدث)، فيمكن تشغيل النظم غير المعدلة أيضًا في domU (بما في ذلك Windows).
+			</div></div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						المشرف نفسه. الحزمة المناسبة هي إما <span
+                    class="pkg pkg">xen-hypervisor-4.1-i386</span> أو <span
+                    class="pkg pkg">xen-hypervisor-4.1-amd64</span>. حسب العتاد المتوفر.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						نواة تعمل فوق المشرف. أي نواة أحدث من 3.0 سوف تعمل، بما في ذلك الإصدارة 3.2 المعتمدة في <span
+                    class="distribution distribution">ويزي</span>.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						معمارية i386 تحتاج أيضًا لمكتبة قياسية مع الترقيعات المناسبة للاستفادة من Xen؛ هذه متوفرة في الحزمة <span
+                    class="pkg pkg">libc6-xen</span>.
+					</div></li></ul></div><div
+            class="para">
+				لتفادي عناء اختيار هذه المكونات يدويًا، تم توفير عدد من الحزم المريحة للمستخدم (مثل <span
+              class="pkg pkg">xen-linux-system-686-pae</span> و<span
+              class="pkg pkg">xen-linux-system-amd64</span>)؛ كل من هذه الحزم تسحب تجميعة من حزم المشرف والنواة معروفة بتناسبها. يحضر المشرف معه أيضًا حزمة <span
+              class="pkg pkg">xen-utils-4.1</span>، التي تحوي أدوات للتحكم بالمشرف من dom0. تحضر هذه الحزمة بدورها المكتبة القياسية المناسبة. خلال تثبيت كل هذا، تنشئ سكربتات الإعداد أيضًا مدخلة جديدة في قائمة محمل الإقلاع Grub، لبدء تشغيل النواة المختارة لنطاق dom0. لكن لاحظ أن هذه المدخلة لا تكون الأولى عادة في القائمة، ولذلك لن تحدد افتراضيًا. إذا لم يكن هذا السلوك مرغوبًا، يمكن تغييره بالأوامر التالي:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>mv /etc/grub.d/20_linux_xen /etc/grub.d/09_linux_xen
+</code></strong><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>update-grub
+</code></strong></pre><div
+            class="para">
+				بعد تثبيت هذه المتطلبات، يأتي دور اختبار سلوك dom0 نفسه؛ هذا يحتاج إعادة الإقلاع إلى المشرف ونواة Xen. يجب أن يقلع النظام بالأسلوب العادي، مع بعض الرسائل الإضافية على الشاشة خلال خطوات التهيئة المبكرة.
+			</div><div
+            class="para">
+				الآن حان وقت تثبيت أنظمة مفيدة على نطاقات domU، باستخدام الأدوات من حزمة <span
+              class="pkg pkg">xen-tools</span>. توفر هذه الحزمة الأمر <code
+              class="command">xen-create-image</code>، الذي يؤتمت معظم المهمة. البارامتر الإجباري الوحيد هو <code
+              dir="ltr"
+              class="literal">--hostname</code>، لإعطاء اسم للنطاق domU؛ الخيارات الأخرى هامة، لكن يمكن تخزينها في ملف الضبط <code
+              dir="ltr"
+              class="filename">/etc/xen-tools/xen-tools.conf</code>، وغيابها من سطر الأوامر لا يسبب خطأ. من المهم إذاً التحقق من محتويات هذا الملف قبل إنشاء الصور، أو استخدام بارامترات إضافية عند استدعاء <code
+              class="command">xen-create-image</code>. نذكر من البارامترات الهامة:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">--memory</code>، لتحديد كمية RAM المخصصة للنظام الجديد؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">--size</code> و <code
+                    dir="ltr"
+                    class="literal">--swap</code>، لتحديد حجم ”الأقراص الظاهرية“ المتاحة للـ domU؛
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    dir="ltr"
+                    class="literal">--debootstrap</code>، لتثبيت النظام الجديد مع <code
+                    class="command">debootstrap</code>؛ في تلك الحالة، يستخدم خيار <code
+                    dir="ltr"
+                    class="literal">--dist</code> أيضًا أغلب الأحيان (مع اسم توزيعة ما مثل <span
+                    class="distribution distribution">wheezy</span>).
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>التعمق أكثر</em></span> تثبيت نظام آخر غير دبيان في domU</strong></p></div></div></div><div
+                    class="para">
+						في حال تثبيت نظام تشغيل لا يعتمد على نواة لينكس، يجب الانتباه لتحديد النواة التي يجب أن يستخدمها domU، عبر استخدام الخيار <code
+                      dir="ltr"
+                      class="literal">--kernel</code>.
+					</div></div></li><li
+                class="listitem"><div
+                  class="para">
+						يبين <code
+                    dir="ltr"
+                    class="literal">--dhcp</code> أن الحصول على إعدادات الشبكة في domU يتم من خلال DHCP بينما يسمح <code
+                    dir="ltr"
+                    class="literal">--ip</code> بتحديد عنوان IP ستاتيكي (ثابت).
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						أخيراً، يجب اختيار طريقة التخزين للصور المنشأة (التي سيراها domU على أنها أقراص صلبة). أبسط طريقة، التي تقابل الخيار <code
+                    dir="ltr"
+                    class="literal">--dir</code>، هي إنشاء ملف على dom0 لكل جهاز يجب تقديمه للـ domU. هناك بديل للأنظمة التي تستخدم LVM، وهو استخدام الخيار <code
+                    dir="ltr"
+                    class="literal">--lvm</code>، متبوعاً باسم مجموعة حيزات (VG)؛ عندئذ سينشئ <code
+                    class="command">xen-create-image</code> حيزاً منطقيًا جديداً داخل تلك المجموعة، وسيكون هذا الحيز الجديد متاحاً للـ domU بشكل قرص صلب.
+					</div><div
+                  class="sidebar"><div
+                    class="titlepage"><div><div><p
+                          class="title"><strong><span
+                              class="emphasis"><em>ملاحظة</em></span> التخزين في domU</strong></p></div></div></div><div
+                    class="para">
+						يمكن تصدير أقراص صلبة كاملة إلى domU، كما يمكن تصدير أقسام الأقراص، أو مصفوفات RAID أو حيزات LVM منطقية موجودة مسبقًا. لكن هذه العمليات لا يديرها الأمر <code
+                      class="command">xen-create-image</code>، لذلك يجب تحرير ملف إعداد صورة Xen بعد إنشاءه أولاً باستخدام <code
+                      class="command">xen-create-image</code>.
+					</div></div></li></ul></div><div
+            class="para">
+				بعد تحديد هذه الخيارات، يمكننا إنشاء صورة domU:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xen-create-image --hostname testxen --dhcp --dir /srv/testxen --size=2G --dist=wheezy --role=udev</code></strong>
+<code
+              class="computeroutput">
+[...]
+General Information
+--------------------
+Hostname       :  testxen
+Distribution   :  wheezy
+Mirror         :  http://ftp.debian.org/debian/
+Partitions     :  swap            128Mb (swap)
+                  /               2G    (ext3)
+Image type     :  sparse
+Memory size    :  128Mb
+Kernel path    :  /boot/vmlinuz-3.2.0-4-686-pae
+Initrd path    :  /boot/initrd.img-3.2.0-4-686-pae
+[...]
+Logfile produced at:
+         /var/log/xen-tools/testxen.log
+
+Installation Summary
+---------------------
+Hostname        :  testxen
+Distribution    :  wheezy
+IP-Address(es)  :  dynamic
+RSA Fingerprint :  0a:6e:71:98:95:46:64:ec:80:37:63:18:73:04:dd:2b
+Root Password   :  48su67EW
+</code></pre><div
+            class="para">
+				لدينا الآن حاسوب ظاهري، لكنه لا يعمل حاليًا (وبالتالي فهو لا يشغل سوى المساحة على القرص الصلب في dom0). طبعاً يمكننا إنشاء المزيد من الصور، وربما استخدمنا بارامترات أخرى.
+			</div><div
+            class="para">
+				قبل تشغيل هذه الحواسيب الظاهرية، علينا تحديد طريقة الوصول إليها. يمكن طبعاً اعتبارها حواسيب منفصلة، ونصل إليها فقط من خلال سطر أوامر النظام، لكن هذا نادراً ما يناسب نموذج الاستخدام. في معظم الأحيان، يعتبر domU كمخدم بعيد، ويتم الوصول إليه عبر الشبكة فقط. لكن من الصعب جداً إضافة بطاقة شبكة من أجل كل domU؛ ولذلك يسمح Xen بإنشاء واجهات شبكة ظاهرية، يستطيع كل نطاق أن يراها ويستعملها بالطريقة القياسية. لاحظ أن هذه البطاقات، بالرغم من أنها ظاهرية، إلا أنها غير مفيدة ما لم تتصل بأي شبكة، حتى لو كانت شبكة ظاهرية. لدى Xen عدة نماذج شبكية لهذا الغرض:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						أبسط نموذج هو النموذج الجسري <span
+                    class="emphasis"><em>bridge</em></span> model؛ وفيه تعمل جميع بطاقات eth0 (في أنظمة dom0 وdomU على حد سواء) كما لو كانت موصولة مباشرة مع تحويلة إيثرنت Ethernet switch.
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						بعدها يأتي نموذج التوجيه <span
+                    class="emphasis"><em>routing</em></span> model، حيث يعمل dom0 كموجه (راوتر) ما بين أنظمة domU والشبكة الخارجية (الفيزيائية).
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						أخيراً، نموذج <span
+                    class="emphasis"><em>NAT</em></span>، وفيه يصل dom0 ثانية بين أنظمة domU وباقي عناصر الشبكة، لكن لا يمكن الوصول مباشرة من الخارج إلى أنظمة domU، وتمر البيانات عبر dom0 باستخدام network address translation (ترجمة عنوان الشبكة).
+					</div></li></ul></div><div
+            class="para">
+				هذه الأنماط الثلاثة تحتاج عدداً من الواجهات ذات المسميات الغريبة، مثل <code
+              dir="ltr"
+              class="filename">vif*</code>، و<code
+              dir="ltr"
+              class="filename">veth*</code>، ‏<code
+              dir="ltr"
+              class="filename">peth*</code> وأيضًا <code
+              class="filename">xenbr0</code>. يرتب مشرف Xen هذه الواجهات في التخطيط الذي يعرفه المستخدم، حيث يتم التحكم بأدوات من فضاء المستخدم (user-space tools). سوف نقتصر على شرح النموذج الجسري، بما أن نموذج NAT ونموذج التوجيه يناسبان بعض الحالات الخاصة فقط.
+			</div><div
+            class="para">
+				الإعداد القياسي لحزم Xen لا يؤثر على إعداد الشبكة للنظام. لكن خدمة <code
+              class="command">xend</code> معدّة لدمج الواجهات الشبكية الظاهرية في أي جسر شبكة سابق (يأخذ <code
+              class="filename">xenbr0</code> الأولوية إذا كان هناك أكثر من جسر واحد). علينا إذاً إعداد جسر في <code
+              dir="ltr"
+              class="filename">/etc/network/interfaces</code> (وهذا يحتاج تثبيت حزمة <span
+              class="pkg pkg">bridge-utils</span>، ولهذا السبب توصي بها حزمة <span
+              class="pkg pkg">xen-utils-4.1</span>) لاستبدال المدخلة السابقة eth0:
+			</div><pre
+            class="programlisting">auto xenbr0
+iface xenbr0 inet dhcp
+    bridge_ports eth0
+    bridge_maxwait 0
+</pre><div
+            class="para">
+				بعد إعادة التشغيل للتأكد أن الجسر يُنشَأ آليَّاً، يمكننا الآن تشغيل domU باستخدام أدوات التحكم بـXen، بالأخص الأمر <code
+              class="command">xm</code>. يسمح هذا الأمر بإجراء العديد من التعديلات على النطاقات، مثل سردها أو تشغيلها وإيقافها.
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xm list</code></strong>
+<code
+              class="computeroutput">Name                                        ID   Mem VCPUs      State   Time(s)
+Domain-0                                     0   463     1     r-----      9.8
+# </code><strong
+              class="userinput"><code>xm create testxen.cfg</code></strong>
+<code
+              class="computeroutput">Using config file "/etc/xen/testxen.cfg".
+Started domain testxen (id=1)
+# </code><strong
+              class="userinput"><code>xm list</code></strong>
+<code
+              class="computeroutput">Name                                        ID   Mem VCPUs      State   Time(s)
+Domain-0                                     0   366     1     r-----     11.4
+testxen                                      1   128     1     -b----      1.1</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تحذير</em></span> domU واحد فقط لكل صورة!</strong></p></div></div></div><div
+              class="para">
+				مع أنه من الممكن طبعاً تشغيل أكثر من domU معاً على التوازي، إلا أن كل واحد منهم يحتاج استخدام صورة خاصة به، بما أن كل واحد من domU يعتقد أنه يعمل على عتاد خاص به (بغض النظر عن الجزء الصغير من النواة الذي يتخاطب مع المشرف). على الأخص، لا يمكن لنظامي domU يعملان في الوقت نفسه أن يتشاركا المساحة التخزينية. على أية حال، إذا كانت أنظمة domU لن تعمل في الوقت نفسه، فمن الممكن إعادة استخدام قسم swap ذاته، أو القسم الذي يحوي نظام الملفات <code
+                dir="ltr"
+                class="filename">/home</code>.
+			</div></div><div
+            class="para">
+				لاحظ أن النطاق <code
+              class="filename">testxen</code> يستهلك ذاكرة حقيقية من الـRAM المتاحة للنطاق dom0، وليست ذاكرة ظاهرية. يجب أخذ الحيطة إذن عند بناء مخدم لاستضافة نسخ Xen، وتزويده بذاكرة فيزيائية مناسبة.
+			</div><div
+            class="para">
+				ڤوالا! آلتنا الظاهرية قيد الإقلاع. يمكننا الوصول إليها بإحدى طريقتين. الطريقة المعتادة هي الاتصال بها ”عن بعد“ عبر الشبكة، كما كنا سنتصل بأي حاسب حقيقي؛ هذا يحتاج عادة مخدم DHCP أو بعض إعدادات DNS. الطريقة الأخرى، ولعلها الطريقة الوحيدة إذا كانت إعدادات الشبكة غير صحيحة، هي استخدام طرفية <code
+              class="filename">hvc0</code>، باستخدام الأمر <code
+              class="command">xm console</code>:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>xm console testxen</code></strong>
+<code
+              class="computeroutput">[...]
+
+Debian GNU/Linux 7.0 testxen hvc0
+
+testxen login: </code></pre><div
+            class="para">
+				بعدها يمكنك بدء جلسة، كما لو كنت تجلس وراء لوحة مفاتيح الحاسب الظاهري. يتم الانفصال عن هذه الطرفية بالمفتاحين <span
+              class="keycap"><strong>Control</strong></span>+<span
+              class="keycap"><strong>]</strong></span>‎.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>تلميح</em></span> الوصول للطرفية مباشرة</strong></p></div></div></div><div
+              class="para">
+				أحياناً يرغب المرء بتشغيل domU والوصول إلى طرفية النظام فوراً؛ ولذلك يقبل الأمر <code
+                class="command">xm create</code> الخيار <code
+                dir="ltr"
+                class="literal">-c</code>. تشغيل domU مع هذا الخيار سوف يعرض كل الرسائل مع إقلاع النظام.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>أدوات</em></span> OpenXenManager</strong></p></div></div></div><div
+              class="para">
+				OpenXenManager (من الحزمة <span
+                class="pkg pkg">openxenmanager</span>) هي واجهة رسومية تسمح بإدارة نطاقات Xen عن بعد بالاستفادة من Xen API. تستطيع هذه الواجهة إذن التحكم بنطاقات Xen عن بعد، وهي توفر معظم مزايا الأمر <code
+                class="command">xm</code>.
+			</div></div><div
+            class="para">
+				بعد أن يعمل domU، يمكن استخدامه مثل أي مخدم آخر (بما أنه نظام غنو/لينكس في النهاية). لكن بما أنه حاسب ظاهري فهذه الحالة تسمح ببعض المزايا الإضافية. مثلاً، يمكن إيقاف عمل domU مؤقتاً ثم استكماله، بالأمرين <code
+              class="command">xm pause</code> و<code
+              class="command">xm unpause</code>. لاحظ أن الذاكرة المخصصة للنطاق domU تبقى محجوزة أثناء الإيقاف المؤقت، رغم أنه لا يستهلك أي طاقة حسابية من المعالج. الأمران <code
+              class="command">xm save</code> و<code
+              class="command">xm restore</code> جديران بالاهتمام أيضًا: حفظ domU يحرر الموارد التي كان يستهلكها، بما في ذلك ذاكرة RAM. لا يلاحظ domU عند استعادته (أو استكمال عمله) أي شيء إلا مرور الزمن. إذا كان domU يعمل عند إيقاف تشغيل dom0، فسوف تحفظ سكربتات الحزمة حالة domU آليًا، وتستعيدها عند الإقلاع التالي. هذا يؤدي طبعاً للمتاعب التي تظهر عادة عند إسبات الحاسب المحمول. على سبيل المثال؛ إذا تعلق domU لفترة طويلة، فقد تلغى اتصالاته الشبكية. لاحظ أيضًا أن Xen حتى الآن غير متوافق مع شريحة واسعة من واجهة ACPI لإدارة الطاقة، ما يحول دون إمكانية إسبات النظام المستضيف (dom0).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>توثيق</em></span> خيارات <code
+                        class="command">xm</code></strong></p></div></div></div><div
+              class="para">
+				تحتاج معظم أوامر <code
+                class="command">xm</code> الفرعية إلى متغير واحد أو أكثر، غالبًا هي اسم domU. هذه المتغيرات مشروحة بشكل جيد في صفحة التعليمات <span
+                class="citerefentry"><span
+                  class="refentrytitle">xm</span>(1)</span>‎.
+			</div></div><div
+            class="para">
+				يمكن إيقاف أو إعادة تشغيل domU إما من داخل domU نفسه (بالأمر <code
+              class="command">shutdown</code>) أو من dom0، بالأمر <code
+              class="command">xm shutdown</code> أو <code
+              class="command">xm reboot</code>.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>التعمق أكثر</em></span> خيارات Xen المتقدمة</strong></p></div></div></div><div
+              class="para">
+				يملك Xen ميزات أكثر بكثير مما يمكننا شرحه في هذه المقاطع القليلة. على وجه الخصوص، النظام ديناميكي جداً، ويمكن تعديل العديد من بارامترات النطاق (مثل كمية الذاكرة المخصصة، الأقراص الصلبة المرئية، سلوك جدولة المهام، وغيرها) أثناء عمل النطاق. بل يمكن أيضًا تهجير domU بين المخدمات دون إيقاف تشغيله، ودون انقطاع اتصاله عن الشبكة! المصدر الرئيسي للمعلومات لجميع هذه المزايا المتقدمة هو توثيق Xen الرسمي. <div
+                class="url">→ <a
+                  href="http://www.xen.org/support/documentation.html">http://www.xen.org/support/documentation.html</a></div>
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.lxc"></a>12.2.2. ‏LXC </h3></div></div></div><div
+            class="para">
+				بالرغم من أن LXC يستخدم لبناء ”حواسيب ظاهرية“، <a
+              id="idm140225828614000"
+              class="indexterm"></a> إلا أن LXC –إذا تحرينا الدقة– ليس نظام محاكاة، بل هو نظام لعزل مجموعات من العمليات عن بعضها مع أنها تعمل على نفس الحاسب المستضيف. يستفيد هذا النظام من مجموعة من التطورات الحديثة في النواة لينكس، التي تعرف باسم مجموعات التحكم—<span
+              class="emphasis"><em>control groups</em></span>، التي تسمح لعدة زمر مختلفة من العمليات التي تدعى ”المجموعات“ برؤية بعض مظاهر النظام الكلي بشكل مختلف. من أبرز هذه المظاهر هي أرقام تعريف العمليات PIDs، وإعدادات الشبكة، ونقاط الربط في نظام الملفات. لا تستطيع أي مجموعة عمليات معزولة مثل هذه الوصول بأي شكل إلى العمليات الأخرى في النظام، كما يمكن تقييد وصولها إلى نظام الملفات بجزء فرعي محدد. يمكن لها أن تملك واجهة شبكية وجدول توجيه خاصين بها، ويمكن ضبطها حتى ترى مجموعة جزئية فقط من الأجهزة المتاحة المتصلة بالنظام.
+			</div><div
+            class="para">
+				يمكن جمع هذه المزايا لعزل عائلة كاملة من العمليات بدءاً من العملية <code
+              class="command">init</code>، وستشبه المجموعة الناتجة حاسوباً ظاهرياً. الاسم الرسمي لهذا الوضع هو ”حاوية—container“ (ومن هنا جاء اسم LXC: ‏<span
+              class="emphasis"><em>LinuX Containers</em></span>)، لكن الفرق الهام بينها وبين الحواسيب الظاهرية ”الحقيقية“ التي يقدمها Xen أو KVM هو عدم وجود نواة ثانية؛ فالحاوية تستخدم نواة النظام نفسها تماماً. ينطوي هذا على محاسن ومساوئ: من المزايا الأداء الممتاز لعدم وجود عبئ حقيقي، والواقع أن النواة ترى جميع العمليات الجارية في النظام، وبالتالي فإن جدولة المهام ستكون أكثر فعالية مما لو استخدمنا نواتين مستقلتين وكل منهما ستجدول مجموعة مختلفة من المهام. أول العيوب هو استحالة استخدام نواة مختلفة في الحاوية (سواء نسخة مختلفة من لينكس أو نظام تشغيل مختلف بالكامل).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ملاحظة</em></span> حدود العزل في LXC</strong></p></div></div></div><div
+              class="para">
+				حاويات LXC لا توفر درجة العزل التي تحصل عليها عند استخدام محاكيات أو حلول حوسبة ظاهرية أثقل. على وجه الخصوص:
+			</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+						لا تسمح نواة <span
+                      class="distribution distribution">ويزي</span> القياسية تحديد كمية الذاكرة المتاحة لكل حاوية؛ الميزة موجودة، ومبنية في النواة، لكنها معطلة افتراضيًا لأن لها كلفة (طفيفة) على أداء النظام الكلي؛ على أية حال، تفعيلها بسيط جداً بإضافة الخيار <code
+                      class="command">cgroup_enable=memory</code> لسطر أوامر النواة عند الإقلاع؛
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						بما أن النواة مشتركة بين النظام المستضيف والحاويات، فإن العمليات المحجوزة في الحاويات ستبقى تصل لرسائل النواة، ما قد يؤدي لتسرب المعلومات إذا بثت الحاوية الرسائل؛
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						للأسباب ذاتها، إذا تم اختراق حاوية وتم استغلال ثغرة في النواة، فقد تتأثر الحاويات الأخرى أيضًا؛
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						في نظام الملفات، تتحقق النواة من الصلاحيات وفقاً للمعرفات العددية للمستخدمين والمجموعات؛ وربما كانت هذه المعرفات تشير لمستخدمين ومجموعات مختلفة حسب الحاوية، ويجب أخذ هذا بعين الاعتبار عند مشاركة أجزاء قابلة للكتابة من نظام الملفات بين عدد من الحاويات.
+					</div></li></ul></div></div><div
+            class="para">
+				بما أننا نتعامل مع تقنية عزل وليست محاكاة وحسب، فإن إعداد حاويات LXC أعقد من تشغيل مثبت دبيان على جهاز ظاهري. سوف نشرح بعض المتطلبات الأولية، ثم نتجه إلى إعداد الشبكة؛ وبعدها سوف نتمكن من إنشاء النظام الذي سيعمل ضمن الحاوية.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225828599184"></a>12.2.2.1. الخطوات الأولية</h4></div></div></div><div
+              class="para">
+					تحوي الحزمة <span
+                class="pkg pkg">lxc</span> الأدوات اللازمة لتشغيل LXC، ويجب تثبيتها إذن.
+				</div><div
+              class="para">
+					يحتاج LXC أيضًا لنظام إعداد <span
+                class="emphasis"><em>control groups</em></span>، وهو نظام ملفات ظاهري يتم ربطه على <code
+                dir="ltr"
+                class="filename">/sys/fs/cgroup</code>. يجب إضافة المدخلة التالية إلى <code
+                dir="ltr"
+                class="filename">/etc/fstab</code> إذن:
+				</div><pre
+              class="programlisting scale"># /etc/fstab: static file system information.
+[...]
+cgroup            /sys/fs/cgroup           cgroup    defaults        0       0
+</pre><div
+              class="para">
+					بعدها سيتم ربط <code
+                dir="ltr"
+                class="filename">/sys/fs/cgroup</code> آليًا عند الإقلاع؛ إذا لم يكن هناك خطة لإعادة الإقلاع حالاً، فيجب ربط نظام الملفات يدوياً بالأمر <code
+                class="command">mount /sys/fs/cgroup</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.lxc.network"></a>12.2.2.2. إعداد الشبكة</h4></div></div></div><div
+              class="para">
+					الهدف من تثبيت LXC هو إعداد أجهزة ظاهرية؛ وفي حين أننا نستطيع تركها معزولة عن الشبكة طبعاً، والتخاطب معها عبر نظام الملفات فقط، إلا أن معظم حالات الاستخدام تحتاج إعطاء الحاويات وصولاً محدوداً للشبكة على الأقل. في الحالة النموذجية، كل حاوية سيكون لها واجهة شبكية ظاهرية، تتصل بالشبكة الحقيقية عبر جسر. يمكن وصل هذه الواجهة الظاهرية إما مباشرة مع الواجهة الشبكية الفيزيائية للمستضيف (وفي تلك الحالة تتصل الحاوية مباشرة بالشبكة)، أو مع واجهة ظاهرية أخرى معرفة لدى المستضيف (ويمكن للمستضيف بعدها توجيه حركة الشبكة أو حجبها). في كلا الحالتين، سوف نحتاج للحزمة <span
+                class="pkg pkg">bridge-utils</span>.
+				</div><div
+              class="para">
+					أبسط حالة تتلخص بتحرير <code
+                dir="ltr"
+                class="filename">/etc/network/interfaces</code>، ونقل إعدادات الواجهة الفيزيائية (<code
+                class="literal">eth0</code> مثلاً) إلى واجهة جسرية (عادة <code
+                class="literal">br0</code>)، وإعداد الوصلة بينهما. على سبيل المثال، إذا كان ملف إعداد الواجهة الشبكية في البداية يحوي مدخلات تشبه ما يلي:
+				</div><pre
+              class="programlisting">auto eth0
+iface eth0 inet dhcp</pre><div
+              class="para">
+					فيجب تعطيلها واستبدالها بالتالي:
+				</div><pre
+              class="programlisting">#auto eth0
+#iface eth0 inet dhcp
+
+auto br0
+iface br0 inet dhcp
+  bridge-ports eth0</pre><div
+              class="para">
+					إن نتيجة هذا الإعداد ستشبه ما نحصل عليه لو كانت الحاويات أجهزة تتصل بشبكة المستضيف الفيزيائية نفسها. يدير الإعداد ”الجسري“ حركة إطارات الإيثرنت بين جميع الواجهات المجسَّرة، بما فيها الواجهة الفيزيائية <code
+                class="literal">eth0</code> بالإضافة للواجهات الظاهرية المعرفة في الحاويات.
+				</div><div
+              class="para">
+					في الحالات التي لا يمكن فيها استخدام هذا الإعداد (مثلاً إذا لم يكن هناك مجال لتعيين عناوين IP عامة للحاويات)، سيتم إنشاء واجهة <span
+                class="emphasis"><em>tap</em></span> ظاهرية ووصلها مع الجسر. عندها يصبح مخطط الشبكة الموافق لهذا الإعداد هو كأن المستضيف له بطاقة شبكة إضافية متصلة بتحويلة (switch) منفصلة، والحاويات تتصل أيضًا بتلك التحويلة. على المستضيف عندها العمل كبوابة للحاويات إذا كانت تريد التواصل مع العالم الخارجي.
+				</div><div
+              class="para">
+					هذا الإعداد ”الغني“ يحتاج –بالإضافة إلى حزمة <span
+                class="pkg pkg">bridge-utils</span>– إلى الحزمة <span
+                class="pkg pkg">vde2</span>؛ عندئذ يصبح ملف <code
+                dir="ltr"
+                class="filename">/etc/network/interfaces</code> كما يلي:
+				</div><pre
+              class="programlisting"># Interface eth0 is unchanged
+auto eth0
+iface eth0 inet dhcp
+
+# Virtual interface 
+auto tap0
+iface tap0 inet manual
+  vde2-switch -t tap0
+
+# Bridge for containers
+auto br0
+iface br0 inet static
+  bridge-ports tap0
+  address 10.0.0.1
+  netmask 255.255.255.0
+</pre><div
+              class="para">
+					بعدها يمكن إعداد الشبكة إما ستاتيكيًا في الحاويات، أو ديناميكيًا باستخدام مخدم DHCP يعمل على المستضيف. إذا استخدم مخدم DHCP فيجب إعداده لإجابة الطلبات على الواجهة <code
+                class="literal">br0</code>.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225828576432"></a>12.2.2.3. إعداد النظام</h4></div></div></div><div
+              class="para">
+					دعنا الآن نضبط نظام الملفات الذي ستستخدمه الحاوية. بما أن هذا ”الجهاز الظاهري“ لن يعمل على العتاد مباشرة، فيجب إجراء بعض التعديلات على نظام الملفات حتى يتناسب مع تنظيم أنظمة الملفات القياسية، خصوصاً بالنسبة للنواة والأجهزة والطرفيات. لحسن الحظ، تحوي <span
+                class="pkg pkg">lxc</span> سكربتات تؤتمت معظم عملية الضبط هذه. مثلاً، يمكن استخدام الأوامر التالية (التي تحتاج الحزمتين <span
+                class="pkg pkg">debootstrap</span> و <span
+                class="pkg pkg">rsync</span>) لتثبيت حاوية دبيان:
+				</div><pre
+              class="screen"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-create -n testlxc -t debian
+</code></strong><code
+                class="computeroutput">Note: Usually the template option is called with a configuration
+file option too, mostly to configure the network.
+For more information look at lxc.conf (5)
+
+debootstrap is /usr/sbin/debootstrap
+Checking cache download in /var/cache/lxc/debian/rootfs-wheezy-amd64 ... 
+Downloading debian minimal ...
+I: Retrieving Release
+I: Retrieving Release.gpg
+[...]
+Root password is 'root', please change !
+'debian' template installed
+'testlxc' created
+root@mirwiz:~# </code>
+</pre><div
+              class="para">
+					لاحظ أن إنشاء نظام الملفات يتم أولاً في <code
+                dir="ltr"
+                class="filename">/var/cache/lxc</code>، ثم ينقل إلى المجلد الوجهة. هذا يسمح بإنشاء حاويات متطابقة أسرع بكثير، نظراً لأنك تحتاج للنسخ فقط لا أكثر.
+				</div><div
+              class="para">
+					لاحظ أيضًا أن سكربت إنشاء قالب دبيان يقبل خيار <code
+                dir="ltr"
+                class="option">--arch</code> لتحديد معمارية النظام الذي سيتم تثبيته وخيار <code
+                dir="ltr"
+                class="option">--release</code> إذا كنت تريد تثبيت إصدار آخر غير الإصدار المستقر الحالي من دبيان. يمكنك أيضًا ضبط متغير البيئة <code
+                class="literal">MIRROR</code> ليشير إلى مرآة دبيان محلية.
+				</div><div
+              class="para">
+					يحوي نظام الملفات المنشأ حديثاً نظام دبيان أصغري، وتشترك الحاوية افتراضيًا مع النظام المستضيف على جهاز الشبكة. بما أن هذا السلوك غير مرغوب، سوف نعدل ملف إعداد الحاوية (<code
+                dir="ltr"
+                class="filename">/var/lib/lxc/testlxc/config</code>) ونضيف بضعة مدخلات <code
+                dir="ltr"
+                class="literal">lxc.network.*</code>:
+				</div><pre
+              class="programlisting">lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br0
+lxc.network.hwaddr = 4a:49:43:49:79:20
+</pre><div
+              class="para">
+					هذه المدخلات تعني، على الترتيب، أنه سيتم إنشاء واجهة شبكية ظاهرية في الحاوية؛ وسيتم تنشيطها آليًا كلما تم تشغيل تلك الحاوية؛ وأنها ستتصل تلقائياً بالجسر <code
+                class="literal">br0</code> على المستضيف؛ وأن عنوان MAC الخاص بها سيكون كما هو محدد. إذا كانت هذه المدخلة الأخيرة ناقصة أو معطلة، سيتم توليد عنوان MAC عشوائي.
+				</div><div
+              class="para">
+					من المدخلات المفيدة أيضًا التي يمكن إضافتها لهذا الملف هي تعيين اسم المستضيف hostname:
+				</div><pre
+              class="programlisting">lxc.utsname = testlxc
+</pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225828560672"></a>12.2.2.4. تشغيل الحاوية</h4></div></div></div><div
+              class="para">
+					الآن وبعد أن أصبحت صورة الجهاز الظاهري جاهزة، دعنا نشغل الحاوية:
+				</div><pre
+              class="screen scale"
+              width="94"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-start --daemon --name=testlxc
+</code></strong><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>lxc-console -n testlxc
+</code></strong><code
+                class="computeroutput">Debian GNU/Linux 7 testlxc tty1
+
+testlxc login: </code><strong
+                class="userinput"><code>root</code></strong><code
+                class="computeroutput">
+Password: 
+Linux testlxc 3.2.0-4-amd64 #1 SMP Debian 3.2.46-1+deb7u1 x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+root@testlxc:~# </code><strong
+                class="userinput"><code>ps auxwf</code></strong>
+<code
+                class="computeroutput">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0  10644   824 ?        Ss   09:38   0:00 init [3]  
+root      1232  0.0  0.2   9956  2392 ?        Ss   09:39   0:00 dhclient -v -pf /run/dhclient.eth0.pid 
+root      1379  0.0  0.1  49848  1208 ?        Ss   09:39   0:00 /usr/sbin/sshd
+root      1409  0.0  0.0  14572   892 console  Ss+  09:39   0:00 /sbin/getty 38400 console
+root      1410  0.0  0.1  52368  1688 tty1     Ss   09:39   0:00 /bin/login --     
+root      1414  0.0  0.1  17876  1848 tty1     S    09:42   0:00  \_ -bash
+root      1418  0.0  0.1  15300  1096 tty1     R+   09:42   0:00      \_ ps auxf
+root      1411  0.0  0.0  14572   892 tty2     Ss+  09:39   0:00 /sbin/getty 38400 tty2 linux
+root      1412  0.0  0.0  14572   888 tty3     Ss+  09:39   0:00 /sbin/getty 38400 tty3 linux
+root      1413  0.0  0.0  14572   884 tty4     Ss+  09:39   0:00 /sbin/getty 38400 tty4 linux
+root@testlxc:~# </code></pre><div
+              class="para">
+					نحن الآن داخل الحاوية؛ ووصولنا إلى العمليات مقيد بالعمليات التي بدأت من داخل الحاوية نفسها، كما أن وصولنا إلى نظام الملفات مقيد إلى المجموعة الجزئية المعينة لهذه الحاوية من نظام الملفات الكامل (<code
+                dir="ltr"
+                class="filename">/var/lib/lxc/testlxc/rootfs</code>). يمكننا الخروج من الطرفية باستخدام <span
+                class="keycap"><strong>Control</strong></span>+<span
+                class="keycap"><strong>a</strong></span> <span
+                class="keycap"><strong>q</strong></span>.
+				</div><div
+              class="para">
+					لاحظ أننا بدأنا الحاوية كعملية في الخلفية، بفضل الخيار <code
+                dir="ltr"
+                class="option">--daemon</code> للأمر <code
+                class="command">lxc-start</code>. يمكننا مقاطعة الحاوية بالأمر <code
+                class="command">lxc-kill --name=testlxc</code>.
+				</div><div
+              class="para">
+					تحوي الحزمة <span
+                class="pkg pkg">lxc</span> سكربت تهيئة يستطيع تشغيل حاوية واحدة أو أكثر تلقائياً عند إقلاع المستضيف؛ إن ملف ضبط هذا السكربت، <code
+                dir="ltr"
+                class="filename">/etc/default/lxc</code>، هو واضح نسبياً. لاحظ أنه يجب تخزين ملفات ضبط الحاوية في <code
+                dir="ltr"
+                class="filename">/etc/lxc/auto/</code>؛ يفضل معظم المستخدمين استخدام الروابط الرمزية، التي يمكن إنشائها هكذا مثلاً <code
+                class="command">ln -s /var/lib/lxc/testlxc/config /etc/lxc/auto/testlxc.config</code>.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>التعمق أكثر</em></span> المحاكاة العملاقة</strong></p></div></div></div><div
+                class="para">
+					بما أن LXC هو نظام عزل خفيف جداً، يمكن تكييفه للاستضافة الكبيرة للعديد من المخدمات الظاهرية. لعل إعداد الشبكة سيكون أعقد بقليل مما شرحناه هنا، لكن الإعداد ”الغني“ باستخدام واجهات <code
+                  class="literal">tap</code> و<code
+                  class="literal">veth</code> يجب أن يكون كافيًا في العديد من الحالات.
+				</div><div
+                class="para">
+					ربما كان مناسباً أيضًا مشاركة أجزاء من نظام الملفات، مثل <code
+                  dir="ltr"
+                  class="filename">/usr</code> و<code
+                  dir="ltr"
+                  class="filename">/lib</code>، لتفادي تكرار البرمجيات المشتركة بين عدة حاويات. هذا يحقق عادة باستخدام مدخلات <code
+                  class="literal">lxc.mount.entry</code> في ملف إعداد الحاويات. هناك أثر جانبي جميل هنا وهو أن العمليات ستستهلك ذاكرة أقل في هذه الحالة، لأن النواة تقدر على اكتشاف البرامج المشتركة. عندئذ يمكن تخفيض الكلفة الهامشية لإضافة حاوية جديدة للمساحة التخزينية المخصصة لبياناتها، والعمليات القليلة الإضافية التي ستديرها النواة وتجدولها.
+				</div><div
+                class="para">
+					لم نشرح كافة الخيارات المتاحة، بالطبع؛ يمكنك الحصول على معلومات أوسع من صفحات الكتيبات <span
+                  class="citerefentry"><span
+                    class="refentrytitle">lxc</span>(7)</span>‎ و<span
+                  class="citerefentry"><span
+                    class="refentrytitle">lxc.conf</span>(5)</span>‎ والصفحات التي تشيران إليها.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140225828534384"></a>12.2.3. المحاكاة في KVM</h3></div></div></div><a
+            id="idm140225828533616"
+            class="indexterm"></a><div
+            class="para">
+				KVM، التي ترمز إلى <span
+              class="emphasis"><em>Kernel-based Virtual Machine</em></span>، هي أولاً وأخيراً وحدة من وحدات النواة توفر معظم البنية التحتية التي يمكن أن يستفيد منها برنامج المحاكاة، لكنها ليست محاكيًا. التحكم الفعلي بالمحاكاة يتم من خلال تطبيق مبني على QEMU. لا تقلق إذا كان هذا القسم يذكر أوامر تبدأ ب <code
+              dir="ltr"
+              class="command">qemu-*</code>: نحن لا نزال نتحدث عن KVM.
+			</div><div
+            class="para">
+				لقد دمجت KVM منذ البداية في النواة لينكس، بخلاف نظم المحاكاة الأخرى. اختر مطوروها استغلال مجموعات تعليمات المعالج المخصصة للمحاكاة (Intel-VT و AMD-V)، ما جعل KVM خفيفة الوزن، وأنيقة وغير شرهة للموارد. من جهة أخرى، هذا يعني أن KVM لا تعمل إلا على معالجات i386 و amd64 الحديثة بما يكفي لامتلاك مجموعات التعليمات هذه. يمكنك التأكد أن معالجك يدعم هذه التعليمات إذا كان هناك ”vmx“ أو ”svm“ في أعلام المعالج المذكورة في <code
+              dir="ltr"
+              class="filename">/proc/cpuinfo</code>.
+			</div><div
+            class="para">
+				مع دعم Red Hat النشط لتطوير KVM، فقد أصبحت بشكل أو بآخر المرجع في الحوسبة الظاهرية في لينكس.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225828528016"></a>12.2.3.1. الخطوات الأولية</h4></div></div></div><a
+              id="idm140225828527248"
+              class="indexterm"></a><div
+              class="para">
+					بعكس الأدوات الأخرى مثل VirtualBox، لا تقدم KVM نفسها أي واجهة للمستخدم لإنشاء وإدارة الحواسيب الظاهرية. تقدم حزمة <span
+                class="pkg pkg">qemu-kvm</span> برنامجاً تنفيذيًا قادراً على تشغيل حاسوب ظاهري، بالإضافة إلى سكربت تهيئة يحمل وحدات النواة المناسبة.
+				</div><a
+              id="idm140225828524496"
+              class="indexterm"></a><a
+              id="idm140225828523536"
+              class="indexterm"></a><div
+              class="para">
+					لحسن الحظ، توفر Red Hat أيضًا مجموعة أخرى من الأدوات لمعالجة هذه المشكلة، من خلال تطوير المكتبة <span
+                class="emphasis"><em>libvirt</em></span> وأدوات <span
+                class="emphasis"><em>virtual machine manager</em></span> المقترنة بها. تسمح libvirt بإدارة الحواسيب الظاهرية بأسلوب قياسي، بغض النظر عن نظام المحاكاة المستخدم وراء الكواليس (حاليًا هناك دعم لنظم QEMU، وKVM، وXen، وLXC، وOpenVZ، وVirtualBox، وVMWare وأيضاً UML). ‏<code
+                class="command">virtual-manager</code> هي واجهة رسومية تعتمد على libvirt لإنشاء وإدارة الحواسيب الظاهرية.
+				</div><a
+              id="idm140225828519600"
+              class="indexterm"></a><div
+              class="para">
+					سوف نثبت الحزم المطلوبة أولاً، بالأمر <code
+                class="command">apt-get install qemu-kvm libvirt-bin virtinst virt-manager virt-viewer</code>. تقدم الحزمة <span
+                class="pkg pkg">libvirt-bin</span> الخدمة <code
+                class="command">libvirtd</code>، التي تسمح بالإدارة (البعيدة ربما) للحواسيب الظاهرية التي تعمل على المستضيف، وتشغيل الحواسيب الظاهرية المناسبة عند إقلاع المستضيف. بالإضافة لذلك، توفر هذه الحزمة أداة <code
+                class="command">virsh</code> ذات الواجهة النصية، التي تسمح بالتحكم بالإجهزة التي تديرها خدمة <code
+                class="command">libvirtd</code>.
+				</div><div
+              class="para">
+					تقدم الحزمة <span
+                class="pkg pkg">virtinst</span> الأداة <code
+                class="command">virt-install</code>، التي تسمح بإنشاء الحواسيب الظاهرية من سطر الأوامر. أخيراً، يسمح <span
+                class="pkg pkg">virt-viewer</span> بالوصول إلى الطرفية الرسومية للحاسب الظاهري.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225828511776"></a>12.2.3.2. إعداد الشبكة</h4></div></div></div><div
+              class="para">
+					كما في Xen و LXC، أكثر الخيارات شيوعاً عند إعداد الشبكة هو استخدام جسر يجمع الواجهات الشبكية لعدة حواسيب ظاهرية (انظر <a
+                class="xref"
+                href="sect.virtualization.html#sect.lxc.network">قسم 12.2.2.2, “إعداد الشبكة”</a>).
+				</div><div
+              class="para">
+					أو يمكن، كما هو الإعداد الافتراضي الذي تقدمه KVM، إعطاء الحاسب الظاهري عنوناً داخلياً (ضمن المجال 192.168.122.0/24)، وإعداد NAT حتى يتمكن الجهاز الظاهري من الوصول إلى الشبكة الخارجية.
+				</div><div
+              class="para">
+					سنفترض في تتمة هذا القسم أن المستضيف لديه واجهة فيزيائية <code
+                class="literal">eth0</code> وجسر <code
+                class="literal">br0</code>، وأن الأولى متصلة مع الأخير.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225828507152"></a>12.2.3.3. التثبيت باستخدام <code
+                      class="command">virt-install</code></h4></div></div></div><a
+              id="idm140225828506064"
+              class="indexterm"></a><div
+              class="para">
+					يشبه إنشاء حاسب ظاهري تثبيت النظم العادية كثيراً، عدا أن مواصفات الحواسب الظاهري تُحدَّد في أمر طويل جداً.
+				</div><div
+              class="para">
+					عملياً، هذا يعني أننا سنستخدم برنامج تثبيت دبيان، من خلال إقلاع الحاسب الظاهري من سواقة DVD-ROM ظاهرية ترتبط مع صورة DVD دبيان مخزنة على النظام المستضيف. سوف يُصدِّر الجهاز الظاهري طرفيته الرسومية عبر بروتوكول VNC (انظر <a
+                class="xref"
+                href="sect.remote-login.html#sect.remote-desktops">قسم 9.2.2, “استخدام سطوح المكتب الرسومية البعيدة”</a> للتفاصيل)، ما يسمح لنا بالتحكم بعملية التثبيت.
+				</div><div
+              class="para">
+					نحتاج أولاً إخبار libvirtd عن موقع تخزين صور الأقراص، ما لم يكن الموقع الافتراضي (<code
+                class="filename">/var/lib/libvirt/images/</code>) مناسباً.
+				</div><pre
+              class="screen"><code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>mkdir /srv/kvm</code></strong>
+<code
+                class="computeroutput">root@mirwiz:~# </code><strong
+                class="userinput"><code>virsh pool-create-as srv-kvm dir --target /srv/kvm</code></strong>
+<code
+                class="computeroutput">Pool srv-kvm created
+
+root@mirwiz:~# </code></pre><div
+              class="para">
+					دعنا نبدأ الآن عملية تثبيت الحاسب الظاهري، وإلقاء نظرة قريبة على أهم خيارات <code
+                class="command">virt-install</code>. هذا الأمر يسجل الجهاز الظاهري وبارامتراته عند libvirtd، ثم يشغله حتى نتابع عملية التثبيت.
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virt-install --connect qemu:///system  <span
+                    id="virtinst.connect"><img
+                      class="callout"
+                      src="Common_Content/images/1.png"
+                      alt="1" /></span>
+               --virt-type kvm           <span
+                    id="virtinst.type"><img
+                      class="callout"
+                      src="Common_Content/images/2.png"
+                      alt="2" /></span>
+               --name testkvm            <span
+                    id="virtinst.name"><img
+                      class="callout"
+                      src="Common_Content/images/3.png"
+                      alt="3" /></span>
+               --ram 1024                <span
+                    id="virtinst.ram"><img
+                      class="callout"
+                      src="Common_Content/images/4.png"
+                      alt="4" /></span>
+               --disk /srv/kvm/testkvm.qcow,format=qcow2,size=10 <span
+                    id="virtinst.disk"><img
+                      class="callout"
+                      src="Common_Content/images/5.png"
+                      alt="5" /></span>
+               --cdrom /srv/isos/debian-7.2.0-amd64-netinst.iso  <span
+                    id="virtinst.cdrom"><img
+                      class="callout"
+                      src="Common_Content/images/6.png"
+                      alt="6" /></span>
+               --network bridge=br0      <span
+                    id="virtinst.network"><img
+                      class="callout"
+                      src="Common_Content/images/7.png"
+                      alt="7" /></span>
+               --vnc                     <span
+                    id="virtinst.vnc"><img
+                      class="callout"
+                      src="Common_Content/images/8.png"
+                      alt="8" /></span>
+               --os-type linux           <span
+                    id="virtinst.os"><img
+                      class="callout"
+                      src="Common_Content/images/9.png"
+                      alt="9" /></span>
+               --os-variant debianwheezy
+</code></strong><code
+                class="computeroutput">
+Starting install...
+Allocating 'testkvm.qcow'             |  10 GB     00:00
+Creating domain...                    |    0 B     00:00
+Cannot open display:
+Run 'virt-viewer --help' to see a full list of available command line options.
+Domain installation still in progress. You can reconnect
+to the console to complete the installation process.
+</code></pre><div
+              class="calloutlist"><table
+                border="0"
+                summary="Callout list"><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.connect"><img
+                          class="callout"
+                          src="Common_Content/images/1.png"
+                          alt="1" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يحدد خيار <code
+                        dir="ltr"
+                        class="literal">--connect</code> ”المشرف“ المستخدم. شكله هو شكل URL يحوي اسم نظام المحاكاة (<code
+                        dir="ltr"
+                        class="literal">xen://</code>‏، <code
+                        dir="ltr"
+                        class="literal">qemu://</code>‏، <code
+                        dir="ltr"
+                        class="literal">lxc://</code>‏، <code
+                        dir="ltr"
+                        class="literal">openvz://</code>‏، <code
+                        dir="ltr"
+                        class="literal">vbox://</code>، وهكذا) والحاسب الذي يجب أن يستضيف الجهاز الظاهري (يمكن ترك هذا فارغًا في حالة الاستضافة المحلية). لالإضافة لذلك، في حالة استخدام QEMU/KVM، يستطيع كل مستخدم إدارة الحواسيب الظاهرية ولكن بصلاحيات مقيدة، ويسمح مسار URL بتمييز حواسيب ”النظام“ (<code
+                        dir="ltr"
+                        class="literal">/system</code>) من الحواسيب الظاهرية (<code
+                        dir="ltr"
+                        class="literal">/session</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.type"><img
+                          class="callout"
+                          src="Common_Content/images/2.png"
+                          alt="2" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							بما أن طريقة إدارة KVM تطابق طريقة إدارة QEMU، فإن الخيار <code
+                        dir="ltr"
+                        class="literal">--virt-type kvm</code> يسمح بتحديد استخدام KVM بالرغم من أن URL يبدو وكأنه QEMU.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.name"><img
+                          class="callout"
+                          src="Common_Content/images/3.png"
+                          alt="3" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							خيار <code
+                        dir="ltr"
+                        class="literal">--name</code> يحدد اسمًا (فريداً) للجهاز الظاهري.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.ram"><img
+                          class="callout"
+                          src="Common_Content/images/4.png"
+                          alt="4" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يسمح خيار <code
+                        dir="ltr"
+                        class="literal">--ram</code> بتحديد كمية الذاكرة (بالميغابايت) المخصصة للجهاز الظاهري.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.disk"><img
+                          class="callout"
+                          src="Common_Content/images/5.png"
+                          alt="5" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يحدد <code
+                        dir="ltr"
+                        class="literal">--disk</code> موقع ملف الصورة التي تمثل القرص الصلب لجهازنا الظاهري؛ سوف يتم إنشاء ذلك الملف –ما لم يكن موجوداً مسبقاً– بالحجم المحدد بالبارامتر <code
+                        class="literal">size</code> (بالغيغابايت). يسمح المتغير <code
+                        class="literal">format</code> باختيار إحدى الصيغ المتعددة لتخزين ملفات الصور. الصيغة الافتراضية (<code
+                        class="literal">raw</code>) هي ملف وحيد يطابق القرص بالحجم والمحتويات تماماً. لقد اخترنا صيغة متقدمة أكثر هنا، هذه الصيغة خاصة بـ QEMU وهي تسمح بالبدء مع ملف صغير يكبر فقط عندما يبدأ الجهاز الظاهري باستهلاك المساحة فعلاً.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.cdrom"><img
+                          class="callout"
+                          src="Common_Content/images/6.png"
+                          alt="6" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يستخدم خيار <code
+                        dir="ltr"
+                        class="literal">--cdrom</code> للإشارة إلى موقع القرص الضوئي المستخدم للتثبيت. يمكن أن يكون المسار مساراً محلياً لصورة ISO، أو URL يمكن الحصول منه على الملف، أو ملف جهاز يمثل سواقة CD-ROM فيزيائية (مثل <code
+                        dir="ltr"
+                        class="literal">/dev/cdrom</code>).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.network"><img
+                          class="callout"
+                          src="Common_Content/images/7.png"
+                          alt="7" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يحدد <code
+                        dir="ltr"
+                        class="literal">--network</code> طريقة دمج بطاقة الشبكة الظاهرية في إعدادات الشبكة في المستضيف. السلوك الافتراضي (الذي حددنا استخدامه صراحة في مثالنا) هو دمجها في أي جسر شبكي سابق. إذا لم يكن هناك أي جسر من قبل، فلن يستطيع الجهاز الظاهري الوصول إلى الشبكة الفيزيائية إلا من خلال NAT، لذلك يأخذ عنواناً ضمن مجال شبكة فرعية داخلية (192.168.122.0/24).
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.vnc"><img
+                          class="callout"
+                          src="Common_Content/images/8.png"
+                          alt="8" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يصرح <code
+                        dir="ltr"
+                        class="literal">--vnc</code> أن الطرفية الرسومية يجب أن تكون متاحة عبر استخدام VNC. السلوك الافتراضي لمخدم VNC المرفق هو الإنصات إلى الواجهة المحلية فقط؛ إذا كان عميل VNC سيعمل على حاسب آخر، فإن الاتصال يحتاج لإعداد نفق SSH (انظر <a
+                        class="xref"
+                        href="sect.remote-login.html#sect.ssh-port-forwarding">قسم 9.2.1.3, “إنشاء الأنفاق المشفرة باستخدام توجيه المنافذ”</a>). أو يمكن استخدام <code
+                        dir="ltr"
+                        class="literal">--vnclisten=0.0.0.0</code> حتى يصبح الوصول لمخدم VNC ممكناً من جميع الواجهات؛ لكن انتبه إلى أنك إذا استخدمت هذا الخيار، فعليك تصميم الجدار الناري بما يتناسب معه.
+						</div></td></tr><tr><td
+                    width="5%"
+                    valign="top"
+                    align="right"><p><a
+                        href="#virtinst.os"><img
+                          class="callout"
+                          src="Common_Content/images/9.png"
+                          alt="9" /></a> </p></td><td
+                    valign="top"
+                    align="right"><div
+                      class="para">
+							يسمح الخياران <code
+                        dir="ltr"
+                        class="literal">--os-type</code> و<code
+                        dir="ltr"
+                        class="literal">--os-variant</code> بتحسين بعض متغيرات الجهاز الظاهري، اعتماداً على بعض المزايا المعروفة لنظام التشغيل المذكور هنا.
+						</div></td></tr></table></div><div
+              class="para">
+					عند هذه النقطة، بدأ الجهاز الظاهري يعمل، ونحتاج الاتصال بالطرفية الرسومية لمتابعة عملية التثبيت. إذا تم تنفيذ العملية السابقة من بيئة سطح مكتب رسومية، فيجب أن يبدأ هذا الاتصال آلياً. إذا لم يحدث هذا، أو إذا كنا نعمل عن بعد، يمكن تشغيل <code
+                class="command">virt-viewer</code> من أي بيئة رسومية لفتح الطرفية الرسومية (لاحظ أن كلمة سر الجذر للنظام البعيد ستطلب مرتين لأن العملية تحتاج لاتصالي SSH):
+				</div><pre
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>virt-viewer --connect qemu+ssh://root@<em
+                    class="replaceable">server</em>/system testkvm
+</code></strong><code
+                class="computeroutput">root@server's password: 
+root@server's password: </code></pre><div
+              class="para">
+					عند انتهاء عملية التثبيت، تتم إعادة تشغيل الجهاز الظاهري، ويصبح جاهزاً عند ذلك للاستخدام.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821140368"></a>12.2.3.4. إدارة الأجهزة باستخدام <code
+                      class="command">virsh</code></h4></div></div></div><a
+              id="idm140225821139472"
+              class="indexterm"></a><div
+              class="para">
+					بعد أن انتهينا من التثبيت، دعنا نرى كيف ندير الأجهزة الظاهرية المتوفرة. أول شيئ سنجربه هو طلب قائمة بالأجهزة التي تديرها <code
+                class="command">libvirtd</code>:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system list --all
+ Id Name                 State
+----------------------------------
+  - testkvm              shut off
+</code></strong></pre><div
+              class="para">
+					دعنا نبدأ تشغيل جهازنا التجريبي:
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system start testkvm
+</code></strong><code
+                class="computeroutput">Domain testkvm started</code></pre><div
+              class="para">
+					يمكننا الآن الحصول على تعليمات الاتصال بالطرفية الرسومية (يمكن تمرير لوحة عرض VNC المعادة كمتغير للبرنامج <code
+                class="command">vncviewer</code>):
+				</div><pre
+              class="screen"><code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>virsh -c qemu:///system vncdisplay testkvm
+</code></strong><code
+                class="computeroutput">:0</code></pre><div
+              class="para">
+					من أوامر <code
+                class="command">virsh</code> الفرعية المتاحة أيضًا:
+				</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">reboot</code> لإعادة إقلاع الجهاز الظاهري؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">shutdown</code> لبدء عملية إيقاف تشغيل نظيفة؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">destroy</code>، لإيقاف عمل الجهاز الظاهري قسراً؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">suspend</code> لإيقاف عمله مؤقتاً؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">resume</code> لاستكمال عمله؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">autostart</code> لتفعيل (أو تعطيل، إذا استخدم الخيار <code
+                      dir="ltr"
+                      class="literal">--disable</code>) تشغيل الجهاز الظاهري تلقائيًا عند إقلاع المستضيف؛
+						</div></li><li
+                  class="listitem"><div
+                    class="para">
+							<code
+                      class="literal">undefine</code> لإزالة كافة آثار الجهاز الظاهري من <code
+                      class="command">libvirtd</code>.
+						</div></li></ul></div><div
+              class="para">
+					جميع هذه الأوامر الفرعية تأخذ الاسم المُعِّرف للجهاز الظاهري كمتغير لها.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140225821122240"></a>12.2.3.5. تثبيت نظام مبني على RPM في دبيان باستخدام yum</h4></div></div></div><div
+              class="para">
+					إذا كان الجهاز الظاهري سيعمل بنظام دبيان (أو أحد مشتقاته)، يمكن تهيئة النظام باستخدام <code
+                class="command">debootstrap</code>، كما شرحناه سابقًا. أما إذا كان الجهاز الظاهري سيعمل بنظام مبني على RPM (مثل فيدورا، أو CentOS أو Scientific Linux)، يجب إتمام التثبيت باستخدام أداة <code
+                class="command">yum</code> (المتوفرة في الحزمة ذات الاسم نفسه).
+				</div><div
+              class="para">
+					تحتاج العملية لإعداد ملف <code
+                class="filename">yum.conf</code> يحوي المتغيرات اللازمة، بما فيها المسار لمستودعات حزم RPM، والمسار لإعداد plugin، والمجلد الوجهة. في هذا المثال، سنفترض أن البيئة ستخزن في <code
+                dir="ltr"
+                class="filename">/var/tmp/yum-bootstrap</code>. يجب أن يبدو الملف <code
+                dir="ltr"
+                class="filename">/var/tmp/yum-bootstrap/yum.conf</code> كالتالي:
+				</div><pre
+              class="programlisting">[main]
+reposdir=/var/tmp/yum-bootstrap/repos.d
+pluginconfpath=/var/tmp/yum-bootstrap/pluginconf.d
+cachedir=/var/cache/yum
+installroot=/path/to/destination/domU/install
+exclude=$exclude
+keepcache=1
+#debuglevel=4  
+#errorlevel=4
+pkgpolicy=newest
+distroverpkg=centos-release
+tolerant=1
+exactarch=1
+obsoletes=1
+gpgcheck=1
+plugins=1
+metadata_expire=1800</pre><div
+              class="para">
+					يجب أن يحوي المجلد <code
+                dir="ltr"
+                class="filename">/var/tmp/yum-bootstrap/repos.d</code> توصيف مستودعات RPM، تماماً كما هو مجلد <code
+                dir="ltr"
+                class="filename">/etc/yum.repos.d</code> في نظام RPM مثبت. هذا مثال عن تثبيت CentOS 6:
+				</div><pre
+              class="programlisting">[base]
+name=CentOS-6 - Base
+#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=os
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+   
+[updates]
+name=CentOS-6 - Updates
+#baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=updates
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+
+[extras]
+name=CentOS-6 - Extras
+#baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=extras
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+
+[centosplus]
+name=CentOS-6 - Plus
+#baseurl=http://mirror.centos.org/centos/$releasever/centosplus/$basearch/
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=centosplus
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+</pre><div
+              class="para">
+					أخيراً، يجب أن يحوي ملف <code
+                class="filename">pluginconf.d/installonlyn.conf</code> ما يلي:
+				</div><pre
+              class="programlisting">[main]
+enabled=1
+tokeep=5
+</pre><div
+              class="para">
+					بعد إنهاء كل هذا الإعداد، تأكد أن قواعد بيانات <code
+                class="command">rpm</code> مهيئة بشكل صحيح، باستخدام أمر مثل <code
+                class="command">rpm --rebuilddb</code>. بعدها تؤول عملية تثبيت CentOS 6 إلى تنفيذ الأمر التالي:
+				</div><pre
+              class="screen"><strong
+                class="userinput"><code>yum -c /var/tmp/yum-bootstrap/yum.conf -y install coreutils basesystem centos-release yum-basearchonly initscripts</code></strong></pre></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="advanced-administration.html"><strong>السابق</strong>فصل 12. الإدارة المتقدمة</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>أعلى</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>البداية</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automated-installation.html"><strong>التالي</strong>12.3. التثبيت المؤتمت</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.virtualization.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.virtualization.html">da-DK</a></li><li><a
+              href="../de-DE/sect.virtualization.html">de-DE</a></li><li><a
+              href="../el-GR/sect.virtualization.html">el-GR</a></li><li><a
+              href="../en-US/sect.virtualization.html">en-US</a></li><li><a
+              href="../es-ES/sect.virtualization.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.virtualization.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.virtualization.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.virtualization.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.virtualization.html">id-ID</a></li><li><a
+              href="../it-IT/sect.virtualization.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.virtualization.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.virtualization.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.virtualization.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.virtualization.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.virtualization.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.virtualization.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.virtualization.html">zh-CN</a></li></ul></div></body></html>

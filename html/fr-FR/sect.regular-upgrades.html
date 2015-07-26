@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">6.7. Maintenir un système à jour</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="apt-get, apt-cache, aptitude, synaptic, sources.list, apt-cdrom" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="apt.html"
+        title="Chapitre 6. Maintenance et mise à jour : les outils APT" /><link
+        rel="prev"
+        href="sect.dist-upgrade.html"
+        title="6.6. Mise à jour d'une distribution à la suivante" /><link
+        rel="next"
+        href="sect.automatic-upgrades.html"
+        title="6.8. Mise à jour automatique" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.regular-upgrades.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dist-upgrade.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automatic-upgrades.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.regular-upgrades"></a>6.7. Maintenir un système à jour</h2></div></div></div><div
+          class="para">
+			Debian est une distribution qui évolue au fil du temps. Bien que les changements soient surtout visibles dans les versions <span
+            class="distribution distribution">Testing</span> et <span
+            class="distribution distribution">Unstable</span>, même la version <span
+            class="distribution distribution">Stable</span> voit quelques modifications de temps en temps (il s'agit principalement de correctifs pour des problèmes de sécurité). Quelle que soit la version installée, il est souvent utile de rester à jour, pour profiter des dernières évolutions et des corrections de bogues.
+		</div><div
+          class="para">
+			Bien sûr, il est possible de lancer régulièrement un outil vérifiant l'existence de paquets mis à jour, puis de déclencher l'opération. Cependant, c'est une tâche fastidieuse et répétitive, surtout si l'on a plusieurs machines à administrer. Il existe heureusement des outils permettant d'automatiser une partie des opérations.
+		</div><div
+          class="para">
+			Citons tout d'abord <code
+            class="command">apticron</code>, dans le paquet du même nom. Il s'agit simplement d'un script, appelé quotidiennement par <code
+            class="command">cron</code>, qui met à jour la liste des paquets disponibles et envoie un courrier électronique à une adresse donnée pour lister les paquets qui ne sont pas installés dans leur dernière version, ainsi qu'une description des changements qui ont eu lieu. Ce script vise principalement les utilisateurs de Debian <span
+            class="distribution distribution">Stable</span>, on s'en doute : ces mails seraient quotidiens et vraisemblablement très longs sur les versions plus mobiles de Debian. Lorsque des mises à jour sont disponibles, <code
+            class="command">apticron</code> les télécharge, mais ne les installe pas. L'administrateur peut ainsi exécuter la mise à jour plus rapidement, puisque les paquets sont déjà dans le cache d'APT, il ne sera plus nécessaire d'attendre qu'ils transitent depuis la source de paquets.
+		</div><div
+          class="para">
+			Si l'on administre plusieurs machines, il est certes intéressant d'être prévenu lorsque certaines ont besoin d'une mise à jour, mais cette opération elle-même peut rester fastidieuse. On pourra donc tirer parti du script <code
+            class="filename">/etc/cron.daily/apt</code>, installé par le paquet <span
+            class="pkg pkg">apt</span>. Ce script est lui aussi lancé quotidiennement par <code
+            class="command">cron</code>, donc sans interface interactive. Pour contrôler son fonctionnement, on utilisera des variables de configuration d'APT (qui seront donc stockées dans un fichier sous <code
+            class="filename">/etc/apt/apt.conf.d/</code>). Les plus importantes sont :
+		</div><div
+          class="variablelist"><dl
+            class="variablelist"><dt><span
+                class="term"><code
+                  class="literal">APT::Periodic::Update-Package-Lists</code></span></dt><dd><div
+                class="para">
+						Cette option permet de spécifier une fréquence (en jours) de mise à jour des listes de paquets. Si l'on utilise <code
+                  class="command">apticron</code>, on pourra s'en passer, puisque cela ferait double emploi.
+					</div></dd><dt><span
+                class="term"><code
+                  class="literal">APT::Periodic::Download-Upgradeable-Packages</code></span></dt><dd><div
+                class="para">
+						Cette option spécifie également une fréquence en jours, qui porte sur le téléchargement des paquets mis à jour. Là encore, les utilisateurs d'<code
+                  class="command">apticron</code> pourront s'en passer.
+					</div></dd><dt><span
+                class="term"><code
+                  class="literal">APT::Periodic::AutocleanInterval</code></span></dt><dd><div
+                class="para">
+						Cette option couvre une fonction que n'a pas <code
+                  class="command">apticron</code> : elle spécifie la fréquence à laquelle le cache d'APT pourra être automatiquement épuré des paquets obsolètes (ceux qui ne sont plus disponibles sur les miroirs ni référencés par aucune distribution). Elle permet de ne pas avoir à se soucier de la taille du cache d'APT, qui sera ainsi régulée automatiquement.
+					</div></dd><dt><span
+                class="term"><code
+                  class="literal">APT::Periodic::Unattended-Upgrade</code></span></dt><dd><a
+                id="idm140565686419024"
+                class="indexterm"></a><div
+                class="para">
+						Lorsque cette option est activée, le script quotidien exécutera <code
+                  class="command">unattended-upgrade</code> (dans le paquet <span
+                  class="pkg pkg">unattended-upgrades</span>) qui, comme son nom l'indique, automatise le processus de mise à jour pour certains paquets ; par défaut, il ne s'occupe que des mises à jour de sécurité, mais cela est configurable dans le fichier <code
+                  class="filename">/etc/apt/apt.conf.d/50unattended-upgrades</code>). Notons que cette option peut être activée avec debconf, à l'aide de la commande <code
+                  class="command">dpkg-reconfigure -plow unattended-upgrades</code>.
+					</div></dd></dl></div><div
+          class="para">
+			D'autres options permettent de jouer plus finement sur le comportement du nettoyage de cache ; nous ne les aborderons pas ici, mais elles sont décrites dans le script <code
+            class="filename">/etc/cron.daily/apt</code> lui-même.
+		</div><a
+          id="idm140565686413552"
+          class="indexterm"></a><div
+          class="para">
+			Ces outils conviennent très bien pour des serveurs, mais pour un ordinateur de bureau, on préférera en général un mécanisme plus interactif. C'est pourquoi la tâche « Environnement graphique de bureau » référence <code
+            class="command">gnome-packagekit</code>. Ce paquet fournit une petite application qui affiche une icône dans la zone de notification d'un environnement de bureau lorsque des mises à jour sont disponibles. Dans ce cas, un clic sur cette icône lance <code
+            class="command">gpk-update-viewer</code>, une interface simplifiée pour effectuer des mises à jour. Elle permet de naviguer dans les mises à jour disponibles, de lire le <code
+            class="filename">changelog</code> et la description des paquets concernés, et de décider individuellement si une mise à jour doit être installée ou non.
+		</div><div
+          class="figure"><a
+            id="idm140565686409584"></a><div
+            class="figure-contents"><div
+              class="mediaobject"><img
+                src="images/gnome-packagekit.png"
+                alt="Mise à jour avec gpk-update-viewer" /></div></div><p
+            class="title"><strong>Figure 6.3. Mise à jour avec <code
+                class="command">gpk-update-viewer</code></strong></p></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dist-upgrade.html"><strong>Précédent</strong>6.6. Mise à jour d'une distribution à la suivante</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.automatic-upgrades.html"><strong>Suivant</strong>6.8. Mise à jour automatique</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.regular-upgrades.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.regular-upgrades.html">da-DK</a></li><li><a
+              href="../de-DE/sect.regular-upgrades.html">de-DE</a></li><li><a
+              href="../el-GR/sect.regular-upgrades.html">el-GR</a></li><li><a
+              href="../en-US/sect.regular-upgrades.html">en-US</a></li><li><a
+              href="../es-ES/sect.regular-upgrades.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.regular-upgrades.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.regular-upgrades.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.regular-upgrades.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.regular-upgrades.html">id-ID</a></li><li><a
+              href="../it-IT/sect.regular-upgrades.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.regular-upgrades.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.regular-upgrades.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.regular-upgrades.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.regular-upgrades.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.regular-upgrades.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.regular-upgrades.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.regular-upgrades.html">zh-CN</a></li></ul></div></body></html>

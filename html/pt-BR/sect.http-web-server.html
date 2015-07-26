@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.2. Servidor web (HTTP)</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-pt-BR-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="O Manual do Administrador Debian" /><link
+        rel="up"
+        href="network-services.html"
+        title="Capítulo 11. Serviços de Rede: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="prev"
+        href="network-services.html"
+        title="Capítulo 11. Serviços de Rede: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="next"
+        href="sect.ftp-file-server.html"
+        title="11.3. Servidor de Arquivos FTP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/pt-BR/sect.http-web-server.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="network-services.html"><strong>Anterior</strong></a></li><li
+          class="home">O Manual do Administrador Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ftp-file-server.html"><strong>Próxima</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.http-web-server"></a>11.2. Servidor web (HTTP)</h2></div></div></div><div
+          class="para">
+			The Falcot Corp administrators decided to use the Apache HTTP server, included in Debian <span
+            class="distribution distribution">Jessie</span> at version 2.4.10.
+		</div><a
+          id="idm140035051334912"
+          class="indexterm"></a><a
+          id="idm140035051333792"
+          class="indexterm"></a><a
+          id="idm140035051332352"
+          class="indexterm"></a><a
+          id="idm140035051331392"
+          class="indexterm"></a><a
+          id="idm140035051329952"
+          class="indexterm"></a><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>ALTERNATIVA</em></span> Outros servidores web</strong></p></div></div></div><div
+            class="para">
+			O Apache é apenas o mais conhecido (e amplamente utilizado) servidor web, porém existem outros; eles podem oferecer um melhor desempenho sob certas cargas de trabalho, mas ao custo de terem um número menor de funcionalidades e módulos disponíveis. Contudo, quando o servidor web em perspectiva é feito para servir arquivos estáticos ou agir como um proxy, alternativas tais como <span
+              class="pkg pkg">nginx</span> e <span
+              class="pkg pkg">lighttpd</span>, valem a pena serem investigadas.
+		</div><a
+            id="idm140035051325008"
+            class="indexterm"></a><a
+            id="idm140035051323584"
+            class="indexterm"></a></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035051322000"></a>11.2.1. Instalação do Apache</h3></div></div></div><div
+            class="para">
+				Por padrão, a instalação do pacote <span
+              class="pkg pkg">apache2</span> faz com que a versão do <span
+              class="pkg pkg">apache2-mpm-worker</span> do Apache seja instalada também. O pacote <span
+              class="pkg pkg">apache2</span> é uma concha vazia, e ele apenas serve para para garantir que uma das versões do Apache seja realmente instalada.
+			</div><div
+            class="para">
+				The differences between the variants of Apache 2 are concentrated in the policy used to handle parallel processing of many requests; this policy is implemented by an MPM (short for <span
+              class="emphasis"><em>Multi-Processing Module</em></span>). Among the available MPMs, <span
+              class="emphasis"><em>worker</em></span> uses <span
+              class="emphasis"><em>threads</em></span> (lightweight processes), whereas <span
+              class="emphasis"><em>prefork</em></span> uses a pool of processes created in advance (the traditional way, and the only one available in Apache 1.3). <span
+              class="emphasis"><em>event</em></span> also uses threads, but they are terminated earlier, when the incoming connection is only kept open by the HTTP <span
+              class="emphasis"><em>keep-alive</em></span> feature.
+			</div><div
+            class="para">
+				The Falcot administrators also install <span
+              class="pkg pkg">libapache2-mod-php5</span> so as to include the PHP support in Apache. This causes the <span
+              class="emphasis"><em>worker</em></span> MPM to be disabled, and <span
+              class="emphasis"><em>prefork</em></span> to be used instead, since PHP only works under that particular MPM.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>SEGURANÇA</em></span> Execução sob o usuário <code
+                        class="literal">www-data</code></strong></p></div></div></div><a
+              id="idm140035069951280"
+              class="indexterm"></a><a
+              id="idm140035069950160"
+              class="indexterm"></a><div
+              class="para">
+				Por padrão, o Apache lida com as requisições de entrada sob a identidade de usuário <code
+                class="literal">www-data</code>. Isso significa que uma vulnerabilidade em um script CGI executado pelo Apache (para uma página dinâmica) não comprometa todo o sistema, mas apenas os arquivos pertencentes a esse usuário em particular.
+			</div><div
+              class="para">
+				O uso do módulo <span
+                class="emphasis"><em>suexec</em></span> permite contornar essa regra para que alguns scripts CGI sejam executados sob a identidade de outro usuário. Isso é configurado com a diretiva <code
+                class="literal">SuexecUserGroup <em
+                  class="replaceable">user</em><em
+                  class="replaceable">group</em></code> na configuração do Apache.
+			</div><a
+              id="idm140035069945792"
+              class="indexterm"></a><div
+              class="para">
+				Another possibility is to use a dedicated MPM, such as the one provided by <span
+                class="pkg pkg">libapache2-mpm-itk</span>. This particular one has a slightly different behavior: it allows “isolating” virtual hosts (actually, sets of pages) so that they each run as a different user. A vulnerability in one website therefore cannot compromise files belonging to the owner of another website.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>OLHADA RÁPIDA</em></span> Lista de módulos</strong></p></div></div></div><div
+              class="para">
+				The full list of Apache standard modules can be found online. <div
+                class="url">→ <a
+                  href="http://httpd.apache.org/docs/2.4/mod/index.html">http://httpd.apache.org/docs/2.4/mod/index.html</a></div>
+			</div></div><div
+            class="para">
+				O Apache é um servidor modular, e muitos recursos são implementados através de módulos externos que o programa principal carrega durante sua inicialização. A configuração padrão apenas habilita os módulos mais comuns, porém habilitar módulos novos é uma simples questão de rodar <code
+              class="command">a2enmod <em
+                class="replaceable">módulo</em></code>; para desabilitar um módulo, o comando é <code
+              class="command">a2dismod <em
+                class="replaceable">módulo</em></code>. Esses programas na verdade apenas criam (ou apagam) ligações simbólicas em <code
+              class="filename">/etc/apache2/mods-enabled/</code>, que apontam para para os arquivos reais (armazenados em <code
+              class="filename">/etc/apache2/mods-available/</code>).
+			</div><div
+            class="para">
+				Com sua configuração padrão, o servidor web ouve na porta 80 (como configurado em <code
+              class="filename">/etc/apache2/ports.conf</code>), e serve páginas a partir do diretório <code
+              class="filename">/var/www/</code> (como configurado em <code
+              class="filename">/etc/apache2/sites-enabled/000-default</code>).
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>INDO ALÉM</em></span> Compatibilidade com SSL</strong></p></div></div></div><a
+              id="idm140035069933744"
+              class="indexterm"></a><a
+              id="idm140035069932784"
+              class="indexterm"></a><div
+              class="para">
+				Apache 2.4 includes the SSL module required for secure HTTP (HTTPS) out of the box. It just needs to be enabled with <code
+                class="command">a2enmod ssl</code>, then the required directives have to be added to the configuration files. A configuration example is provided in <code
+                class="filename">/etc/apache2/sites-available/default-ssl.conf</code>. <div
+                class="url">→ <a
+                  href="http://httpd.apache.org/docs/2.4/mod/mod_ssl.html">http://httpd.apache.org/docs/2.4/mod/mod_ssl.html</a></div>
+			</div><div
+              class="para">
+				Alguns cuidados extra devem ser tomados se você quer fornecer conexões SSL com <span
+                class="emphasis"><em>Perfect Forward Secrecy</em></span> (essas conexões usam as chaves de sessão efêmera, que garantem que um comprometimento da chave secreta do servidor não resulte no comprometimento de tráfego criptografado antigo que poderia ter sido armazenado durante um "sniffing" na rede). Dê uma olhada nas recomendações da Mozilla, em particular: <div
+                class="url">→ <a
+                  href="https://wiki.mozilla.org/Security/Server_Side_TLS#Apache">https://wiki.mozilla.org/Security/Server_Side_TLS#Apache</a></div>
+			</div><a
+              id="idm140035069926640"
+              class="indexterm"></a></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035069925200"></a>11.2.2. Configuração de servidores virtuais</h3></div></div></div><div
+            class="para">
+				Um servidor virtual é uma identidade adicional para o servidor web.
+			</div><a
+            id="idm140035069923984"
+            class="indexterm"></a><div
+            class="para">
+				Apache considera dois tipos diferentes de hosts virtuais: aqueles que se baseiam no endereço IP (ou na porta) e aqueles que se baseiam no nome de domínio do servidor web. O primeiro método requer a alocação de um endereço IP diferente (ou porta) para cada site, enquanto o segundo pode funcionar em um único endereço IP (e porta), os sites são diferenciados pelo nome de máquina enviado pelo cliente HTTP (que só funciona na versão 1.1 do protocolo HTTP — Felizmente essa versão é antiga o bastante, e assim, é utilizada por todos os clientes).
+			</div><div
+            class="para">
+				A (crescente) escassez de endereços IPv4 geralmente favorece o segundo método; contudo, fica mais complexo se os hosts virtuais precisam fornecer HTTPS também, pois o protocolo SSL nem sempre é fornecido para hospedagem virtual baseada em nome; a extensão SNI (<span
+              class="emphasis"><em>Server Name Indication</em></span>) que permite uma combinação desse tipo não é suportada por todos os navegadores. Quando vários sites HTTPS precisam ser rodados no mesmo servidor, eles geralmente irão ser diferenciados ou por rodar em uma porta diferente ou um endereço IP diferente (IPv6 pode ajudar aqui).
+			</div><div
+            class="para">
+				The default configuration for Apache 2 enables name-based virtual hosts. In addition, a default virtual host is defined in the <code
+              class="literal">/etc/apache2/sites-enabled/000-default</code> file; this virtual host will be used if no host matching the request sent by the client is found.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATENÇÃO</em></span> Primeiro servidor virtual</strong></p></div></div></div><div
+              class="para">
+				Requisições relativas a hosts virtuais desconhecidos sempre serão servidas pelo primeiro host virtual definido, é por isso que nós definimos <code
+                class="literal">www.falcot.com</code> em primeiro lugar aqui.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>OLHADA RÁPIDA</em></span> Suporte Apache ao SNI</strong></p></div></div></div><a
+              id="idm140035069915952"
+              class="indexterm"></a><div
+              class="para">
+				O servidor Apache suporta uma extensão do protocolo SSL chamada <span
+                class="emphasis"><em>Server Name Indication</em></span> (SNI). Esta extensão permite ao navegador enviar o nome do nome do host do servidor web durante o estabelecimento da conexão SSL, muito antes do que o HTTP o solicitaria, que foi usado anteriormente para identificar o host virtual solicitado entre aqueles hospedados no mesmo servidor (com o mesmo endereço IP e porta). Isso permite ao Apache selecionar o certificado SSL mais adequado para a transação a proceder.
+			</div><div
+              class="para">
+				Antes do SNI, o Apache sempre usava o certificado definido no host virtual padrão. Clientes que tentavam acessar outro host virtual iriam então exibir avisos (warnings), pois eles recebiam o certificado que não correspondia com o site que eles estavam tentando acessar. Felizmente, a maioria dos navegadores agora trabalham com SNI; Isso inclui o Microsoft Internet Explorer a partir da versão 7.0 (começando no Vista), Mozilla Firefox começando com a versão 2.0, o Safari da Apple desde a versão 3.2.1 e todas as versões do Google Chrome.
+			</div><div
+              class="para">
+				The Apache package provided in Debian is built with support for SNI; no particular configuration is therefore needed.
+			</div><div
+              class="para">
+				Devemos também ter cuidado para garantir que a configuração do primeiro host virtual (aquele usado por padrão) habilite TLSv1, pois o Apache utiliza os parâmetros deste primeiro hospedeiro virtual para estabelecer conexões seguras e eles tem a melhor permissividade para isso!
+			</div></div><div
+            class="para">
+				Cada host virtual extra é então descrito por um arquivo armazenado em <code
+              class="filename">/etc/apache2/sites-available/</code>. Configurar um site web para o domínio <code
+              class="literal">falcot.org</code> é portanto uma simples questão de criar o seguinte arquivo, e então, habilita o host virtual com <code
+              class="command">a2ensite www.falcot.org</code>.
+			</div><div
+            class="example"><a
+              id="idm140035069909136"></a><p
+              class="title"><strong>Exemplo 11.16. o arquivo <code
+                  class="filename">/etc/apache2/sites-available/www.falcot.org</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+&lt;VirtualHost *:80&gt;
+ServerName www.falcot.org
+ServerAlias falcot.org
+DocumentRoot /srv/www/www.falcot.org
+&lt;/VirtualHost&gt;
+</pre></div></div><div
+            class="para">
+				O servidor Apache, como configurado até agora, usa os mesmos arquivos de log para todos os hosts virtuais (embora isso possa ser alterado adicionando as diretivas <code
+              class="literal">CustomLog</code> na definição de hosts virtuais). É, entretanto, boa prática customizar o formato desse arquivo de log para ter incluído o nome do host virtual. Isso pode ser feito criando o arquivo <code
+              class="filename">/etc/apache2/conf.d/customlog</code> que define um novo formato para todos os arquivos de log (com a diretiva <code
+              class="literal">LogFormat</code>). A linha <code
+              class="literal">CustomLog</code> tem também que ser removida (ou comentada) do arquivo <code
+              class="filename">/etc/apache2/sites-available/default</code>.
+			</div><div
+            class="example"><a
+              id="idm140035069904128"></a><p
+              class="title"><strong>Exemplo 11.17. O arquivo <code
+                  class="filename">/etc/apache2/conf.d/customlog</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting scale">
+# New log format including (virtual) host name
+LogFormat "%v %h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-Agent}i\"" vhost
+
+# Now let's use this "vhost" format by default
+CustomLog /var/log/apache2/access.log vhost
+</pre></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035069901728"></a>11.2.3. Diretivas comuns</h3></div></div></div><div
+            class="para">
+				Essa seção revê, brevemente, algumas das diretivas comumente usadas na configuração do Apache.
+			</div><a
+            id="idm140035069900352"
+            class="indexterm"></a><a
+            id="idm140035069899392"
+            class="indexterm"></a><div
+            class="para">
+				O principal arquivo de configuração inclui vários blocos <code
+              class="literal">Directory</code>; eles permitem especificar diferentes comportamentos para o servidor dependendo da localização do arquivo que está sendo servido. Um bloco desse tipo comumente inclui as diretivas <code
+              class="literal">Options</code> e <code
+              class="literal">AllowOverride</code>.
+			</div><a
+            id="idm140035069896288"
+            class="indexterm"></a><a
+            id="idm140035069895008"
+            class="indexterm"></a><div
+            class="example"><a
+              id="idm140035069893728"></a><p
+              class="title"><strong>Exemplo 11.18. Bloco Directory</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+&lt;Directory /var/www&gt;
+Options Includes FollowSymlinks
+AllowOverride All
+DirectoryIndex index.php index.html index.htm
+&lt;/Directory&gt;
+</pre></div></div><div
+            class="para">
+				A diretiva <code
+              class="literal">DirectoryIndex</code> contém uma lista de arquivos a serem experimentados quando uma requisição do cliente coincide com um diretório. O primeiro arquivo existente da lista é usado e enviado como resposta.
+			</div><a
+            id="idm140035069891040"
+            class="indexterm"></a><div
+            class="para">
+				A diretiva <code
+              class="literal">Options</code> é seguida de uma lista de opções a serem habilitadas. O valor <code
+              class="literal">None</code> desabilita todas as opções; correspondentemente, <code
+              class="literal">All</code> habilita todas elas exceto <code
+              class="literal">MultiViews</code>. As opções disponíveis incluem:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">ExecCGI</code> indica que scripts CGI podem ser executados. <a
+                    id="idm140035069886000"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">FollowSymlinks</code> diz ao servidor que ligações simbólicas podem ser seguidas, e que a resposta deve conter o conteúdo do alvo de uma ligação como essa. <a
+                    id="idm140035069883472"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">SymlinksIfOwnerMatch</code> também diz ao servidor para seguir ligações simbólicas, mas apenas quando a ligação e seu alvo são do mesmo dono. <a
+                    id="idm140035069880960"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">Includes</code> habilita <span
+                    class="emphasis"><em>Server Side Includes</em></span> (<span
+                    class="emphasis"><em>SSI</em></span> para abreviar). Essas são diretivas embutidas nas páginas HTML e executadas em tempo de execução de cada requisição. <a
+                    id="idm140035069877488"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">Indexes</code> diz ao servidor para listar o conteúdo de um diretório se a requisição HTTP enviada pelo cliente aponta para um diretório sem um arquivo index (ie, quando nenhum arquivo mencionado na diretiva <code
+                    class="literal">DirectoryIndex</code> existe nesse diretório). <a
+                    id="idm140035069874464"
+                    class="indexterm"></a>
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">MultiViews</code> habilita a negociação de conteúdo; isso pode ser usado pelo servidor para retornar uma página web que coincida com a língua preferida configurada no navegador. <a
+                    id="idm140035069871920"
+                    class="indexterm"></a>
+					</div></li></ul></div><div
+            class="para">
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DE VOLTA AO BÁSICO</em></span> Arquivo <code
+                        class="filename">.htaccess</code></strong></p></div></div></div><div
+              class="para">
+				O arquivo <code
+                class="filename">.htaccess</code> contém as diretivas de configuração do Apache que são aplicadas cada vez que uma requisição diz respeito a um elemento do diretório aonde ele é armazenado. O âmbito dessas diretivas também repercute para todos os subdiretórios dentro desse diretório.
+			</div><a
+              id="idm140035069867344"
+              class="indexterm"></a><div
+              class="para">
+				A maioria das diretivas que podem ser definidas no bloco <code
+                class="literal">Directory</code> também podem ser definidas no arquivo <code
+                class="filename">.htaccess</code>.
+			</div></div><div
+            class="para">
+				A diretiva <code
+              class="literal">AllowOverride</code> lista todas as opções que podem ser habilitadas ou desabilitadas pelo arquivo <code
+              class="filename">.htaccess</code>. Um uso comum dessa opção é restringir <code
+              class="literal">ExecCGI</code>, para que o administrador escolha quais usuários tem permissão para rodar programas sob a identidade do servidor web (o usuário <code
+              class="literal">www-data</code>).
+			</div><a
+            id="idm140035069862160"
+            class="indexterm"></a><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069860880"></a>11.2.3.1. Autenticação obrigatória</h4></div></div></div><a
+              id="idm140035069860112"
+              class="indexterm"></a><div
+              class="para">
+					Em algumas circunstâncias, o acesso a parte do site web precisa ser restrita, para que apenas usuários legítimos que fornecerem um nome de usuário e uma senha tenham acesso ao conteúdo.
+				</div><div
+              class="example"><a
+                id="idm140035069858480"></a><p
+                class="title"><strong>Exemplo 11.19. Arquivo <code
+                    class="filename">.htaccess</code> para autenticação obrigatária</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+Require valid-user
+AuthName "Private directory"
+AuthType Basic
+AuthUserFile /etc/apache2/authfiles/htpasswd-private
+</pre></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>SEGURANÇA</em></span> Sem segurança</strong></p></div></div></div><div
+                class="para">
+					O sistema de autenticação usado no exemplo acima (<code
+                  class="literal">Basic</code>) tem uma segurança mínima já que a senha é enviada em texto puro (ela apenas é codificada com <span
+                  class="emphasis"><em>base64</em></span>, que é uma codificação simples, ao invés de um método criptografado). Também deve ser notado que os documentos “protegidos” por esse mecanismo também trafegam pela rede em texto puro. Se segurança é importante, toda a conexão HTTP deve ser criptografada com SSL.
+				</div></div><div
+              class="para">
+					O arquivo <code
+                class="filename">/etc/apache2/authfiles/htpasswd-private</code> contém uma lista de usuários e senhas; ele é comumente manipulado com o comando <code
+                class="command">htpasswd</code>. Por exemplo, o seguinte comando é usado para adicionar um usuário ou alterar a senha: <a
+                id="idm140035069852080"
+                class="indexterm"></a>
+				</div><pre
+              class="screen">
+<code
+                class="computeroutput"># </code><strong
+                class="userinput"><code>htpasswd /etc/apache2/authfiles/htpasswd-private <em
+                    class="replaceable">user</em>
+</code></strong><code
+                class="computeroutput">New password:
+Re-type new password:
+Adding password for user <em
+                  class="replaceable">user</em>
+</code></pre></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="idm140035069848544"></a>11.2.3.2. Restringindo Acesso</h4></div></div></div><a
+              id="idm140035069847744"
+              class="indexterm"></a><div
+              class="para">
+					The <code
+                class="literal">Require</code> directive controls access restrictions for a directory (and its subdirectories, recursively).
+				</div><a
+              id="idm140035069845776"
+              class="indexterm"></a><a
+              id="idm140035069844816"
+              class="indexterm"></a><a
+              id="idm140035069843856"
+              class="indexterm"></a><div
+              class="para">
+					It can be used to restrict access based on many criteria; we will stop at describing access restriction based on the IP address of the client, but it can be made much more powerful than that, especially when several <code
+                class="literal">Require</code> directives are combined within a <code
+                class="literal">RequireAll</code> block.
+				</div><div
+              class="example"><a
+                id="idm140035069840960"></a><p
+                class="title"><strong>Exemplo 11.20. Only allow from the local network</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">Require ip 192.168.0.0/16
+</pre></div></div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>ALTERNATIVE</em></span> Old syntax</strong></p></div></div></div><div
+                class="para">
+					The <code
+                  class="literal">Require</code> syntax is only available in Apache 2.4 (the version in <span
+                  class="distribution distribution">Jessie</span>). For users of <span
+                  class="distribution distribution">Wheezy</span>, the Apache 2.2 syntax is different, and we describe it here mainly for reference, although it can also be made available in Apache 2.4 using the <code
+                  class="literal">mod_access_compat</code> module.
+				</div><div
+                class="para">
+					As diretivas <code
+                  class="literal">Allow from</code> e <code
+                  class="literal">Deny from</code> controlam as restrições de acesso em um diretório (e seus sub-diretórios, recursivamente).
+				</div><a
+                id="idm140035069833760"
+                class="indexterm"></a><a
+                id="idm140035069832480"
+                class="indexterm"></a><a
+                id="idm140035069831200"
+                class="indexterm"></a><div
+                class="para">
+					A diretiva <code
+                  class="literal">Order</code> informa ao servidor a ordem em que as diretivas <code
+                  class="literal">Allow from</code> e <code
+                  class="literal">Deny from</code> são aplicadas; A última que coincidir tem precedência. Em termos concretos, <code
+                  class="literal">Order deny,allow</code> permite acesso se nenhum <code
+                  class="literal">Deny from</code> se aplica, ou se uma diretiva <code
+                  class="literal">Allow from</code> aplica. Por outro lado, <code
+                  class="literal">Order allow,deny</code> rejeita acesso se nenhuma diretiva <code
+                  class="literal">Allow from</code> coincide (ou se uma diretiva <code
+                  class="literal">Deny from</code> se aplica).
+				</div><div
+                class="para">
+					As diretivas <code
+                  class="literal">Allow from</code> e <code
+                  class="literal">Deny from</code> podem ser seguidas de um endereço IP, uma rede (como <code
+                  class="literal">192.168.0.0/255.255.255.0</code>, <code
+                  class="literal">192.168.0.0/24</code> ou mesmo <code
+                  class="literal">192.168.0</code>), um nome de máquina ou nome de domínio, ou a palavra chave <code
+                  class="literal">all</code>, designando todos.
+				</div><div
+                class="example"><a
+                  id="idm140035069822032"></a><p
+                  class="title"><strong>Exemplo 11.21. Rejeita por padrão mas permite da rede local</strong></p><div
+                  class="example-contents"><pre
+                    class="programlisting">
+Order deny,allow
+Allow from 192.168.0.0/16
+Deny from all
+</pre></div></div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm140035069820096"></a>11.2.4. Analisadores de Log</h3></div></div></div><div
+            class="para">
+				Um analisador de log é frequentemente instalado em um servidor web; já que o primeiro fornece aos administradores uma ideia precisa do padrão de uso do último.
+			</div><div
+            class="para">
+				Os administradores da Falcot Corp selecionaram o <span
+              class="emphasis"><em>AWStats</em></span> (<span
+              class="emphasis"><em>Advanced Web Statistics</em></span>) para analisar seus arquivos de log do Apache.
+			</div><a
+            id="idm140035069817280"
+            class="indexterm"></a><a
+            id="idm140035069816160"
+            class="indexterm"></a><a
+            id="idm140035069815232"
+            class="indexterm"></a><a
+            id="idm140035069813824"
+            class="indexterm"></a><div
+            class="para">
+				O primeiro passo de configuração é a customização do arquivo <code
+              class="filename">/etc/awstats/awstats.conf</code>. O administradores da Falcot o mantiveram inalterado, exceto os seguintes parâmetros:
+			</div><pre
+            class="programlisting">
+LogFile="/var/log/apache2/access.log"
+LogFormat = "%virtualname %host %other %logname %time1 %methodurl %code %bytesd %refererquot %uaquot"
+SiteDomain="www.falcot.com"
+HostAliases="falcot.com REGEX[^.*\.falcot\.com$]"
+DNSLookup=1
+LoadPlugin="tooltips"
+</pre><div
+            class="para">
+				Todos esses parâmetros são documentados através de comentários no arquivo de exemplo. Em particular, os parâmetros <code
+              class="varname">LogFile</code> e <code
+              class="varname">LogFormat</code> descrevem a localização e o formato do arquivo de log e a informação que ele contém; <code
+              class="varname">SiteDomain</code> e <code
+              class="varname">HostAliases</code> listam os vários nomes pelos quais o site web principal é conhecido.
+			</div><div
+            class="para">
+				Para sites com alto tráfego, <code
+              class="varname">DNSLookup</code> geralmente não deveria ser configurado como <code
+              class="literal">1</code>; para sites menores, como o da Falcot descrito acima, essa configuração permite ter relatórios mais legíveis, que incluem o nome completo da máquina ao invés de simplesmente endereços IP.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>SEGURANÇA</em></span> Acesso as estatísticas</strong></p></div></div></div><div
+              class="para">
+				O AWStats deixa suas estatísticas disponíveis no site web sem restrições por padrão, mas restrições podem ser configuradas para que apenas alguns endereços IP (provavelmente internos) possam ter acesso a elas; a lista de endereços IP com permissão precisa ser definida no parâmetro <code
+                class="varname">AllowAccessFromWebToFollowingIPAddresses</code>
+			</div></div><div
+            class="para">
+				O AWStats também será habilitado para outros hosts virtuais; cada host virtual precisa de um arquivo de configuração próprio como <code
+              class="filename">/etc/awstats/awstats.www.falcot.org.conf</code>.
+			</div><div
+            class="example"><a
+              id="idm140035069803488"></a><p
+              class="title"><strong>Exemplo 11.22. Arquivo de configuração dO AWStats para um servidor virtual</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Include "/etc/awstats/awstats.conf"
+SiteDomain="www.falcot.org"
+HostAliases="falcot.org"
+</pre></div></div><div
+            class="para">
+				O AWStats usa muitos ícones que estão armazenados no diretório <code
+              class="filename">/usr/share/awstats/icon/</code>. Para que esses ícones fiquem disponíveis no site web, a configuração do Apache precisa ser adaptada para incluir as seguintes diretivas:
+			</div><pre
+            class="programlisting">
+Alias /awstats-icon/ /usr/share/awstats/icon/
+</pre><div
+            class="para">
+				Após alguns minutos (e uma vez que o script tenha sido rodado algumas vezes), os resultados ficarão disponíveis online: <div
+              class="url">→ <a
+                href="http://www.falcot.com/cgi-bin/awstats.pl">http://www.falcot.com/cgi-bin/awstats.pl</a></div><div
+              class="url">→ <a
+                href="http://www.falcot.org/cgi-bin/awstats.pl">http://www.falcot.org/cgi-bin/awstats.pl</a></div>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ATENÇÃO</em></span> Rotação dos arquivos de registro</strong></p></div></div></div><div
+              class="para">
+				Para que as estatísticas levem em consideração todos os logs, o <span
+                class="emphasis"><em>AWStats</em></span> precisa ser executado antes que os arquivos de log do Apache sejam rotacionados. Olhando a diretiva <code
+                class="literal">prerotate</code> do arquivo <code
+                class="filename">/etc/logrotate.d/apache2</code>, isso pode ser resolvido colocando um link simbólico em <code
+                class="filename">/usr/share/awstats/tools/update.sh</code> no <code
+                class="filename">/etc/logrotate.d/httpd-prerotate</code>:
+			</div><pre
+              class="screen">
+$ <strong
+                class="userinput"><code>cat /etc/logrotate.d/apache2</code></strong>
+/var/log/apache2/*.log {
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  create 644 root adm
+  sharedscripts
+  postrotate
+    /etc/init.d/apache2 reload &gt; /dev/null
+  endscript
+  prerotate
+    if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+      run-parts /etc/logrotate.d/httpd-prerotate; \
+    fi; \
+  endscript
+}
+$ <strong
+                class="userinput"><code>sudo mkdir -p /etc/logrotate.d/httpd-prerotate</code></strong>
+$ <strong
+                class="userinput"><code>sudo ln -sf /usr/share/awstats/tools/update.sh \
+  /etc/logrotate.d/httpd-prerotate/awstats</code></strong></pre><div
+              class="para">
+				Note também que os arquivos de log criados pelo <code
+                class="command">logrotate</code> precisam ter permissão de leitura para todos, especialmente o AWStats. No exemplo acima, isso é garantido pela linha <code
+                class="literal">create 644 root adm</code> (ao invés da permissão padrão <code
+                class="literal">640</code>).
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="network-services.html"><strong>Anterior</strong>Capítulo 11. Serviços de Rede: Postfix, Apache, N...</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Acima</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Principal</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.ftp-file-server.html"><strong>Próxima</strong>11.3. Servidor de Arquivos FTP</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.http-web-server.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.http-web-server.html">da-DK</a></li><li><a
+              href="../de-DE/sect.http-web-server.html">de-DE</a></li><li><a
+              href="../el-GR/sect.http-web-server.html">el-GR</a></li><li><a
+              href="../en-US/sect.http-web-server.html">en-US</a></li><li><a
+              href="../es-ES/sect.http-web-server.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.http-web-server.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.http-web-server.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.http-web-server.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.http-web-server.html">id-ID</a></li><li><a
+              href="../it-IT/sect.http-web-server.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.http-web-server.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.http-web-server.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.http-web-server.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.http-web-server.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.http-web-server.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.http-web-server.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.http-web-server.html">zh-CN</a></li></ul></div></body></html>

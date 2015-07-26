@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">15.2. Building your First Package</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-hr-HR-1.0-1" /><meta
+        name="keywords"
+        content="Backport, Rebuild, Paket izvornog koda, Archive, Meta-package, Debian Developer, Maintainer" /><link
+        rel="home"
+        href="index.html"
+        title="The Debian Administrator's Handbook" /><link
+        rel="up"
+        href="debian-packaging.html"
+        title="Poglavlje 15. Creating a Debian Package" /><link
+        rel="prev"
+        href="debian-packaging.html"
+        title="Poglavlje 15. Creating a Debian Package" /><link
+        rel="next"
+        href="sect.setup-apt-package-repository.html"
+        title="15.3. Creating a Package Repository for APT" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/hr-HR/sect.building-first-package.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>Natrag</strong></a></li><li
+          class="home">The Debian Administrator's Handbook</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>Naprijed</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.building-first-package"></a>15.2. Building your First Package</h2></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139839692313184"></a>15.2.1. Meta-Packages or Fake Packages</h3></div></div></div><div
+            class="para">
+				Fake packages and meta-packages are similar, in that they are empty shells that only exist for the effects their meta-data have on the package handling stack.
+			</div><div
+            class="para">
+				The purpose of a fake package is to trick <code
+              class="command">dpkg</code> and <code
+              class="command">apt</code> into believing that some package is installed even though it's only an empty shell. This allows satisfying dependencies on a package when the corresponding software was installed outside the scope of the packaging system. Such a method works, but it should still be avoided whenever possible, since there's no guarantee that the manually installed software behaves exactly like the corresponding package would and other packages depending on it would not work properly.
+			</div><div
+            class="para">
+				On the other hand, a meta-package exists mostly as a collection of dependencies, so that installing the meta-package will actually bring in a set of other packages in a single step.
+			</div><div
+            class="para">
+				Both these kinds of packages can be created by the <code
+              class="command">equivs-control</code> and <code
+              class="command">equivs-build</code> commands (in the <span
+              class="pkg pkg">equivs</span> package). The <code
+              class="command">equivs-control <em
+                class="replaceable">file</em></code> command creates a Debian package header file that should be edited to contain the name of the expected package, its version number, the name of the maintainer, its dependencies, and its description. Other fields without a default value are optional and can be deleted. The <code
+              class="literal">Copyright</code>, <code
+              class="literal">Changelog</code>, <code
+              class="literal">Readme</code> and <code
+              class="literal">Extra-Files</code> fields are not standard fields in Debian packages; they only make sense within the scope of <code
+              class="command">equivs-build</code>, and they will not be kept in the headers of the generated package.
+			</div><div
+            class="example"><a
+              id="idm139839692303792"></a><p
+              class="title"><strong>Primjer 15.2. Header file of the <span
+                  class="emphasis"><em>libxml-libxml-perl</em></span> fake package</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Section: perl
+Priority: optional
+Standards-Version: 3.8.4
+
+Package: libxml-libxml-perl
+Version: 1.57-1
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Depends: libxml2 (&gt;= 2.6.6)
+Architecture: all
+Description: Fake package - module manually installed in site_perl
+ This is a fake package to let the packaging system
+ believe that this Debian package is installed. 
+ .
+ In fact, the package is not installed since a newer version
+ of the module has been manually compiled &amp; installed in the
+ site_perl directory.
+</pre></div></div><div
+            class="para">
+				The next step is to generate the Debian package with the <code
+              class="command">equivs-build <em
+                class="replaceable">file</em></code> command. Voilà: the package is created in the current directory and it can be handled like any other Debian package would.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139839690697744"></a>15.2.2. Simple File Archive</h3></div></div></div><div
+            class="para">
+				The Falcot Corp administrators need to create a Debian package in order to ease deployment of a set of documents on a large number of machines. The administrator in charge of this task first reads the “New Maintainer's Guide”, then starts working on their first package. <div
+              class="url">→ <a
+                href="http://www.debian.org/doc/maint-guide/">http://www.debian.org/doc/maint-guide/</a></div>
+			</div><div
+            class="para">
+				The first step is creating a <code
+              class="filename">falcot-data-1.0</code> directory to contain the target source package. The package will logically, be named <code
+              class="literal">falcot-data</code> and bear the <code
+              class="literal">1.0</code> version number. The administrator then places the document files in a <code
+              class="filename">data</code> subdirectory. Then they invoke the <code
+              class="command">dh_make</code> command (from the <span
+              class="pkg pkg">dh-make</span> package) to add files required by the package generation process, which will all be stored in a <code
+              class="filename">debian</code> subdirectory:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>cd falcot-data-1.0</code></strong>
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>dh_make --native</code></strong>
+<code
+              class="computeroutput">
+Type of package: single binary, indep binary, multiple binary, library, kernel module, kernel patch or cdbs?
+ [s/i/m/l/k/n/b] </code><strong
+              class="userinput"><code>i</code></strong>
+<code
+              class="computeroutput">
+Maintainer name : Raphael Hertzog
+Email-Address   : hertzog@debian.org
+Date            : Mon, 11 Apr 2011 15:11:36 +0200
+Package Name    : falcot-data
+Version         : 1.0
+License         : blank
+Usind dpatch    : no
+Type of Package : Independent
+Hit &lt;enter&gt; to confirm:
+Currently there is no top level Makefile. This may require additional tuning.
+Done. Please edit the files in the debian/ subdirectory now. You should also
+check that the falcot-data Makefiles install into $DESTDIR and not in / .
+$</code></pre><div
+            class="para">
+				The selected type of package (<span
+              class="emphasis"><em>single binary</em></span>) indicates that this source package will generate a single binary package depending on the architecture (<code
+              class="literal">Architecture: any</code>). <span
+              class="emphasis"><em>indep binary</em></span> acts as a counterpart, and leads to a single binary package that is not dependent on the target architecture (<code
+              class="literal">Architecture: all</code>). In this case, the latter choice is more relevant since the package only contains documents and no binary programs, so it can be used similarly on computers of all architectures.
+			</div><div
+            class="para">
+				The <span
+              class="emphasis"><em>multiple binary</em></span> type corresponds to a source package leading to several binary packages. A particular case, <span
+              class="emphasis"><em>library</em></span>, is useful for shared libraries, since they need to follow strict packaging rules. In a similar fashion, <span
+              class="emphasis"><em>kernel module</em></span> should be restricted to packages containing kernel modules. Finally, <span
+              class="emphasis"><em>cdbs</em></span> is a specific package build system; it is rather flexible, but it requires some amount of learning. <a
+              id="idm139839690682880"
+              class="indexterm"></a> <a
+              id="idm139839690682240"
+              class="indexterm"></a>
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>TIP</em></span> Maintainer's name and email address</strong></p></div></div></div><div
+              class="para">
+				Most of the programs involved in package maintenance will look for your name and email address in the <code
+                class="varname">DEBFULLNAME</code> and <code
+                class="varname">DEBEMAIL</code> or <code
+                class="varname">EMAIL</code> environment variables. Defining them once and for all will avoid you having to type them multiple times. If your usual shell is <code
+                class="command">bash</code>, it's a simple matter of adding the following two lines in your <code
+                class="filename">~/.bashrc</code> and <code
+                class="filename">~/.bash_profile</code> files (you will obviously replace the values with more relevant ones!):
+			</div><pre
+              class="programlisting">
+export EMAIL="hertzog@debian.org"
+export DEBFULLNAME="Raphael Hertzog"
+</pre></div><div
+            class="para">
+				The <code
+              class="command">dh_make</code> command created a <code
+              class="filename">debian</code> subdirectory with many files. Some are required, in particular <code
+              class="filename">rules</code>, <code
+              class="filename">control</code>, <code
+              class="filename">changelog</code> and <code
+              class="filename">copyright</code>. Files with the <code
+              class="filename">.ex</code> extension are example files that can be used by modifying them (and removing the extension) when appropriate. When they are not needed, removing them is recommended. The <code
+              class="filename">compat</code> file should be kept, since it is required for the correct functioning of the <span
+              class="emphasis"><em>debhelper</em></span> suite of programs (all beginning with the <code
+              class="command">dh_</code> prefix) used at various stages of the package build process.
+			</div><div
+            class="para">
+				The <code
+              class="filename">copyright</code> file must contain information about the authors of the documents included in the package, and the related license. In our case, these are internal documents and their use is restricted to within the Falcot Corp company. The default <code
+              class="filename">changelog</code> file is generally appropriate; replacing the “Initial release” with a more verbose explanation and changing the distribution from <code
+              class="literal">unstable</code> to <code
+              class="literal">internal</code> is enough. The <code
+              class="filename">control file</code> was also updated: the section has been changed to <span
+              class="emphasis"><em>misc</em></span> and the <code
+              class="literal">Homepage</code>, <code
+              class="literal">Vcs-Git</code> and <code
+              class="literal">Vcs-Browser</code> fields were removed. The <code
+              class="literal">Depends</code> fields was completed with <code
+              class="literal">iceweasel | www-browser</code> so as to ensure the availability of a web browser able to display the documents in the package.
+			</div><div
+            class="example"><a
+              id="idm139839690664640"></a><p
+              class="title"><strong>Primjer 15.3. The <code
+                  class="filename">control</code> file</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+Source: falcot-data
+Section: misc
+Priority: optional
+Maintainer: Raphael Hertzog &lt;hertzog@debian.org&gt;
+Build-Depends: debhelper (&gt;= 7.0.50~)
+Standards-Version: 3.8.4
+
+Package: falcot-data
+Architecture: all
+Depends: iceweasel | www-browser, ${misc:Depends}
+Description: Internal Falcot Corp Documentation
+ This package provides several documents describing the internal
+ structure at Falcot Corp.  This includes:
+  - organization diagram
+  - contacts for each department.
+ .
+ These documents MUST NOT leave the company.
+ Their use is INTERNAL ONLY.
+</pre></div></div><div
+            class="example"><a
+              id="idm139839690662192"></a><p
+              class="title"><strong>Primjer 15.4. The <code
+                  class="filename">changelog</code> file</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+falcot-data (1.0) internal; urgency=low
+
+  * Initial Release.
+  * Let's start with few documents:
+    - internal company structure;
+    - contacts for each department.
+
+ -- Raphael Hertzog &lt;hertzog@debian.org&gt;  Mon, 11 Apr 2011 20:46:33 +0200
+</pre></div></div><div
+            class="example"><a
+              id="idm139839690660048"></a><p
+              class="title"><strong>Primjer 15.5. The <code
+                  class="filename">copyright</code> file</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+This work was packaged for Debian by Raphael Hertzog &lt;hertzog@debian.org&gt;
+on Mon, 11 Apr 2011 20:46:33 +0200
+
+Copyright:
+
+    Copyright (C) 2004-2011 Falcot Corp
+
+License:
+
+    All rights reserved.
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>BACK TO BASICS</em></span> <code
+                        class="filename">Makefile</code> file</strong></p></div></div></div><a
+              id="idm139839690656352"
+              class="indexterm"></a><div
+              class="para">
+				A <code
+                class="filename">Makefile</code> file is a script used by the <code
+                class="command">make</code> program; it describes rules for how to build a set of files from each other in a tree of dependencies (for instance, a program can be built from a set of source files). The <code
+                class="filename">Makefile</code> file describes these rules in the following format:
+			</div><pre
+              class="programlisting">
+target: source1 source2 ...
+        command1
+        command2
+</pre><div
+              class="para">
+				The interpretation of such a rule is as follows: if one of the <code
+                class="literal">source*</code> files is more recent than the <code
+                class="literal">target</code> file, then the target needs to be generated, using <code
+                class="command">command1</code> and <code
+                class="command">command2</code>.
+			</div><div
+              class="para">
+				Note that the command lines must start with a tab character; also note that when a command line starts with a dash character (<code
+                class="literal">-</code>), failure of the command does not interrupt the whole process.
+			</div></div><div
+            class="para">
+				The <code
+              class="filename">rules</code> file usually contains a set of rules used to configure, build and install the software in a dedicated subdirectory (named after the generated binary package). The contents of this subdirectory is then archived within the Debian package as if it were the root of the filesystem. In our case, files will be installed in the <code
+              class="filename">debian/falcot-data/usr/share/falcot-data/</code> subdirectory, so that installing the generated package will deploy the files under <code
+              class="filename">/usr/share/falcot-data/</code>. The <code
+              class="filename">rules</code> file is used as a <code
+              class="filename">Makefile</code>, with a few standard targets (including <code
+              class="literal">clean</code> and <code
+              class="literal">binary</code>, used respectively to clean the source directory and generate the binary package).
+			</div><div
+            class="para">
+				Although this file is the heart of the process, it increasingly contains only the bare minimum for running a standard set of commands provided by the <code
+              class="command">debhelper</code> tool. Such is the case for files generated by <code
+              class="command">dh_make</code>. To install our files, we simply configure the behavior of the <code
+              class="command">dh_install</code> command by creating the following <code
+              class="filename">debian/falcot-data.install</code> file:
+			</div><pre
+            class="programlisting">
+data/* usr/share/falcot-data/
+</pre><div
+            class="para">
+				At this point, the package can be created. We will however add a lick of paint. Since the administrators want the documents to be easily accessed from the Help menus of graphical desktop environments, we create an entry in the Debian menu system. This is simply done by renaming the <code
+              class="filename">debian/menu.ex</code> without its extension and editing it as follows:
+			</div><div
+            class="example"><a
+              id="idm139839690641184"></a><p
+              class="title"><strong>Primjer 15.6. The <code
+                  class="filename">menu</code> file</strong></p><div
+              class="example-contents"><pre
+                class="programlisting">
+?package(falcot-data):needs=X11|wm section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/x-www-browser /usr/share/falcot-data/index.html"
+?package(falcot-data):needs=text section=Help\
+  title="Internal Falcot Corp Documentation" \
+  command="/usr/bin/www-browser /usr/share/falcot-data/index.html"
+</pre></div></div><div
+            class="para">
+				The <code
+              class="literal">needs</code> field, when set to <code
+              class="literal">X11|wm</code> indicates that this entry only makes sense in a graphical interface. It will therefore only be integrated into the menus of the graphical (X11) applications and window managers (hence the <code
+              class="literal">wm</code>). The <code
+              class="literal">section</code> field states where in the menu the entry should be displayed. In our case, the entry will be in the Help menu. The <code
+              class="literal">title</code> field contains the text that will be displayed in the menu. Finally, the <code
+              class="literal">command</code> field describes the command to run when the user selects the menu entry.
+			</div><div
+            class="para">
+				The second entry matches the first one, with slight adaptations adapted to the Linux console text mode.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>DEBIAN POLICY</em></span> Menu organization</strong></p></div></div></div><div
+              class="para">
+				The Debian menus are organized in a formal structure, documented in the following text: <div
+                class="url">→ <a
+                  href="http://www.debian.org/doc/packaging-manuals/menu-policy/">http://www.debian.org/doc/packaging-manuals/menu-policy/</a></div>
+			</div><div
+              class="para">
+				The <code
+                class="literal">section</code> in a <code
+                class="filename">menu</code> file should be picked from the list mentioned in this document.
+			</div></div><div
+            class="para">
+				Simply creating the <code
+              class="filename">debian/menu</code> file is enough to enable the menu in the package, since the <code
+              class="command">dh_installmenu</code> command is automatically invoked by <code
+              class="command">dh</code> during the package build process.
+			</div><div
+            class="para">
+				Our source package is now ready. All that's left to do is to generate the binary package, with the same method we used previously for rebuilding packages: we run the <code
+              class="command">dpkg-buildpackage -us -uc</code> command from within the <code
+              class="filename">falcot-data-1.0</code> directory.
+			</div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="debian-packaging.html"><strong>Natrag</strong>Poglavlje 15. Creating a Debian Package</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Gore</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Početak</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.setup-apt-package-repository.html"><strong>Naprijed</strong>15.3. Creating a Package Repository for APT</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.building-first-package.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.building-first-package.html">da-DK</a></li><li><a
+              href="../de-DE/sect.building-first-package.html">de-DE</a></li><li><a
+              href="../el-GR/sect.building-first-package.html">el-GR</a></li><li><a
+              href="../en-US/sect.building-first-package.html">en-US</a></li><li><a
+              href="../es-ES/sect.building-first-package.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.building-first-package.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.building-first-package.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.building-first-package.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.building-first-package.html">id-ID</a></li><li><a
+              href="../it-IT/sect.building-first-package.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.building-first-package.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.building-first-package.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.building-first-package.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.building-first-package.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.building-first-package.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.building-first-package.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.building-first-package.html">zh-CN</a></li></ul></div></body></html>

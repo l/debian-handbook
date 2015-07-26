@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.10. Datensicherung</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-de-DE-1.0-1" /><meta
+        name="keywords"
+        content="Systemstart, Initialisierungsskripten, SSH, Telnet, Rechte, Berechtigungen, Überwachung, Inetd, Cron, Datensicherung, Wechsel im laufenden Betrieb, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Das Debian Administrationshandbuch" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Kapitel 9. Unix-Dienste" /><link
+        rel="prev"
+        href="sect.quotas.html"
+        title="9.9. Quoten" /><link
+        rel="next"
+        href="sect.hotplug.html"
+        title="9.11. Wechsel im laufenden Betrieb: hotplug" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/de-DE/sect.backup.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Zurück</strong></a></li><li
+          class="home">Das Debian Administrationshandbuch</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Weiter</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.backup"></a>9.10. Datensicherung</h2></div></div></div><div
+          class="para">
+			Das Erstellen von Sicherheitskopien ist eine der Hauptaufgaben eines Administrators, aber es ist ein kompliziertes Thema mit mächtigen Werkzeugen, die häufig schwierig zu bedienen sind.
+		</div><a
+          id="idm139686910121744"
+          class="indexterm"></a><a
+          id="idm139686910120976"
+          class="indexterm"></a><div
+          class="para">
+			Es gibt viele Programme, wie zum Beispiel <code
+            class="command">amanda</code>, <code
+            class="command">bacula</code>, <code
+            class="command">BackupPC</code>. Das sind Client/Server-Systeme mit vielen Optionen, deren Konfiguration ziemlich schwierig ist. Einige davon bieten benutzerfreundliche Webschnittstellen, um das zu vereinfachen. Debian enthält dutzende weitere Backup-Pakete die alle möglichen Anwendungsfälle abdecken, wie man leicht mit dem Befehl <code
+            class="command">apt-cache search backup</code> feststellen kann.
+		</div><a
+          id="idm139686910117968"
+          class="indexterm"></a><a
+          id="idm139686910117072"
+          class="indexterm"></a><a
+          id="idm139686910116176"
+          class="indexterm"></a><div
+          class="para">
+			Anstatt einige von ihnen im Einzelnen zu erklären, werden in diesem Abschnitt die Überlegungen der Administratoren von Falcot Corp. bei der Festlegung ihrer Backup-Strategie vorgestellt.
+		</div><div
+          class="para">
+			Bei Falcot Corp. haben Datensicherungen zwei Ziele: versehentlich gelöschte Dateien wiederherzustellen und schnell jeden Rechner (Server oder Arbeitsplatzrechner) wiederherzustellen, dessen Festplatte versagt hat.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686910114064"></a>9.10.1. Datensicherung mit <code
+                    class="command">rsync</code></h3></div></div></div><div
+            class="para">
+				Da Bandsicherungen als zu langsam und teuer erachtet wurden, werden die Daten auf den Festplatten eines speziell hierfür bestimmten Servers gesichert, auf dem die Verwendung eines Software-RAIDs (siehe <a
+              class="xref"
+              href="advanced-administration.html#sect.raid-soft">Abschnitt 12.1.1, „Software-RAID“</a>) die Daten vor einem Festplattenausfall schützt. Arbeitsplatzrechner werden nicht individuell gesichert, sondern Benutzer darüber informiert, dass ihr persönliches Konto auf dem Dateiserver ihrer Abteilung gesichert wird. Der Befehl <code
+              class="command">rsync</code> (aus dem gleichnamigen Paket) wird täglich zur Sicherung dieser verschiedenen Server benutzt.
+			</div><a
+            id="idm139686910111312"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ZURÜCK ZU DEN GRUNDLAGEN</em></span> Die feste Verknüpfung, ein zweiter Name für die Datei</strong></p></div></div></div><a
+              id="idm139686910109520"
+              class="indexterm"></a><a
+              id="idm139686910108368"
+              class="indexterm"></a><div
+              class="para">
+				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+			</div><div
+              class="para">
+				Eine feste Verknüpfung wird durch den Befehl <code
+                class="command">ln <em
+                  class="replaceable">ziel</em> <em
+                  class="replaceable">verknüpfung</em></code> erstellt. Die Datei <em
+                class="replaceable">verknüpfung</em> ist dann ein neuer Name für die Datei <em
+                class="replaceable">ziel</em>. Feste Verknüpfungen können nur auf demselben Dateisystem erstellt werden, während symbolische Verknüpfungen dieser Einschränkung nicht unterliegen.
+			</div></div><div
+            class="para">
+				Der verfügbare Festplattenspeicherplatz lässt die Durchführung einer vollständigen täglichen Datensicherung nicht zu. Daher geht dem Befehl <code
+              class="command">rsync</code> eine Duplizierung des Inhalts der vorherigen Datensicherung mittels fester Verknüpfungen voraus, die den Verbrauch von zu viel Festplattenspeicherplatz verhindert. Der <code
+              class="command">rsync</code>-Prozess ersetzt dann nur die Dateien, die seit der vorherigen Datensicherung verändert wurden. Auf diese Weise kann eine große Anzahl von Datensicherungen auf relativ kleinem Raum untergebracht werden. Da alle Datensicherungen unmittelbar verfügbar und zugänglich sind (zum Beispiel in verschiedenen Verzeichnissen eines bestimmten Netzlaufwerks), können Sie schnell Vergleiche zwischen zwei bestimmten Zeitpunkten anstellen.
+			</div><a
+            id="idm139686910102272"
+            class="indexterm"></a><a
+            id="idm139686910101504"
+            class="indexterm"></a><a
+            id="idm139686910100352"
+            class="indexterm"></a><div
+            class="para">
+				Dieser Datensicherungsvorgang kann mit dem Programm <code
+              class="command">dirvish</code> leicht umgesetzt werden. Es verwendet einen Sicherungsspeicherplatz („bank“ in seiner Sprache), in den er mit Zeitstempeln versehene Kopien eines Satzes von Sicherungsdateien ablegt (diese Sätze werden in der dirvish-Dokumentation „vaults“ genannt).
+			</div><div
+            class="para">
+				Die Hauptkonfiguration befindet sich in der Datei <code
+              class="filename">/etc/dirvish/master.conf</code>. Sie legt den Ort des Speicherplatzes für die Dateisicherung fest, die Liste der zu verwaltenden „vaults“ und Standardwerte für den Verfallstermin der Dateisicherungen. Der Rest der Konfiguration befindet sich in den Dateien <code
+              class="filename"><em
+                class="replaceable">bank</em>/<em
+                class="replaceable">vault</em>/dirvish/default.conf</code> und enthält die spezifische Konfiguration des jeweiligen Dateisatzes.
+			</div><div
+            class="example"><a
+              id="example.dirvish-master"></a><p
+              class="title"><strong>Beispiel 9.3. Die Datei <code
+                  class="filename">/etc/dirvish/master.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">bank:
+    /backup
+exclude:
+    lost+found/
+    core
+    *~
+Runall:
+    root    22:00
+expire-default: +15 days
+expire-rule:
+#   MIN HR    DOM MON       DOW  STRFTIME_FMT
+    *   *     *   *         1    +3 months
+    *   *     1-7 *         1    +1 year
+    *   *     1-7 1,4,7,10  1
+</pre></div></div><div
+            class="para">
+				Die <code
+              class="literal">bank</code>-Einstellung bezeichnet das Verzeichnis, in dem die Dateisicherungen gespeichert werden. Die <code
+              class="literal">exclude</code>-Einstellung ermöglicht es, Dateien oder Dateitypen von der Sicherung auszuschließen. Das <code
+              class="literal">Runall</code> ist eine Liste von Dateisätzen, die mit einem Zeitstempel für jeden Satz gesichert werden sollen, wodurch es möglich ist, der Kopie das korrekte Datum zuzuordnen für den Fall, dass die Dateisicherung nicht genau zu der vorgesehenen Zeit ausgelöst wird. Sie müssen eine Zeit kurz vor dem tatsächlichen Ausführungszeitpunkt angeben (was in Debian standardmäßig 22:04 h ist in Übereinstimmung mit <code
+              class="filename">/etc/cron.d/dirvish</code>). Schließlich bestimmen die Einstellungen <code
+              class="literal">expire-default</code> und <code
+              class="literal">expire-rule</code> die Verfallsregeln für Dateisicherungen. Das obenstehende Beispiel behält Dateisicherungen unbefristet, die am ersten Sonntag jeden Quartals erstellt worden sind, löscht diejenigen vom ersten Sonntag jeden Monats nach einem Jahr und die von den übrigen Sonntagen nach drei Monaten. Sonstige tägliche Dateisicherungen werden 15 Tage lang aufbewahrt. Die Reihenfolge der Regeln ist wichtig. Dirvish verwendet die letzte passende Regel oder die <code
+              class="literal">expire-default</code>-Regel, falls keine andere <code
+              class="literal">expire-rule</code> passt.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN DER PRAXIS</em></span> Planmäßiger Verfall</strong></p></div></div></div><div
+              class="para">
+				Die Verfallsregeln werden nicht von <code
+                class="command">dirvish-expire</code> benutzt, um seine Aufgabe zu erledigen. Vielmehr werden die Verfallsregeln angewendet, wenn eine neue Sicherungskopie erstellt wird, um das Verfallsdatum zu bestimmen, das dieser Kopie zugeordnet wird. <code
+                class="command">dirvish-expire</code> geht einfach die gespeicherten Kopien durch und löscht diejenigen, deren Verfallsdatum bereits vergangen ist.
+			</div></div><div
+            class="example"><a
+              id="example.dirvish-vault"></a><p
+              class="title"><strong>Beispiel 9.4. Die Datei <code
+                  class="filename">/backup/root/dirvish/default.conf</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">client: rivendell.falcot.com
+tree: /
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+    /var/cache/apt/archives/*.deb
+    /var/cache/man/**
+    /tmp/**
+    /var/tmp/**
+    *.bak
+</pre></div></div><div
+            class="para">
+				Das oben stehende Beispiel legt den Satz der zu sichernden Dateien fest: dies sind Dateien auf dem Rechner <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> (für eine lokale Dateisicherung legen Sie einfach den Namen des örtlichen Rechners fest, wie er von <code
+              class="command">hostname</code> angezeigt wird), genauer gesagt, diejenigen im Wurzelverzeichnis (<code
+              class="literal">tree: /</code>) außer denen, die unter <code
+              class="literal">exclude</code> aufgelistet sind. Die Dateisicherung ist auf den Inhalt eines Dateisystems (<code
+              class="literal">xdev: 1</code>) beschränkt. Sie schließt Dateien von anderen Einhängepunkten nicht ein. Ein Index der gesicherten Dateien wird erzeugt (<code
+              class="literal">index: gzip</code>), und das Abbild wird nach Maßgabe des aktuellen Datums benannt (<code
+              class="literal">image-default: %Y%m%d</code>).
+			</div><div
+            class="para">
+				Es gibt zahlreiche Optionen, die alle auf der Handbuchseite <span
+              class="citerefentry"><span
+                class="refentrytitle">dirvish.conf</span>(5)</span> dokumentiert sind. Sobald die Konfigurationsdateien erstellt sind, müssen Sie jeden Dateisatz mit dem Befehl <code
+              class="command">dirvish --vault <em
+                class="replaceable">vault</em> --init</code> initialisieren. Von da an erstellt der tägliche Aufruf von <code
+              class="command">dirvish-runall</code> selbsttätig eine neue Sicherungskopie, nachdem die verfallenen gelöscht worden sind.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN DER PRAXIS</em></span> Dateisicherung aus der Ferne über SSH</strong></p></div></div></div><div
+              class="para">
+				Wenn dirvish Daten auf einen entfernten Rechner sichern muss, verwendet es <code
+                class="command">ssh</code>, um sich mit ihm zu verbinden, und startet <code
+                class="command">rsync</code> als Server. Dies setzt voraus, dass der Root-Benutzer sich automatisch mit ihm verbinden kann. Genau dies ist bei der Verwendung eines SSH-Legitimierungsschlüssels möglich (siehe <a
+                class="xref"
+                href="sect.remote-login.html#sect.ssh-key-based-auth">Abschnitt 9.2.1.1, „Schlüsselbasierte Authentifizierung“</a>).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="idm139686910075696"></a>9.10.2. Rechner ohne Sicherheitskopien wiederherstellen</h3></div></div></div><div
+            class="para">
+				Desktop-Computer die nicht gesichert werden, können sehr einfach neuinstalliert werden mit Hilfe einer mit <span
+              class="emphasis"><em>Simple-CDD</em></span> vorbereiteten, angepassten DVD-ROM (siehe <a
+              class="xref"
+              href="sect.automated-installation.html#sect.simple-cdd">Abschnitt 12.3.3, „Simple-CDD: die Komplettlösung“</a>). Da dies eine Neuinstallation ist, gehen alle Anpassungen verloren, die eventuell nach der Erstinstallation vorgenommen worden waren. Das macht aber nichts, weil die Systeme alle mit einem zentralen LDAP-Verzeichnis für Benutzerkonten verknüpft sind und die meisten Desktop-Anwendungen sind dank dconf vorkonfiguriert (siehe <a
+              class="xref"
+              href="sect.graphical-desktops.html#sect.gnome-desktop">Abschnitt 13.3.1, „GNOME“</a> für mehr Information dazu).
+			</div><div
+            class="para">
+				Die Falcot Corp. Administratoren sind sich der Grenzen ihrer Dateisicherungsstrategie bewusst. Da sie weder den Dateisicherungsserver noch ein Band in einem feuersicheren Tresor schützen können, haben sie ihn in einem getrennten Raum aufgestellt, so dass ein Unglück, wie ein Feuer im Serverraum, nicht die Dateisicherungen zusammen mit allem anderen zerstören würde. Darüber hinaus führen sie wöchentlich eine inkrementelle Dateisicherung auf CD-ROM durch - nur Dateien, die seit der letzten Dateisicherung verändert wurden, sind hierin einbezogen.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>WEITERE SCHRITTE</em></span> SQL- und LDAP-Dienste sichern</strong></p></div></div></div><div
+              class="para">
+				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
+                class="command">diff</code> each day, which is created with a command of the type <code
+                class="command">diff <em
+                  class="replaceable">file_from_yesterday</em> <em
+                  class="replaceable">file_from_today</em></code>. The <code
+                class="command">xdelta</code> program produces incremental differences from binary dumps.
+			</div><a
+              id="idm139686910068160"
+              class="indexterm"></a><a
+              id="idm139686910067264"
+              class="indexterm"></a><a
+              id="idm139686910066368"
+              class="indexterm"></a></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>KULTUR</em></span> <span
+                        class="emphasis"><em>TAR</em></span>, der Standard für Bandsicherungen</strong></p></div></div></div><a
+              id="idm139686910064192"
+              class="indexterm"></a><a
+              id="idm139686910063040"
+              class="indexterm"></a><a
+              id="idm139686910062272"
+              class="indexterm"></a><div
+              class="para">
+				Früher bestand der einfachste Weg, eine Dateisicherung in Unix durchzuführen, darin, ein <span
+                class="emphasis"><em>TAR</em></span>-Archiv auf einem Band zu speichern. Der <code
+                class="command">tar</code>-Befehl erhielt sogar seinen Namen von „TapeARchive“.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.quotas.html"><strong>Zurück</strong>9.9. Quoten</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Nach oben</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Zum Anfang</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.hotplug.html"><strong>Weiter</strong>9.11. Wechsel im laufenden Betrieb: hotplug</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.backup.html">da-DK</a></li><li><a
+              href="../de-DE/sect.backup.html">de-DE</a></li><li><a
+              href="../el-GR/sect.backup.html">el-GR</a></li><li><a
+              href="../en-US/sect.backup.html">en-US</a></li><li><a
+              href="../es-ES/sect.backup.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.backup.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.backup.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.backup.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.backup.html">id-ID</a></li><li><a
+              href="../it-IT/sect.backup.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.backup.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.backup.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.backup.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.backup.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.backup.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.backup.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.backup.html">zh-CN</a></li></ul></div></body></html>

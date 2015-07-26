@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">9.7. Planification de tâches : cron et atd</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Démarrage du système, Scripts d'initialisation, SSH, Telnet, Droits, Permissions, Supervision, Inetd, Cron, Sauvegarde, Hotplug, PCMCIA, APM, ACPI" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="unix-services.html"
+        title="Chapitre 9. Services Unix" /><link
+        rel="prev"
+        href="sect.inetd.html"
+        title="9.6. Le super-serveur inetd" /><link
+        rel="next"
+        href="sect.asynchronous-task-scheduling-anacron.html"
+        title="9.8. Planification asynchrone : anacron" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.task-scheduling-cron-atd.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.inetd.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.task-scheduling-cron-atd"></a>9.7. Planification de tâches : <code
+                  class="command">cron</code> et <code
+                  class="command">atd</code></h2></div></div></div><a
+          id="idm140565666707536"
+          class="indexterm"></a><a
+          id="idm140565666706640"
+          class="indexterm"></a><a
+          id="idm140565666705744"
+          class="indexterm"></a><a
+          id="idm140565666704976"
+          class="indexterm"></a><div
+          class="para">
+			<code
+            class="command">cron</code> est le démon en charge d'exécuter des commandes planifiées et récurrentes (chaque jour, chaque semaine, etc.) ; <code
+            class="command">atd</code> est celui qui s'occupe des commandes à exécuter une seule fois, à un instant précis et futur.
+		</div><div
+          class="para">
+			Dans un système Unix, de nombreuses tâches sont régulièrement planifiées :
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					la rotation des logs ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					la mise à jour de la base de données du programme <code
+                  class="command">locate</code> ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					les sauvegardes ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					des scripts d'entretien (comme le nettoyage des fichiers temporaires).
+				</div></li></ul></div><div
+          class="para">
+			Par défaut, tous les utilisateurs peuvent planifier l'exécution de tâches. C'est pourquoi chacun dispose de sa propre <span
+            class="emphasis"><em>crontab</em></span>, où il peut consigner les commandes à planifier. Il peut la modifier en exécutant <code
+            class="command">crontab -e</code> (ses informations sont stockées dans le fichier <code
+            class="filename">/var/spool/cron/crontabs/<em
+              class="replaceable">utilisateur</em></code>).
+		</div><div
+          class="sidebar"><div
+            class="titlepage"><div><div><p
+                  class="title"><strong><span
+                      class="emphasis"><em>SÉCURITÉ</em></span> Restreindre <code
+                      class="command">cron</code> ou <code
+                      class="command">atd</code></strong></p></div></div></div><div
+            class="para">
+			On peut restreindre l'accès à <code
+              class="command">cron</code> en créant le fichier d'autorisation explicite <code
+              class="filename">/etc/cron.allow</code>, où l'on consignera les seuls utilisateurs autorisés à planifier des commandes. Tous les autres seront automatiquement dépourvus de cette fonctionnalité. Inversement, pour n'en priver qu'un ou deux trouble-fête, on écrira leur nom dans le fichier d'interdiction explicite <code
+              class="filename">/etc/cron.deny</code>. Le même mécanisme encadre <code
+              class="command">atd</code>, avec les fichiers <code
+              class="filename">/etc/at.allow</code> et <code
+              class="filename">/etc/at.deny</code>.
+		</div></div><div
+          class="para">
+			L'utilisateur root dispose de sa <span
+            class="emphasis"><em>crontab</em></span> personnelle, mais peut également employer le fichier <code
+            class="filename">/etc/crontab</code> ou déposer des <span
+            class="emphasis"><em>crontab</em></span> supplémentaires dans le répertoire <code
+            class="filename">/etc/cron.d/</code>. Ces deux dernières solutions ont l'avantage de pouvoir préciser l'utilisateur sous l'identité duquel exécuter la commande.
+		</div><div
+          class="para">
+			Le paquet <span
+            class="emphasis"><em>cron</em></span> propose par défaut des commandes planifiées qui exécutent :
+		</div><div
+          xmlns:d="http://docbook.org/ns/docbook"
+          class="itemizedlist"><ul><li
+              class="listitem"><div
+                class="para">
+					une fois par heure les programmes du répertoire <code
+                  class="filename">/etc/cron.hourly/</code> ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					une fois par jour les programmes du répertoire <code
+                  class="filename">/etc/cron.daily/</code> ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					une fois par semaine les programmes du répertoire <code
+                  class="filename">/etc/cron.weekly/</code> ;
+				</div></li><li
+              class="listitem"><div
+                class="para">
+					une fois par mois les programmes du répertoire <code
+                  class="filename">/etc/cron.monthly/</code>.
+				</div></li></ul></div><div
+          class="para">
+			De nombreux paquets Debian profitent de ce service : en déposant dans ces répertoires des scripts de maintenance, ils assurent le fonctionnement optimal de leur service.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.format-crontab"></a>9.7.1. Format d'un fichier <code
+                    class="filename">crontab</code></h3></div></div></div><a
+            id="idm140565666682464"
+            class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ASTUCE</em></span> Raccourcis textuels pour <code
+                        class="command">cron</code></strong></p></div></div></div><div
+              class="para">
+				Des abréviations, qui remplacent les cinq premiers champs d'une entrée de <code
+                class="filename">crontab</code>, décrivent les planifications les plus classiques. Les voici :
+			</div><div
+              xmlns:d="http://docbook.org/ns/docbook"
+              class="itemizedlist"><ul><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@yearly</code> : une fois par an (le premier janvier à 0 h 00) ;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@monthly</code> : une fois par mois (le premier du mois à 0 h 00) ;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@weekly</code> : une fois par semaine (le dimanche à 0 h 00) ;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@daily</code> : une fois par jour (à 0 h 00) ;
+					</div></li><li
+                  class="listitem"><div
+                    class="para">
+						<code
+                      class="literal">@hourly</code> : une fois par heure (au début de chaque heure).
+					</div></li></ul></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CAS PARTICULIER</em></span> <code
+                        class="command">cron</code> et l'heure d'été</strong></p></div></div></div><div
+              class="para">
+				Sous Debian, <code
+                class="command">cron</code> prend en compte au mieux les changements d'heure (en fait, lorsqu'un saut important est détecté dans l'heure locale). Ainsi, les commandes qui auraient dû être exécutées à une heure qui n'a pas existé (par exemple, 2 h 30 lors du changement d'heure de printemps en France) sont exécutées peu après le changement d'heure (soit peu après 3 h du matin en heure d'été). À l'inverse, à l'automne, les commandes qui auraient pu être exécutées plusieurs fois (à 2 h 30 heure d'été puis, une heure plus tard, à 2 h 30 heure d'hiver) ne le sont qu'une fois.
+			</div><div
+              class="para">
+				On prendra cependant soin, si l'ordre dans lequel les différentes tâches planifiées et le délai entre leurs déclenchements respectifs est important, de vérifier la compatibilité de ces contraintes avec le mode de fonctionnement de <code
+                class="command">cron</code> — le cas échéant, on pourra préparer une planification spéciale pour les deux nuits de l'année où le problème risque d'apparaître.
+			</div></div><div
+            class="para">
+				Chaque ligne significative d'une <span
+              class="emphasis"><em>crontab</em></span> décrit une commande planifiée grâce aux six (ou sept) champs suivants :
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						la condition sur les minutes (nombres compris de 0 à 59) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						la condition sur les heures (de 0 à 23) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						la condition sur le jour du mois (de 1 à 31) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						la condition sur le mois (de 1 à 12) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						la condition sur le jour de la semaine (de 0 à 7, le 1 correspondant au lundi — le dimanche est représenté à la fois par 0 et par 7 ; il est également possible d'employer les trois premières lettres du nom du jour en anglais comme <code
+                    class="literal">Sun</code>, <code
+                    class="literal">Mon</code>, etc.) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						le nom d'utilisateur sous lequel la commande devra s'exécuter (dans le fichier <code
+                    class="filename">/etc/crontab</code> et dans les fragments déposés dans <code
+                    class="filename">/etc/cron.d/</code>, mais pas les crontabs des utilisateurs) ;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						la commande à exécuter (quand les conditions définies par les cinq premières colonnes sont remplies).
+					</div></li></ul></div><div
+            class="para">
+				Tous les détails sont documentés dans la page de manuel <span
+              class="citerefentry"><span
+                class="refentrytitle">crontab</span>(5)</span>.
+			</div><div
+            class="para">
+				Chaque condition peut s'exprimer sous la forme d'une énumération de valeurs possibles (séparées par des virgules). La syntaxe <code
+              class="literal">a-b</code> décrit l'intervalle de toutes les valeurs comprises entre <code
+              class="literal">a</code> et <code
+              class="literal">b</code>. La syntaxe <code
+              class="literal">a-b/c</code> décrit un intervalle avec un incrément de <code
+              class="literal">c</code> (exemple : <code
+              class="literal">0-10/2</code> correspond à <code
+              class="literal">0,2,4,6,8,10</code>). Le joker <code
+              class="literal">*</code> représente toutes les valeurs possibles.
+			</div><div
+            class="example"><a
+              id="example.crontab"></a><p
+              class="title"><strong>Exemple 9.2. Exemple de <code
+                  class="filename">crontab</code></strong></p><div
+              class="example-contents"><pre
+                class="programlisting">#Format
+#min hour day mon dow  command
+
+# Download data every night at 7:25 pm
+ 25  19   *   *   *    $HOME/bin/get.pl
+
+# 8:00 am, on weekdays (Monday through Friday)
+ 00  08   *   *   1-5  $HOME/bin/dosomething
+
+# Restart the IRC proxy after each reboot
+@reboot /usr/bin/dircproxy
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ASTUCE</em></span> Exécuter une commande au démarrage</strong></p></div></div></div><div
+              class="para">
+				Pour exécuter une commande une seule fois, juste après le démarrage de l'ordinateur, on peut recourir à la macro <code
+                class="literal">@reboot</code> (un simple redémarrage de <code
+                class="command">cron</code> ne déclenche pas une commande planifiée avec <code
+                class="literal">@reboot</code>). Cette macro remplace elle aussi les cinq premiers champs d'une entrée dans la <span
+                class="emphasis"><em>crontab</em></span>.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>ALTERNATIVE</em></span> Emulating <code
+                        class="command">cron</code> with <code
+                        class="command">systemd</code></strong></p></div></div></div><div
+              class="para">
+				It is possible possible to emulate part of <code
+                class="command">crond</code>'s behaviour with <code
+                class="command">systemd</code>'s timer mechanism (see above).
+			</div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.at-command"></a>9.7.2. Emploi de la commande <code
+                    class="command">at</code></h3></div></div></div><a
+            id="idm140565666646544"
+            class="indexterm"></a><div
+            class="para">
+				The <code
+              class="command">at</code> executes a command at a specified moment in the future. It takes the desired time and date as command-line parameters, and the command to be executed in its standard input. The command will be executed as if it had been entered in the current shell. <code
+              class="command">at</code> even takes care to retain the current environment, in order to reproduce the same conditions when it executes the command. The time is indicated by following the usual conventions: <code
+              class="literal">16:12</code> or <code
+              class="literal">4:12pm</code> represents 4:12 pm. The date can be specified in several European and Western formats, including <code
+              class="literal">DD.MM.YY</code> (<code
+              class="literal">27.07.15</code> thus representing 27 July 2015), <code
+              class="literal">YYYY-MM-DD</code> (this same date being expressed as <code
+              class="literal">2012-07-27</code>), <code
+              class="literal">MM/DD/[CC]YY</code> (ie., <code
+              class="literal">12/25/15</code> or <code
+              class="literal">12/25/2015</code> will be December 25, 2015), or simple <code
+              class="literal">MMDD[CC]YY</code> (so that <code
+              class="literal">122515</code> or <code
+              class="literal">12252012</code> will, likewise, represent December 25, 2015). Without it, the command will be executed as soon as the clock reaches the time indicated (the same day, or tomorrow if that time has already passed on the same day). You can also simply write “today” or “tomorrow”, which is self-explanatory.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput">$ </code><strong
+              class="userinput"><code>at 09:00 27.07.15 &lt;&lt;END</code></strong>
+<code
+              class="computeroutput">&gt; </code><strong
+              class="userinput"><code>echo "Don't forget to wish a Happy Birthday to Raphaël!" \</code></strong>
+<code
+              class="computeroutput">&gt; </code><strong
+              class="userinput"><code>  | mail lolando@debian.org</code></strong>
+<code
+              class="computeroutput">&gt; </code><strong
+              class="userinput"><code>END</code></strong>
+<code
+              class="computeroutput">warning: commands will be executed using /bin/sh
+job 31 at Mon Jul 27 09:00:00 2015</code></pre><div
+            class="para">
+				Une autre syntaxe permet d'exprimer une durée d'attente : <code
+              class="command">at now + <em
+                class="replaceable">nombre</em> <em
+                class="replaceable">période</em></code>. La <em
+              class="replaceable">période</em> peut valoir <code
+              class="literal">minutes</code>, <code
+              class="literal">hours</code> (heures), <code
+              class="literal">days</code> (jours) ou <code
+              class="literal">weeks</code> (semaines). Le <em
+              class="replaceable">nombre</em> indique simplement le nombre de ces unités qui doivent s'écouler avant exécution de la commande.
+			</div><div
+            class="para">
+				Pour annuler une tâche planifiée pour <code
+              class="command">cron</code>, il suffit, lors d'un appel à <code
+              class="command">crontab -e</code>, de supprimer la ligne correspondante dans la <span
+              class="emphasis"><em>crontab</em></span> où la tâche est définie. Pour les tâches <code
+              class="command">at</code>, c'est à peine plus complexe : il suffit d'exécuter la commande <code
+              class="command">atrm <em
+                class="replaceable">numéro-de-tâche</em></code>. Le numéro de tâche est indiqué par la commande <code
+              class="command">at</code> lors de la planification mais on pourra le retrouver grâce à la commande <code
+              class="command">atq</code>, qui donne la liste des commandes actuellement planifiées.
+			</div><a
+            id="idm140565666628112"
+            class="indexterm"></a><a
+            id="idm140565666627216"
+            class="indexterm"></a></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.inetd.html"><strong>Précédent</strong>9.6. Le super-serveur inetd</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.asynchronous-task-scheduling-anacron.html"><strong>Suivant</strong>9.8. Planification asynchrone : anacron</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.task-scheduling-cron-atd.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.task-scheduling-cron-atd.html">da-DK</a></li><li><a
+              href="../de-DE/sect.task-scheduling-cron-atd.html">de-DE</a></li><li><a
+              href="../el-GR/sect.task-scheduling-cron-atd.html">el-GR</a></li><li><a
+              href="../en-US/sect.task-scheduling-cron-atd.html">en-US</a></li><li><a
+              href="../es-ES/sect.task-scheduling-cron-atd.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.task-scheduling-cron-atd.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.task-scheduling-cron-atd.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.task-scheduling-cron-atd.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.task-scheduling-cron-atd.html">id-ID</a></li><li><a
+              href="../it-IT/sect.task-scheduling-cron-atd.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.task-scheduling-cron-atd.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.task-scheduling-cron-atd.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.task-scheduling-cron-atd.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.task-scheduling-cron-atd.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.task-scheduling-cron-atd.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.task-scheduling-cron-atd.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.task-scheduling-cron-atd.html">zh-CN</a></li></ul></div></body></html>

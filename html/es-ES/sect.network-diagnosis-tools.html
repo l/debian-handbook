@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">10.8. Herramientas de diagnóstico de red</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-es-ES-1.0-1" /><meta
+        name="keywords"
+        content="Red, Puerta de enlace, TCP/IP, IPv6, DNS, Bind, DHCP, QoS" /><link
+        rel="home"
+        href="index.html"
+        title="El libro del administrador de Debian" /><link
+        rel="up"
+        href="network-infrastructure.html"
+        title="Capítulo 10. Infraestructura de red" /><link
+        rel="prev"
+        href="sect.dhcp.html"
+        title="10.7. DHCP" /><link
+        rel="next"
+        href="network-services.html"
+        title="Capítulo 11. Servicios de red: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/es-ES/sect.network-diagnosis-tools.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dhcp.html"><strong>Anterior</strong></a></li><li
+          class="home">El libro del administrador de Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="network-services.html"><strong>Siguiente</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.network-diagnosis-tools"></a>10.8. Herramientas de diagnóstico de red</h2></div></div></div><div
+          class="para">
+			Cuando una aplicación de red no funciona como esperamos es importante poder ver «bajo el capó». Aún cuando todo parezca estar funcionando, realizar un diagnóstico de red puede ayudar a asegurar que todo está funcionando como debe. Existen muchas herramientas de diagnóstico para este propósito, cada una de las cuales opera en un nivel diferente.
+		</div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.netstat"></a>10.8.1. Diagnóstico local: <code
+                    class="command">netstat</code></h3></div></div></div><a
+            id="idm140447100615536"
+            class="indexterm"></a><div
+            class="para">
+				Mencionemos primero el programa <code
+              class="command">netstat</code> (en el paquete <span
+              class="pkg pkg">net-tools</span>); muestra un resumen instantáneo de la actividad de red de una máquina. Cuando lo ejecute sin parámetros, mostrará todas las conexiones abiertas; esta lista puede ser demasiado detallada ya que incluye muchos zócalos de dominio Unix (utilizados ampliamente por demonios) que no incluyen la red en absoluto (por ejemplo, la comunicación de <code
+              class="literal">dbus</code>, tráfico <code
+              class="literal">X11</code> y comunicaciones entre sistemas de archivos virtuales y el escritorio).
+			</div><div
+            class="para">
+				Por lo tanto, invocaciones usuales utilizan opciones que modifican el comportamiento de <code
+              class="command">netstat</code>. Las opciones utilizadas más frecuentemente incluyen:
+			</div><div
+            xmlns:d="http://docbook.org/ns/docbook"
+            class="itemizedlist"><ul><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-t</code>, que filtra los resultados para incluir sólamente conexiones TCP;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-u</code>, que realiza algo similar por las conexiones UDP; estas opciones no son mutuamente excluyentes y una de ellas es suficiente para evitar mostrar información sobre conexiones de dominio Unix;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-a</code>, para mostrar también los zócalos que están escuchando (que esperan conexiones entrantes);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-n</code>, para mostrar los resultados numéricamente: direcciones IP (sin resolución DNS), números de puerto (sin alias definidos en <code
+                    class="filename">/etc/services</code>) y IDs de usuario (sin nombres de usuario);
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-p</code>, enumerar los procesos involucrados; esta opción sólo es útil cuando ejecute <code
+                    class="command">netstat</code> como root ya que los usuarios normales sólo verán sus propios procesos;
+					</div></li><li
+                class="listitem"><div
+                  class="para">
+						<code
+                    class="literal">-c</code>, para actualizar continuamente la lista de conexiones.
+					</div></li></ul></div><div
+            class="para">
+				Otras opciones, documentadas en la página de manual <span
+              class="citerefentry"><span
+                class="refentrytitle">netstat</span>(8)</span>, proveen un control más granular en los resultados mostrados. En la práctica,las primeras cinco opciones son utilizadas juntas tan seguido que los administradores de sistemas y red tiene el acto reflejo de ejecutar <code
+              class="command">netstat -tupan</code>. Los resultados típicos, en una máquina con poca carga, pueden parecerse a lo siguiente:
+			</div><pre
+            class="screen scale">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>netstat -tupan</code></strong>
+<code
+              class="computeroutput">Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      397/rpcbind     
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      431/sshd        
+tcp        0      0 0.0.0.0:36568           0.0.0.0:*               LISTEN      407/rpc.statd   
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      762/exim4       
+tcp        0    272 192.168.1.242:22        192.168.1.129:44452     ESTABLISHED 1172/sshd: roland [
+tcp6       0      0 :::111                  :::*                    LISTEN      397/rpcbind     
+tcp6       0      0 :::22                   :::*                    LISTEN      431/sshd        
+tcp6       0      0 ::1:25                  :::*                    LISTEN      762/exim4       
+tcp6       0      0 :::35210                :::*                    LISTEN      407/rpc.statd   
+udp        0      0 0.0.0.0:39376           0.0.0.0:*                           916/dhclient    
+udp        0      0 0.0.0.0:996             0.0.0.0:*                           397/rpcbind     
+udp        0      0 127.0.0.1:1007          0.0.0.0:*                           407/rpc.statd   
+udp        0      0 0.0.0.0:68              0.0.0.0:*                           916/dhclient    
+udp        0      0 0.0.0.0:48720           0.0.0.0:*                           451/avahi-daemon: r
+udp        0      0 0.0.0.0:111             0.0.0.0:*                           397/rpcbind     
+udp        0      0 192.168.1.242:123       0.0.0.0:*                           539/ntpd        
+udp        0      0 127.0.0.1:123           0.0.0.0:*                           539/ntpd        
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           539/ntpd        
+udp        0      0 0.0.0.0:5353            0.0.0.0:*                           451/avahi-daemon: r
+udp        0      0 0.0.0.0:39172           0.0.0.0:*                           407/rpc.statd   
+udp6       0      0 :::996                  :::*                                397/rpcbind     
+udp6       0      0 :::34277                :::*                                407/rpc.statd   
+udp6       0      0 :::54852                :::*                                916/dhclient    
+udp6       0      0 :::111                  :::*                                397/rpcbind     
+udp6       0      0 :::38007                :::*                                451/avahi-daemon: r
+udp6       0      0 fe80::5054:ff:fe99::123 :::*                                539/ntpd        
+udp6       0      0 2001:bc8:3a7e:210:a:123 :::*                                539/ntpd        
+udp6       0      0 2001:bc8:3a7e:210:5:123 :::*                                539/ntpd        
+udp6       0      0 ::1:123                 :::*                                539/ntpd        
+udp6       0      0 :::123                  :::*                                539/ntpd        
+udp6       0      0 :::5353                 :::*                                451/avahi-daemon: r
+</code></pre><div
+            class="para">
+				Como es esperado, enumera las conexiones establecidas: dos conexiones SSH en este caso y las aplicaciones esperando conexiones entrantes (mostradas como <code
+              class="literal">LISTEN</code>), notablemente el servidor de correo Exim4 está escuchando en el puerto 25.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.nmap"></a>10.8.2. Diagnóstico remoto: <code
+                    class="command">nmap</code></h3></div></div></div><a
+            id="idm140447100589792"
+            class="indexterm"></a><div
+            class="para">
+				<code
+              class="command">nmap</code> (en el paquete del mismo nombre) es, en cierta forma, el equivalente remoto de <code
+              class="command">netstat</code>. Puede escanear un conjunto de puertos «muy conocidos» de uno o más servidores remotos y enumerar los puertos donde encontró una aplicación que responda conexiones entrantes. Lo que es más, <code
+              class="command">nmap</code> puede identificar alguna de estas aplicaciones, a veces inclusive también su número de versión. La desventaja de esta herramienta es que, debido a que ejecuta de forma remota, no puede proveer información sobre procesos o usuarios; sin embargo, puede trabajar con varios objetivos al mismo tiempo.
+			</div><div
+            class="para">
+				Una invocación de <code
+              class="command">nmap</code> típica utilizará la opción <code
+              class="literal">-A</code> (para que <code
+              class="command">nmap</code> intente identificar las versiones del software de servidor que encuentre) seguido de una o más direcciones IP o nombres DNS de los equipos a escanear. Nuevamente, existen muchas más opciones que proveen un control detallado del comportamiento de <code
+              class="command">nmap</code>; revise la documentación en la página de manual <span
+              class="citerefentry"><span
+                class="refentrytitle">nmap</span>(1)</span>.
+			</div><pre
+            class="screen scale"
+            width="80">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>nmap mirtuel</code></strong>
+<code
+              class="computeroutput">
+Starting Nmap 6.47 ( http://nmap.org ) at 2015-03-09 16:46 CET
+Nmap scan report for mirtuel (192.168.1.242)
+Host is up (0.000013s latency).
+rDNS record for 192.168.1.242: mirtuel.internal.placard.fr.eu.org
+Not shown: 998 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+
+Nmap done: 1 IP address (1 host up) scanned in 2.41 seconds
+# </code><strong
+              class="userinput"><code>nmap -A localhost</code></strong>
+<code
+              class="computeroutput">
+Starting Nmap 6.47 ( http://nmap.org ) at 2015-03-09 16:46 CET
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000013s latency).
+Other addresses for localhost (not scanned): 127.0.0.1
+Not shown: 997 closed ports
+PORT    STATE SERVICE VERSION
+22/tcp  open  ssh     OpenSSH 6.7p1 Debian 3 (protocol 2.0)
+|_ssh-hostkey: ERROR: Script execution failed (use -d to debug)
+25/tcp  open  smtp    Exim smtpd 4.84
+| smtp-commands: mirtuel Hello localhost [127.0.0.1], SIZE 52428800, 8BITMIME, PIPELINING, HELP, 
+|_ Commands supported: AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP 
+111/tcp open  rpcbind 2-4 (RPC #100000)
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2,3,4        111/tcp  rpcbind
+|   100000  2,3,4        111/udp  rpcbind
+|   100024  1          36568/tcp  status
+|_  100024  1          39172/udp  status
+Device type: general purpose
+Running: Linux 3.X
+OS CPE: cpe:/o:linux:linux_kernel:3
+OS details: Linux 3.7 - 3.15
+Network Distance: 0 hops
+Service Info: Host: mirtuel; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.54 seconds
+</code></pre><div
+            class="para">
+				As expected, the SSH and Exim4 applications are listed. Note that not all applications listen on all IP addresses; since Exim4 is only accessible on the <code
+              class="literal">lo</code> loopback interface, it only appears during an analysis of <code
+              class="literal">localhost</code> and not when scanning <code
+              class="literal">mirtuel</code> (which maps to the <code
+              class="literal">eth0</code> interface on the same machine).
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.sniffers"></a>10.8.3. «Sniffers»: <code
+                    class="command">tcpdump</code> y <code
+                    class="command">wireshark</code></h3></div></div></div><div
+            class="para">
+				A veces uno necesita revisar lo que sucede literalmente en el cable, paquete por paquete. Estos casos requieren un «analizador de tramas», más comúnmente conocidos como «<span
+              class="emphasis"><em>sniffers</em></span>». Estas herramientas observan todos los paquetes en una interfaz de red dada y los muestran en una forma más amigable.
+			</div><a
+            id="idm140447094502128"
+            class="indexterm"></a><div
+            class="para">
+				La herramienta de culto en este ámbito es <code
+              class="command">tcpdump</code>, disponible como una herramienta estándar en un amplio rango de plataformas. Permite muchos tipos de capturas de tráfico de red, pero la representación del mismo es bastante críptica. Por lo tanto no la describiremos en más detalle.
+			</div><a
+            id="idm140447094500208"
+            class="indexterm"></a><div
+            class="para">
+				A more recent (and more modern) tool, <code
+              class="command">wireshark</code> (in the <span
+              class="pkg pkg">wireshark</span> package), has become the new reference in network traffic analysis due to its many decoding modules that allow for a simplified analysis of the captured packets. The packets are displayed graphically with an organization based on the protocol layers. This allows a user to visualize all protocols involved in a packet. For example, given a packet containing an HTTP request, <code
+              class="command">wireshark</code> displays, separately, the information concerning the physical layer, the Ethernet layer, the IP packet information, the TCP connection parameters, and finally the HTTP request itself.
+			</div><div
+            class="figure"><a
+              id="figure.wireshark"></a><div
+              class="figure-contents"><div
+                class="mediaobject"><img
+                  src="images/wireshark.png"
+                  alt="El analizador de tráfico de red wireshark" /></div></div><p
+              class="title"><strong>Figura 10.1. El analizador de tráfico de red <code
+                  class="command">wireshark</code></strong></p></div><div
+            class="para">
+				En nuestro ejemplo, filtramos los paquetes que viajan sobre SSH (con el filtro <code
+              class="literal">!tcp.port == 22</code>). El paquete mostrado tiene expandida la capa HTTP.
+			</div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>SUGERENCIA</em></span> <code
+                        class="command">wireshark</code> sin interfaz gráfica: <code
+                        class="command">tshark</code></strong></p></div></div></div><a
+              id="idm140447094491376"
+              class="indexterm"></a><div
+              class="para">
+				Cuando no podemos ejecutar una interfaz gráfica, o por cualquier razón no deseamos hacerlo, existe una versión sólo de texto de <code
+                class="command">wireshark</code> bajo el nombre <code
+                class="command">tshark</code> (en el paquete independiente <span
+                class="pkg pkg">tshark</span>). La mayoría de la funcionalidad de captura y decodificación está también disponible, pero la falta de interfaz gráfica limita necesariamente la interacción con el programa (filtrar paquetes luego de capturarlos, rastrear una conexión TCP, etc.). Puede utilizarse, sin embargo, como primer intento. Si desea realizar manipulaciones y necesita la interfaz gráfica, puede guardar los paquetes en un archivo y cargarlo en un <code
+                class="command">wireshark</code> gráfico ejecutando en otra máquina.
+			</div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>CULTURA</em></span> <code
+                        class="command">ethereal</code> y <code
+                        class="command">wireshark</code></strong></p></div></div></div><a
+              id="idm140447094486048"
+              class="indexterm"></a><a
+              id="idm140447094485152"
+              class="indexterm"></a><div
+              class="para">
+				<code
+                class="command">wireshark</code> parece ser bastante joven; sin embargo, sólo es el nuevo nombre de una aplicación conocida anteriormente como <code
+                class="command">ethereal</code>. Cuando su desarrollador principal abandonó la compañía para la que trabajaba no logró coordinar la transferencia de la marca registrada. Como alternativa, cambió el nombre; sólo el nombre y los íconos del software cambiaron en realidad.
+			</div></div></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.dhcp.html"><strong>Anterior</strong>10.7. DHCP</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Subir</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Inicio</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="network-services.html"><strong>Siguiente</strong>Capítulo 11. Servicios de red: Postfix, Apache, N...</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.network-diagnosis-tools.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.network-diagnosis-tools.html">da-DK</a></li><li><a
+              href="../de-DE/sect.network-diagnosis-tools.html">de-DE</a></li><li><a
+              href="../el-GR/sect.network-diagnosis-tools.html">el-GR</a></li><li><a
+              href="../en-US/sect.network-diagnosis-tools.html">en-US</a></li><li><a
+              href="../es-ES/sect.network-diagnosis-tools.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.network-diagnosis-tools.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.network-diagnosis-tools.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.network-diagnosis-tools.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.network-diagnosis-tools.html">id-ID</a></li><li><a
+              href="../it-IT/sect.network-diagnosis-tools.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.network-diagnosis-tools.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.network-diagnosis-tools.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.network-diagnosis-tools.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.network-diagnosis-tools.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.network-diagnosis-tools.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.network-diagnosis-tools.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.network-diagnosis-tools.html">zh-CN</a></li></ul></div></body></html>

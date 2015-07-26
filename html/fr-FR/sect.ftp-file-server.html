@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">11.3. Serveur de fichiers FTP</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.1" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-fr-FR-1.0-1" /><meta
+        name="keywords"
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        rel="home"
+        href="index.html"
+        title="Le cahier de l'administrateur Debian" /><link
+        rel="up"
+        href="network-services.html"
+        title="Chapitre 11. Services réseau : Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        rel="prev"
+        href="sect.http-web-server.html"
+        title="11.2. Serveur web (HTTP)" /><link
+        rel="next"
+        href="sect.nfs-file-server.html"
+        title="11.4. Serveur de fichiers NFS" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/fr-FR/sect.ftp-file-server.html" /></head><body
+      class="draft "><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="http://debian-handbook.info/get/"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="http://debian-handbook.info"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.http-web-server.html"><strong>Précédent</strong></a></li><li
+          class="home">Le cahier de l'administrateur Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.nfs-file-server.html"><strong>Suivant</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.ftp-file-server"></a>11.3. Serveur de fichiers FTP</h2></div></div></div><a
+          id="idm140565687196240"
+          class="indexterm"></a><div
+          class="para">
+			Le protocole de transfert de fichiers FTP (<span
+            class="foreignphrase"><em
+              class="foreignphrase">File Transfer Protocol</em></span>) est un des premiers protocoles d'Internet (la RFC 959 date de 1985 !). Il a servi à diffuser des fichiers avant même l'invention du Web (la RFC 1945 décrivant le protocole HTTP/1.0 date de 1996 mais ce dernier existait depuis 1990).
+		</div><div
+          class="para">
+			Ce protocole permet à la fois de déposer des fichiers et d'en récupérer. FTP est encore fréquemment employé pour déposer les mises à jour d'un site web hébergé par son fournisseur d'accès Internet (ou tout autre prestataire d'hébergement de site web). Dans ce cas, on emploie un identifiant et un mot de passe, puis le serveur FTP donne accès en lecture/écriture à son répertoire personnel.
+		</div><div
+          class="para">
+			D'autres serveurs FTP servent essentiellement à diffuser des fichiers que les gens souhaitent télécharger. C'est le cas, par exemple, avec les paquets Debian. Le contenu de ces serveurs FTP est récupéré depuis divers autres serveurs géographiquement éloignés et mis à disposition des utilisateurs locaux. Dans ce cas, l'authentification du client n'est pas nécessaire ; on parle de FTP anonyme et l'accès est en lecture seule. En réalité, le client s'authentifie avec le nom d'utilisateur <code
+            class="literal">anonymous</code> et un mot de passe quelconque (qui est souvent, par convention, l'adresse électronique de l'usager).
+		</div><div
+          class="para">
+			De nombreux serveurs FTP sont disponibles dans Debian (<span
+            class="pkg pkg">ftpd</span>, <span
+            class="pkg pkg">proftpd-basic</span>, <span
+            class="pkg pkg">pyftpd</span>, etc.). Le choix des administrateurs de Falcot SA s'est porté sur <span
+            class="pkg pkg">vsftpd</span>. En effet, ils n'ont besoin du serveur FTP que pour diffuser quelques fichiers (dont un dépôt de paquets Debian) et ils n'avaient nullement besoin de pléthore de fonctionnalités. Ils ont donc privilégié l'aspect sécurité du logiciel.
+		</div><a
+          id="idm140565687187280"
+          class="indexterm"></a><div
+          class="para">
+			L'installation du paquet entraîne la création d'un utilisateur système <code
+            class="literal">ftp</code>. Ce compte est systématiquement employé pour gérer les connexions FTP anonymes et son répertoire personnel (<code
+            class="filename">/srv/ftp/</code>) est la racine de l'arborescence mise à disposition des utilisateurs se connectant sur le service. La configuration par défaut (telle que détaillée dans <code
+            class="filename">/etc/vsftpd.conf</code>) est très restrictive : elle ne permet que la lecture en accès anonyme (les options <code
+            class="literal">write_enable</code> et <code
+            class="literal">anon_upload_enable</code> ne sont pas activées) et il n'est pas possible aux utilisateurs locaux de se connecter avec leur identifiant et mot de passe habituels (option <code
+            class="literal">local_enable</code>) pour accéder à leurs fichiers. Toutefois, cette configuration convient parfaitement pour l'usage de Falcot SA.
+		</div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.http-web-server.html"><strong>Précédent</strong>11.2. Serveur web (HTTP)</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Niveau supérieur</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Sommaire</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.nfs-file-server.html"><strong>Suivant</strong>11.4. Serveur de fichiers NFS</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.ftp-file-server.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.ftp-file-server.html">da-DK</a></li><li><a
+              href="../de-DE/sect.ftp-file-server.html">de-DE</a></li><li><a
+              href="../el-GR/sect.ftp-file-server.html">el-GR</a></li><li><a
+              href="../en-US/sect.ftp-file-server.html">en-US</a></li><li><a
+              href="../es-ES/sect.ftp-file-server.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.ftp-file-server.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.ftp-file-server.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.ftp-file-server.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.ftp-file-server.html">id-ID</a></li><li><a
+              href="../it-IT/sect.ftp-file-server.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.ftp-file-server.html">ja-JP</a></li><li><a
+              href="../pl-PL/sect.ftp-file-server.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.ftp-file-server.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.ftp-file-server.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.ftp-file-server.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.ftp-file-server.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.ftp-file-server.html">zh-CN</a></li></ul></div></body></html>
