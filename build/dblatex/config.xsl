@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:m="http://www.w3.org/1998/Math/MathML"
                 version="1.0">
@@ -57,9 +57,60 @@
 
 <!-- Fonts used -->
 <xsl:param name="xetex.font">
-  <xsl:text>\setmainfont{Gentium Basic}&#10;</xsl:text>
-  <xsl:text>\setsansfont[Scale=MatchLowercase]{Linux Biolinum O}&#10;</xsl:text>
-  <xsl:text>\setmonofont[Scale=MatchLowercase]{DejaVu Sans Mono}&#10;</xsl:text>
+  <xsl:choose>
+    <xsl:when test="/book[@lang='ja-JP']">
+      <xsl:text>
+% Japanese setting
+\XeTeXtracingfonts=1
+\defaultfontfeatures+{Scale=0.8}
+\setmainfont{DejaVu Serif}
+\setsansfont{DejaVu Sans}
+\setmonofont{DejaVu Sans Mono}
+\usepackage[AutoFallBack=true]{zxjatype}
+\usepackage[ipa,scale=0.8]{zxjafont}
+%
+% Please don't use ipaex for IPAex fonts like IPAexMincho and/or IPAexGothic.
+% Because some characters are converted into Kangxi radical.
+% Example:
+% 一 (U+4E00) -&gt; ⼀ (U+2F00),
+% 人 (U+4EBA) -&gt; ⼈ (U+2F08),
+% 非 (U+975E) -&gt; ⾮ (U+2FAE),
+% 高 (U+9AD8) -&gt; ⾼ (U+2FBC) etc...
+% This conversion is not problem for printing, but
+% is problem for searching pdf and converting pdf into text.
+% And please take care of font licence also.
+</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>% /book/@lang="</xsl:text>
+      <xsl:value-of select="/book/@lang"/>
+      <xsl:text>"</xsl:text>
+      <xsl:text>
+% default setting
+\setmainfont{Gentium Basic}
+\setsansfont[Scale=MatchLowercase]{Linux Biolinum O}
+\setmonofont[Scale=MatchLowercase]{DejaVu Sans Mono}
+</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:param>
+
+<xsl:param name="latex.engine.options">
+  <xsl:choose>
+    <xsl:when test="/book[@lang='ja-JP']">
+    <xsl:text>-output-driver='xdvipdfmx'</xsl:text>
+    <!--
+This is for overriding xelatex's default
+-output-driver option 'xdvipdfmx -q -E'.
+xdvipdfmx should respect to the Font Embedding Permissions,
+'-E' option neglects this behavior and
+'-q' will suppress showing the warning.
+-->
+    </xsl:when>
+    <xsl:otherwise>
+    <xsl:text>-output-driver='xdvipdfmx -E'</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:param>
 
 <!-- In  Full-bleed mode, add crop margins of 0.25" (0.63cm) around
