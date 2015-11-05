@@ -61,7 +61,6 @@
     <xsl:when test="/book[@lang='ja-JP']">
       <xsl:text>
 % Japanese setting
-\XeTeXtracingfonts=1
 \defaultfontfeatures+{Scale=0.8}
 \setmainfont{DejaVu Serif}
 \setsansfont{DejaVu Sans}
@@ -91,24 +90,6 @@
 \setsansfont[Scale=MatchLowercase]{Linux Biolinum O}
 \setmonofont[Scale=MatchLowercase]{DejaVu Sans Mono}
 </xsl:text>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:param>
-
-<xsl:param name="latex.engine.options">
-  <xsl:choose>
-    <xsl:when test="/book[@lang='ja-JP']">
-    <xsl:text>-output-driver='xdvipdfmx'</xsl:text>
-    <!--
-This is for overriding xelatex's default
--output-driver option 'xdvipdfmx -q -E'.
-xdvipdfmx should respect to the Font Embedding Permissions,
-'-E' option neglects this behavior and
-'-q' will suppress showing the warning.
--->
-    </xsl:when>
-    <xsl:otherwise>
-    <xsl:text>-output-driver='xdvipdfmx -E'</xsl:text>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:param>
