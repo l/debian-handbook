@@ -20,6 +20,7 @@
 <xsl:param name="hyphenation.custom"/>
 
 <xsl:template name="user.params.set">
+  <xsl:text>% dblatex template user.params.set starts here.&#10;</xsl:text>
   <xsl:apply-imports />
   <xsl:text>\widowpenalty=10000&#10;</xsl:text>
   <xsl:text>\clubpenalty=10000&#10;</xsl:text>
@@ -40,6 +41,74 @@
     <xsl:with-param name="key" select="'minitoc'"/>
   </xsl:call-template>
   <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\appendixname{{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'Appendix'"/>
+  </xsl:call-template>
+  <xsl:text>}}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\chaptername{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'Chapter'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\indexname{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'Index'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\contentsname{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'TableofContents'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\figurename{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'Figure'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\tablename{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'Table'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:choose>
+    <xsl:when test="/book[@lang='ja-JP']">
+      <xsl:text>
+% Japanese setting
+\renewcommand\today{\number\year\ 年 \number\month\ 月 \number\day\ 日}
+\newcommand\prechaptername{第}
+</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>% /book/@lang="</xsl:text>
+      <xsl:value-of select="/book/@lang"/>
+      <xsl:text>"</xsl:text>
+      <xsl:text>
+% default setting
+</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
+  <xsl:text>% dblatex template user.params.set ends here.&#10;</xsl:text>
+</xsl:template>
+
+<xsl:template name="user.params.set2">
+  <xsl:text>% dblatex template user.params.set2 starts here.&#10;</xsl:text>
+  <xsl:apply-imports />
+
+  <xsl:text>\renewcommand\examplename{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'Example'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>% dblatex template user.params.set2 ends here.&#10;</xsl:text>
 </xsl:template>
 
 <!-- Use custom symbol before URL -->

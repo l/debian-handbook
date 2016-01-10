@@ -203,7 +203,13 @@
       \ifnum\c@chapter=0
         \Rput[r](-\footertxtoffset,-2.5mm){\footfont \chaptertitle{}}
       \else
-        \Rput[r](-\footertxtoffset,-2.5mm){\footfont \@chapapp{} \thechapter{} — \chaptertitle{}}
+        \Rput[r](-\footertxtoffset,-2.5mm){%
+          \ifdefined\prechaptername%
+            \footfont \prechaptername \thechapter{} \@chapapp{} — \chaptertitle{}%
+          \else%
+            \footfont \@chapapp{} \thechapter{} — \chaptertitle{}%
+          \fi%
+         }
       \fi
     }
   }
@@ -660,6 +666,8 @@
 }
 
 \newbox\Freeb@xa
+\newbox\Freeb@xb
+\newlength{\minipage@width}
 \newcommand*\chaptertitle{}
 \renewcommand\chapter{%
   \@ifstar
@@ -725,16 +733,23 @@
   % changent. On passe de 8cm à gauche à 1.5cm (6.5cm de différence)
   \thispagestyle{empty}
   \sbox\Freeb@xa{\chapternamefont \interletter{\@chapapp}\unskip}%
+  \sbox\Freeb@xb{\hss\chapternumfont \thechapter}%
+  \ifdim\wd\Freeb@xa>\wd\Freeb@xb
+    \setlength{\minipage@width}{\wd\Freeb@xa}
+  \else
+    \setlength{\minipage@width}{\wd\Freeb@xb}
+  \fi
+
   \hspace*{\stretch{1}}%
-  \makebox[\wd\Freeb@xa]{%
-    \begin{minipage}{\wd\Freeb@xa}
-      \chapternamefont \interletter{\@chapapp}\unskip\par
+  \makebox[\minipage@width]{%
+    \begin{minipage}{\minipage@width}
+      \centering{\usebox\Freeb@xa\par}
       \kern3pt
       \hrule height \dblerulewidth
       \kern\dblerulesep
       \hrule height \dblerulewidth
       \kern24pt
-      \hbox to \wd\Freeb@xa{\hss\chapternumfont \thechapter}%
+      \hbox to \wd\Freeb@xb{\centering{\usebox\Freeb@xb\par}}%
       \kern24pt
       \hrule height \dblerulewidth
       \kern\dblerulesep
@@ -743,7 +758,7 @@
   }\par
   \kern-59pt
   \sbox\Freeb@xa{%
-    \begin{minipage}[t]{\dimexpr \linewidth-\wd\Freeb@xa-1.5cm}
+    \begin{minipage}[t]{\dimexpr \linewidth-\minipage@width-1.5cm}
       \raggedleft\chapterfont\strut #1\strut
     \end{minipage}
   }
@@ -804,16 +819,23 @@
   \addcontentsline{toc}{chapter}{\thechapter. #1}%
   \renewcommand*\chaptertitle{#1}%
   \sbox\Freeb@xa{\chapternamefont \interletter{\@chapapp}\unskip}%
+  \sbox\Freeb@xb{\hss\chapternumfont \thechapter}%
+  \ifdim\wd\Freeb@xa>\wd\Freeb@xb
+    \setlength{\minipage@width}{\wd\Freeb@xa}
+  \else
+    \setlength{\minipage@width}{\wd\Freeb@xb}
+  \fi
+
   \hspace*{\stretch{1}}%
-  \makebox[\wd\Freeb@xa]{%
-    \begin{minipage}{\wd\Freeb@xa}
-      \chapternamefont \interletter{\@chapapp}\unskip\par
+  \makebox[\minipage@width]{%
+    \begin{minipage}{\minipage@width}
+      \centering{\usebox\Freeb@xa\par}
       \kern3pt
       \hrule height \dblerulewidth
       \kern\dblerulesep
       \hrule height \dblerulewidth
       \kern24pt
-      \hbox to \wd\Freeb@xa{\hss\chapternumfont \thechapter}%
+      \hbox to \wd\Freeb@xb{\centering{\usebox\Freeb@xb\par}}%
       \kern24pt
       \hrule height \dblerulewidth
       \kern\dblerulesep
@@ -822,7 +844,7 @@
   }\par
   \kern-59pt
   \sbox\Freeb@xa{%
-    \begin{minipage}[t]{\dimexpr \linewidth-\wd\Freeb@xa-1.5cm}
+    \begin{minipage}[t]{\dimexpr \linewidth-\minipage@width-1.5cm}
       \raggedleft \chapterfont \strut #1 \strut
     \end{minipage}
   }

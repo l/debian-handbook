@@ -57,6 +57,7 @@
 
 <!-- Fonts used -->
 <xsl:param name="xetex.font">
+  <xsl:text>% dblatex template xetex.font starts here.&#10;</xsl:text>
   <xsl:choose>
     <xsl:when test="/book[@lang='ja-JP']">
       <xsl:text>
@@ -92,6 +93,7 @@
 </xsl:text>
     </xsl:otherwise>
   </xsl:choose>
+  <xsl:text>% dblatex template xetex.font ends here.&#10;</xsl:text>
 </xsl:param>
 
 <!-- In  Full-bleed mode, add crop margins of 0.25" (0.63cm) around
