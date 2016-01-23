@@ -66,11 +66,21 @@
 \setmainfont{DejaVu Serif}
 \setsansfont{DejaVu Sans}
 \setmonofont{DejaVu Sans Mono}
-\usepackage[AutoFallBack=true]{zxjatype}
-\usepackage[ipa,scale=0.8]{zxjafont}
+
+\usepackage{xeCJK}
+\setCJKmainfont[Scale=0.8]{IPAMincho}
+\setCJKsansfont[Scale=0.8]{IPAGothic}
+\setCJKmonofont[Scale=0.8]{IPAGothic}
 %
-% Please don't use ipaex for IPAex fonts like IPAexMincho and/or IPAexGothic.
-% Because some characters are converted into Kangxi radical.
+% Please don't use
+% * IPAex fonts like IPAexMincho and/or IPAexGothic,
+% * font feature of AutoFakeBold and/or AutoFakeSlant.
+% These rule is not a remedy for printing,
+% but if these rule is broken, people will face problems of
+% searching text, coping text, and converting pdf into text.
+%
+% If IPAexMincho and/or IPAexGothic fonts are used,
+% some characters are converted into Kangxi radical (U+2F00..U+2FDF).
 % Example:
 % 一 (U+4E00) -&gt; ⼀ (U+2F00),
 % 人 (U+4EBA) -&gt; ⼈ (U+2F08),
@@ -79,6 +89,11 @@
 % This conversion is not problem for printing, but
 % is problem for searching pdf and converting pdf into text.
 % And please take care of font licence also.
+%
+% If AutoFakeBold and/or AutoFakeSlant font features are used,
+% some characters (\emph{}) will be unsearchable and uncopied.
+
+\usepackage[AutoFallBack=true]{zxjatype}
 </xsl:text>
     </xsl:when>
     <xsl:otherwise>

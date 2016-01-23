@@ -108,6 +108,24 @@
   </xsl:call-template>
   <xsl:text>}&#10;</xsl:text>
 
+  <xsl:choose>
+    <xsl:when test="/book[@lang='ja-JP']">
+      <xsl:text>
+% Japanese setting
+\newfontfamily\urlfontfamily{IPAGothic}[]
+\renewcommand\UrlFont{\urlfontfamily}
+% This is a remedy for Japanese characters inside \nolinkurl{}.
+</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>% /book/@lang="</xsl:text>
+      <xsl:value-of select="/book/@lang"/>
+      <xsl:text>"</xsl:text>
+      <xsl:text>
+% default setting
+</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
   <xsl:text>% dblatex template user.params.set2 ends here.&#10;</xsl:text>
 </xsl:template>
 
