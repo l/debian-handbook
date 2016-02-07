@@ -112,9 +112,6 @@
     <xsl:when test="/book[@lang='ja-JP']">
       <xsl:text>
 % Japanese setting
-\newfontfamily\urlfontfamily{IPAGothic}[]
-\renewcommand\UrlFont{\urlfontfamily}
-% This is a remedy for Japanese characters inside \nolinkurl{}.
 </xsl:text>
     </xsl:when>
     <xsl:otherwise>

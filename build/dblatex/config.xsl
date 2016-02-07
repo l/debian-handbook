@@ -62,16 +62,67 @@
     <xsl:when test="/book[@lang='ja-JP']">
       <xsl:text>
 % Japanese setting
-\defaultfontfeatures+{Scale=0.8}
-\setmainfont{DejaVu Serif}
-\setsansfont{DejaVu Sans}
-\setmonofont{DejaVu Sans Mono}
+\defaultfontfeatures+{
+Scale              = 0.8,
+}
+
+\setmainfont{M+ 2c regular}[
+BoldFont       = {M+ 2c bold},
+ItalicFont     = {M+ 2c bold},
+BoldItalicFont = {M+ 2c bold},
+SmallCapsFont  = {M+ 2c bold},
+]
+\setsansfont{M+ 1c regular}[
+BoldFont       = {M+ 1c bold},
+ItalicFont     = {M+ 1c bold},
+BoldItalicFont = {M+ 1c bold},
+SmallCapsFont  = {M+ 1c bold},
+]
+\setmonofont{M+ 1m regular}[
+BoldFont       = {M+ 1m bold},
+ItalicFont     = {M+ 1m bold},
+BoldItalicFont = {M+ 1m bold},
+SmallCapsFont  = {M+ 1m bold},
+]
+
+\newfontfamily{\JapSubstFont}{DejaVu Sans Mono}[
+BoldFont       = {DejaVu Sans Mono Bold},
+ItalicFont     = {DejaVu Sans Mono Bold},
+BoldItalicFont = {DejaVu Sans Mono Bold},
+SmallCapsFont  = {DejaVu Sans Mono Bold},
+]
+
+\XeTeXinterchartokenstate=1
+\newXeTeXintercharclass\JapSubst
+
+\XeTeXcharclass"FFFD=\JapSubst
+
+\XeTeXinterchartoks 0 \JapSubst = {\begingroup\JapSubstFont}
+\XeTeXinterchartoks 255 \JapSubst = {\begingroup\JapSubstFont}
+\XeTeXinterchartoks \JapSubst 0 = {\endgroup}
+\XeTeXinterchartoks \JapSubst 255 = {\endgroup}
 
 \usepackage{xeCJK}
-\setCJKmainfont[Scale=0.8]{IPAMincho}
-\setCJKsansfont[Scale=0.8]{IPAGothic}
-\setCJKmonofont[Scale=0.8]{IPAGothic}
-%
+
+\setCJKmainfont[
+BoldFont       = {M+ 2c bold},
+ItalicFont     = {M+ 2c bold},
+BoldItalicFont = {M+ 2c bold},
+SmallCapsFont  = {M+ 2c bold},
+]{M+ 2c regular}
+\setCJKsansfont[
+BoldFont       = {M+ 1c bold},
+ItalicFont     = {M+ 1c bold},
+BoldItalicFont = {M+ 1c bold},
+SmallCapsFont  = {M+ 1c bold},
+]{M+ 1c regular}
+\setCJKmonofont[
+BoldFont       = {M+ 1m bold},
+ItalicFont     = {M+ 1m bold},
+BoldItalicFont = {M+ 1m bold},
+SmallCapsFont  = {M+ 1m bold},
+]{M+ 1m regular}
+
 % Please don't use
 % * IPAex fonts like IPAexMincho and/or IPAexGothic,
 % * font feature of AutoFakeBold and/or AutoFakeSlant.
