@@ -119,13 +119,11 @@
   hidelinks,
 }
 \selectcolormodel{gray}
-\definecolor{textgray}{cmyk}{0 0 0 1}
 </xsl:text>
     </xsl:when>
     <xsl:otherwise>
       <xsl:text>
 % pdf.color.scheme default
-%
 %
 %
 %
