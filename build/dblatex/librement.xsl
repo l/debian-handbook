@@ -78,12 +78,26 @@
   </xsl:call-template>
   <xsl:text>}&#10;</xsl:text>
 
+  <xsl:text>\renewcommand\seename{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'see'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>\renewcommand\alsoname{</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key" select="'seealso'"/>
+  </xsl:call-template>
+  <xsl:text>}&#10;</xsl:text>
+
   <xsl:choose>
     <xsl:when test="/book[@lang='ja-JP']">
       <xsl:text>
 % Japanese setting
 \renewcommand\today{\number\year\ 年 \number\month\ 月 \number\day\ 日}
 \newcommand\prechaptername{第}
+\renewcommand*\see[2]{「#1」\seename}
+\renewcommand*\seealso[2]{「#1」\alsoname}
 </xsl:text>
     </xsl:when>
     <xsl:otherwise>
@@ -107,6 +121,30 @@
     <xsl:with-param name="key" select="'Example'"/>
   </xsl:call-template>
   <xsl:text>}&#10;</xsl:text>
+
+  <xsl:text>% $pdf.color.scheme='</xsl:text>
+  <xsl:value-of select="$pdf.color.scheme"/>
+  <xsl:text>'&#10;</xsl:text>
+  <xsl:choose>
+    <xsl:when test="$pdf.color.scheme='gray-scale'">
+      <xsl:text>
+% pdf.color.scheme gray-scale
+\hypersetup{
+  hidelinks,
+}
+\selectcolormodel{gray}
+</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>
+% pdf.color.scheme default
+%
+%
+%
+%
+</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
 
   <xsl:choose>
     <xsl:when test="/book[@lang='ja-JP']">

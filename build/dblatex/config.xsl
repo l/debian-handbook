@@ -55,9 +55,17 @@
 <xsl:param name="page.margin.top">1.3cm</xsl:param>
 <xsl:param name="page.margin.bottom">1.3cm</xsl:param>
 
+<!-- PDF color scheme
+Acceptable values are
+full-color (default, for PC/Tablet readers),
+gray-scale (for lulu.com POD service),
+-->
+<xsl:param name="pdf.color.scheme">full-color</xsl:param>
+
 <!-- Fonts used -->
 <xsl:param name="xetex.font">
   <xsl:text>% dblatex template xetex.font starts here.&#10;</xsl:text>
+
   <xsl:choose>
     <xsl:when test="/book[@lang='ja-JP']">
       <xsl:text>
