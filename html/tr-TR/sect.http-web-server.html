@@ -14,27 +14,28 @@
         type="text/css" /><meta
         xmlns:d="http://docbook.org/ns/docbook"
         name="generator"
-        content="publican v4.3.1" /><meta
+        content="publican v4.3.2" /><meta
         xmlns:d="http://docbook.org/ns/docbook"
         name="package"
         content="Debian-debian-handbook-8-tr-TR-1.0-1" /><meta
         name="keywords"
-        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP" /><link
+        content="Postfix, Apache, NFS, Samba, Squid, OpenLDAP, SIP" /><link
         rel="home"
         href="index.html"
         title="The Debian Administrator's Handbook" /><link
         rel="up"
         href="network-services.html"
-        title="Bölüm 11. Network Services: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        title="Bölüm 11. Network Services: Postfix, Apache, NFS, Samba, Squid, LDAP, SIP, XMPP, TURN" /><link
         rel="prev"
         href="network-services.html"
-        title="Bölüm 11. Network Services: Postfix, Apache, NFS, Samba, Squid, LDAP" /><link
+        title="Bölüm 11. Network Services: Postfix, Apache, NFS, Samba, Squid, LDAP, SIP, XMPP, TURN" /><link
         rel="next"
         href="sect.ftp-file-server.html"
-        title="11.3. FTP File Server" /><link
+        title="11.3. FTP File Server" /><meta
+        name="viewport"
+        content="width=device-width, initial-scale=1" /><link
         rel="canonical"
-        href="http://l.github.io/debian-handbook/html/tr-TR/sect.http-web-server.html" /></head><body
-      class="draft "><noscript><iframe
+        href="http://l.github.io/debian-handbook/html/tr-TR/sect.http-web-server.html" /></head><body><noscript><iframe
           src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
           height="0"
           width="0"
@@ -45,7 +46,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-5H35QX');</script><div
         id="banner"><a
-          href="http://debian-handbook.info/get/"><span
+          href="../../"><span
             class="text">Download the ebook</span></a></div><p
         id="title"><a
           class="left"
@@ -53,7 +54,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             alt="Product Site"
             src="Common_Content/images//image_left.png" /></a><a
           class="right"
-          href="http://debian-handbook.info"><img
+          href="index.html"><img
             alt="Documentation Site"
             src="Common_Content/images//image_right.png" /></a></p><ul
         class="docnav top"><li
@@ -72,15 +73,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 			The Falcot Corp administrators decided to use the Apache HTTP server, included in Debian <span
             class="distribution distribution">Jessie</span> at version 2.4.10.
 		</div><a
-          id="idm140106193550064"
+          id="id-1.14.5.3"
           class="indexterm"></a><a
-          id="idm140106193548944"
+          id="id-1.14.5.4"
           class="indexterm"></a><a
-          id="idm140106193547504"
+          id="id-1.14.5.5"
           class="indexterm"></a><a
-          id="idm140106193546544"
+          id="id-1.14.5.6"
           class="indexterm"></a><a
-          id="idm140106193545104"
+          id="id-1.14.5.7"
           class="indexterm"></a><div
           class="sidebar"><div
             class="titlepage"><div><div><p
@@ -91,33 +92,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="pkg pkg">nginx</span> and <span
               class="pkg pkg">lighttpd</span>, are worth investigating.
 		</div><a
-            id="idm140106193540400"
+            id="id-1.14.5.8.3"
             class="indexterm"></a><a
-            id="idm140106193539088"
+            id="id-1.14.5.8.4"
             class="indexterm"></a></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="idm140106193537616"></a>11.2.1. Installing Apache</h3></div></div></div><div
+                    id="id-1.14.5.9"></a>11.2.1. Installing Apache</h3></div></div></div><div
             class="para">
-				By default, installing the <span
-              class="pkg pkg">apache2</span> package causes the <span
-              class="pkg pkg">apache2-mpm-worker</span> version of Apache to be installed too. The <span
-              class="pkg pkg">apache2</span> package is an empty shell, and it only serves to ensure that one of the Apache versions is actually installed.
+				Installing the <span
+              class="pkg pkg">apache2</span> package is all that is needed. It contains all the modules, including the <span
+              class="emphasis"><em>Multi-Processing Modules</em></span> (MPMs) that affect how Apache handles parallel processing of many requests (those used to be provided in separate <span
+              class="pkg pkg">apache2-mpm-*</span> packages). It will also pull <span
+              class="pkg pkg">apache2-utils</span> containing the command line utilities that we will discover later.
 			</div><div
             class="para">
-				The differences between the variants of Apache 2 are concentrated in the policy used to handle parallel processing of many requests; this policy is implemented by an MPM (short for <span
-              class="emphasis"><em>Multi-Processing Module</em></span>). Among the available MPMs, <span
-              class="emphasis"><em>worker</em></span> uses <span
-              class="emphasis"><em>threads</em></span> (lightweight processes), whereas <span
-              class="emphasis"><em>prefork</em></span> uses a pool of processes created in advance (the traditional way, and the only one available in Apache 1.3). <span
-              class="emphasis"><em>event</em></span> also uses threads, but they are terminated earlier, when the incoming connection is only kept open by the HTTP <span
-              class="emphasis"><em>keep-alive</em></span> feature.
+				The MPM in use affects significantly the way Apache will handle concurrent requests. With the <span
+              class="emphasis"><em>worker</em></span> MPM, it uses <span
+              class="emphasis"><em>threads</em></span> (lightweight processes), whereas with the <span
+              class="emphasis"><em>prefork</em></span> MPM it uses a pool of processes created in advance. With the <span
+              class="emphasis"><em>event</em></span> MPM it also uses threads, but the inactive connections (notably those kept open by the HTTP <span
+              class="emphasis"><em>keep-alive</em></span> feature) are handed back to a dedicated management thread.
 			</div><div
             class="para">
 				The Falcot administrators also install <span
-              class="pkg pkg">libapache2-mod-php5</span> so as to include the PHP support in Apache. This causes the <span
-              class="emphasis"><em>worker</em></span> MPM to be disabled, and <span
+              class="pkg pkg">libapache2-mod-php5</span> so as to include the PHP support in Apache. This causes the default <span
+              class="emphasis"><em>event</em></span> MPM to be disabled, and <span
               class="emphasis"><em>prefork</em></span> to be used instead, since PHP only works under that particular MPM.
 			</div><div
             class="sidebar"><div
@@ -125,9 +126,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                     class="title"><strong><span
                         class="emphasis"><em>SECURITY</em></span> Execution under the <code
                         class="literal">www-data</code> user</strong></p></div></div></div><a
-              id="idm140106195849200"
+              id="id-1.14.5.9.5.2"
               class="indexterm"></a><a
-              id="idm140106195848080"
+              id="id-1.14.5.9.5.3"
               class="indexterm"></a><div
               class="para">
 				By default, Apache handles incoming requests under the identity of the <code
@@ -140,7 +141,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                   class="replaceable">user</em><em
                   class="replaceable">group</em></code> directive in the Apache configuration.
 			</div><a
-              id="idm140106195843840"
+              id="id-1.14.5.9.5.6"
               class="indexterm"></a><div
               class="para">
 				Another possibility is to use a dedicated MPM, such as the one provided by <span
@@ -167,16 +168,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="para">
 				With its default configuration, the web server listens on port 80 (as configured in <code
               class="filename">/etc/apache2/ports.conf</code>), and serves pages from the <code
-              class="filename">/var/www/</code> directory (as configured in <code
-              class="filename">/etc/apache2/sites-enabled/000-default</code>).
+              class="filename">/var/www/html/</code> directory (as configured in <code
+              class="filename">/etc/apache2/sites-enabled/000-default.conf</code>).
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
                         class="emphasis"><em>GOING FURTHER</em></span> Adding support for SSL</strong></p></div></div></div><a
-              id="idm140106195832400"
+              id="id-1.14.5.9.9.2"
               class="indexterm"></a><a
-              id="idm140106195831440"
+              id="id-1.14.5.9.9.3"
               class="indexterm"></a><div
               class="para">
 				Apache 2.4 includes the SSL module required for secure HTTP (HTTPS) out of the box. It just needs to be enabled with <code
@@ -191,16 +192,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="url">→ <a
                   href="https://wiki.mozilla.org/Security/Server_Side_TLS#Apache">https://wiki.mozilla.org/Security/Server_Side_TLS#Apache</a></div>
 			</div><a
-              id="idm140106195825312"
+              id="id-1.14.5.9.9.6"
               class="indexterm"></a></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="idm140106195823872"></a>11.2.2. Configuring Virtual Hosts</h3></div></div></div><div
+                    id="id-1.14.5.10"></a>11.2.2. Configuring Virtual Hosts</h3></div></div></div><div
             class="para">
 				A virtual host is an extra identity for the web server.
 			</div><a
-            id="idm140106195822576"
+            id="id-1.14.5.10.3"
             class="indexterm"></a><div
             class="para">
 				Apache considers two different kinds of virtual hosts: those that are based on the IP address (or the port), and those that rely on the domain name of the web server. The first method requires allocating a different IP address (or port) for each site, whereas the second one can work on a single IP address (and port), and the sites are differentiated by the hostname sent by the HTTP client (which only works in version 1.1 of the HTTP protocol — fortunately that version is old enough that all clients use it already).
@@ -211,7 +212,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 			</div><div
             class="para">
 				The default configuration for Apache 2 enables name-based virtual hosts. In addition, a default virtual host is defined in the <code
-              class="literal">/etc/apache2/sites-enabled/000-default</code> file; this virtual host will be used if no host matching the request sent by the client is found.
+              class="literal">/etc/apache2/sites-enabled/000-default.conf</code> file; this virtual host will be used if no host matching the request sent by the client is found.
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
@@ -225,7 +226,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="titlepage"><div><div><p
                     class="title"><strong><span
                         class="emphasis"><em>QUICK LOOK</em></span> Apache supports SNI</strong></p></div></div></div><a
-              id="idm140106195814592"
+              id="id-1.14.5.10.8.2"
               class="indexterm"></a><div
               class="para">
 				The Apache server supports an SSL protocol extension called <span
@@ -247,9 +248,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="command">a2ensite www.falcot.org</code>.
 			</div><div
             class="example"><a
-              id="idm140106195807760"></a><p
+              id="id-1.14.5.10.10"></a><p
               class="title"><strong>Örnek 11.16. The <code
-                  class="filename">/etc/apache2/sites-available/www.falcot.org</code> file</strong></p><div
+                  class="filename">/etc/apache2/sites-available/www.falcot.org.conf</code> file</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
 &lt;VirtualHost *:80&gt;
@@ -261,15 +262,16 @@ DocumentRoot /srv/www/www.falcot.org
             class="para">
 				The Apache server, as configured so far, uses the same log files for all virtual hosts (although this could be changed by adding <code
               class="literal">CustomLog</code> directives in the definitions of the virtual hosts). It therefore makes good sense to customize the format of this log file to have it include the name of the virtual host. This can be done by creating a <code
-              class="filename">/etc/apache2/conf.d/customlog</code> file that defines a new format for all log files (with the <code
-              class="literal">LogFormat</code> directive). The <code
+              class="filename">/etc/apache2/conf-available/customlog.conf</code> file that defines a new format for all log files (with the <code
+              class="literal">LogFormat</code> directive) and by enabling it with <code
+              class="command">a2enconf customlog</code>. The <code
               class="literal">CustomLog</code> line must also be removed (or commented out) from the <code
-              class="filename">/etc/apache2/sites-available/default</code> file.
+              class="filename">/etc/apache2/sites-available/000-default.conf</code> file.
 			</div><div
             class="example"><a
-              id="idm140106195802624"></a><p
+              id="id-1.14.5.10.12"></a><p
               class="title"><strong>Örnek 11.17. The <code
-                  class="filename">/etc/apache2/conf.d/customlog</code> file</strong></p><div
+                  class="filename">/etc/apache2/conf.d/customlog.conf</code> file</strong></p><div
               class="example-contents"><pre
                 class="programlisting scale">
 # New log format including (virtual) host name
@@ -281,13 +283,13 @@ CustomLog /var/log/apache2/access.log vhost
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="idm140106195800064"></a>11.2.3. Common Directives</h3></div></div></div><div
+                    id="id-1.14.5.11"></a>11.2.3. Common Directives</h3></div></div></div><div
             class="para">
 				This section briefly reviews some of the commonly-used Apache configuration directives.
 			</div><a
-            id="idm140106195798704"
+            id="id-1.14.5.11.3"
             class="indexterm"></a><a
-            id="idm140106195797744"
+            id="id-1.14.5.11.4"
             class="indexterm"></a><div
             class="para">
 				The main configuration file usually includes several <code
@@ -295,12 +297,12 @@ CustomLog /var/log/apache2/access.log vhost
               class="literal">Options</code> and <code
               class="literal">AllowOverride</code> directives.
 			</div><a
-            id="idm140106195794688"
+            id="id-1.14.5.11.6"
             class="indexterm"></a><a
-            id="idm140106195793408"
+            id="id-1.14.5.11.7"
             class="indexterm"></a><div
             class="example"><a
-              id="idm140106195792128"></a><p
+              id="id-1.14.5.11.8"></a><p
               class="title"><strong>Örnek 11.18. Directory block</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
@@ -314,7 +316,7 @@ DirectoryIndex index.php index.html index.htm
 				The <code
               class="literal">DirectoryIndex</code> directive contains a list of files to try when the client request matches a directory. The first existing file in the list is used and sent as a response.
 			</div><a
-            id="idm140106195789472"
+            id="id-1.14.5.11.10"
             class="indexterm"></a><div
             class="para">
 				The <code
@@ -329,21 +331,21 @@ DirectoryIndex index.php index.html index.htm
                   class="para">
 						<code
                     class="literal">ExecCGI</code> indicates that CGI scripts can be executed. <a
-                    id="idm140106195784432"
+                    id="id-1.14.5.11.12.1.1.2"
                     class="indexterm"></a>
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
                     class="literal">FollowSymlinks</code> tells the server that symbolic links can be followed, and that the response should contain the contents of the target of such links. <a
-                    id="idm140106195781920"
+                    id="id-1.14.5.11.12.2.1.2"
                     class="indexterm"></a>
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
                     class="literal">SymlinksIfOwnerMatch</code> also tells the server to follow symbolic links, but only when the link and the its target have the same owner. <a
-                    id="idm140106195779424"
+                    id="id-1.14.5.11.12.3.1.2"
                     class="indexterm"></a>
 					</div></li><li
                 class="listitem"><div
@@ -352,7 +354,7 @@ DirectoryIndex index.php index.html index.htm
                     class="literal">Includes</code> enables <span
                     class="emphasis"><em>Server Side Includes</em></span> (<span
                     class="emphasis"><em>SSI</em></span> for short). These are directives embedded in HTML pages and executed on the fly for each request. <a
-                    id="idm140106195775984"
+                    id="id-1.14.5.11.12.4.1.4"
                     class="indexterm"></a>
 					</div></li><li
                 class="listitem"><div
@@ -360,14 +362,14 @@ DirectoryIndex index.php index.html index.htm
 						<code
                     class="literal">Indexes</code> tells the server to list the contents of a directory if the HTTP request sent by the client points at a directory without an index file (ie, when no files mentioned by the <code
                     class="literal">DirectoryIndex</code> directive exists in this directory). <a
-                    id="idm140106195772976"
+                    id="id-1.14.5.11.12.5.1.3"
                     class="indexterm"></a>
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
                     class="literal">MultiViews</code> enables content negotiation; this can be used by the server to return a web page matching the preferred language as configured in the browser. <a
-                    id="idm140106195770448"
+                    id="id-1.14.5.11.12.6.1.2"
                     class="indexterm"></a>
 					</div></li></ul></div><div
             class="para">
@@ -381,7 +383,7 @@ DirectoryIndex index.php index.html index.htm
 				The <code
                 class="filename">.htaccess</code> file contains Apache configuration directives enforced each time a request concerns an element of the directory where it is stored. The scope of these directives also recurses to all the subdirectories within.
 			</div><a
-              id="idm140106195765776"
+              id="id-1.14.5.11.14.3"
               class="indexterm"></a><div
               class="para">
 				Most of the directives that can occur in a <code
@@ -395,19 +397,19 @@ DirectoryIndex index.php index.html index.htm
               class="literal">ExecCGI</code>, so that the administrator chooses which users are allowed to run programs under the web server's identity (the <code
               class="literal">www-data</code> user).
 			</div><a
-            id="idm140106195760688"
+            id="id-1.14.5.11.16"
             class="indexterm"></a><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="idm140106195759408"></a>11.2.3.1. Requiring Authentication</h4></div></div></div><a
-              id="idm140106195758640"
+                      id="id-1.14.5.11.17"></a>11.2.3.1. Requiring Authentication</h4></div></div></div><a
+              id="id-1.14.5.11.17.2"
               class="indexterm"></a><div
               class="para">
 					In some circumstances, access to part of a website needs to be restricted, so only legitimate users who provide a username and a password are granted access to the contents.
 				</div><div
               class="example"><a
-                id="idm140106195757024"></a><p
+                id="id-1.14.5.11.17.4"></a><p
                 class="title"><strong>Örnek 11.19. <code
                     class="filename">.htaccess</code> file requiring authentication</strong></p><div
                 class="example-contents"><pre
@@ -430,7 +432,7 @@ AuthUserFile /etc/apache2/authfiles/htpasswd-private
 					The <code
                 class="filename">/etc/apache2/authfiles/htpasswd-private</code> file contains a list of users and passwords; it is commonly manipulated with the <code
                 class="command">htpasswd</code> command. For example, the following command is used to add a user or change their password: <a
-                id="idm140106195750912"
+                id="id-1.14.5.11.17.6.3"
                 class="indexterm"></a>
 				</div><pre
               class="screen">
@@ -447,18 +449,18 @@ Adding password for user <em
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="idm140106195747376"></a>11.2.3.2. Restricting Access</h4></div></div></div><a
-              id="idm140106195746576"
+                      id="id-1.14.5.11.18"></a>11.2.3.2. Restricting Access</h4></div></div></div><a
+              id="id-1.14.5.11.18.2"
               class="indexterm"></a><div
               class="para">
 					The <code
                 class="literal">Require</code> directive controls access restrictions for a directory (and its subdirectories, recursively).
 				</div><a
-              id="idm140106195744576"
+              id="id-1.14.5.11.18.4"
               class="indexterm"></a><a
-              id="idm140106195743616"
+              id="id-1.14.5.11.18.5"
               class="indexterm"></a><a
-              id="idm140106195742656"
+              id="id-1.14.5.11.18.6"
               class="indexterm"></a><div
               class="para">
 					It can be used to restrict access based on many criteria; we will stop at describing access restriction based on the IP address of the client, but it can be made much more powerful than that, especially when several <code
@@ -466,7 +468,7 @@ Adding password for user <em
                 class="literal">RequireAll</code> block.
 				</div><div
               class="example"><a
-                id="idm140106195739760"></a><p
+                id="id-1.14.5.11.18.8"></a><p
                 class="title"><strong>Örnek 11.20. Only allow from the local network</strong></p><div
                 class="example-contents"><pre
                   class="programlisting">Require ip 192.168.0.0/16
@@ -487,11 +489,11 @@ Adding password for user <em
                   class="literal">Allow from</code> and <code
                   class="literal">Deny from</code> directives control access restrictions for a directory (and its subdirectories, recursively).
 				</div><a
-                id="idm140106195732560"
+                id="id-1.14.5.11.18.9.4"
                 class="indexterm"></a><a
-                id="idm140106195731280"
+                id="id-1.14.5.11.18.9.5"
                 class="indexterm"></a><a
-                id="idm140106195730000"
+                id="id-1.14.5.11.18.9.6"
                 class="indexterm"></a><div
                 class="para">
 					The <code
@@ -514,19 +516,18 @@ Adding password for user <em
                   class="literal">192.168.0</code>), a hostname or a domain name, or the <code
                   class="literal">all</code> keyword, designating everyone.
 				</div><div
-                class="example"><a
-                  id="idm140106195720656"></a><p
-                  class="title"><strong>Örnek 11.21. Reject by default but allow from the local network</strong></p><div
-                  class="example-contents"><pre
-                    class="programlisting">
+                class="para">
+					For instance, to reject connections by default but allow them from the local network, you could use this:
+				</div><pre
+                class="programlisting">
 Order deny,allow
 Allow from 192.168.0.0/16
 Deny from all
-</pre></div></div></div></div></div><div
+</pre></div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="idm140106195718720"></a>11.2.4. Log Analyzers</h3></div></div></div><div
+                    id="id-1.14.5.12"></a>11.2.4. Log Analyzers</h3></div></div></div><div
             class="para">
 				A log analyzer is frequently installed on a web server; since the former provides the administrators with a precise idea of the usage patterns of the latter.
 			</div><div
@@ -535,13 +536,13 @@ Deny from all
               class="emphasis"><em>AWStats</em></span> (<span
               class="emphasis"><em>Advanced Web Statistics</em></span>) to analyze their Apache log files.
 			</div><a
-            id="idm140106195715920"
+            id="id-1.14.5.12.4"
             class="indexterm"></a><a
-            id="idm140106195714800"
+            id="id-1.14.5.12.5"
             class="indexterm"></a><a
-            id="idm140106195713840"
+            id="id-1.14.5.12.6"
             class="indexterm"></a><a
-            id="idm140106195712400"
+            id="id-1.14.5.12.7"
             class="indexterm"></a><div
             class="para">
 				The first configuration step is the customization of the <code
@@ -580,8 +581,8 @@ LoadPlugin="tooltips"
               class="filename">/etc/awstats/awstats.www.falcot.org.conf</code>.
 			</div><div
             class="example"><a
-              id="idm140106195702048"></a><p
-              class="title"><strong>Örnek 11.22. AWStats configuration file for a virtual host</strong></p><div
+              id="id-1.14.5.12.14"></a><p
+              class="title"><strong>Örnek 11.21. AWStats configuration file for a virtual host</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
 Include "/etc/awstats/awstats.conf"
@@ -614,20 +615,23 @@ Alias /awstats-icon/ /usr/share/awstats/icon/
                 class="filename">/usr/share/awstats/tools/update.sh</code> in <code
                 class="filename">/etc/logrotate.d/httpd-prerotate</code>:
 			</div><pre
-              class="screen">
-$ <strong
-                class="userinput"><code>cat /etc/logrotate.d/apache2</code></strong>
-/var/log/apache2/*.log {
-  weekly
+              class="screen"><code
+                class="computeroutput">$ </code><strong
+                class="userinput"><code>cat /etc/logrotate.d/apache2
+</code></strong><code
+                class="computeroutput">/var/log/apache2/*.log {
+  daily
   missingok
-  rotate 52
+  rotate 14
   compress
   delaycompress
   notifempty
   create 644 root adm
   sharedscripts
   postrotate
-    /etc/init.d/apache2 reload &gt; /dev/null
+    if /etc/init.d/apache2 status &gt; /dev/null ; then \
+      /etc/init.d/apache2 reload &gt; /dev/null; \
+    fi;
   endscript
   prerotate
     if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
@@ -635,11 +639,13 @@ $ <strong
     fi; \
   endscript
 }
-$ <strong
-                class="userinput"><code>sudo mkdir -p /etc/logrotate.d/httpd-prerotate</code></strong>
-$ <strong
+$ </code><strong
+                class="userinput"><code>sudo mkdir -p /etc/logrotate.d/httpd-prerotate
+</code></strong><code
+                class="computeroutput">$ </code><strong
                 class="userinput"><code>sudo ln -sf /usr/share/awstats/tools/update.sh \
-  /etc/logrotate.d/httpd-prerotate/awstats</code></strong></pre><div
+  /etc/logrotate.d/httpd-prerotate/awstats
+</code></strong></pre><div
               class="para">
 				Note also that the log files created by <code
                 class="command">logrotate</code> need to be readable by everyone, especially AWStats. In the above example, this is ensured by the <code
@@ -672,9 +678,12 @@ $ <strong
               href="../id-ID/sect.http-web-server.html">id-ID</a></li><li><a
               href="../it-IT/sect.http-web-server.html">it-IT</a></li><li><a
               href="../ja-JP/sect.http-web-server.html">ja-JP</a></li><li><a
+              href="../ko-KR/sect.http-web-server.html">ko-KR</a></li><li><a
+              href="../nb-NO/sect.http-web-server.html">nb-NO</a></li><li><a
               href="../pl-PL/sect.http-web-server.html">pl-PL</a></li><li><a
               href="../pt-BR/sect.http-web-server.html">pt-BR</a></li><li><a
               href="../ro-RO/sect.http-web-server.html">ro-RO</a></li><li><a
               href="../ru-RU/sect.http-web-server.html">ru-RU</a></li><li><a
               href="../tr-TR/sect.http-web-server.html">tr-TR</a></li><li><a
-              href="../zh-CN/sect.http-web-server.html">zh-CN</a></li></ul></div></body></html>
+              href="../zh-CN/sect.http-web-server.html">zh-CN</a></li><li><a
+              href="../zh-TW/sect.http-web-server.html">zh-TW</a></li></ul></div></body></html>

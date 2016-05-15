@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"><head><meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8" /><title
+        xmlns:d="http://docbook.org/ns/docbook">14.4. Introducción a AppArmor</title><link
+        rel="stylesheet"
+        type="text/css"
+        href="Common_Content/css/default.css" /><link
+        rel="stylesheet"
+        media="print"
+        href="Common_Content/css/print.css"
+        type="text/css" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="generator"
+        content="publican v4.3.2" /><meta
+        xmlns:d="http://docbook.org/ns/docbook"
+        name="package"
+        content="Debian-debian-handbook-8-es-ES-1.0-1" /><meta
+        name="keywords"
+        content="Firewall, Netfilter, IDS/NIDS" /><link
+        rel="home"
+        href="index.html"
+        title="El manual del Administrador de Debian" /><link
+        rel="up"
+        href="security.html"
+        title="Capítulo 14. Seguridad" /><link
+        rel="prev"
+        href="sect.supervision.html"
+        title="14.3. Supervisión: prevención, detección, disuasión" /><link
+        rel="next"
+        href="sect.selinux.html"
+        title="14.5. Introducción a SELinux" /><meta
+        name="viewport"
+        content="width=device-width, initial-scale=1" /><link
+        rel="canonical"
+        href="http://l.github.io/debian-handbook/html/es-ES/sect.apparmor.html" /></head><body><noscript><iframe
+          src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe></noscript><script
+        type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H35QX');</script><div
+        id="banner"><a
+          href="../../"><span
+            class="text">Download the ebook</span></a></div><p
+        id="title"><a
+          class="left"
+          href="http://www.debian.org"><img
+            alt="Product Site"
+            src="Common_Content/images//image_left.png" /></a><a
+          class="right"
+          href="index.html"><img
+            alt="Documentation Site"
+            src="Common_Content/images//image_right.png" /></a></p><ul
+        class="docnav top"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>Anterior</strong></a></li><li
+          class="home">El manual del Administrador de Debian</li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.selinux.html"><strong>Siguiente</strong></a></li></ul><div
+        class="section"><div
+          class="titlepage"><div><div><h2
+                class="title"><a
+                  id="sect.apparmor"></a>14.4. Introducción a AppArmor</h2></div></div></div><a
+          id="id-1.17.7.2"
+          class="indexterm"></a><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.apparmor-principles"></a>14.4.1. Principios</h3></div></div></div><div
+            class="para">
+				Apparmor es un sistema de <span
+              class="emphasis"><em>control obligatorio de acceso</em></span> («Mandatory Access Control» o «MAC») basado en la interfaz LSM (<span
+              class="emphasis"><em>módulos de seguridad de Linux</em></span>: «Linux Security Modules»). En la práctica, el núcleo pregunta a AppArmor antes de cada llamada al sistema del sistema para saber si un proceso está autorizado a realizar dicha operación. A través de este mecanismo, Apparmor confina un programa a un conjunto limitado de recursos.
+			</div><a
+            id="id-1.17.7.3.3"
+            class="indexterm"></a><a
+            id="id-1.17.7.3.4"
+            class="indexterm"></a><div
+            class="para">
+				AppArmor aplica un conjunto de reglas (un «perfil») a cada programa. El perfil aplicado por el núcleo depende de la ruta de instalación del programa a ejecutar. Al contrario que en SELinux (descrito en <a
+              class="xref"
+              href="sect.selinux.html">Sección 14.5, “Introducción a SELinux”</a>), las reglas que se aplican no dependen del usuario: a todos los usuarios se les aplica el mismo juego de reglas cuando ejecutan el mismo programa (aunque en cualquer caso siguen teniéndose en cuenta los permisos de usuario tradicionales, lo que puede resultar en un comportamiento distinto).
+			</div><div
+            class="para">
+				Los perfiles de AppArmor se guardan en <code
+              class="filename">/etc/apparmor.d/</code> y contienen una lista de reglas de control de acceso sobre los recursos que puede utilizar cada programa. Los perfiles se compilan y son cargados por el núcleo por la orden <code
+              class="command">apparmor_parser</code>. Cada perfil se puede cargar bien en modo estrícto (<span
+              class="foreignphrase"><em
+                class="foreignphrase">enforcing</em></span>) o bien en modo relajado (<span
+              class="foreignphrase"><em
+                class="foreignphrase">complaining</em></span>). El modo estricto aplica las reglas y registra las tentativas de violación, mientras que en el modo relajado sólo se registran las llamadas al sistema que hubieran sido bloqueadas, pero no se bloquean realmente.
+			</div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.apparmor-setup"></a>14.4.2. Activar AppArmour y gestionar los perfiles</h3></div></div></div><div
+            class="para">
+				El soporte de AppArmor está ya integrado en los núcleos estándar proporcionados por Debian. Para activar AppArmor basta con instalar algunos paquetes adicionales y establecer algún parámetro en la línea de órdenes del núcleo:
+			</div><pre
+            class="screen"><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>apt install apparmor apparmor-profiles apparmor-utils
+</code></strong><code
+              class="computeroutput">[...]
+# </code><strong
+              class="userinput"><code>perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor",' /etc/default/grub
+</code></strong><code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>update-grub
+</code></strong></pre><div
+            class="para">
+				Después de un reinicio AppArmor estará operativo, lo cual se puede confirmar mediante <code
+              class="command">aa-status</code>:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aa-status</code></strong>
+<code
+              class="computeroutput">apparmor module is loaded.
+44 profiles are loaded.
+9 profiles are in enforce mode.
+   /usr/bin/lxc-start
+   /usr/lib/chromium-browser/chromium-browser//browser_java
+[...]
+35 profiles are in complain mode.
+   /sbin/klogd
+[...]
+3 processes have profiles defined.
+1 processes are in enforce mode.
+   /usr/sbin/libvirtd (1295) 
+2 processes are in complain mode.
+   /usr/sbin/avahi-daemon (941) 
+   /usr/sbin/avahi-daemon (1000) 
+0 processes are unconfined but have a profile defined.</code></pre><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>NOTA</em></span> Otros perfiles de AppArmor</strong></p></div></div></div><div
+              class="para">
+				El paquete <span
+                class="pkg pkg">apparmor-profiles</span> contiene pefiles desarrollados por la comunidad de origen de AppArmor. Para obtener más pefiles es posible instalar <span
+                class="pkg pkg">apparmor-profiles-extra</span>, que contiene perfiles adicionales desarrollados por Ubuntu y Debian.
+			</div></div><div
+            class="para">
+				El estado de cada perfil se puede cambair entre los modos estricto y relajado mediante las órdenes <code
+              class="command">aa-enforce</code> y <code
+              class="command">aa-complain</code>, pasándoles como parámetro bien la ruta del ejecutable o la ruta del archivo de perfil. De igual manera se puede desactivar completamente un perfil mediante <code
+              class="command">aa-disable</code>, o establecerlo en el modo de auditoría (de forma que registre incluso las llamadas del sistema aceptadas) mediante <code
+              class="command">aa-audit</code>.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aa-enforce /usr/sbin/avahi-daemon</code></strong>
+<code
+              class="computeroutput">Setting /usr/sbin/avahi-daemon to enforce mode.</code>
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aa-complain /etc/apparmor.d/usr.bin.lxc-start</code></strong>
+<code
+              class="computeroutput">Setting /etc/apparmor.d/usr.bin.lxc-start to complain mode.</code>
+</pre></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.apparmor-new-profile"></a>14.4.3. Creación de un nuevo perfil</h3></div></div></div><div
+            class="para">
+				A pesar de que crear un perfil AppArmor es bastante sencillo, la mayoría de los programas no disponen de uno. Esta sección muestra cómo crear un nuevo perfil desde cero, símplemente utilizando el programa deseado y dejando que AppArmor monitorice las llamadas al sistema que realiza y los recursos a los que accede.
+			</div><div
+            class="para">
+				Los programas que deben ser confinados de forma prioritaria son aquellos expuestos a la red, puesto que estos serán los blancos más probables para atacantes remotos. Precisamente por eso AppArmor proporciona la orden <code
+              class="command">aa-unconfined</code>, que lista los programas que exponen al menos un zócalo de red (NT: ¿mejor puerto de red?) sin tener ningún perfil asociado. Con la opción <code
+              class="literal">--paranoid</code> se obtienen todos los procesos que tienen activa al menos una conexión de red y no están confinados.
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aa-unconfined</code></strong>
+<code
+              class="computeroutput">801 /sbin/dhclient not confined
+890 /sbin/rpcbind not confined
+899 /sbin/rpc.statd not confined
+929 /usr/sbin/sshd not confined
+941 /usr/sbin/avahi-daemon confined by '/usr/sbin/avahi-daemon (complain)'
+988 /usr/sbin/minissdpd not confined
+1276 /usr/sbin/exim4 not confined
+1485 /usr/lib/erlang/erts-6.2/bin/epmd not confined
+1751 /usr/lib/erlang/erts-6.2/bin/beam.smp not confined
+19592 /usr/lib/dleyna-renderer/dleyna-renderer-service not confined</code>
+</pre><div
+            class="para">
+				El el ejemplo siguiente vamos a intentar crear un perfil para <code
+              class="command">/sbin/dhclient</code>. Para ello utilzamos la orden <code
+              class="command">aa-genprof dhclient</code>, que nos invita a utilizar la aplicación (en otra ventana) y a volver a <code
+              class="command">aa-genprof</code> una vez que hayamos terminado, para escrutar los registros en busca de eventos AppArmor y convertir estos registros en reglas de control de acceso. Para cada evento registrado se proponen una o varias sugerencias de reglas y será posible aprobarlas o modificarlas de distintas formas:
+			</div><pre
+            class="screen">
+<code
+              class="computeroutput"># </code><strong
+              class="userinput"><code>aa-genprof dhclient</code></strong>
+<code
+              class="computeroutput">Writing updated profile for /sbin/dhclient.
+Setting /sbin/dhclient to complain mode.
+
+Before you begin, you may wish to check if a
+profile already exists for the application you
+wish to confine. See the following wiki page for
+more information:
+http://wiki.apparmor.net/index.php/Profiles
+
+Please start the application to be profiled in
+another window and exercise its functionality now.
+
+Once completed, select the "Scan" option below in 
+order to scan the system logs for AppArmor events. 
+
+For each AppArmor event, you will be given the 
+opportunity to choose whether the access should be 
+allowed or denied.
+
+Profiling: /sbin/dhclient
+
+[(S)can system log for AppArmor events] / (F)inish
+Reading log entries from /var/log/audit/audit.log.
+
+Profile:  /sbin/dhclient <span
+                id="aa-genprof-execute"><img
+                  class="callout"
+                  src="Common_Content/images/1.png"
+                  alt="1" /></span>
+Execute:  /usr/lib/NetworkManager/nm-dhcp-helper
+Severity: unknown
+
+(I)nherit / (C)hild / (P)rofile / (N)amed / (U)nconfined / (X) ix On / (D)eny / Abo(r)t / (F)inish
+<strong
+                class="userinput"><code>P</code></strong>
+Should AppArmor sanitise the environment when
+switching profiles?
+
+Sanitising environment is more secure,
+but some applications depend on the presence
+of LD_PRELOAD or LD_LIBRARY_PATH.
+
+(Y)es / [(N)o]
+<strong
+                class="userinput"><code>Y</code></strong>
+Writing updated profile for /usr/lib/NetworkManager/nm-dhcp-helper.
+Complain-mode changes:
+WARN: unknown capability: CAP_net_raw
+
+Profile:    /sbin/dhclient <span
+                id="aa-genprof-capability"><img
+                  class="callout"
+                  src="Common_Content/images/2.png"
+                  alt="2" /></span>
+Capability: net_raw
+Severity:   unknown
+
+[(A)llow] / (D)eny / (I)gnore / Audi(t) / Abo(r)t / (F)inish
+<strong
+                class="userinput"><code>A</code></strong>
+Adding capability net_raw to profile.
+
+Profile:  /sbin/dhclient <span
+                id="aa-genprof-read"><img
+                  class="callout"
+                  src="Common_Content/images/3.png"
+                  alt="3" /></span>
+Path:     /etc/nsswitch.conf
+Mode:     r
+Severity: unknown
+
+  1 - #include &lt;abstractions/apache2-common&gt; 
+  2 - #include &lt;abstractions/libvirt-qemu&gt; 
+  3 - #include &lt;abstractions/nameservice&gt; 
+  4 - #include &lt;abstractions/totem&gt; 
+ [5 - /etc/nsswitch.conf]
+[(A)llow] / (D)eny / (I)gnore / (G)lob / Glob with (E)xtension / (N)ew / Abo(r)t / (F)inish / (M)ore
+<strong
+                class="userinput"><code>3</code></strong>
+
+Profile:  /sbin/dhclient
+Path:     /etc/nsswitch.conf
+Mode:     r
+Severity: unknown
+
+  1 - #include &lt;abstractions/apache2-common&gt; 
+  2 - #include &lt;abstractions/libvirt-qemu&gt; 
+ [3 - #include &lt;abstractions/nameservice&gt;]
+  4 - #include &lt;abstractions/totem&gt; 
+  5 - /etc/nsswitch.conf 
+[(A)llow] / (D)eny / (I)gnore / (G)lob / Glob with (E)xtension / (N)ew / Abo(r)t / (F)inish / (M)ore
+<strong
+                class="userinput"><code>A</code></strong>
+Adding #include &lt;abstractions/nameservice&gt; to profile.
+
+Profile:  /sbin/dhclient
+Path:     /proc/7252/net/dev
+Mode:     r
+Severity: 6
+
+  1 - /proc/7252/net/dev 
+ [2 - /proc/*/net/dev]
+[(A)llow] / (D)eny / (I)gnore / (G)lob / Glob with (E)xtension / (N)ew / Abo(r)t / (F)inish / (M)ore
+<strong
+                class="userinput"><code>A</code></strong>
+Adding /proc/*/net/dev r to profile
+
+[...]
+Profile:  /sbin/dhclient <span
+                id="aa-genprof-write"><img
+                  class="callout"
+                  src="Common_Content/images/4.png"
+                  alt="4" /></span>
+Path:     /run/dhclient-eth0.pid
+Mode:     w
+Severity: unknown
+
+ [1 - /run/dhclient-eth0.pid]
+[(A)llow] / (D)eny / (I)gnore / (G)lob / Glob with (E)xtension / (N)ew / Abo(r)t / (F)inish / (M)ore
+<strong
+                class="userinput"><code>N</code></strong>
+
+Enter new path: /run/dhclient*.pid
+
+Profile:  /sbin/dhclient
+Path:     /run/dhclient-eth0.pid
+Mode:     w
+Severity: unknown
+
+  1 - /run/dhclient-eth0.pid 
+ [2 - /run/dhclient*.pid]
+[(A)llow] / (D)eny / (I)gnore / (G)lob / Glob with (E)xtension / (N)ew / Abo(r)t / (F)inish / (M)ore
+<strong
+                class="userinput"><code>A</code></strong>
+Adding /run/dhclient*.pid w to profile
+
+[...]
+Profile:  /usr/lib/NetworkManager/nm-dhcp-helper <span
+                id="aa-genprof-other-profile"><img
+                  class="callout"
+                  src="Common_Content/images/5.png"
+                  alt="5" /></span>
+Path:     /proc/filesystems
+Mode:     r
+Severity: 6
+
+ [1 - /proc/filesystems]
+[(A)llow] / (D)eny / (I)gnore / (G)lob / Glob with (E)xtension / (N)ew / Abo(r)t / (F)inish / (M)ore
+<strong
+                class="userinput"><code>A</code></strong>
+Adding /proc/filesystems r to profile
+
+= Changed Local Profiles =
+
+The following local profiles were changed. Would you like to save them?
+
+ [1 - /sbin/dhclient]
+  2 - /usr/lib/NetworkManager/nm-dhcp-helper 
+(S)ave Changes / Save Selec(t)ed Profile / [(V)iew Changes] / View Changes b/w (C)lean profiles / Abo(r)t
+<strong
+                class="userinput"><code>S</code></strong>
+Writing updated profile for /sbin/dhclient.
+Writing updated profile for /usr/lib/NetworkManager/nm-dhcp-helper.
+
+Profiling: /sbin/dhclient
+
+[(S)can system log for AppArmor events] / (F)inish
+<strong
+                class="userinput"><code>F</code></strong>
+Setting /sbin/dhclient to enforce mode.
+Setting /usr/lib/NetworkManager/nm-dhcp-helper to enforce mode.
+
+Reloaded AppArmor profiles in enforce mode.
+
+Please consider contributing your new profile!
+See the following wiki page for more information:
+http://wiki.apparmor.net/index.php/Profiles
+
+Finished generating profile for /sbin/dhclient.</code></pre><div
+            class="para">
+				Tenga en cuenta que el programa no muestra los caracteres de control que Vd. teclea; los hemos incluido en la transcripción anterior para aclarar las elecciones realizadas en cada paso.
+			</div><div
+            class="calloutlist"><table
+              border="0"
+              summary="Callout list"><tr><td
+                  width="5%"
+                  valign="top"
+                  align="left"><p><a
+                      href="#aa-genprof-execute"><img
+                        class="callout"
+                        src="Common_Content/images/1.png"
+                        alt="1" /></a> </p></td><td
+                  valign="top"
+                  align="left"><div
+                    class="para">
+						El primer evento detectado es la ejecución de otro programa. En este caso se ofrecen varias opciones: se puede lanzar el programa con el perfil del programa padre (<span
+                      class="foreignphrase"><em
+                        class="foreignphrase">Inherit</em></span>), con un perfil dedicado (<span
+                      class="foreignphrase"><em
+                        class="foreignphrase">Profile</em></span> o <span
+                      class="foreignphrase"><em
+                        class="foreignphrase">Name</em></span>, que sólo se diferencian por la posibilidad de elegir un nombre de perfil arbitrario), con un sub-perfil del proceso padre (<span
+                      class="foreignphrase"><em
+                        class="foreignphrase">Child</em></span>), o bien se puede lanzar sin nigún perfil (<span
+                      class="foreignphrase"><em
+                        class="foreignphrase">Unconfined</em></span>). También se puede impedir que el programa se ejecute (<span
+                      class="foreignphrase"><em
+                        class="foreignphrase">Deny</em></span>).
+					</div><div
+                    class="para">
+						Cuando se elije lanzar el proceso hijo con un perfil de dedicado que no exista aún, la herramienta creará el perfil que falta y propondrá sugerencias de reglas en la misma sesión de trabajo.
+					</div></td></tr><tr><td
+                  width="5%"
+                  valign="top"
+                  align="left"><p><a
+                      href="#aa-genprof-capability"><img
+                        class="callout"
+                        src="Common_Content/images/2.png"
+                        alt="2" /></a> </p></td><td
+                  valign="top"
+                  align="left"><div
+                    class="para">
+						A nivel del núcelo, los permisos especiales del usuario root se han separado en "capacidades" («capabilities»). Cuando una llamada del sistema requiere una capacidad específica, AppArmor verifica que el perfil permite al programa utilizar esta capacidad.
+					</div></td></tr><tr><td
+                  width="5%"
+                  valign="top"
+                  align="left"><p><a
+                      href="#aa-genprof-read"><img
+                        class="callout"
+                        src="Common_Content/images/3.png"
+                        alt="3" /></a> </p></td><td
+                  valign="top"
+                  align="left"><div
+                    class="para">
+						Aquí el programa requiere el permiso de lectura sobre el archivo <code
+                      class="filename">/etc/nsswitch.conf</code>. <code
+                      class="command">aa-genprof</code> ha detectado que este permiso ya se había concedido por varias «abstracciones» y las ofrece como alternativas posibles. Una abstracción proporciona un conjunto reutilizable de reglas de control de acceso, agrupando reglas que duelen utilizarse conjuntamente. En este caso específico el archivo se utiliza normalmente por las funciones relativas a la resolución de nombres de la biblioteca estándar C, y por lo tanto elegimos la opcion «3» para incluir la opción «#include &lt;abstractions/nameservice&gt; » y después «A» para autorizarlo.
+					</div></td></tr><tr><td
+                  width="5%"
+                  valign="top"
+                  align="left"><p><a
+                      href="#aa-genprof-write"><img
+                        class="callout"
+                        src="Common_Content/images/4.png"
+                        alt="4" /></a> </p></td><td
+                  valign="top"
+                  align="left"><div
+                    class="para">
+						El programa intenta crear el archivo <code
+                      class="filename">/run/dhclient-eth0.pid</code>. Si autorizamos únicamente la creación de este archivo, el programa no funcionará si el usuario intenta utilizarlo en otra interfaz de red. Por lo tanto habrá que selecionar «New» para reemplazar el nombre del archivo por un nombre más genérico, « /run/dhclient*.pid », antes de guardar la regla con «Allow».
+					</div></td></tr><tr><td
+                  width="5%"
+                  valign="top"
+                  align="left"><p><a
+                      href="#aa-genprof-other-profile"><img
+                        class="callout"
+                        src="Common_Content/images/5.png"
+                        alt="5" /></a> </p></td><td
+                  valign="top"
+                  align="left"><div
+                    class="para">
+						Hay que tener en cuenta que este intento de acceso no forma parte del perfil dhclient, sino del nuevo perfil que hemos creado cuando hemos autorizado a <code
+                      class="filename">/usr/lib/NetworkManager/nm-dhcp-helper</code> para que funcione bajo el suyo propio.
+					</div><div
+                    class="para">
+						Después de examinar todos los eventos registrados, el programa propone guardar todos los perfiles que se han creado durante la ejecución. En este caso tenemos dos perfiles que guardamos simultáneamente mediante «Save» antes de cerrar el programa con «Finish» (pero podríamos igualmente haberlos guardados individualmente).
+					</div></td></tr></table></div><div
+            class="para">
+				<code
+              class="command">aa-genprof</code> no es sino un pequeño script inteligente que utiliza <code
+              class="command">aa-logprof</code>: crea un perfil vacío, lo carga en modo relajado y después ejecuta <code
+              class="command">aa-logprof</code>. Esta última es una utilidad que actualiza un perfil en función de las violaciones que han sido registradas. Por lo tanto se puede volver a ejecutar esta herramienta para mejorar el perfil que se ha creado.
+			</div><div
+            class="para">
+				Si se quiere que el perfil generado sea completo, se debería utilizar el programa de todas las formas legítimas posibles. En el caso de dhcliente esto significa ejecutarlo a través de Network Manager, pero también mediante ifupdown, a mano, etc. Finalmente se obtendrá un <code
+              class="filename">/etc/apparmor.d/sbin.dhclient</code> parecido al siguiente:
+			</div><pre
+            class="programlisting">
+# Last Modified: Tue Sep  8 21:40:02 2015
+#include &lt;tunables/global&gt;
+
+/sbin/dhclient {
+  #include &lt;abstractions/base&gt;
+  #include &lt;abstractions/nameservice&gt;
+
+  capability net_bind_service,
+  capability net_raw,
+
+  /bin/dash r,
+  /etc/dhcp/* r,
+  /etc/dhcp/dhclient-enter-hooks.d/* r,
+  /etc/dhcp/dhclient-exit-hooks.d/* r,
+  /etc/resolv.conf.* w,
+  /etc/samba/dhcp.conf.* w,
+  /proc/*/net/dev r,
+  /proc/filesystems r,
+  /run/dhclient*.pid w,
+  /sbin/dhclient mr,
+  /sbin/dhclient-script rCx,
+  /usr/lib/NetworkManager/nm-dhcp-helper Px,
+  /var/lib/NetworkManager/* r,
+  /var/lib/NetworkManager/*.lease rw,
+  /var/lib/dhcp/*.leases rw,
+
+  profile /sbin/dhclient-script flags=(complain) {
+    #include &lt;abstractions/base&gt;
+    #include &lt;abstractions/bash&gt;
+
+    /bin/dash rix,
+    /etc/dhcp/dhclient-enter-hooks.d/* r,
+    /etc/dhcp/dhclient-exit-hooks.d/* r,
+    /sbin/dhclient-script r,
+
+  }
+}
+</pre></div></div><ul
+        class="docnav"><li
+          class="previous"><a
+            accesskey="p"
+            href="sect.supervision.html"><strong>Anterior</strong>14.3. Supervisión: prevención, detección, disuasi...</a></li><li
+          class="up"><a
+            accesskey="u"
+            href="#"><strong>Subir</strong></a></li><li
+          class="home"><a
+            accesskey="h"
+            href="index.html"><strong>Inicio</strong></a></li><li
+          class="next"><a
+            accesskey="n"
+            href="sect.selinux.html"><strong>Siguiente</strong>14.5. Introducción a SELinux</a></li></ul><div
+        id="translated_pages"><ul><li><a
+              href="../ar-MA/sect.apparmor.html">ar-MA</a></li><li><a
+              href="../da-DK/sect.apparmor.html">da-DK</a></li><li><a
+              href="../de-DE/sect.apparmor.html">de-DE</a></li><li><a
+              href="../el-GR/sect.apparmor.html">el-GR</a></li><li><a
+              href="../en-US/sect.apparmor.html">en-US</a></li><li><a
+              href="../es-ES/sect.apparmor.html">es-ES</a></li><li><a
+              href="../fa-IR/sect.apparmor.html">fa-IR</a></li><li><a
+              href="../fr-FR/sect.apparmor.html">fr-FR</a></li><li><a
+              href="../hr-HR/sect.apparmor.html">hr-HR</a></li><li><a
+              href="../id-ID/sect.apparmor.html">id-ID</a></li><li><a
+              href="../it-IT/sect.apparmor.html">it-IT</a></li><li><a
+              href="../ja-JP/sect.apparmor.html">ja-JP</a></li><li><a
+              href="../ko-KR/sect.apparmor.html">ko-KR</a></li><li><a
+              href="../nb-NO/sect.apparmor.html">nb-NO</a></li><li><a
+              href="../pl-PL/sect.apparmor.html">pl-PL</a></li><li><a
+              href="../pt-BR/sect.apparmor.html">pt-BR</a></li><li><a
+              href="../ro-RO/sect.apparmor.html">ro-RO</a></li><li><a
+              href="../ru-RU/sect.apparmor.html">ru-RU</a></li><li><a
+              href="../tr-TR/sect.apparmor.html">tr-TR</a></li><li><a
+              href="../zh-CN/sect.apparmor.html">zh-CN</a></li><li><a
+              href="../zh-TW/sect.apparmor.html">zh-TW</a></li></ul></div></body></html>

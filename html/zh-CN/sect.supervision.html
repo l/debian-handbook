@@ -14,7 +14,7 @@
         type="text/css" /><meta
         xmlns:d="http://docbook.org/ns/docbook"
         name="generator"
-        content="publican v4.3.1" /><meta
+        content="publican v4.3.2" /><meta
         xmlns:d="http://docbook.org/ns/docbook"
         name="package"
         content="Debian-debian-handbook-8-zh-CN-1.0-1" /><meta
@@ -30,11 +30,12 @@
         href="sect.firewall-packet-filtering.html"
         title="14.2. 防火墙或者包过滤" /><link
         rel="next"
-        href="sect.selinux.html"
-        title="14.4. SELinux 简介" /><link
+        href="sect.apparmor.html"
+        title="14.4. Introduction to AppArmor" /><meta
+        name="viewport"
+        content="width=device-width, initial-scale=1" /><link
         rel="canonical"
-        href="http://l.github.io/debian-handbook/html/zh-CN/sect.supervision.html" /></head><body
-      class="draft "><noscript><iframe
+        href="http://l.github.io/debian-handbook/html/zh-CN/sect.supervision.html" /></head><body><noscript><iframe
           src="//www.googletagmanager.com/ns.html?id=GTM-5H35QX"
           height="0"
           width="0"
@@ -45,7 +46,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-5H35QX');</script><div
         id="banner"><a
-          href="http://debian-handbook.info/get/"><span
+          href="../../"><span
             class="text">Download the ebook</span></a></div><p
         id="title"><a
           class="left"
@@ -53,7 +54,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             alt="Product Site"
             src="Common_Content/images//image_left.png" /></a><a
           class="right"
-          href="http://debian-handbook.info"><img
+          href="index.html"><img
             alt="Documentation Site"
             src="Common_Content/images//image_right.png" /></a></p><ul
         class="docnav top"><li
@@ -63,39 +64,37 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           class="home">Debian 管理员手册</li><li
           class="next"><a
             accesskey="n"
-            href="sect.selinux.html"><strong>下一页</strong></a></li></ul><div
+            href="sect.apparmor.html"><strong>下一页</strong></a></li></ul><div
         class="section"><div
           class="titlepage"><div><div><h2
                 class="title"><a
                   id="sect.supervision"></a>14.3. 监督：预防，检测，威慑</h2></div></div></div><a
-          id="idm140476744358976"
-          class="indexterm"></a><a
-          id="idm140476744358016"
+          id="id-1.17.6.2"
           class="indexterm"></a><div
           class="para">
-			Monitoring is an integral part of any security policy for several reasons. Among them, that the goal of security is usually not restricted to guaranteeing data confidentiality, but it also includes ensuring availability of the services. It is therefore imperative to check that everything works as expected, and to detect in a timely manner any deviant behavior or change in quality of the service(s) rendered. Monitoring activity can help detecting intrusion attempts and enable a swift reaction before they cause grave consequences. This section reviews some tools that can be used to monitor several aspects of a Debian system. As such, it completes the section dedicated to generic system monitoring in <a
+			Monitoring is an integral part of any security policy for several reasons. Among them, that the goal of security is usually not restricted to guaranteeing data confidentiality, but it also includes ensuring availability of the services. It is therefore imperative to check that everything works as expected, and to detect in a timely manner any deviant behavior or change in quality of the service(s) rendered. Monitoring activity can help detecting intrusion attempts and enable a swift reaction before they cause grave consequences. This section reviews some tools that can be used to monitor several aspects of a Debian system. As such, it completes <a
             class="xref"
-            href="advanced-administration.html">第 12 章 <em>Advanced Administration</em></a>.
+            href="sect.monitoring.html">第 12.4 节 “Monitoring”</a>.
 		</div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
                     id="sect.logcheck"></a>14.3.1. 使用 <code
                     class="command">logcheck</code> 监视日志</h3></div></div></div><a
-            id="idm140476744353840"
+            id="id-1.17.6.4.2"
             class="indexterm"></a><a
-            id="idm140476744352720"
+            id="id-1.17.6.4.3"
             class="indexterm"></a><a
-            id="idm140476744351280"
+            id="id-1.17.6.4.4"
             class="indexterm"></a><div
             class="para">
 				<code
               class="command">logcheck</code> 程序默认每小时监视日志文件。它会把异常日志信息通过邮件发给管理员分析。
 			</div><div
             class="para">
-				要监视的文件清单存储在 <code
-              class="filename">/etc/logcheck/logcheck.logfiles</code>；如果 <code
-              class="filename">/etc/syslog.conf</code> 文件没有被彻底修改，使用默认值就能很好工作。
+				The list of monitored files is stored in <code
+              class="filename">/etc/logcheck/logcheck.logfiles</code>; the default values work fine if the <code
+              class="filename">/etc/rsyslog.conf</code> file has not been completely overhauled.
 			</div><div
             class="para">
 				<code
@@ -154,31 +153,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="para">
 				系统事件总是会被发送，除非在 <code
               class="filename">/etc/logcheck/ignore.d.{paranoid,server,workstation}/</code> 目录中的规则指明某些事件要被忽略。当然，只有相应详细等级等于或大于所选择模式的目录会起作用。
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>提示</em></span> 如同屏幕背景的日志</strong></p></div></div></div><div
-              class="para">
-				有些管理员喜欢实时滚动的看到日志信息；<code
-                class="command">root-tail</code> 命令（在 <span
-                class="pkg pkg">root-tail</span> 中）软件包可以将日志集成到图形桌面的背景。<code
-                class="command">xconsole</code> 程序（在 <span
-                class="emphasis"><em>x11-apps</em></span> 软件包中）也能让它们在小窗口中滚动。信息通过 <code
-                class="command">syslogd</code> 直接来源于 <code
-                class="filename">/dev/xconsole</code> 命名管道。
-			</div><a
-              id="idm140476744326128"
-              class="indexterm"></a><a
-              id="idm140476744325008"
-              class="indexterm"></a></div></div><div
+			</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
                     id="sect.monitoring-activity"></a>14.3.2. 监视行为</h3></div></div></div><a
-            id="idm140476744322288"
+            id="id-1.17.6.5.2"
             class="indexterm"></a><a
-            id="idm140476744320848"
+            id="id-1.17.6.5.3"
             class="indexterm"></a><div
             class="section"><div
               class="titlepage"><div><div><h4
@@ -195,7 +177,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="keycap"><strong>r</strong></span> 键可以 <span
                 class="emphasis"><em>renicing</em></span> 进程，例如改变优先级。
 				</div><a
-              id="idm140476744314672"
+              id="id-1.17.6.5.4.3"
               class="indexterm"></a><div
               class="para">
 					当系统过载时，<code
@@ -206,25 +188,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="command">top</code> 是一个很灵活的工具，手册页中详列了如何定制显示并让其适于个人需求和习惯。
 				</div><div
               class="para">
-					<code
-                class="command">gnome-system-monitor</code> 和 <code
-                class="command">qps</code> 图形工具和 <code
-                class="command">top</code> 类似，并提供大体上相同的特性。
+					The <code
+                class="command">gnome-system-monitor</code> graphical tool is similar to <code
+                class="command">top</code> and it provides roughly the same features.
 				</div><a
-              id="idm140476744309344"
+              id="id-1.17.6.5.4.7"
               class="indexterm"></a></div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
                       id="sect.monitoring-history"></a>14.3.2.2. 历史</h4></div></div></div><a
-              id="idm140476744307008"
+              id="id-1.17.6.5.5.2"
               class="indexterm"></a><div
               class="para">
 					处理器负载，网络流量和空闲磁盘空间是一直在变化的信息。记录它们的演变常常可以用来确定电脑是如何使用的。
 				</div><a
-              id="idm140476744305424"
+              id="id-1.17.6.5.5.4"
               class="indexterm"></a><a
-              id="idm140476744304464"
+              id="id-1.17.6.5.5.5"
               class="indexterm"></a><div
               class="para">
 					有很多专门工具可用于此类任务。很多可以通过 SNMP（<span
@@ -244,7 +225,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                       class="title"><strong><span
                           class="emphasis"><em>选择</em></span> <code
                           class="command">mrtg</code></strong></p></div></div></div><a
-                id="idm140476744298160"
+                id="id-1.17.6.5.5.8.2"
                 class="indexterm"></a><div
                 class="para">
 					<code
@@ -258,16 +239,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="idm140476744293552"></a>14.3.3. 侦测变化</h3></div></div></div><div
+                    id="id-1.17.6.6"></a>14.3.3. 侦测变化</h3></div></div></div><div
             class="para">
 				系统一旦安装和配置，除非安全更新，通常没有理由改变大部分文件和目录，数据除外。因此，要注意确保文件没有改变：任何非预期的变化都值得探究。本节介绍几个可以在非预期变化发生时监视文件并警告管理员（或者只列出变化）的工具。
 			</div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.debsums"></a>14.3.3.1. 审核软件包：<code
-                      class="command">debsums</code> 及其限制</h4></div></div></div><a
-              id="idm140476744290416"
+                      id="sect.dpkg-verify"></a>14.3.3.1. Auditing Packages with <code
+                      class="command">dpkg --verify</code></h4></div></div></div><a
+              id="id-1.17.6.6.3.2"
               class="indexterm"></a><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
@@ -275,53 +256,69 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                           class="emphasis"><em>进阶</em></span> 防止上游变化</strong></p></div></div></div><div
                 class="para">
 					<code
-                  class="command">debsums</code> 可以用来侦测源于 Debian 软件包的变化，但是如果软件包本身有问题，它就不起作用了，例如 Debian 被攻破。可以使用 APT 数字签名验证系统防止此类攻击（参考 <a
+                  class="command">dpkg --verify</code> is useful in detecting changes to files coming from a Debian package, but it will be useless if the package itself is compromised, for instance if the Debian mirror is compromised. Protecting against this class of attacks involves using APT's digital signature verification system (see <a
                   class="xref"
-                  href="sect.package-authentication.html">第 6.5 节 “Checking Package Authenticity”</a>），并只从已认证的源安装软件包。
+                  href="sect.package-authentication.html">第 6.5 节 “Checking Package Authenticity”</a>), and taking care to only install packages from a certified origin.
 				</div></div><div
               class="para">
 					<code
-                class="command">debsums</code> 是一个很有趣的工具，它能找出哪些安装文件被（潜在攻击者）修改了，但是应该有所保留。首先，并非所有的 Debian 软件包都提供了该程序需要的指纹信息（可以在 <code
+                class="command">dpkg --verify</code> (or <code
+                class="command">dpkg -V</code>) is an interesting tool since it allows finding what installed files have been modified (potentially by an attacker), but this should be taken with a grain of salt. To do its job it relies on checksums stored in dpkg's own database which is stored on the hard disk (they can be found in <code
                 class="filename">/var/lib/dpkg/info/<em
-                  class="replaceable">package</em>.md5sums</code> 文件中找到，如果该文件存在）。<a
-                id="idm140476744284480"
-                class="indexterm"></a> <a
-                id="idm140476744283840"
-                class="indexterm"></a> <a
-                id="idm140476744283200"
-                class="indexterm"></a> <a
-                id="idm140476744282560"
-                class="indexterm"></a> 提示：指纹是一个数值，通常是数字（甚至是十六进制），包含文件内容的签名。该签名使用某种算法（众所周知的是 MD5 或 SHA1）在某种程度上能确保文件内容微小的变化也能反映在指纹上；称为“雪崩效应”。这样就可以将数字指纹作为试金石来检测文件的内容是否被改变。这些算法是不可逆的；换句话说，它们中的大多数，知道指纹并不能得出相应的内容。近期的数学研究似乎削弱了这些原则的绝对性，但是到目前为止，还不能称之为问题，因为创建指纹相同而内容不同的文件是一个相当艰巨的任务。
+                  class="replaceable">package</em>.md5sums</code>); a thorough attacker will therefore update these files so they contain the new checksums for the subverted files.
 				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>BACK TO BASICS</em></span> File fingerprint</strong></p></div></div></div><a
+                id="id-1.17.6.6.3.5.2"
+                class="indexterm"></a><a
+                id="id-1.17.6.6.3.5.3"
+                class="indexterm"></a><a
+                id="id-1.17.6.6.3.5.4"
+                class="indexterm"></a><a
+                id="id-1.17.6.6.3.5.5"
+                class="indexterm"></a><div
+                class="para">
+					As a reminder: a fingerprint is a value, often a number (even though in hexadecimal notation), that contains a kind of signature for the contents of a file. This signature is calculated with an algorithm (MD5 or SHA1 being well-known examples) that more or less guarantee that even the tiniest change in the file contents implies a change in the fingerprint; this is known as the “avalanche effect”. This allows a simple numerical fingerprint to serve as a litmus test to check whether the contents of a file have been altered. These algorithms are not reversible; in other words, for most of them, knowing a fingerprint doesn't allow finding the corresponding contents. Recent mathematical advances seem to weaken the absoluteness of these principles, but their use is not called into question so far, since creating different contents yielding the same fingerprint still seems to be quite a difficult task.
+				</div></div><div
               class="para">
-					另外，<code
-                class="filename">md5sums</code> 文件存储在硬盘上；攻击者会更新这些文件以包含被篡改文件的检核和。
-				</div><div
-              class="para">
-					第一个缺点可以通过设定 <code
-                class="command">debsums</code> 基于 <code
-                class="filename">.deb</code> 软件包检测，而非依赖 <code
-                class="filename">md5sums</code> 文件。但是，这样首先需要下载相应的 <code
-                class="filename">.deb</code>：
+					Running <code
+                class="command">dpkg -V</code> will verify all installed packages and will print out a line for each file with a failing test. The output format is the same as the one of <code
+                class="command">rpm -V</code> where each character denotes a test on some specific meta-data. Unfortunately <code
+                class="command">dpkg</code> does not store the meta-data needed for most tests and will thus output question marks for them. Currently only the checksum test can yield a "5" on the third character (when it fails).
 				</div><pre
               class="screen">
 <code
                 class="computeroutput"># </code><strong
-                class="userinput"><code>apt-get --reinstall -d install `debsums -l`</code></strong>
+                class="userinput"><code>dpkg -V</code></strong>
 <code
-                class="computeroutput">[ ... ]
-# </code><strong
-                class="userinput"><code>debsums -p /var/cache/apt/archives -g</code></strong>
-</pre><div
+                class="computeroutput">??5??????   /lib/systemd/system/ssh.service
+??5?????? c /etc/libvirt/qemu/networks/default.xml
+??5?????? c /etc/lvm/lvm.conf
+??5?????? c /etc/salt/roster</code></pre><div
               class="para">
-					同样值得注意的是，在默认配置中，如果使用 APT 安装软件包，<code
-                class="command">debsums</code> 将自动产生缺失的 <code
-                class="filename">md5sums</code> 文件。
+					In the sample above, dpkg reports a change to SSH's service file that the administrator made to the packaged file instead of using an appropriate <code
+                class="filename">/etc/systemd/system/ssh.service</code> override (which would be stored below <code
+                class="filename">/etc</code> like any configuration change should be). It also lists multiple configuration files (identified by the "c" letter on the second field) that had been legitimately modified.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="sect.debsums"></a>14.3.3.2. 审核软件包：<code
+                      class="command">debsums</code> 及其限制</h4></div></div></div><a
+              id="id-1.17.6.6.4.2"
+              class="indexterm"></a><div
+              class="para">
+					<code
+                class="command">debsums</code> is the ancestor of <code
+                class="command">dpkg -V</code> and is thus mostly obsolete. It suffers from the same limitations than dpkg. Fortunately, some of the limitations can be worked-around (whereas dpkg does not offer similar work-arounds).
 				</div><div
               class="para">
-					其他问题可以通过类似方法避免：检查必须基于素 <code
-                class="filename">.deb</code> 文件。这意味着所有已安装的软件包都要有 <code
-                class="filename">.deb</code> 文件，并确保它们的完整性，最简单的方法就是从 Debian 镜像抓取。这一过程是缓慢而冗长的，因此不应作为定期使用的主动技术。
+					Since the data on the disk cannot be trusted, <code
+                class="command">debsums</code> offers to do its checks based on <code
+                class="filename">.deb</code> files instead of relying on dpkg's database. To download trusted <code
+                class="filename">.deb</code> files of all the packages installed, we can rely on APT's authenticated downloads. This operation can be slow and tedious, and should therefore not be considered a proactive technique to be used on a regular basis.
 				</div><pre
               class="screen">
 <code
@@ -330,8 +327,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 <code
                 class="computeroutput">[ ... ]
 # </code><strong
-                class="userinput"><code>debsums -p /var/cache/apt/archives --generate=all</code></strong>
-</pre><div
+                class="userinput"><code>debsums -p /var/cache/apt/archives --generate=all</code></strong></pre><div
               class="para">
 					注意本例使用 <span
                 class="pkg pkg">dctrl-tools</span> 软件包中的 <code
@@ -340,8 +336,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="idm140476744269184"></a>14.3.3.2. 监视文件：AIDE</h4></div></div></div><a
-              id="idm140476744268384"
+                      id="id-1.17.6.6.5"></a>14.3.3.3. 监视文件：AIDE</h4></div></div></div><a
+              id="id-1.17.6.6.5.2"
               class="indexterm"></a><div
               class="para">
 					AIDE（<span
@@ -382,16 +378,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                   class="pkg pkg">tripwire</span> 所提供的额外特性是签名配置文件机制，这样攻击者就不能将其指向不同版本的参考数据库。
 				</div><div
                 class="para">
-					Samhain 也提供了类似特性，还有一些能探测恶意软件的功能（参考侧边栏）。它也能在网络上全局部署，并（使用签名）记录中心服务器上的痕迹。
+					Samhain also offers similar features, as well as some functions to help detecting rootkits (see the sidebar <a
+                  class="xref"
+                  href="sect.supervision.html#sidebar.the-checksecurity-and-chkrootkit-rkhunter-packages"><span
+                    class="emphasis"><em>速览</em></span> <span
+                    class="pkg pkg">checksecurity</span> 和 <span
+                    class="pkg pkg">chkrootkit</span>/<span
+                    class="pkg pkg">rkhunter</span> 软件包</a>). It can also be deployed globally on a network, and record its traces on a central server (with a signature).
 				</div></div><div
-              class="sidebar"><div
+              class="sidebar"><a
+                id="sidebar.the-checksecurity-and-chkrootkit-rkhunter-packages"></a><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>速览</em></span> <span
                           class="pkg pkg">checksecurity</span> 和 <span
                           class="pkg pkg">chkrootkit</span>/<span
                           class="pkg pkg">rkhunter</span> 软件包</strong></p></div></div></div><a
-                id="idm140476746353152"
+                id="id-1.17.6.6.5.8.2"
                 class="indexterm"></a><div
                 class="para">
 					三个软件包中，第一个包含了几个小脚本进行系统上的基础检查（空白口令，新的设置身份文件，等等）并警告管理员。尽管其名为“安全检查”，但是管理员不应该仅仅指望它来确保 Linux 系统安全。
@@ -406,46 +409,81 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="titlepage"><div><div><h3
                   class="title"><a
                     id="sect.intrusion-detection"></a>14.3.4. 侦测入侵（IDS/NIDS）</h3></div></div></div><a
-            id="idm140476746347264"
+            id="id-1.17.6.7.2"
             class="indexterm"></a><a
-            id="idm140476746346304"
+            id="id-1.17.6.7.3"
             class="indexterm"></a><a
-            id="idm140476746345344"
+            id="id-1.17.6.7.4"
             class="indexterm"></a><a
-            id="idm140476746344384"
+            id="id-1.17.6.7.5"
             class="indexterm"></a><a
-            id="idm140476746343424"
+            id="id-1.17.6.7.6"
             class="indexterm"></a><a
-            id="idm140476746342464"
+            id="id-1.17.6.7.7"
             class="indexterm"></a><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
                         class="emphasis"><em>回到基础</em></span> 拒绝服务</strong></p></div></div></div><a
-              id="idm140476746339904"
+              id="id-1.17.6.7.8.2"
               class="indexterm"></a><div
               class="para">
 				“拒绝服务”攻击只有一个目的：让服务不可用。不管是通过查询使服务器过载还是利用缺陷，最终目的都是一样的：服务不再运行。正常用户就会不悦，提供网络服务的实体声誉遭受损失（可能是营收，譬如，使用服务的是一个电子商务网站）。
 			</div><div
               class="para">
-				这种攻击有时候是“分布式的”；通常是通过来自许多不同源头的巨量查询使服务器过载，从而不能对合法查询做出应答。此类攻击有众所周知的缩写： <acronym
-                class="acronym">DoS</acronym> 和 <acronym
-                class="acronym">DDoS</acronym>（取决于拒绝服务攻击是否是分布式的）。
+				Such an attack is sometimes “distributed”; this usually involves overloading the server with large numbers of queries coming from many different sources so that the server becomes unable to answer the legitimate queries. These types of attacks have gained well-known acronyms: <acronym
+                class="acronym">DDoS</acronym> and <acronym
+                class="acronym">DoS</acronym> (depending on whether the denial of service attack is distributed or not).
 			</div></div><div
             class="para">
 				<code
-              class="command">snort</code>（在 Debian 的同名软件包中）属于 NIDS －<span
-              class="emphasis"><em>网络入侵侦测系统（Network Intrusion Detection System）</em></span>。它的功能是监听网络并侦测渗透尝试和敌意行为（包括拒绝服务攻击）。所有这些事件都会被记录，并且每天会给管理员发送过去２４小时的摘要。
+              class="command">suricata</code> (in the Debian package of the same name) is a NIDS — a <span
+              class="emphasis"><em>Network Intrusion Detection System</em></span>. Its function is to listen to the network and try to detect infiltration attempts and/or hostile acts (including denial of service attacks). All these events are logged in multiple files in <code
+              class="filename">/var/log/suricata</code>. There are third party tools (Kibana/logstash) to better browse all the data collected. <div
+              class="url">→ <a
+                href="http://suricata-ids.org">http://suricata-ids.org</a></div> <div
+              class="url">→ <a
+                href="https://www.elastic.co/products/kibana">https://www.elastic.co/products/kibana</a></div>
 			</div><a
-            id="idm140476746334816"
+            id="id-1.17.6.7.10"
+            class="indexterm"></a><a
+            id="id-1.17.6.7.11"
             class="indexterm"></a><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>注意</em></span> 行动范围</strong></p></div></div></div><div
+              class="para">
+				The effectiveness of <code
+                class="command">suricata</code> is limited by the traffic seen on the monitored network interface. It will obviously not be able to detect anything if it cannot observe the real traffic. When plugged into a network switch, it will therefore only monitor attacks targeting the machine it runs on, which is probably not the intention. The machine hosting <code
+                class="command">suricata</code> should therefore be plugged into the “mirror” port of the switch, which is usually dedicated to chaining switches and therefore gets all the traffic.
+			</div></div><div
             class="para">
-				其配置需要指明本地网络所覆盖的网络地址。实际上，这意味着所有潜在的攻击目标。其他重要参数可以使用 <code
-              class="command">dpkg-reconfigure snort</code> 配置，包括要监视的网络接口。对以太网连接来说，通常是 <code
-              class="literal">eth0</code>，但是也可能是其他的，例如：对于 ADSL 或 PSTN（<span
-              class="emphasis"><em>Public Switched Telephone Network</em></span>，或者旧式拨号调制解调器） 是 <code
-              class="literal">ppp0</code>，对于某些无线网卡是 <code
-              class="literal">wlan0</code>。
+				Configuring suricata involves reviewing and editing <code
+              class="filename">/etc/suricata/suricata-debian.yaml</code>, which is very long because each parameter is abundantly commented. A minimal configuration requires describing the range of addresses that the local network covers (<code
+              class="literal">HOME_NET</code> parameter). In practice, this means the set of all potential attack targets. But getting the most of it requires reading it in full and adapting it to the local situation.
+			</div><div
+            class="para">
+				On top of this, you should also edit <code
+              class="filename">/etc/default/suricata</code> to define the network interface to monitor and to enable the init script (by setting <code
+              class="literal">RUN=yes</code>). You might also want to set <code
+              class="literal">LISTENMODE=pcap</code> because the default <code
+              class="literal">LISTENMODE=nfqueue</code> requires further configuration to work properly (the netfilter firewall must be configured to pass packets to some user-space queue handled by suricata via the <code
+              class="literal">NFQUEUE</code> target).
+			</div><div
+            class="para">
+				To detect bad behaviour, <code
+              class="command">suricata</code> needs a set of monitoring rules: you can find such rules in the <span
+              class="pkg pkg">snort-rules-default</span> package. <code
+              class="command">snort</code> is the historical reference in the IDS ecosystem and <code
+              class="command">suricata</code> is able to reuse rules written for it. Unfortunately that package is missing from <span
+              class="distribution distribution">Debian Jessie</span> and should be retrieved from another Debian release like <span
+              class="distribution distribution">Testing</span> or <span
+              class="distribution distribution">Unstable</span>.
+			</div><div
+            class="para">
+				Alternatively, <code
+              class="command">oinkmaster</code> (in the package of the same name) can be used to download Snort rulesets from external sources.
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
@@ -459,7 +497,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="emphasis"><em>传感器（sensors）</em></span> 产生的警报信息。
 			</div><div
               class="para">
-				Snort can be configured as such a sensor. Other possibilities include <span
+				Suricata can be configured as such a sensor. Other possibilities include <span
                 class="emphasis"><em>prelude-lml</em></span> (<span
                 class="emphasis"><em>Log Monitor Lackey</em></span>) which monitors log files (in a manner similar to <code
                 class="command">logcheck</code>, described in <a
@@ -467,27 +505,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 href="sect.supervision.html#sect.logcheck">第 14.3.1 节 “使用 <code
                   class="command">logcheck</code> 监视日志”</a>).
 			</div><a
-              id="idm140476746324864"
-              class="indexterm"></a></div><div
-            class="para">
-				<code
-              class="command">snort</code> 配置文件（<code
-              class="filename">/etc/snort/snort.conf</code>）很长，大量的注释从细节上描述每个指令。了解其大部分内容需要通读并结合具体情况。譬如，指明哪个机器上有哪种服务可以限制 <code
-              class="command">snort</code> 报告的数量，因为在桌面系统上的拒绝服务攻击远不及在 DNS 服务器上的严重。另一个有趣的指令是存储 IP 地址和 MAC 地址（它可以唯一的识别网卡）之间的映射关系，以便于侦测 <span
-              class="emphasis"><em>ARP 欺骗</em></span> 攻击，其中被操纵的机器试图伪装成另一个机器（例如一个关键服务器）。
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>注意</em></span> 行动范围</strong></p></div></div></div><div
-              class="para">
-				<code
-                class="command">snort</code> 的有效性受到所监视网络界面能看到通信量的限制。如果他不能观察到实时的通信量，显然它就不能侦测到任何东西。当插入到网络交换器，它就只能监控以它正在运行的机器为目标的攻击，这很可能不是预期。因此，运行 <code
-                class="command">snort</code> 的机器应当插入交换机的“镜像”端口，该端口通常用于链接交换机并可以得到所有的通信数据。
-			</div><div
-              class="para">
-				在基于集线器为基础的小型网络上，不存在此类问题，因为所有的机器都能获取全部通信数据。
-			</div></div></div></div><ul
+              id="id-1.17.6.7.17.4"
+              class="indexterm"></a></div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"
@@ -500,7 +519,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             href="index.html"><strong>起始页</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.selinux.html"><strong>下一页</strong>14.4. SELinux 简介</a></li></ul><div
+            href="sect.apparmor.html"><strong>下一页</strong>14.4. Introduction to AppArmor</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/sect.supervision.html">ar-MA</a></li><li><a
               href="../da-DK/sect.supervision.html">da-DK</a></li><li><a
@@ -514,9 +533,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               href="../id-ID/sect.supervision.html">id-ID</a></li><li><a
               href="../it-IT/sect.supervision.html">it-IT</a></li><li><a
               href="../ja-JP/sect.supervision.html">ja-JP</a></li><li><a
+              href="../ko-KR/sect.supervision.html">ko-KR</a></li><li><a
+              href="../nb-NO/sect.supervision.html">nb-NO</a></li><li><a
               href="../pl-PL/sect.supervision.html">pl-PL</a></li><li><a
               href="../pt-BR/sect.supervision.html">pt-BR</a></li><li><a
               href="../ro-RO/sect.supervision.html">ro-RO</a></li><li><a
               href="../ru-RU/sect.supervision.html">ru-RU</a></li><li><a
               href="../tr-TR/sect.supervision.html">tr-TR</a></li><li><a
-              href="../zh-CN/sect.supervision.html">zh-CN</a></li></ul></div></body></html>
+              href="../zh-CN/sect.supervision.html">zh-CN</a></li><li><a
+              href="../zh-TW/sect.supervision.html">zh-TW</a></li></ul></div></body></html>
