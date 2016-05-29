@@ -290,6 +290,14 @@ actual page. By default the page is centered as required in this mode.
     </l:context>
   </l:l10n>
 
+  <l:l10n language="pt-BR">
+    <l:gentext key="minitoc" text="Conteúdo"/>
+    <l:gentext key="keywordset" text="Palavras chave"/>
+    <l:context name="xref">
+      <l:template name="sidebar" text="“%t”"/>
+    </l:context>
+  </l:l10n>
+
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../../brand/xsl/l10n-ja-JP.xml"/>
 
 </l:i18n>
