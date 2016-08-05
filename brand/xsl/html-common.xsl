@@ -4,6 +4,7 @@
                 version='1.0'>
 
 <xsl:param name="ignore.image.scaling">1</xsl:param>
+<xsl:param name="generate.consistent.ids" select="1"></xsl:param>
 
 <!-- Add support for <ulink type="block" … /> -->
 <xsl:template match="ulink">
