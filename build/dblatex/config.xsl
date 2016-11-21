@@ -294,7 +294,14 @@ actual page. By default the page is centered as required in this mode.
     <l:gentext key="minitoc" text="Conteúdo"/>
     <l:gentext key="keywordset" text="Palavras chave"/>
     <l:context name="xref">
+      <l:template name="page.citation" text=" página %p"/>
       <l:template name="sidebar" text="“%t”"/>
+    </l:context>
+    <l:context name="xref-number-and-title">
+      <!-- Don't start with capital letters -->
+      <l:template name="chapter" text=" capítulo %n, “%t”"/>
+      <l:template name="section" text=" seção %n, “%t”"/>
+      <l:template name="appendix" text=" apêndice %n, “%t”"/>
     </l:context>
   </l:l10n>
 
