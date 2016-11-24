@@ -28,10 +28,10 @@
         title="章 9. Unix 服務" /><link
         rel="prev"
         href="sect.quotas.html"
-        title="9.9. Quotas" /><link
+        title="9.9. 配額" /><link
         rel="next"
         href="sect.hotplug.html"
-        title="9.11. Hot Plugging: hotplug" /><meta
+        title="9.11. 熱插拔：hotplug" /><meta
         name="viewport"
         content="width=device-width, initial-scale=1" /><link
         rel="canonical"
@@ -70,18 +70,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="title"><a
                   id="sect.backup"></a>9.10. 備份</h2></div></div></div><div
           class="para">
-			Making backups is one of the main responsibilities of any administrator, but it is a complex subject, involving powerful tools which are often difficult to master.
+			備份是管理員的主要責任之一，它是個複雜的主題，涉及難以掌握的強大工具。
 		</div><a
           id="id-1.12.13.3"
           class="indexterm"></a><a
           id="id-1.12.13.4"
           class="indexterm"></a><div
           class="para">
-			Many programs exist, such as <code
-            class="command">amanda</code>, <code
-            class="command">bacula</code>, <code
-            class="command">BackupPC</code>. Those are client/server system featuring many options, whose configuration is rather difficult. Some of them provide user-friendly web interfaces to mitigate this. But Debian contains dozens of other backup software covering all possible use cases, as you can easily confirm with <code
-            class="command">apt-cache search backup</code>.
+			很多程式係供備份之用，如 <code
+            class="command">amanda</code>、<code
+            class="command">bacula</code>、<code
+            class="command">BackupPC</code>。主從架構程式有很多選項，其組態相當困難。部份有親和力強的網頁介面減輕其負擔。但 Debian 還有十多種備份軟體可用，以 <code
+            class="command">apt-cache search backup</code> 命令可搜尋它們。
 		</div><a
           id="id-1.12.13.6"
           class="indexterm"></a><a
@@ -90,47 +90,47 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           id="id-1.12.13.8"
           class="indexterm"></a><div
           class="para">
-			Rather than detailing some of them, this section will present the thoughts of the Falcot Corp administrators when they defined their backup strategy.
+			與其逐一介紹它們，本章將經由 Falcot 公司管理者的角度，設定備份的策略。
 		</div><div
           class="para">
-			At Falcot Corp, backups have two goals: recovering erroneously deleted files, and quickly restoring any computer (server or desktop) whose hard drive has failed.
+			Falcot 公司的備份有兩個目標：無誤地復原被刪除的檔案，以及快速地復原硬碟毀損的電腦 (伺服器或桌面)。
 		</div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.13.11"></a>9.10.1. Backing Up with <code
-                    class="command">rsync</code></h3></div></div></div><div
+                    id="id-1.12.13.11"></a>9.10.1. 使用 <code
+                    class="command">rsync</code> 備份</h3></div></div></div><div
             class="para">
-				Backups on tape having been deemed too slow and costly, data will be backed up on hard drives on a dedicated server, on which the use of software RAID (see <a
+				以磁帶備份太慢且太貴，現在採用備份在專屬伺服器的硬碟策略，以 RAID (見 <a
               class="xref"
-              href="advanced-administration.html#sect.raid-soft">節 12.1.1, “軟 RAID”</a>) will protect the data from hard drive failure. Desktop computers are not backed up individually, but users are advised that their personal account on their department's file server will be backed up. The <code
-              class="command">rsync</code> command (from the package of the same name) is used daily to back up these different servers.
+              href="advanced-administration.html#sect.raid-soft">節 12.1.1, “軟 RAID”</a>) 軟體保護資料在硬碟毀損時不致遺失。桌面電腦沒有個別備份的策略，使用者應在部份的檔案伺服器備份其資料。<code
+              class="command">rsync</code> 命令 (取自同名的套件) 用於逐日備份這些伺服器。
 			</div><a
             id="id-1.12.13.11.3"
             class="indexterm"></a><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>BACK TO BASICS</em></span> The hard link, a second name for the file</strong></p></div></div></div><a
+                        class="emphasis"><em>回到基礎</em></span> 硬連結，檔案的第二個名稱</strong></p></div></div></div><a
               id="id-1.12.13.11.4.2"
               class="indexterm"></a><a
               id="id-1.12.13.11.4.3"
               class="indexterm"></a><div
               class="para">
-				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+				相對於符號連結，硬連結不能自外於被連結檔案。新增的硬連結等於給檔案另個名稱。刪除硬連結等於刪除該檔案的另個名稱。祗要還有另個名稱指定給檔案，則資料仍在檔案系統內。不同於複製，硬連結並未在硬碟裡複製另個空間。
 			</div><div
               class="para">
-				A hard link is created with the <code
+				以 <code
                 class="command">ln <em
                   class="replaceable">target</em> <em
-                  class="replaceable">link</em></code> command. The <em
-                class="replaceable">link</em> file is then a new name for the <em
-                class="replaceable">target</em> file. Hard links can only be created on the same filesystem, while symbolic links are not subject to this limitation.
+                  class="replaceable">link</em></code> 命令新增硬連結。<em
+                class="replaceable">link</em> 檔案是 <em
+                class="replaceable">target</em> 檔案的新名稱。硬連結祗能應用於同個檔案系統，符號連結則不受此限。
 			</div></div><div
             class="para">
-				The available hard drive space prohibits implementation of a complete daily backup. As such, the <code
-              class="command">rsync</code> command is preceded by a duplication of the content of the previous backup with hard links, which prevents usage of too much hard drive space. The <code
-              class="command">rsync</code> process then only replaces files that have been modified since the last backup. With this mechanism a great number of backups can be kept in a small amount of space. Since all backups are immediately available and accessible (for example, in different directories of a given share on the network), you can quickly make comparisons between two given dates.
+				受限於可用的硬碟空間，無法執行完整的逐日備份。所以，<code
+              class="command">rsync</code> 命令優先於以硬連結複製內容，避免使用太多的硬碟空間。<code
+              class="command">rsync</code> 祗處理上次備份後，再被修改的檔案。以這個機制可使用較小的空間備份。因為所有的備份已經立即可得與可用 (例如，在同個網路的不同資料夾共享)，可快速地比對兩個指定日期。
 			</div><a
             id="id-1.12.13.11.6"
             class="indexterm"></a><a
@@ -139,20 +139,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             id="id-1.12.13.11.8"
             class="indexterm"></a><div
             class="para">
-				This backup mechanism is easily implemented with the <code
-              class="command">dirvish</code> program. It uses a backup storage space (“bank” in its vocabulary) in which it places timestamped copies of sets of backup files (these sets are called “vaults” in the dirvish documentation).
+				這種備份機制可以輕易地經由 <code
+              class="command">dirvish</code> 程式執行。使用備份的儲存空間 (“空” 的)，放置含時間戳記的備份檔案 (在 dirvish 文件中，這些檔案被稱為 “vaults”)。
 			</div><div
             class="para">
-				The main configuration is in the <code
-              class="filename">/etc/dirvish/master.conf</code> file. It defines the location of the backup storage space, the list of “vaults” to manage, and default values for expiration of the backups. The rest of the configuration is located in the <code
+				主要的組態在 <code
+              class="filename">/etc/dirvish/master.conf</code> 檔案內。設定備份儲存空間的位置，管理 “vaults” 清單，以及備份到期的預設值。其他的組態位在 <code
               class="filename"><em
                 class="replaceable">bank</em>/<em
-                class="replaceable">vault</em>/dirvish/default.conf</code> files and contains the specific configuration for the corresponding set of files.
+                class="replaceable">vault</em>/dirvish/default.conf</code> 檔案內，包括對應檔案集的特殊組態。
 			</div><div
             class="example"><a
               id="example.dirvish-master"></a><p
-              class="title"><strong>範例 9.3. The <code
-                  class="filename">/etc/dirvish/master.conf</code> file</strong></p><div
+              class="title"><strong>範例 9.3. <code
+                  class="filename">/etc/dirvish/master.conf</code> 檔案</strong></p><div
               class="example-contents"><pre
                 class="programlisting">bank:
     /backup
@@ -167,32 +167,31 @@ expire-rule:
 #   MIN HR    DOM MON       DOW  STRFTIME_FMT
     *   *     *   *         1    +3 months
     *   *     1-7 *         1    +1 year
-    *   *     1-7 1,4,7,10  1
-</pre></div></div><div
+    *   *     1-7 1,4,7,10  1</pre></div></div><div
             class="para">
-				The <code
-              class="literal">bank</code> setting indicates the directory in which the backups are stored. The <code
-              class="literal">exclude</code> setting allows you to indicate files (or file types) to exclude from the backup. The <code
-              class="literal">Runall</code> is a list of file sets to backup with a time-stamp for each set, which allows you to assign the correct date to the copy, in case the backup is not triggered at precisely the assigned time. You have to indicate a time just before the actual execution time (which is, by default, 10:04 pm in Debian, according to <code
-              class="filename">/etc/cron.d/dirvish</code>). Finally, the <code
-              class="literal">expire-default</code> and <code
-              class="literal">expire-rule</code> settings define the expiration policy for backups. The above example keeps forever backups that are generated on the first Sunday of each quarter, deletes after one year those from the first Sunday of each month, and after 3 months those from other Sundays. Other daily backups are kept for 15 days. The order of the rules does matter, Dirvish uses the last matching rule, or the <code
-              class="literal">expire-default</code> one if no other <code
-              class="literal">expire-rule</code> matches.
+				<code
+              class="literal">bank</code> 設定儲存備份的資料夾。<code
+              class="literal">exclude</code> 設定不列入備份的檔案 (或檔案類型)。<code
+              class="literal">Runall</code> 是做為備份時間戳記的檔案清單，若未在指定的時間備份時，還可以其指定的時間複製檔案。可以指定在實際執行時間前 (也就是，預設在 10:04 pm，根據 <code
+              class="filename">/etc/cron.d/dirvish</code>)。最後，<code
+              class="literal">expire-default</code> 和 <code
+              class="literal">expire-rule</code> 設定備份失效政策。以上的範例永遠在每季的第一個星期日執行備份，並在一年後的每月第一個星期日刪除它，以及在三個月後的另個星期日刪除它。其他的逐日備份則保留 15 天。執行的順序有關係，Dirvish 使用最後符合的規則，或 <code
+              class="literal">expire-default</code> 若無其他的 <code
+              class="literal">expire-rule</code> 符合。
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>IN PRACTICE</em></span> Scheduled expiration</strong></p></div></div></div><div
+                        class="emphasis"><em>實踐</em></span> 定期失效</strong></p></div></div></div><div
               class="para">
-				The expiration rules are not used by <code
-                class="command">dirvish-expire</code> to do its job. In reality, the expiration rules are applied when creating a new backup copy to define the expiration date associated with that copy. <code
-                class="command">dirvish-expire</code> simply peruses the stored copies and deletes those for which the expiration date has passed.
+				失效規則未被 <code
+                class="command">dirvish-expire</code> 使用。實際上，在新增備份副本時，設定該複本失效的日期。<code
+                class="command">dirvish-expire</code> 細讀儲存的複本並刪除也達失效日期的檔案。
 			</div></div><div
             class="example"><a
               id="example.dirvish-vault"></a><p
-              class="title"><strong>範例 9.4. The <code
-                  class="filename">/backup/root/dirvish/default.conf</code> file</strong></p><div
+              class="title"><strong>範例 9.4. <code
+                  class="filename">/backup/root/dirvish/default.conf</code> 檔案</strong></p><div
               class="example-contents"><pre
                 class="programlisting">client: rivendell.falcot.com
 tree: /
@@ -204,63 +203,62 @@ exclude:
     /var/cache/man/**
     /tmp/**
     /var/tmp/**
-    *.bak
-</pre></div></div><div
+    *.bak</pre></div></div><div
             class="para">
-				The above example specifies the set of files to back up: these are files on the machine <span
-              class="emphasis"><em>rivendell.falcot.com</em></span> (for local data backup, simply specify the name of the local machine as indicated by <code
-              class="command">hostname</code>), especially those in the root tree (<code
-              class="literal">tree: /</code>), except those listed in <code
-              class="literal">exclude</code>. The backup will be limited to the contents of one filesystem (<code
-              class="literal">xdev: 1</code>). It will not include files from other mount points. An index of saved files will be generated (<code
-              class="literal">index: gzip</code>), and the image will be named according to the current date (<code
-              class="literal">image-default: %Y%m%d</code>).
+				以上的例子指定需備份的檔案：在機器 <span
+              class="emphasis"><em>rivendell.falcot.com</em></span> (在地備份時，祗由 <code
+              class="command">hostname</code> 命令指定在地機器的名稱) 內的檔案，尤其是在根目錄之下的檔案 (<code
+              class="literal">tree: /</code>)，除了列在 <code
+              class="literal">exclude</code> 內的檔案。備份將限制在一個檔案系統的內容 (<code
+              class="literal">xdev: 1</code>)。將不包括來自掛載點的檔案。將生成一個儲存檔案索引 (<code
+              class="literal">index: gzip</code>)，以及根據現在日期生成的映像檔 (<code
+              class="literal">image-default: %Y%m%d</code>)。
 			</div><div
             class="para">
-				There are many options available, all documented in the <span
+				還有很多其他的選項，所有的文件都在 <span
               class="citerefentry"><span
-                class="refentrytitle">dirvish.conf</span>(5)</span> manual page. Once these configuration files are setup, you have to initialize each file set with the <code
+                class="refentrytitle">dirvish.conf</span>(5)</span> 手冊頁面。設定這些組態檔案後，可以用 <code
               class="command">dirvish --vault <em
-                class="replaceable">vault</em> --init</code> command. From there on the daily invocation of <code
-              class="command">dirvish-runall</code> will automatically create a new backup copy just after having deleted those that expired.
+                class="replaceable">vault</em> --init</code> 初始化每個檔案設定。每日調用的 <code
+              class="command">dirvish-runall</code> 將在刪除失效檔案後，自動新增備份複本。
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>IN PRACTICE</em></span> Remote backup over SSH</strong></p></div></div></div><div
+                        class="emphasis"><em>實踐</em></span> 以 SSH 遠端備份</strong></p></div></div></div><div
               class="para">
-				When dirvish needs to save data to a remote machine, it will use <code
-                class="command">ssh</code> to connect to it, and will start <code
-                class="command">rsync</code> as a server. This requires the root user to be able to automatically connect to it. The use of an SSH authentication key allows precisely that (see <a
+				把資料儲存在遠端機器時，需用 <code
+                class="command">ssh</code> 命令連結它，並啟用 <code
+                class="command">rsync</code> 做為伺服器。需以超級使者的權限才能自動連結。以 SSH 認證碼精確連結 (見 <a
                 class="xref"
-                href="sect.remote-login.html#sect.ssh-key-based-auth">節 9.2.1.1, “金鑰認證”</a>).
+                href="sect.remote-login.html#sect.ssh-key-based-auth">節 9.2.1.1, “金鑰認證”</a>)。
 			</div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.13.12"></a>9.10.2. Restoring Machines without Backups</h3></div></div></div><div
+                    id="id-1.12.13.12"></a>9.10.2. 供備份恢復系統</h3></div></div></div><div
             class="para">
-				Desktop computers, which are not backed up, will be easy to reinstall from custom DVD-ROMs prepared with <span
-              class="emphasis"><em>Simple-CDD</em></span> (see <a
+				桌面電腦不需要備份，以 <span
+              class="emphasis"><em>Simple-CDD</em></span> (見 <a
               class="xref"
-              href="sect.automated-installation.html#sect.simple-cdd">節 12.3.3, “Simple-CDD: The All-In-One Solution”</a>). Since this performs an installation from scratch, it loses any customization that can have been made after the initial installation. This is fine since the systems are all hooked to a central LDAP directory for accounts and most desktop applications are preconfigured thanks to dconf (see <a
+              href="sect.automated-installation.html#sect.simple-cdd">節 12.3.3, “Simple-CDD: The All-In-One Solution”</a>) 燒錄的 DVD-ROM 就能簡單地重新安裝。回到原始的狀態，舊有的設定全部消失。通常連結至中央的 LDAP 資料夾，大部份桌面的設定存在 dconf (見 <a
               class="xref"
-              href="sect.graphical-desktops.html#sect.gnome-desktop">節 13.3.1, “GNOME”</a> for more information about this).
+              href="sect.graphical-desktops.html#sect.gnome-desktop">節 13.3.1, “GNOME”</a> 的詳細資料)。
 			</div><div
             class="para">
-				The Falcot Corp administrators are aware of the limits in their backup policy. Since they can't protect the backup server as well as a tape in a fireproof safe, they have installed it in a separate room so that a disaster such as a fire in the server room won't destroy backups along with everything else. Furthermore, they do an incremental backup on DVD-ROM once per week — only files that have been modified since the last backup are included.
+				Falcot Corp 的管理者知道該公司備份政策的限制。未以防火牆保護備份伺服器，而是把它放在另個房間，以免在災難來臨時與主伺服器同歸一燼。而且，每週以 DVD-ROM 做增量備份 — 祗備份修改過的檔案。
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>GOING FURTHER</em></span> Backing up SQL and LDAP services</strong></p></div></div></div><div
+                        class="emphasis"><em>進階</em></span> 備份 SQL 和 LDAP 服務</strong></p></div></div></div><div
               class="para">
-				Many services (such as SQL or LDAP databases) cannot be backed up by simply copying their files (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times). As such, it is necessary to use an “export” mechanism to create a “data dump” that can be safely backed up. These are often quite large, but they compress well. To reduce the storage space required, you will only store a complete text file per week, and a <code
-                class="command">diff</code> each day, which is created with a command of the type <code
+				很多服務 (諸如 SQL 或 LDAP 資料庫) 不能以複製檔案的方式備份其系統 (unless they are properly interrupted during creation of the backups, which is frequently problematic, since they are intended to be available at all times)。因此，必須以 “匯出” 機制生成 “倒出資料” 才能安全地備份。量很大，妥善地壓縮。為了減少儲存空間，每週祗儲存完成的文字檔，以及每天的 <code
+                class="command">diff</code>，以 <code
                 class="command">diff <em
                   class="replaceable">file_from_yesterday</em> <em
-                  class="replaceable">file_from_today</em></code>. The <code
-                class="command">xdelta</code> program produces incremental differences from binary dumps.
+                  class="replaceable">file_from_today</em></code> 命令建立。<code
+                class="command">xdelta</code> 程式從二進位倒出增量的不同資料。
 			</div><a
               id="id-1.12.13.12.4.3"
               class="indexterm"></a><a
@@ -271,8 +269,8 @@ exclude:
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>CULTURE</em></span> <span
-                        class="emphasis"><em>TAR</em></span>, the standard for tape backups</strong></p></div></div></div><a
+                        class="emphasis"><em>文化</em></span> <span
+                        class="emphasis"><em>TAR</em></span>，磁帶備份標準</strong></p></div></div></div><a
               id="id-1.12.13.12.5.2"
               class="indexterm"></a><a
               id="id-1.12.13.12.5.3"
@@ -280,14 +278,14 @@ exclude:
               id="id-1.12.13.12.5.4"
               class="indexterm"></a><div
               class="para">
-				Historically, the simplest means of making a backup on Unix was to store a <span
-                class="emphasis"><em>TAR</em></span> archive on a tape. The <code
-                class="command">tar</code> command even got its name from “Tape ARchive”.
+				從歷史上看，最簡單的 Unix 備份是儲存在 <span
+                class="emphasis"><em>TAR</em></span> 檔案的磁帶。<code
+                class="command">tar</code> 命令的意思是 “Tape ARchive”。
 			</div></div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"
-            href="sect.quotas.html"><strong>前一頁</strong>9.9. Quotas</a></li><li
+            href="sect.quotas.html"><strong>前一頁</strong>9.9. 配額</a></li><li
           class="up"><a
             accesskey="u"
             href="#"><strong>上一層</strong></a></li><li
@@ -296,7 +294,7 @@ exclude:
             href="index.html"><strong>起始頁</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.hotplug.html"><strong>下一頁</strong>9.11. Hot Plugging: hotplug</a></li></ul><div
+            href="sect.hotplug.html"><strong>下一頁</strong>9.11. 熱插拔：hotplug</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/sect.backup.html">ar-MA</a></li><li><a
               href="../da-DK/sect.backup.html">da-DK</a></li><li><a

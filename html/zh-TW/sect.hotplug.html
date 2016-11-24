@@ -4,7 +4,7 @@
     xmlns="http://www.w3.org/1999/xhtml"><head><meta
         http-equiv="Content-Type"
         content="text/html; charset=UTF-8" /><title
-        xmlns:d="http://docbook.org/ns/docbook">9.11. Hot Plugging: hotplug</title><link
+        xmlns:d="http://docbook.org/ns/docbook">9.11. 熱插拔：hotplug</title><link
         rel="stylesheet"
         type="text/css"
         href="Common_Content/css/default.css" /><link
@@ -31,7 +31,7 @@
         title="9.10. 備份" /><link
         rel="next"
         href="sect.power-management.html"
-        title="9.12. Power Management: Advanced Configuration and Power Interface (ACPI)" /><meta
+        title="9.12. 電源管理：進階組態與電源介面 (ACPI)" /><meta
         name="viewport"
         content="width=device-width, initial-scale=1" /><link
         rel="canonical"
@@ -68,21 +68,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
         class="section"><div
           class="titlepage"><div><div><h2
                 class="title"><a
-                  id="sect.hotplug"></a>9.11. Hot Plugging: <span
+                  id="sect.hotplug"></a>9.11. 熱插拔：<span
                   class="emphasis"><em>hotplug</em></span></h2></div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.14.2"></a>9.11.1. Introduction</h3></div></div></div><div
+                    id="id-1.12.14.2"></a>9.11.1. 介绍</h3></div></div></div><div
             class="para">
-				The <span
-              class="emphasis"><em>hotplug</em></span> kernel subsystem dynamically handles the addition and removal of devices, by loading the appropriate drivers and by creating the corresponding device files (with the help of <code
-              class="command">udevd</code>). With modern hardware and virtualization, almost everything can be hotplugged: from the usual USB/PCMCIA/IEEE 1394 peripherals to SATA hard drives, but also the CPU and the memory.
+				<span
+              class="emphasis"><em>hotplug</em></span> 次系統核心，以動態方式載入適當的驅動程且 (在 <code
+              class="command">udevd</code> 的協助下)新增對應的設備檔案，處理加入與移除設備的作業。當代的硬體與虛擬化，幾乎每個物件都是熱插拔：從常見的 USB/PCMCIA/IEEE 1394 週邊到 SATA 硬碟，以及 CPU 與記憶體。
 			</div><div
             class="para">
-				The kernel has a database that associates each device ID with the required driver. This database is used during boot to load all the drivers for the peripheral devices detected on the different buses, but also when an additional hotplug device is connected. Once the device is ready for use, a message is sent to <code
-              class="command">udevd</code> so it will be able to create the corresponding entry in <code
-              class="filename">/dev/</code>.
+				核心內的資料庫有每個設備的 ID 及其驅動程式。在啟動階段載入此資料庫，偵測各接口的週邊設備，並在運行中偵測熱插入的設備。接收到插入的設備後，送出訊息給 <code
+              class="command">udevd</code>，讓其新增對應的條目於 <code
+              class="filename">/dev/</code> 內。
 			</div><a
             id="id-1.12.14.2.4"
             class="indexterm"></a><a
@@ -99,237 +99,237 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.14.3"></a>9.11.2. The Naming Problem</h3></div></div></div><div
+                    id="id-1.12.14.3"></a>9.11.2. 命名問題</h3></div></div></div><div
             class="para">
-				Before the appearance of hotplug connections, it was easy to assign a fixed name to a device. It was based simply on the position of the devices on their respective bus. But this is not possible when such devices can come and go on the bus. The typical case is the use of a digital camera and a USB key, both of which appear to the computer as disk drives. The first one connected may be <code
-              class="filename">/dev/sdb</code> and the second <code
-              class="filename">/dev/sdc</code> (with <code
-              class="filename">/dev/sda</code> representing the computer's own hard drive). The device name is not fixed; it depends on the order in which devices are connected.
+				熱插拔技術出現前，很容易為設備指定名稱。根據設備所在的位置命名即可。就是設備所在的接口。但每個接口都能連結設備後，這件事就有點麻煩。以數位相機與 USB 碟為例，對電腦而言，它們都是磁碟機。數位相機可能是 <code
+              class="filename">/dev/sdb</code> 而 USB 碟可能是 <code
+              class="filename">/dev/sdc</code> (<code
+              class="filename">/dev/sda</code> 代表電腦本身的硬式磁碟)。設備名稱不固定；依其連結的順序而命名。
 			</div><div
             class="para">
-				Additionally, more and more drivers use dynamic values for devices' major/minor numbers, which makes it impossible to have static entries for the given devices, since these essential characteristics may vary after a reboot.
+				此外，愈來愈多的驅動程式，以動態值指定設備的主要/次要編號，不可能再把固定款目指定給固定的設備，因為重新開機後，一切都變了。
 			</div><div
             class="para">
 				<span
-              class="emphasis"><em>udev</em></span> was created precisely to solve this problem.
+              class="emphasis"><em>udev</em></span> 用以解決此問題。
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>IN PRACTICE</em></span> Network card management</strong></p></div></div></div><div
+                        class="emphasis"><em>實踐</em></span> 網路卡管理</strong></p></div></div></div><div
               class="para">
-				Many computers have multiple network cards (sometimes two wired interfaces and a wifi interface), and with <span
-                class="emphasis"><em>hotplug</em></span> support on most bus types, the Linux kernel does not guarantee fixed naming of network interfaces. But users who want to configure their network in <code
-                class="filename">/etc/network/interfaces</code> need a fixed name!
+				當代的電腦有多張網路卡 (兩張網路卡加一個 wifi 介面)，以及在多個接口支援 <span
+                class="emphasis"><em>熱插拔</em></span>，Linux 核心不保證給這些網路介面固定的名稱。不過，使用者卻需要在組態 <code
+                class="filename">/etc/network/interfaces</code> 時，需用到固定的名稱！
 			</div><div
               class="para">
-				It would be difficult to ask every user to create their own <span
-                class="emphasis"><em>udev</em></span> rules to address this problem. This is why <span
-                class="emphasis"><em>udev</em></span> was configured in a rather peculiar manner; on first boot (and, more generally, each time that a new network card appears) it uses the name of the network interface and its MAC address to create new rules that will reassign the same name on subsequent boots. These rules are stored in <code
-                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code>.
+				很難要求每個使用者建立自己的 <span
+                class="emphasis"><em>udev</em></span> 規則處理此問題。所以讓 <span
+                class="emphasis"><em>udev</em></span> 以古怪的態度組態以面對它；第一次啟動時 (以及，出現新的網卡時)，以網路介面的名稱及 MAC 位址新增一個規則，在後續啟動時再指定同樣的名稱。此規則儲存在 <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code>。
 			</div><div
               class="para">
-				This mechanism has some side effects that you should know about. Let's consider the case of a computer that has only one PCI network card. The network interface is named <code
-                class="literal">eth0</code>, logically. Now say the card breaks down, and the administrator replaces it; the new card will have a new MAC address. Since the old card was assigned the name, <code
-                class="literal">eth0</code>, the new one will be assigned <code
-                class="literal">eth1</code>, even though the <code
-                class="literal">eth0</code> card is gone for good (and the network will not be functional because <code
-                class="filename">/etc/network/interfaces</code> likely configures an <code
-                class="literal">eth0</code> interface). In this case, it is enough to simply delete the <code
-                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> file before rebooting the computer. The new card will then be given the expected <code
-                class="literal">eth0</code> name.
+				此機制有個副作用值得注意。祗有一個 PCI 網卡的電腦。自然把網路介面命名為 <code
+                class="literal">eth0</code>。然後，網卡壞了，換個新的；新網卡的 MAC 位址當然不同。舊網卡已有名稱，<code
+                class="literal">eth0</code>，新網卡被命名為 <code
+                class="literal">eth1</code>，實際上，<code
+                class="literal">eth0</code> 網卡已經不會再回來了 (且網路不會運作如常，因為 <code
+                class="filename">/etc/network/interfaces</code> 組態一個 <code
+                class="literal">eth0</code> 介面)。在此情況下，重新開機前先刪除 <code
+                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> 檔案。新的網卡就會取得 <code
+                class="literal">eth0</code> 名稱。
 			</div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.14.4"></a>9.11.3. How <span
-                    class="emphasis"><em>udev</em></span> Works</h3></div></div></div><div
+                    id="id-1.12.14.4"></a>9.11.3. <span
+                    class="emphasis"><em>udev</em></span> 的運作</h3></div></div></div><div
             class="para">
-				When <span
-              class="emphasis"><em>udev</em></span> is notified by the kernel of the appearance of a new device, it collects various information on the given device by consulting the corresponding entries in <code
-              class="filename">/sys/</code>, especially those that uniquely identify it (MAC address for a network card, serial number for some USB devices, etc.).
+				當 <span
+              class="emphasis"><em>udev</em></span> 被核心告知有個新的設備，它參考 <code
+              class="filename">/sys/</code> 裡對應的款目，搜集該設備的資訊，尤其是那些足辨別的獨特資訊 (網卡的 MAC 位址、某些 USB 設備的序號)。
 			</div><div
             class="para">
-				Armed with all of this information, <span
-              class="emphasis"><em>udev</em></span> then consults all of the rules contained in <code
-              class="filename">/etc/udev/rules.d/</code> and <code
-              class="filename">/lib/udev/rules.d/</code>. In this process it decides how to name the device, what symbolic links to create (to give it alternative names), and what commands to execute. All of these files are consulted, and the rules are all evaluated sequentially (except when a file uses “GOTO” directives). Thus, there may be several rules that correspond to a given event.
+				有了這些資訊後，<span
+              class="emphasis"><em>udev</em></span> 會查閱 <code
+              class="filename">/etc/udev/rules.d/</code> 和 <code
+              class="filename">/lib/udev/rules.d/</code> 中所有的規則。在此過程中，決定如何為設備命名、使用的連結符號 (給個其他名稱)，以及執行的命令。查詢所有檔案後，依序評估該等規則 (除了使用 “GOTO”指令的文件)。如此一來，一個事件就可能對應多個規則。
 			</div><div
             class="para">
-				The syntax of rules files is quite simple: each row contains selection criteria and variable assignments. The former are used to select events for which there is a need to react, and the latter defines the action to take. They are all simply separated with commas, and the operator implicitly differentiates between a selection criterion (with comparison operators, such as <code
-              class="literal">==</code> or <code
-              class="literal">!=</code>) or an assignment directive (with operators such as <code
-              class="literal">=</code>, <code
-              class="literal">+=</code> or <code
-              class="literal">:=</code>).
+				規則檔案的語法很簡單；每列有選擇規矩與指定變數。前者用於選擇回應的事件，後者設定採取的行動。都以逗點區隔，以運算元區隔選定的範圍 (使用比較運算元，如 <code
+              class="literal">==</code> 或 <code
+              class="literal">!=</code>) 或指定變數 (使用 <code
+              class="literal">=</code>、<code
+              class="literal">+=</code> 或 <code
+              class="literal">:=</code> 運算元)。
 			</div><div
             class="para">
-				Comparison operators are used on the following variables:
+				依下列變數使用比較運算元：
 			</div><div
             xmlns:d="http://docbook.org/ns/docbook"
             class="itemizedlist"><ul><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">KERNEL</code>: the name that the kernel assigns to the device;
+                    class="literal">KERNEL</code>：核心指定給設備的名稱；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">ACTION</code>: the action corresponding to the event (“add” when a device has been added, “remove” when it has been removed);
+                    class="literal">ACTION</code>：對應於事件的行動 (“add” 新增設備時，“remove” 移除設備時)；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">DEVPATH</code>: the path of the device's <code
-                    class="filename">/sys/</code> entry;
+                    class="literal">DEVPATH</code>：設備在 <code
+                    class="filename">/sys/</code> 裡的路徑；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">SUBSYSTEM</code>: the kernel subsystem which generated the request (there are many, but a few examples are “usb”, “ide”, “net”, “firmware”, etc.);
+                    class="literal">SUBSYSTEM</code>：產生請求的核心次系統 (很多這類次系統，包括“usb”、“ide”、“net”、“firmware”等)；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
                     class="literal">ATTR{<em
-                      class="replaceable">attribute</em>}</code>: file contents of the <em
-                    class="replaceable">attribute</em> file in the <code
+                      class="replaceable">屬性</em>}</code>：<em
+                    class="replaceable">屬性</em> 檔案的內容在設備的 <code
                     class="filename">/sys/<em
-                      class="replaceable">$devpath</em>/</code> directory of the device. This is where you find the MAC address and other bus specific identifiers;
+                      class="replaceable">$devpath</em>/</code> 資料夾內。可在此找到 MAC 位址及其他辨識用的匯流排；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">KERNELS</code>, <code
-                    class="literal">SUBSYSTEMS</code> and <code
+                    class="literal">KERNELS</code>、<code
+                    class="literal">SUBSYSTEMS</code> 與 <code
                     class="literal">ATTRS{<em
-                      class="replaceable">attributes</em>}</code> are variations that will try to match the different options on one of the parent devices of the current device;
+                      class="replaceable">屬性</em>}</code> 係用於比較當前設備的選項變數；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">PROGRAM</code>: delegates the test to the indicated program (true if it returns 0, false if not). The content of the program's standard output is stored so that it can be reused by the <code
-                    class="literal">RESULT</code> test;
+                    class="literal">PROGRAM</code>：被測試的程式 (若為真，則送回 0)。程式的內容儲存在標準輸出以便被 <code
+                    class="literal">RESULT</code> 測試使用；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">RESULT</code>: execute tests on the standard output stored during the last call to <code
-                    class="literal">PROGRAM</code>.
+                    class="literal">RESULT</code>：對最後一次呼叫的 <code
+                    class="literal">PROGRAM</code> 產生的標準輸入進行測試。
 					</div></li></ul></div><div
             class="para">
-				The right operands can use pattern expressions to match several values at the same time. For instance, <code
-              class="literal">*</code> matches any string (even an empty one); <code
-              class="literal">?</code> matches any character, and <code
-              class="literal">[]</code> matches the set of characters listed between the square brackets (or the opposite thereof if the first character is an exclamation point, and contiguous ranges of characters are indicated like <code
-              class="literal">a-z</code>).
+				右方的運算元可供模式表達同時匹配的多個值。例如，<code
+              class="literal">*</code> 表示匹配所有的字元 (包括空字元)；<code
+              class="literal">?</code> 表示匹配一個字元，而 <code
+              class="literal">[]</code> 表示匹配一組在方括號內的字元 (或若首字元為驚嘆號則做反義的表巧，以 <code
+              class="literal">a-z</code> 表示連續的字元)。
 			</div><div
             class="para">
-				Regarding the assignment operators, <code
-              class="literal">=</code> assigns a value (and replaces the current value); in the case of a list, it is emptied and contains only the value assigned. <code
-              class="literal">:=</code> does the same, but prevents later changes to the same variable. As for <code
-              class="literal">+=</code>, it adds an item to a list. The following variables can be changed:
+				對於指定的運算元，<code
+              class="literal">=</code> 指定一個值 (並取代現在的值)；用在清單時，清空原來的值祗剩指定的值。<code
+              class="literal">:=</code> 功能相同，且不允許再更改原變數。至於 <code
+              class="literal">+=</code>，新增一個項目在清單內。可以更改以下的變數：
 			</div><div
             xmlns:d="http://docbook.org/ns/docbook"
             class="itemizedlist"><ul><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">NAME</code>: the device filename to be created in <code
-                    class="filename">/dev/</code>. Only the first assignment counts; the others are ignored;
+                    class="literal">NAME</code>：在 <code
+                    class="filename">/dev/</code> 新增設備名稱。祗計算第一次的名稱；忽略其他的；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">SYMLINK</code>: the list of symbolic links that will point to the same device;
+                    class="literal">SYMLINK</code>：指向同一設備的符號清單；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">OWNER</code>, <code
-                    class="literal">GROUP</code> and <code
-                    class="literal">MODE</code> define the user and group that owns the device, as well as the associated permission;
+                    class="literal">OWNER</code>、<code
+                    class="literal">GROUP</code> 和 <code
+                    class="literal">MODE</code> 擁有設備的使用者及群組，及其他權限；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">RUN</code>: the list of programs to execute in response to this event.
+                    class="literal">RUN</code>：回應此事件的執行程式清單。
 					</div></li></ul></div><div
             class="para">
-				The values assigned to these variables may use a number of substitutions:
+				指定給這些變數的值可以使用以下的替代品：
 			</div><div
             xmlns:d="http://docbook.org/ns/docbook"
             class="itemizedlist"><ul><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">$kernel</code> or <code
-                    class="literal">%k</code>: equivalent to <code
-                    class="literal">KERNEL</code>;
+                    class="literal">$kernel</code> 或 <code
+                    class="literal">%k</code>：相當於 <code
+                    class="literal">KERNEL</code>；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">$number</code> or <code
-                    class="literal">%n</code>: the order number of the device, for example, for <code
-                    class="literal">sda3</code>, it would be “3”;
+                    class="literal">$number</code> 或 <code
+                    class="literal">%n</code>：設備的序號，例如，<code
+                    class="literal">sda3</code>，就是 “3”；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">$devpath</code> or <code
-                    class="literal">%p</code>: equivalent to <code
-                    class="literal">DEVPATH</code>;
+                    class="literal">$devpath</code> 或 <code
+                    class="literal">%p</code>：相當於 <code
+                    class="literal">DEVPATH</code>；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
                     class="literal">$attr{<em
-                      class="replaceable">attribute</em>}</code> or <code
+                      class="replaceable">屬性</em>}</code> 或 <code
                     class="literal">%s{<em
-                      class="replaceable">attribute</em>}</code>: equivalent to <code
+                      class="replaceable">屬性</em>}</code>：相當於 <code
                     class="literal">ATTRS{<em
-                      class="replaceable">attribute</em>}</code>;
+                      class="replaceable">屬性</em>}</code>；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">$major</code> or <code
-                    class="literal">%M</code>: the kernel major number of the device;
+                    class="literal">$major</code> 或 <code
+                    class="literal">%M</code>：設備的核心主要編號；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">$minor</code> or <code
-                    class="literal">%m</code>: the kernel minor number of the device;
+                    class="literal">$minor</code> 或 <code
+                    class="literal">%m</code>：設備核心的次要編號；
 					</div></li><li
                 class="listitem"><div
                   class="para">
 						<code
-                    class="literal">$result</code> or <code
-                    class="literal">%c</code>: the string output by the last program invoked by <code
-                    class="literal">PROGRAM</code>;
+                    class="literal">$result</code> 或 <code
+                    class="literal">%c</code>：以 <code
+                    class="literal">PROGRAM</code> 最後執行程式的輸出字串；
 					</div></li><li
                 class="listitem"><div
                   class="para">
-						and, finally, <code
-                    class="literal">%%</code> and <code
-                    class="literal">$$</code> for the percent and dollar sign, respectively.
+						最後，<code
+                    class="literal">%%</code> 和 <code
+                    class="literal">$$</code> 分別是百分號及錢號。
 					</div></li></ul></div><div
             class="para">
-				The above lists are not complete (they include only the most important parameters), but the <span
+				以上的清單仍不完備 (祗包括最重要的參數)，詳細的資料在 <span
               class="citerefentry"><span
-                class="refentrytitle">udev</span>(7)</span> manual page should be exhaustive.
+                class="refentrytitle">udev</span>(7)</span> 手冊頁面。
 			</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.14.5"></a>9.11.4. A concrete example</h3></div></div></div><div
+                    id="id-1.12.14.5"></a>9.11.4. 具體的例子</h3></div></div></div><div
             class="para">
-				Let us consider the case of a simple USB key and try to assign it a fixed name. First, you must find the elements that will identify it in a unique manner. For this, plug it in and run <code
-              class="command">udevadm info -a -n /dev/sdc</code> (replacing <em
-              class="replaceable">/dev/sdc</em> with the actual name assigned to the key).
+				考慮給予 USB 隨身碟一個固定名稱的情況。首先，必須找到能夠識別的元素。因此，插入它並執行 <code
+              class="command">udevadm info -a -n /dev/sdc</code> (以指定給該隨身碟的實際名稱取代 <em
+              class="replaceable">/dev/sdc</em>)。
 			</div><pre
             class="screen"><code
               class="computeroutput"># </code><strong
@@ -384,28 +384,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 [...]
 </code></pre><div
             class="para">
-				To create a new rule, you can use tests on the device's variables, as well as those of one of the parent devices. The above case allows us to create two rules like these:
+				依照檢測設備變數，以及父設備的變數，新增規則。以上的例子可以新增兩個規則：
 			</div><pre
             class="programlisting">KERNEL=="sd?", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/disk"
-KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/part%n"
-</pre><div
+KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="usb_key/part%n"</pre><div
             class="para">
-				Once these rules are set in a file, named for example <code
-              class="filename">/etc/udev/rules.d/010_local.rules</code>, you can simply remove and reconnect the USB key. You can then see that <code
-              class="filename">/dev/usb_key/disk</code> represents the disk associated with the USB key, and <code
-              class="filename">/dev/usb_key/part1</code> is its first partition.
+				在文件中設定這些規則後，例如把它命名為 <code
+              class="filename">/etc/udev/rules.d/010_local.rules</code>，就可以移除和再連結 USB 隨身碟。可看到 <code
+              class="filename">/dev/usb_key/disk</code> 代表與 USB 隨身碟連結的磁碟，<code
+              class="filename">/dev/usb_key/part1</code> 是其第一個分區。
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>GOING FURTHER</em></span> Debugging <span
-                        class="emphasis"><em>udev</em></span>'s configuration</strong></p></div></div></div><div
+                        class="emphasis"><em>進階</em></span> 除錯 <span
+                        class="emphasis"><em>udev</em></span> 的組態</strong></p></div></div></div><div
               class="para">
-				Like many daemons, <code
-                class="command">udevd</code> stores logs in <code
-                class="filename">/var/log/daemon.log</code>. But it is not very verbose by default, and it is usually not enough to understand what is happening. The <code
-                class="command">udevadm control --log-priority=info</code> command increases the verbosity level and solves this problem. <code
-                class="command">udevadm control --log-priority=err</code> returns to the default verbosity level.
+				如同其他的後台進程，<code
+                class="command">udevd</code> 把日誌儲存在 <code
+                class="filename">/var/log/daemon.log</code>。但是預設是不囉唆的，且不足以瞭解發生的事。<code
+                class="command">udevadm control --log-priority=info</code> 命令增加其詳細的內容並可解決此問題。<code
+                class="command">udevadm control --log-priority=err</code> 則回到預設的層次。
 			</div></div></div></div><ul
         class="docnav"><li
           class="previous"><a
@@ -419,7 +418,7 @@ KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+
             href="index.html"><strong>起始頁</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.power-management.html"><strong>下一頁</strong>9.12. Power Management: Advanced Configuration an...</a></li></ul><div
+            href="sect.power-management.html"><strong>下一頁</strong>9.12. 電源管理：進階組態與電源介面 (ACPI)</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/sect.hotplug.html">ar-MA</a></li><li><a
               href="../da-DK/sect.hotplug.html">da-DK</a></li><li><a

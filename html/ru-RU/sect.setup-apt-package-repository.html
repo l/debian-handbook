@@ -77,8 +77,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 			Falcot Corp со временем начала сопровождение нескольких пакетов Debian, либо локально модифицированных из существующих пакетов, либо созданных с нуля с целью распространять внутренние данные и программы.
 		</div><div
           class="para">
-			To make deployment easier, they want to integrate these packages in a package archive that can be directly used by APT. For obvious maintenance reasons, they wish to separate internal packages from locally-rebuilt packages. The goal is for the matching entries in a <code
-            class="filename">/etc/apt/sources.list.d/falcot.list</code> file to be as follows:
+			Чтобы упростить процесс развёртывания, им необходимо интегрировать эти пакеты в хранилище, которое может быть использовано непосредственно с помощью APT. В силу очевидных причин они хотят отделить внутренние пакеты от пересобранных локально. Цель состоит в том, чтобы можно было привести записи в файле <code
+            class="filename">/etc/apt/sources.list.d/falcot.list</code> к следующему виду:
 		</div><pre
           class="programlisting">
 deb http://packages.falcot.com/ updates/
@@ -87,27 +87,27 @@ deb http://packages.falcot.com/ internal/
           id="id-1.18.6.7"
           class="indexterm"></a><div
           class="para">
-			The administrators therefore configure a virtual host on their internal HTTP server, with <code
-            class="filename">/srv/vhosts/packages/</code> as the root of the associated web space. The management of the archive itself is delegated to the <code
-            class="command">mini-dinstall</code> command (in the similarly-named package). This tool keeps an eye on an <code
-            class="filename">incoming/</code> directory (in our case, <code
-            class="filename">/srv/vhosts/packages/mini-dinstall/incoming/</code>) and waits for new packages there; when a package is uploaded, it is installed into a Debian archive at <code
-            class="filename">/srv/vhosts/packages/</code>. The <code
-            class="command">mini-dinstall</code> command reads the <code
-            class="filename">*.changes</code> file created when the Debian package is generated. These files contain a list of all other files associated with the version of the package (<code
+			Соответственно, администраторы настраивают на своем внутреннем HTTP-сервере виртуальный хост с корневым каталогом <code
+            class="filename">/srv/vhosts/packages/</code>. Управление самим архивом осуществляется командой <code
+            class="command">mini-dinstall</code> (из одноимённого пакета). Этот инструмент следит за каталогом <code
+            class="filename">incoming/</code> (в нашем случае это <code
+            class="filename">/srv/vhosts/ packages/mini-dinstall/incoming/</code>) и ожидает появления пакетов в нём; когда пакет будет загружен, он установится в хранилище Debian по адресу <code
+            class="filename">/srv/vhosts/packages/</code>. Команда <code
+            class="command">mini-dinstall</code> считывает файл <code
+            class="filename">*.changes</code>, создающийся при сбоке пакета Debian. Эти файлы содержат список всех прочих файлов, относящихя к этой версии пакета (<code
             class="filename">*.deb</code>, <code
-            class="filename">*.dsc</code>, <code
+            class="filename">*.dsc </code>, <code
             class="filename">*.diff.gz</code>/<code
             class="filename">*.debian.tar.gz</code>, <code
-            class="filename">*.orig.tar.gz</code>, or their equivalents with other compression tools), and these allow <code
-            class="command">mini-dinstall</code> to know which files to install. <code
-            class="filename">*.changes</code> files also contain the name of the target distribution (often <code
-            class="literal">unstable</code>) mentioned in the latest <code
-            class="filename">debian/changelog</code> entry, and <code
-            class="command">mini-dinstall</code> uses this information to decide where the package should be installed. This is why administrators must always change this field before building a package, and set it to <code
-            class="literal">internal</code> or <code
-            class="literal">updates</code>, depending on the target location. <code
-            class="command">mini-dinstall</code> then generates the files required by APT, such as <code
+            class="filename">*.orig.tar.gz</code> или их эквивалентов, сжатых другими инструментами), и из них <code
+            class="command">mini-dinstall</code> узнаёт, какие файлы устанавливать. Файлы <code
+            class="filename">*.changes</code> также содержат название целевого дистрибутива (чаще <code
+            class="literal">unstable</code>), указанного в последней записи в <code
+            class="filename">debian/changelog</code>, и <code
+            class="command">mini-dinstall</code> использует эту информацию,чтобы решить, куда нужно установить пакеты. Поэтому администраторы перед сборкой пакета должны всегда изменять значение в этом поле на <code
+            class="literal">internal</code> или <code
+            class="literal">updates</code>, в зависимости от целевого расположения. Затем <code
+            class="command">mini-dinstall</code> создает файлы, необхдимые для APT, такие как <code
             class="filename">Packages.gz</code>.
 		</div><div
           class="sidebar"><div
@@ -210,9 +210,9 @@ release_label = Internal Packages
                   class="title"><strong><span
                       class="emphasis"><em>ДОПОЛНИТЕЛЬНО</em></span> Создание подписанного архива</strong></p></div></div></div><div
             class="para">
-			The APT suite checks a chain of cryptographic signatures on the packages it handles before installing them, in order to ensure their authenticity (see <a
+			Комплект APT проверяет цепочку криптографических подписей пакетов, которые он обрабатывает перед их установкой, в целях проверки их подлинности (см. <a
               class="xref"
-              href="sect.package-authentication.html">Раздел 6.5, «Checking Package Authenticity»</a>). Private APT archives can then be a problem, since the machines using them will keep displaying warnings about unsigned packages. A diligent administrator will therefore integrate private archives with the secure APT mechanism.
+              href="sect.package-authentication.html">Раздел 6.5, «Checking Package Authenticity»</a>). Частные архивы APT поэтому могут создать проблему, так как машины, использующие их, будут постоянно выводить предупреждения о наличии неподписанных пакетов. Поэтому прилежный администратор увязывает частные архивы с безопасным механизмом APT.
 		</div><div
             class="para">
 			Для помощи в этом процессе в <code
