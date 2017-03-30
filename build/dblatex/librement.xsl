@@ -148,17 +148,13 @@
 
   <xsl:choose>
     <xsl:when test="/book[@lang='ja-JP']">
-      <xsl:text>
-% Japanese setting
-</xsl:text>
+      <xsl:text>&#10;% Japanese setting&#10;</xsl:text>
     </xsl:when>
     <xsl:otherwise>
       <xsl:text>% /book/@lang="</xsl:text>
       <xsl:value-of select="/book/@lang"/>
       <xsl:text>"</xsl:text>
-      <xsl:text>
-% default setting
-</xsl:text>
+      <xsl:text>&#10;% default setting&#10;</xsl:text>
     </xsl:otherwise>
   </xsl:choose>
   <xsl:text>% dblatex template user.params.set2 ends here.&#10;</xsl:text>
