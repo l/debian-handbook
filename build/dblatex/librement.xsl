@@ -234,4 +234,29 @@
 <xsl:text>}</xsl:text>
 </xsl:template>
 
+<!--
+    DKBpublishername and DBKpublisheraddress show up in dblatex 0.3.7.
+    These can be removed when deciding to tighten the dblatex build
+    dependencies.
+-->
+<!-- Note, only work for a single address -->
+<xsl:template match="publisher" mode="docinfo">
+  <xsl:apply-templates mode="docinfo"/>
+</xsl:template>
+
+<xsl:template match="publishername" mode="docinfo">
+  <xsl:text>\def\DBKpublishername{</xsl:text>
+  <xsl:variable name="content"><xsl:apply-templates/></xsl:variable>
+  <xsl:value-of select="normalize-space($content)"/>
+  <xsl:text>}&#10;</xsl:text>
+</xsl:template>
+
+<xsl:template match="publisher/address" mode="docinfo">
+  <xsl:text>\def\DBKpublisheraddress{</xsl:text>
+  <xsl:variable name="content"><xsl:apply-templates/></xsl:variable>
+  <xsl:value-of select="normalize-space($content)"/>
+  <xsl:text>}&#10;</xsl:text>
+</xsl:template>
+<!-- end of block for DKBpublishername and DBKpublisheraddress -->
+
 </xsl:stylesheet>
