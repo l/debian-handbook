@@ -109,9 +109,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="literal">-t</code>-parameteren kan derfor utelates). Denne kommandoen godkjenner du ved å be deg skrive inn passordet ditt. Denne funksjonen forbyr programmer å automatisk bytte roller. Slike endringer kan bare skje dersom de er uttrykkelig tillatt i SELinux-politikk.
 			</div><div
             class="para">
-				Obviously the rights do not apply to all <span
-              class="emphasis"><em>objects</em></span> (files, directories, sockets, devices, etc.). They can vary from object to object. To achieve this, each object is associated to a <span
-              class="emphasis"><em>type</em></span> (this is known as labeling). Domains' rights are thus expressed with sets of (dis)allowed operations on those types (and, indirectly, on all objects which are labeled with the given type).
+				Selvsagt gjelder ikke rettighetene for alle <span
+              class="emphasis"><em>objekter</em></span> (filer, kataloger, stikkontakter, enheter, etc.). De kan variere fra objekt til objekt. For å oppnå dette blir hvert objekt assosiert med en <span
+              class="emphasis"><em>type</em></span> (dette kalles merking). Domenene sine rettigheter er dermed uttrykt med sett av (ikke-)tillatte operasjoner for disse typene (og, indirekte, for alle objekter som er merket med den gitte typen).
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
@@ -145,8 +145,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               id="id-1.17.8.3.11.4"
               class="indexterm"></a><div
               class="para">
-				To find the security context of a given process, you should use the <code
-                class="literal">Z</code> option of <code
+				For å finne sikkerhetskonteksten for en gitt prosess bør du bruke <code
+                class="literal">Z</code>-argumentet til <code
                 class="command">ps</code>.
 			</div><pre
               class="screen"><code
@@ -486,15 +486,14 @@ user_u          user       SystemLow  SystemLow             user_r
               class="example"><a
                 id="id-1.17.8.6.6.3"></a><p
                 class="title"><strong>Eksempel 14.2. <code
-                    class="filename">example.fc</code> file</strong></p><div
+                    class="filename">eksempel.fc</code>-file</strong></p><div
                 class="example-contents"><pre
                   class="programlisting scale"># myapp executable will have:
 # label: system_u:object_r:myapp_exec_t
 # MLS sensitivity: s0
 # MCS categories: &lt;none&gt;
 
-/usr/sbin/myapp         --      gen_context(system_u:object_r:myapp_exec_t,s0)
-</pre></div></div></div><div
+/usr/sbin/myapp         --      gen_context(system_u:object_r:myapp_exec_t,s0)</pre></div></div></div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
@@ -513,7 +512,7 @@ user_u          user       SystemLow  SystemLow             user_r
               class="example"><a
                 id="id-1.17.8.6.7.4"></a><p
                 class="title"><strong>Eksempel 14.3. <code
-                    class="filename">example.if</code> File</strong></p><div
+                    class="filename">eksempel.if</code>-fil</strong></p><div
                 class="example-contents"><pre
                   class="programlisting">## &lt;summary&gt;Myapp example policy&lt;/summary&gt;
 ## &lt;desc&gt;
@@ -564,8 +563,7 @@ interface(`myapp_read_log',`
 
         logging_search_logs($1)
         allow $1 myapp_log_t:file r_file_perms;
-')
-</pre></div></div><div
+')</pre></div></div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
@@ -583,8 +581,8 @@ interface(`myapp_read_log',`
                       id="sect.writing-a-te-file"></a>14.5.4.3. Å skrive en <code
                       class="filename">.te</code>-fil</h4></div></div></div><div
               class="para">
-					Have a look at the <code
-                class="filename">example.te</code> file:
+					Se på <code
+                class="filename">eksempel.te</code>-filen:
 				</div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
@@ -747,8 +745,7 @@ files_tmp_filetrans(myapp_t,myapp_tmp_t,file)</pre><div
               class="para">
 					Imidlertid er en empirisk tilnærming mulig. Etter at de relevante objektene er korrekt merket, kan du bruke programmet i tillatelsesmodus: Operasjonene som vil bli forbudt blir logget, men vil likevel lykkes. Ved å analysere loggene kan du nå identifisere operasjoner som skal tillates. Her er et eksempel på en slik loggoppføring :
 				</div><pre
-              class="programlisting">avc:  denied  { read write } for  pid=1876 comm="syslogd" name="xconsole" dev=tmpfs ino=5510 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=fifo_file permissive=1
-</pre><div
+              class="programlisting">avc:  denied  { read write } for  pid=1876 comm="syslogd" name="xconsole" dev=tmpfs ino=5510 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=fifo_file permissive=1</pre><div
               class="para">
 					For bedre å forstå dette budskapet, la oss studere det bit for bit.
 				</div><div
@@ -790,23 +787,23 @@ files_tmp_filetrans(myapp_t,myapp_tmp_t,file)</pre><div
                 id="id-1.17.8.6.8.12.3"
                 class="indexterm"></a><div
                 class="para">
-					It might seem weird that roles do not appear at all when creating new rules. SELinux uses only the domains to find out which operations are allowed. The role intervenes only indirectly by allowing the user to switch to another domain. SELinux is based on a theory known as <span
-                  class="emphasis"><em>Type Enforcement</em></span> and the type is the only element that matters when granting rights.
+					Det kan virke merkelig at rollene ikke dukker opp i det hele tatt når du oppretter nye regler. SELinux bruker kun domenene for å finne ut hvilke operasjoner som er tillatt. Rollen griper bare indirekte inn ved å tillate brukeren å bytte til et annet domene. SELinux er basert på en teori som kalles <span
+                  class="emphasis"><em>håndheving av type</em></span>, og typen er det eneste elementet som betyr noe når rettigheter tildeles.
 				</div></div></div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
                       id="id-1.17.8.6.9"></a>14.5.4.4. Å kompilere filene</h4></div></div></div><div
               class="para">
-					Once the 3 files (<code
-                class="filename">example.if</code>, <code
-                class="filename">example.fc</code>, and <code
-                class="filename">example.te</code>) match your expectations for the new rules, just run <code
-                class="command">make NAME=devel</code> to generate a module in the <code
-                class="filename">example.pp</code> file (you can immediately load it with <code
-                class="command">semodule -i example.pp</code>). If several modules are defined, <code
-                class="command">make</code> will create all the corresponding <code
-                class="filename">.pp</code> files.
+					Så snart de 3 filene (<code
+                class="filename">eksempel.if</code>, <code
+                class="filename">eksempel.fc</code>, og <code
+                class="filename">eksempel.te</code>) svarer til dine forventninger for de nye reglene, er det bare å kjøre <code
+                class="command">make NAME=devel</code> for å generere en modul i <code
+                class="filename">eksempel.pp</code>-filen (du kan umiddelbart laste den med <code
+                class="command">semodule -i example.pp</code>). Hvis flere moduler er definert vil <code
+                class="command">make</code> lage alle de korresponderende <code
+                class="filename">.pp</code>-filene.
 				</div></div></div></div><ul
         class="docnav"><li
           class="previous"><a
