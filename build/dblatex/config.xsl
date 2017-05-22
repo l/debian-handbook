@@ -239,14 +239,14 @@ actual page. By default the page is centered as required in this mode.
     <l:gentext key="minitoc" text="Contents"/>
     <l:gentext key="keywordset" text="Keywords"/>
     <l:context name="xref">
-      <l:template name="page.citation" text=" page %p"/>
+      <l:template name="page.citation" text="page %p"/>
       <l:template name="sidebar" text="“%t”"/>
     </l:context>
     <l:context name="xref-number-and-title">
       <!-- Don't start with capital letters -->
-      <l:template name="chapter" text=" chapter %n, “%t”"/>
-      <l:template name="section" text=" section %n, “%t”"/>
-      <l:template name="appendix" text=" appendix %n, “%t”"/>
+      <l:template name="chapter" text="chapter %n, “%t”"/>
+      <l:template name="section" text="section %n, “%t”"/>
+      <l:template name="appendix" text="appendix %n, “%t”"/>
     </l:context>
   </l:l10n>
 
@@ -254,12 +254,12 @@ actual page. By default the page is centered as required in this mode.
     <l:gentext key="minitoc" text="Contenidos"/>
     <l:gentext key="keywordset" text="Palabras clave"/>
     <l:context name="xref">
-      <l:template name="page.citation" text=" p&#225;gina %p"/>
+      <l:template name="page.citation" text="p&#225;gina %p"/>
       <l:template name="sidebar" text="«%t»"/>
     </l:context>
     <l:context name="xref-number-and-title">
-      <l:template name="chapter" text=" Cap&#237;tulo %n: «%t»"/>
-      <l:template name="section" text=" Secci&#243;n %n, «%t»"/>
+      <l:template name="chapter" text="Cap&#237;tulo %n: «%t»"/>
+      <l:template name="section" text="Secci&#243;n %n, «%t»"/>
     </l:context>
   </l:l10n>
 
@@ -267,7 +267,7 @@ actual page. By default the page is centered as required in this mode.
     <l:gentext key="minitoc" text="Sommaire"/>
     <l:gentext key="keywordset" text="Mots-cl&#233;s"/>
     <l:context name="xref">
-      <l:template name="page.citation" text=" page %p"/>
+      <l:template name="page.citation" text="page %p"/>
       <l:template name="sidebar" text="« %t »"/>
     </l:context>
     <l:context name="xref-number">
@@ -276,9 +276,9 @@ actual page. By default the page is centered as required in this mode.
     </l:context>
     <l:context name="xref-number-and-title">
       <!-- Don't start with capital letters -->
-      <l:template name="chapter" text=" chapitre %n, « %t »"/>
-      <l:template name="section" text=" section %n, « %t »"/>
-      <l:template name="appendix" text=" annexe %n, « %t »"/>
+      <l:template name="chapter" text="chapitre %n, « %t »"/>
+      <l:template name="section" text="section %n, « %t »"/>
+      <l:template name="appendix" text="annexe %n, « %t »"/>
     </l:context>
   </l:l10n>
 
@@ -294,14 +294,14 @@ actual page. By default the page is centered as required in this mode.
     <l:gentext key="minitoc" text="Conteúdo"/>
     <l:gentext key="keywordset" text="Palavras chave"/>
     <l:context name="xref">
-      <l:template name="page.citation" text=" página %p"/>
+      <l:template name="page.citation" text="página %p"/>
       <l:template name="sidebar" text="“%t”"/>
     </l:context>
     <l:context name="xref-number-and-title">
       <!-- Don't start with capital letters -->
-      <l:template name="chapter" text=" capítulo %n, “%t”"/>
-      <l:template name="section" text=" seção %n, “%t”"/>
-      <l:template name="appendix" text=" apêndice %n, “%t”"/>
+      <l:template name="chapter" text="capítulo %n, “%t”"/>
+      <l:template name="section" text="seção %n, “%t”"/>
+      <l:template name="appendix" text="apêndice %n, “%t”"/>
     </l:context>
   </l:l10n>
 

@@ -21,7 +21,7 @@
   </xsl:choose>
 </xsl:template>
 
-<!-- Add <link rel="canonical"> to the headers -->
+<!-- Add <link rel="canonical"> <meta name="flattr:id"> to the headers -->
 <xsl:template name="user.head.content">
   <xsl:variable name="filename">
     <xsl:apply-templates mode="chunk-filename" select="."/>
@@ -30,6 +30,7 @@
 		select="ancestor-or-self::*
 		        [@lang or @xml:lang][1]"/>
   <xsl:variable name="lang" select="string(($lang-scope/@lang | $lang-scope/@xml:lang)[1])"/>
+  <meta name="flattr:id" content="4pz9jq"/>
   <link rel="canonical">
     <xsl:attribute name="href">
       <xsl:value-of select="'https://debian-handbook.info/browse/'"/>
