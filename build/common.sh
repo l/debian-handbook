@@ -19,6 +19,15 @@ get_release() {
 	8*)
 	    release="jessie"
 	;;
+	9*)
+	    release="stretch"
+	;;
+	10*)
+	    release="buster"
+	;;
+	11*)
+	    release="bullseye"
+	;;
 	*)
 	    echo "ERROR: unable to identify release for version $version" >&2
 	    exit 1
