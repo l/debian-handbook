@@ -74,19 +74,19 @@ gray-scale (for lulu.com POD service),
 Scale              = 0.8,
 }
 
-\setmainfont{M+ 2c regular}[
+\setmainfont{M+ 2c}[
 BoldFont       = {M+ 2c bold},
 ItalicFont     = {M+ 2c bold},
 BoldItalicFont = {M+ 2c bold},
 SmallCapsFont  = {M+ 2c bold},
 ]
-\setsansfont{M+ 1c regular}[
+\setsansfont{M+ 1c}[
 BoldFont       = {M+ 1c bold},
 ItalicFont     = {M+ 1c bold},
 BoldItalicFont = {M+ 1c bold},
 SmallCapsFont  = {M+ 1c bold},
 ]
-\setmonofont{M+ 1m regular}[
+\setmonofont{M+ 1m}[
 BoldFont       = {M+ 1m bold},
 ItalicFont     = {M+ 1m bold},
 BoldItalicFont = {M+ 1m bold},
@@ -117,19 +117,19 @@ BoldFont       = {M+ 2c bold},
 ItalicFont     = {M+ 2c bold},
 BoldItalicFont = {M+ 2c bold},
 SmallCapsFont  = {M+ 2c bold},
-]{M+ 2c regular}
+]{M+ 2c}
 \setCJKsansfont[
 BoldFont       = {M+ 1c bold},
 ItalicFont     = {M+ 1c bold},
 BoldItalicFont = {M+ 1c bold},
 SmallCapsFont  = {M+ 1c bold},
-]{M+ 1c regular}
+]{M+ 1c}
 \setCJKmonofont[
 BoldFont       = {M+ 1m bold},
 ItalicFont     = {M+ 1m bold},
 BoldItalicFont = {M+ 1m bold},
 SmallCapsFont  = {M+ 1m bold},
-]{M+ 1m regular}
+]{M+ 1m}
 
 % Please don't use
 % * IPAex fonts like IPAexMincho and/or IPAexGothic,
