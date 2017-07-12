@@ -305,7 +305,7 @@ actual page. By default the page is centered as required in this mode.
     </l:context>
   </l:l10n>
 
-  <l:l10n language="nb-NO">
+  <l:l10n language="nb">
     <l:gentext key="minitoc" text="Innhold"/>
     <l:gentext key="keywordset" text="Nøkkelord"/>
     <l:context name="xref">
