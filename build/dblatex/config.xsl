@@ -310,13 +310,13 @@ actual page. By default the page is centered as required in this mode.
     <l:gentext key="keywordset" text="Nøkkelord"/>
     <l:context name="xref">
       <l:template name="page.citation" text="side %p"/>
-      <l:template name="sidebar" text="“%t”"/>
+      <l:template name="sidebar" text="«%t»"/>
     </l:context>
     <l:context name="xref-number-and-title">
       <!-- Don't start with capital letters -->
-      <l:template name="chapter" text="chapter %n, “%t”"/>
-      <l:template name="section" text="section %n, “%t”"/>
-      <l:template name="appendix" text="appendix %n, “%t”"/>
+      <l:template name="chapter" text="kapittel %n, «%t»"/>
+      <l:template name="section" text="del %n, «%t»"/>
+      <l:template name="appendix" text="vedlegg %n, «%t»"/>
     </l:context>
   </l:l10n>
 
