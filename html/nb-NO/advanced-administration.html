@@ -19,7 +19,7 @@
         name="package"
         content="Debian-debian-handbook-9-nb-NO-1.0-1" /><meta
         name="keywords"
-        content="RAID, LVM, FAI, Forhåndsutfylling (preseed.cfg), Overvåking, virtualisering, Xen, LXC" /><link
+        content="RAID, LVM, FAI, Forhåndsutfylling, Overvåking, Virtualisering, Xen, LXC" /><link
         rel="home"
         href="index.html"
         title="Håndbok for Debian-administratoren" /><link
@@ -31,7 +31,7 @@
         title="11.8. Sanntids kommunikasjonstjenester" /><link
         rel="next"
         href="sect.virtualization.html"
-        title="12.2. virtualisering" /><meta
+        title="12.2. Virtualisering" /><meta
         name="viewport"
         content="width=device-width, initial-scale=1" /><meta
         name="flattr:id"
@@ -84,7 +84,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                     class="section"><a
                       href="advanced-administration.html#sect.raid-or-lvm">12.1.3. RAID eller LVM?</a></span></dt></dl></dd><dt><span
                 class="section"><a
-                  href="sect.virtualization.html">12.2. virtualisering</a></span></dt><dd><dl><dt><span
+                  href="sect.virtualization.html">12.2. Virtualisering</a></span></dt><dd><dl><dt><span
                     class="section"><a
                       href="sect.virtualization.html#sect.xen">12.2.1. Xen</a></span></dt><dt><span
                     class="section"><a
@@ -104,12 +104,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="section"><a
                   href="sect.monitoring.html">12.4. Overvåking</a></span></dt><dd><dl><dt><span
                     class="section"><a
-                      href="sect.monitoring.html#sect.munin">12.4.1. Å sette opp Munin</a></span></dt><dt><span
+                      href="sect.monitoring.html#sect.munin">12.4.1. Oppsett av Munin</a></span></dt><dt><span
                     class="section"><a
-                      href="sect.monitoring.html#sect.nagios">12.4.2. Å sette opp Nagios</a></span></dt></dl></dd></dl></div><div
+                      href="sect.monitoring.html#sect.nagios">12.4.2. Oppsett av Nagios</a></span></dt></dl></dd></dl></div><div
           class="highlights"><div
             class="para">
-		Dette kapittelet tar opp igjen noen aspekter vi allerede har beskrevet, med et annet perspektiv: I stedet for å installere en enkelt datamaskin, vil vi studere massedistribusjonssystemer; i stedet for å opprette RAID eller LVM ved nye installasjoner, vil vi lære å gjøre det for hånd, slik at vi senere kan endre våre første valg. Til slutt vil vi diskutere overvåkingsverktøy og virtualiseringsteknikker. Som en konsekvens, er dette kapittelet mer spesielt rettet mot profesjonelle administratorer, og fokuserer litt mindre på personer med ansvar for sine hjemmenettverk .
+		Dette kapittelet tar opp igjen noen aspekter vi allerede har beskrevet, med et annet perspektiv: I stedet for å installere en enkelt datamaskin, vil vi studere masseutrullingssystemer; i stedet for å sette opp RAID eller LVM under installasjonen, vil vi lære å gjøre det for hånd, slik at vi senere kan endre våre første valg. Til slutt vil vi diskutere monitoreringsverktøy og virtualiseringsteknikker. Som en konsekvens, er dette kapitlet mest rettet mot profesjonelle administratorer, og fokuserer litt mindre på personer med ansvar for sine hjemmenettverk.
 	</div></div><div
           class="section"><div
             class="titlepage"><div><div><h2
@@ -118,26 +118,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="para">
 			<a
               class="xref"
-              href="installation.html">Kapittel 4, <em>Installasjon</em></a> har vist disse teknologiene fra installeringssynspunkt, og hvordan de kan integreres til å gjøre utplasseringen lett fra start. Etter den første installasjonen, må en administrator kunne håndtere utvikling av lagringsplassbehov uten å måtte ty til en kostbar reinstallasjon. De må derfor forstå de nødvendige verktøy for å håndtere RAID- og LVM-volumer.
+              href="installation.html">Kapittel 4, <em>Installasjon</em></a> presenterte disse teknologiene slik de ser ut fra installasjonsprogrammet, og hvordan de kan integreres til å gjøre utrullingen lett å komme igang med. Etter den første installasjonen, må en administrator kunne håndtere endring av lagringsplassbehov uten å måtte ty til en kostbar reinstallasjon. En må derfor forstå verktøyene som trengs for å håndtere RAID- og LVM-volumer.
 		</div><div
             class="para">
-			RAID og LVM er begge teknikker til å trekke ut de monterte volumene fra sine fysiske motstykker (faktiske harddisker eller partisjoner); den første sikrer data mot maskinvarefeil ved å innføre redundans, sistnevnte gjør volumadministrasjon mer fleksibel og uavhengig av den faktiske størrelsen på de underliggende disker. I begge tilfeller ender systemet opp med nye blokk-enheter, som kan brukes til å lage filsystemer eller vekselfiler, uten nødvendigvis å ha dem tilordnet til en fysisk disk. RAID og LVM kommer fra helt forskjellige bakgrunner, men funksjonaliteten kan overlappe noe, de er derfor ofte nevnt sammen.
+			RAID og LVM er begge teknikker til å trekke ut de monterte volumene fra sine fysiske motstykker (faktiske harddisker eller partisjoner); den første sikrer data mot maskinvarefeil ved å innføre redundans, sistnevnte gjør volumadministrasjon mer fleksibel og uavhengig av den faktiske størrelsen på de underliggende disker. I begge tilfeller ender systemet opp med nye blokk-enheter, som kan brukes til å lage filsystemer eller vekselminnefiler, uten nødvendigvis å ha dem direktekoblet til en fysisk disk. RAID og LVM har vidt forskjellig bakgrunn, men funksjonaliteten kan overlappe noe, de er derfor ofte omtalt sammen.
 		</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
                         class="emphasis"><em>PERSPEKTIV</em></span> Btrfs kombinerer LVM og RAID</strong></p></div></div></div><div
               class="para">
-			Mens LVM og RAID er to forskjellige kjerne-delsystemer som ligger mellom disk blokk-enheter og filsystemene deres, <span
-                class="emphasis"><em>btrfs</em></span> er et nytt filsystem, opprinnelig utviklet i Oracle, som skal kombinere kjennetegnsettene til LVM og RAID, og mye mer. Det er for det meste funksjonelt, og selv om det fremdeles er merket «eksperimentell» fordi utviklingsstadiet er ufullstendig (noen funksjoner er ikke implementert ennå), er det allerede sett i bruk i produksjonsmiljøer. <div
+			Mens LVM og RAID er to forskjellige kjerne-delsystemer som ligger mellom disk blokk-enheter og filsystemene deres, er <span
+                class="emphasis"><em>btrfs</em></span> et nytt filsystem, opprinnelig utviklet i Oracle, som skal kombinere egenskapene til LVM og RAID, og mye mer. Det er for det meste funksjonelt, og selv om det fremdeles er merket «eksperimentell» fordi det ennå ikke er ferdig utviklet (noen funksjoner er ikke implementert ennå), er det allerede observert brukt i produksjonsmiljøer. <div
                 class="url">→ <a
                   href="http://btrfs.wiki.kernel.org/">http://btrfs.wiki.kernel.org/</a></div>
 		</div><div
               class="para">
-			Blant funksjonene verdt å legge merke til, er muligheten til på ethvert tidspunkt å ta et øyeblikksbilde av et filsystemtre. Denne øyeblikksbildekopien vil i utgangspunktet ikke bruke diskplass, data blir bare duplisert når en av kopiene blir endret. Filsystemet håndterer også gjennomsiktig komprimering av filer, og kontrollsummer sikrer integriteten til alle lagrede data.
+			Blant funksjonene verdt å legge merke til, er muligheten til på ethvert tidspunkt å ta et øyeblikksbilde av et filsystemtre. Denne øyeblikksbilde-kopien vil i utgangspunktet ikke bruke diskplass, data blir bare duplisert når en av kopiene blir endret. Filsystemet håndterer også gjennomsiktig komprimering av filer, og sjekksummer sikrer integriteten til alle lagrede data.
 		</div></div><div
             class="para">
-			Både for RAID og LVM gir kjernen en blokk-spesialfil, lik dem som svarer til en harddisk eller en partisjon. Når et program, eller en annen del av kjernen, krever tilgang til en blokk innrettet slik, ruter det aktuelle subsystem blokken til det aktuelle fysiske laget. Avhengig av konfigurasjonen, kan denne blokken lagres på en eller flere fysiske disker, og den fysiske plasseringen kan ikke være direkte korrelert til plassering av blokken i den logiske enheten.
+			Både for RAID og LVM gir kjernen en blokk-enhetsfil, lik dem som refererer til en harddisk eller en partisjon. Når et program, eller en annen del av kjernen, krever tilgang til en blokk på en slik enhet, dirigerer det aktuelle delsystem blokken til det aktuelle fysiske laget. Avhengig av oppsettet, kan denne blokken lagres på en eller flere fysiske disker, og det trenger ikke være sammenheng mellom den fysiske plasseringen og plassering av blokken i den logiske enheten.
 		</div><div
             class="section"><div
               class="titlepage"><div><div><h3
@@ -147,7 +147,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="indexterm"></a><div
               class="para">
 				RAID betyr <span
-                class="emphasis"><em>Redundant Array of Independent Disks</em></span>. Målet med dette systemet er å hindre tap av data i tilfelle feil på harddisken. Det generelle prinsippet er ganske enkelt: Data er lagret på flere fysiske disker i stedet for bare på én, med en konfigurerbar grad av redundans. Avhengig av denne redundansstørrelsen, og til og med i tilfelle av en uventet diskfeil, kan data uten tap bli rekonstruert fra de gjenværende disker.
+                class="emphasis"><em>Redundant Array of Independent Disks</em></span>, dvs. redundant rekke av uavhengige disker. Målet med dette systemet er å hindre datatap hvis det blir feil på harddisken. Det generelle prinsippet er ganske enkelt: Data er lagret på flere fysiske disker i stedet for bare på én, med oppsatt grad av redundans. Avhengig av denne redundansmengden, og selv om det skjer en uventet diskfeil, kan data rekonstrueres uten tap fra de gjenværende disker.
 			</div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
@@ -159,93 +159,93 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                             class="foreignphrase">billig</em></span>?</strong></p></div></div></div><div
                 class="para">
 				I-en i RAID sto opprinnelig for <span
-                  class="emphasis"><em>inexpensive</em></span> (billig), fordi RAID tillot en drastisk økning i datasikkerhet uten å kreve investering i dyre high-end disker. Sannsynligvis på grunn av bildehensyn, er det imidlertid nå en mer vanlig vurdering å stå for <span
-                  class="emphasis"><em>independent</em></span> (uavhengig), som ikke har den uønskede smaken av å være billig.
+                  class="emphasis"><em>inexpensive</em></span> (billig), fordi RAID tillot en drastisk økning i datasikkerhet uten å kreve investering i dyre høykvalitetsdisker. Sannsynligvis på grunn av hvordan det oppfattes, er det imidlertid nå en mer vanlig å si at det står for <span
+                  class="emphasis"><em>independent</em></span> (uavhengig), som ikke gir det uønskede inntrykket av å være billig.
 			</div></div><div
               class="para">
-				RAID kan implementeres enten ved øremerket maskinvare (RAID-moduler integrert i SCSI eller SATA-kontrollerkort), eller ved bruk av programvare-sammendrag (kjernen). Enten maskinvare eller programvare, et RAID-system kan, med nok reserve, transparent fortsette operativt når en disk svikter; de øvre lag av stabelen (applikasjoner) kan også beholde tilgangen til data tross feilen. Denne «degradert modus» kan selvfølgelig ha en innvirkning på ytelsen, og reservekapasiteten er redusert, slik at en ytterligere diskfeil kan føre til tap av data. I praksis vil en derfor bestrebe seg på å bli værende med denne redusert driften bare så lenge som det tar å erstatte den ødelagte disken. Så snart den nye disken er på plass, kan RAID-systemet rekonstruere de nødvendige data, og gå tilbake til en sikker modus. Programmene vil ikke merke noe, bortsett fra en potensielt redusert tilgangshastighet, mens området er i redusert drift, eller under rekonstruksjonsfasen.
+				RAID kan implementeres enten ved øremerket maskinvare (RAID-moduler integrert i SCSI eller SATA-kontrollerkort), eller ved bruk av programvare-abstraksjoner (kjernen). Uansett om det er gjort i maskinvare eller programvare, kan et RAID-system, med nok redundans, fortsette å fungere når en disk feiler uten at brukeren oppdager problemer; de øvre lag av stabelen (applikasjoner) kan til og med fortsette å bruke dataene tross feilen. En slik «degradert modus» kan selvfølgelig ha en innvirkning på ytelsen, og redundansen er redusert, slik at en ytterligere diskfeil kan føre til tap av data. I praksis vil en derfor bestrebe seg på å bli værende med denne reduserte driften bare så lenge som det tar å erstatte den ødelagte disken. Så snart den nye disken er på plass, kan RAID-systemet rekonstruere de nødvendige data, og gå tilbake til en sikker modus. Programmene vil ikke merke noe, bortsett fra en potensielt redusert tilgangshastighet, mens området er i redusert drift, eller under rekonstruksjonsfasen.
 			</div><div
               class="para">
-				Når RAID implementeres av maskinvare, skjer oppsettet vanligvis innen BIOS konfigurasjonsverktøy, og kjernen vil vurdere en RAID-tabell som en enkelt disk, som vil virke som en standard fysisk disk, selv om navnet på enheten kan være forskjellige (avhengig av driveren).
+				Når RAID implementeres i maskinvare, skjer oppsettet vanligvis i oppsettsverktøy i BIOS, og kjernen vil se på et RAID-sett som en enkelt disk, som vil virke som en standard fysisk disk, selv om navnet på enheten kan være forskjellig (avhengig av driveren).
 			</div><div
               class="para">
-				Vi fokuserer bare på programvare RAID i denne boken.
+				Vi fokuserer bare på programvare-RAID i denne boken.
 			</div><div
               class="section"><div
                 class="titlepage"><div><div><h4
                       class="title"><a
                         id="sect.raid-levels"></a>12.1.1.1. Ulike RAID-nivåer</h4></div></div></div><div
                 class="para">
-					RAID er faktisk ikke et enkelt system, men et spekter av systemer som identifiseres av sine nivåer. Nivåene skiller seg ved sin utforming og mengden av reserve (redundans) de gir. Jo større overflødighet, jo sikrere mot feil, siden systemet vil være i stand til å fortsette arbeidet med flere disker som feiler. Motstykket er at plassen som kan brukes, krymper for et gitt sett med disker, eller med andre ord; flere disker vil være nødvendig for å lagre en gitt mengde data.
+					RAID er faktisk ikke et enkelt system, men et spekter av systemer som identifiseres av sine nivåer. Nivåene skiller seg ved sin utforming og mengden av redundans de gir. Jo mer redundans, jo mer feilsikkert, siden systemet vil være i stand til å fortsette arbeidet med flere disker som feiler. Ulempen er at plassen som kan brukes, krymper for et gitt sett med disker, eller med andre ord; flere disker vil være nødvendig for å lagre en gitt mengde data.
 				</div><div
                 class="variablelist"><dl
                   class="variablelist"><dt><span
-                      class="term">Lineær RAID</span></dt><dd><div
+                      class="term">Lineært RAID</span></dt><dd><div
                       class="para">
-								Selv om kjernens RAID-delsystem kan lage «lineær RAID», er dette egentlig ikke en ekte RAID, siden dette oppsettet ikke gir overskudd. Kjernen samler bare flere disker etter hverandre, og resulterer i et samlet volum som e n virtuell disk (en blokkenhet). Det er omtrent dens eneste funksjon. Dette oppsettet brukes sjelden i seg selv (se senere for unntak), spesielt siden mangelen på overskudd betyr at om en disk svikter, aggregerer det, og gjør alle data utilgjengelige.
+								Selv om kjernens RAID-delsystem kan lage «lineært RAID», er dette egentlig ikke en ekte RAID, siden dette oppsettet ikke gir redundans. Kjernen samler bare flere disker etter hverandre, og resulterer i et samlet volum som en virtuell disk (en blokkenhet). Det er omtrent dens eneste funksjon. Dette oppsettet brukes sjelden i seg selv (se senere for unntak), spesielt siden mangelen på redundans betyr at om en disk svikter, så feiler det samlede volumet, og gjør alle data utilgjengelige.
 							</div></dd><dt><span
                       class="term">RAID-0</span></dt><dd><div
                       class="para">
-								Dette nivået gir intet overskudd heller, men diskene blir ikke ganske enkelt fastlåst etter hverandre: De blir delt i <span
-                        class="emphasis"><em>striper</em></span>, og blokkene på den virtuelle enheten er lagret på striper på alternerende fysiske disker. I et to-disk RAID-0 oppsett, for eksempel, vil partalls blokker på den virtuelle enheten bli lagret på den første fysiske disken, mens oddetalls blokker vil komme på den andre fysiske disken.
+								Dette nivået gir heller ikke redundans, men diskene blir ikke lagt sammen ende mot ende: De blir delt i <span
+                        class="emphasis"><em>striper</em></span>, og blokkene på den virtuelle enheten er lagret på striper på alternerende fysiske disker. I et to-disk RAID-0 oppsett, for eksempel, vil partallsblokker på den virtuelle enheten bli lagret på den første fysiske disken, mens oddetallsblokker vil komme på den andre fysiske disken.
 							</div><div
                       class="para">
-								Dette systemet har ikke som mål å øke pålitelighet, siden (som i det lineære tilfellet) tilgjengeligheten til alle data er i fare så snart en disk svikter, men å øke ytelsen: Under sekvensiell tilgang til store mengder sammenhengende data, vil kjernen være i stand til å lese fra begge disker (eller skrive til dem) i parallell, noe som øker hastigheten på dataoverføringen. Imidlertid krymper RAID-0-bruken når nisjen dens fylles med LVM (se senere).
+								Dette systemet har ikke som mål å øke pålitelighet, siden (som i det lineære tilfellet) tilgjengeligheten til alle data er i fare så snart en disk svikter, men å øke ytelsen: Under sekvensiell tilgang til store mengder sammenhengende data, vil kjernen være i stand til å lese fra begge disker (eller skrive til dem) i parallell, noe som øker hastigheten på dataoverføringen. Imidlertid krymper bruken av RAID-0, da nisjen dens fylles av LVM (se senere).
 							</div></dd><dt><span
                       class="term">RAID-1</span></dt><dd><div
                       class="para">
-								Dette nivået, også kjent som "RAID-speiling", er både det enkleste og det mest brukte oppsettet. I standardformen bruker den to fysiske disker av samme størrelse, og gir et logisk volum av samme størrelse på nytt. Data er lagret identisk på begge disker, derav kallenavnet «speile». Når en disk svikter, finnes dataene fremdeles på den andre. For virkelig kritiske data, kan RAID-1 selvsagt settes opp på mer enn to disker, med direkte konsekvenser for forholdet mellom maskinvarekostnader opp mot tilgjengelig plass for nyttelast.
+								Dette nivået, også kjent som "RAID-speiling", er både det enkleste og det mest brukte oppsettet. I standardformen bruker den to fysiske disker av samme størrelse, og gir et tilsvarende logisk volum av samme størrelse. Data er lagret identisk på begge disker, derav kallenavnet «speiling». Når en disk svikter, er dataene fremdeles tilgjengelig på den andre. For virkelig kritiske data, kan RAID-1 selvsagt settes opp på mer enn to disker, med direkte konsekvenser for forholdet mellom maskinvarekostnader opp mot tilgjengelig plass for nyttelast.
 							</div><div
                       class="sidebar"><div
                         class="titlepage"><div><div><p
                               class="title"><strong><span
-                                  class="emphasis"><em>NOTE</em></span> Disk- og klyngestørrelser</strong></p></div></div></div><div
+                                  class="emphasis"><em>MERK</em></span> Disk- og klyngestørrelser</strong></p></div></div></div><div
                         class="para">
-								Hvis to disker av forskjellige størrelse er satt opp i et speil, vil ikke den største bli brukt fullt ut, siden den vil inneholde de samme dataene som den minste og ingenting mer. Denne nyttige tilgjengelige plassen levert av et RAID-1-volum passer derfor til størrelsen på den minste disken i rekken. Dette gjelder likevel for RAID-volumer med høyere RAID-nivå, selv om overskudd er lagret på en annen måte.
+								Hvis to disker av forskjellige størrelse er satt opp i et speil, vil ikke den største bli brukt fullt ut, siden den vil inneholde de samme dataene som den minste og ingenting mer. Den brukbare tilgjengelige plassen levert av et RAID-1-volum er dermed størrelsen på den minste disken i rekken. Dette gjelder også for RAID-volumer med høyere RAID-nivå, selv om redundansen er fordelt på en annen måte.
 							</div><div
                         class="para">
-								Det er derfor viktig når du setter opp RAID-matriser (unntatt for RAID-0 og «lineær RAID»), å bare montere disker av identiske eller svært nære størrelser, for å unngå å sløse med ressurser.
+								Det er derfor viktig når du setter opp RAID-sett (unntatt for RAID-0 og «lineær RAID»), å bare sette sammen disker av identiske eller svært like størrelser, for å unngå å sløse med ressurser.
 							</div></div><div
                       class="sidebar"><div
                         class="titlepage"><div><div><p
                               class="title"><strong><span
-                                  class="emphasis"><em>NOTE</em></span> Reservedisker</strong></p></div></div></div><div
+                                  class="emphasis"><em>MERK</em></span> Reservedisker</strong></p></div></div></div><div
                         class="para">
-								RAID-nivåer som inkluderer overskudd tillater tilordning av flere disker enn det som kreves til en matrise. De ekstra diskene blir brukt som reservedeler når en av de viktigste diskene svikter. For eksempel, i et speilbilde av to plater pluss en i reserve; dersom en av de to første diskene svikter, vil kjernen automatisk (og umiddelbart) rekonstruere speilet ved hjelp av en ekstra disk, slik at overskuddet forblir sikret etter gjenoppbyggingstidspunktet. Dette kan brukes som en annen form for ekstra sikkerhet for kritiske data.
+								RAID-nivåer som inkluderer redundans tillater tilordning av flere disker enn det som kreves til et sett. De ekstra diskene blir brukt som reservedisker når en av hoveddiskene svikter. For eksempel, i et speil som består av to disker pluss en i reserve; dersom en av de to første diskene svikter, vil kjernen automatisk (og umiddelbart) rekonstruere speilet ved hjelp av reservedisken, slik at redundansen forblir sikret etter gjenoppbyggingstidspunktet. Dette kan brukes som en annen form for ekstra sikkerhet for kritiske data.
 							</div><div
                         class="para">
-								En ville bli tilgitt hvis man undrer seg over hvordan dette er bedre enn bare speiling på tre disker til å begynne med. Fordelen med «ledig disk»-oppsettet er at en ekstra disk kan deles på tvers av flere RAID-volumer. For eksempel kan man ha tre speilende volumer, med overskudd sikret selv i tilfelle av disksvikt med bare syv disker (tre par, pluss en felles i reserve), i stedet for de ni diskene som ville være nødvendig med tre trillinger.
+								Det er forståelig hvis du undrer deg på hvordan dette er bedre enn å ganske enkelt bare speile på tre disker. Fordelen med «reservedisk»-oppsettet er at en ekstra disk kan deles på tvers av flere RAID-volumer. For eksempel kan man ha tre speilende volumer, med redundans sikret også når en disk svikter med bare syv disker (tre par, pluss en felles i reserve), i stedet for de ni diskene som ville være nødvendig med tre sett med tre disker.
 							</div></div><div
                       class="para">
-								Dette RAID-nivået, selv om det er dyrere (da bare halvparten av de fysiske lagringsplass, i beste fall, er i bruk), er mye brukt i praksis. Det er enkelt å forstå, og det gir svært enkle sikkerhetskopier: Siden begge diskene har identisk innhold, kan en av dem bli midlertidig ekstrahert uten noen innvirkning på systemet ellers. Leseytelsen er ofte økt siden kjernen kan lese halvparten av dataene på hver disk parallelt, mens skriveytelsen ikke er altfor alvorlig svekket. I tilfelle med en RAID-matrise med N disker, forblir data tilgjengelig selv med N-1 diskfeil.
+								Dette RAID-nivået, selv om det er dyrere (da bare halvparten av den fysiske lagringsplassen, i beste fall, er i bruk), er mye brukt i praksis. Det er enkelt å forstå, og det gjør det svært enkle å ta sikkerhetskopi: Siden begge diskene har identisk innhold, kan en av dem bli midlertidig tatt ut uten noen innvirkning på systemet ellers. Leseytelsen er ofte økt siden kjernen kan lese halvparten av dataene på hver disk parallelt, mens skriveytelsen ikke er altfor alvorlig svekket. I tilfelle med et RAID-sett med N-disker, forblir data tilgjengelig selv med N-1 diskfeil.
 							</div></dd><dt><span
                       class="term">RAID-4</span></dt><dd><div
                       class="para">
-								Dette RAID-nivået, ikke mye brukt, bruker N plater til å lagre nyttige data, og en ekstra disk til å lagre overskuddsinformasjon. Hvis den disken svikter, kan systemet rekonstruere innholdet fra den andre N-en. Hvis en av de N datadiskene svikter, inneholder den gjenværende N-1 kombinert med «paritets»-disken nok informasjon til å rekonstruere de nødvendige dataene.
+								Dette RAID-nivået, ikke mye brukt, bruker N plater til å lagre nyttige data, og en ekstra disk til å lagre redundanssinformasjon. Hvis den disken svikter, kan systemet rekonstruere innholdet fra de andre N. Hvis en av de N datadiskene svikter, inneholder den gjenværende N-1 kombinert med «paritets»-disken nok informasjon til å rekonstruere de nødvendige dataene.
 							</div><div
                       class="para">
-								RAID-4 er ikke for dyrt siden det bare omfatter en one-in-N økning i kostnader, og har ingen merkbar innvirkning på leseytelsen, men skriving går langsommere. Videre, siden et skript til hvilket som helst av N platene også omfatter et skript til paritetsdisken, ser den sistnevnte mange flere skriveoperasjoner enn den første, og dens levetid kan forkortes dramatisk som et konsekvens. Data på en RAID-4-matrise er bare trygg opp til en feilende disk (av de N + 1).
+								RAID-4 er ikke for dyrt siden det bare omfatter en en-av-N økning i kostnader, og har ingen merkbar innvirkning på leseytelsen, men skriving går langsommere. Videre, siden skriving til hvilket som helst av N platene også omfatter skriving til paritetsdisken, ser sistnevnte mange flere skriveoperasjoner enn førstnevnte, og paritetsdiskens levetid kan som konsekvens forkortes dramatisk. Data på et RAID-4-sett er bare trygg med en feilet disk (av de N + 1).
 							</div></dd><dt><span
                       class="term">RAID-5</span></dt><dd><div
                       class="para">
-								RAID-5 løser asymmetrispørsmålet til RAID-4: Paritetsblokker er spredt over alle N + 1 disker, uten at en enkeltdisk har en bestemt rolle.
+								RAID-5 løser asymmetriutfordringen til RAID-4: Paritetsblokker er spredt over alle N + 1 disker, uten at en enkeltdisk har en bestemt rolle.
 							</div><div
                       class="para">
-								Lese- og skrivehastighet er identiske til RAID-4. Her igjen forblir systemet funksjonelt med opp til en disk som feiler (av de N+1), men ikke flere.
+								Lese- og skrivehastighet er den samme som for RAID-4. Her igjen forblir systemet funksjonelt med opp til en disk som feiler (av de N+1), men ikke flere.
 							</div></dd><dt><span
                       class="term">RAID-6</span></dt><dd><div
                       class="para">
 								RAID-6 kan betraktes som en forlengelse av RAID-5, der hver serie med N blokker involverer to reserveblokker, og hver slik serie med N+2 blokker er spredt over N+2 disker.
 							</div><div
                       class="para">
-								Dette RAID-nivået er litt dyrere enn de to foregående, men det bringer litt ekstra sikkerhet siden opptil to stasjoner (i N+2) kan svikte uten at det går ut over datatilgjengeligheten. Motstykket er at skriveoperasjoner nå innebærer å skrive ut på en datablokk og to reserveblokker, noe som gjør dem enda tregere.
+								Dette RAID-nivået er litt dyrere enn de to foregående, men det bringer litt ekstra sikkerhet siden opptil to disker (av N+2) kan svikte uten at det går ut over datatilgjengeligheten. Ulempen er at skriveoperasjoner nå innebærer å skrive ut på en datablokk og to reserveblokker, noe som gjør dem enda tregere.
 							</div></dd><dt><span
                       class="term">RAID-1+0</span></dt><dd><div
                       class="para">
-								Dette er ikke strengt tatt et RAID-nivå, men en samling av to RAID-grupperinger. Med start fra 2×N disker, setter man dem først opp i parene i N RAID-1-volumer; Disse N volumene blir så samlet til ett, enten ved «lineær RAID», eller (i økende grad) av LVM. Dette siste tilfellet går lenger enn ren RAID, men det er ikke noe problem med det.
+								Dette er strengt tatt ikke et RAID-nivå, men en samling av to RAID-grupperinger. En starter med 2×N disker og setter dem først opp som par i N RAID-1-volumer; Disse N volumene blir så samlet til ett, enten ved «lineært RAID», eller (i økende grad) med LVM. Dette siste tilfellet gjør mer enn rent RAID, men det er ikke problematisk.
 							</div><div
                       class="para">
-								RAID-1+0 kan overleve flere diskfeil: opp til N i 2xN matrisen som er beskrevet ovenfor, forutsatt at minst en disk fortsetter å virke i hver av RAID-1-parene.
+								RAID-1+0 kan overleve flere diskfeil: opp til N i 2xN-settet som er beskrevet ovenfor, forutsatt at minst en disk fortsetter å virke i hver av RAID-1-parene.
 							</div><div
                       class="sidebar"><a
                         id="sidebar.raid-10"></a><div
@@ -253,39 +253,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                               class="title"><strong><span
                                   class="emphasis"><em>FOR VIDEREKOMMENDE</em></span> RAID-10</strong></p></div></div></div><div
                         class="para">
-								RAID-10 er generelt ansett som synonym for RAID-1+0, men en spesiell funksjon (en særegenhet/spesifisitet) i Linux gjør det faktisk til en generalisering. Dette oppsettet gjør det mulig for et system, der hver blokk er lagret på to forskjellige disker, selv med et oddetall disker, at kopiene blir spredt ut i en konfigurerbar modell.
+								RAID-10 er generelt ansett som synonym for RAID-1+0, men en Linux-spesialitet gjør det faktisk til en generalisering. Dette oppsettet gjør det mulig med et system der hver blokk er lagret på to ulike disker, selv med et oddetall disker, der kopiene blir spredt ut i en modell som kan settes opp.
 							</div><div
                         class="para">
-								Yteevnen vil variere avhengig av valgt repartisjonsmodell og reservenivå, og av arbeidsmengden til det det logiske volumet.
+								Ytelsen vil variere avhengig av valgt repartisjonsmodell og redundansnivå, og av arbeidsmengden til det det logiske volumet.
 							</div></div></dd></dl></div><div
                 class="para">
-					Selvfølgelig vil RAID-nivået velges ut fra begrensningene og kravene til hvert program. Merk at en enkelt datamaskin kan ha flere forskjellige RAID-matriser med forskjellige konfigurasjoner.
+					Selvfølgelig må RAID-nivået velges ut fra begrensningene og kravene til hvert program. Merk at en enkelt datamaskin kan ha flere ulike RAID-sett med forskjellige oppsett.
 				</div></div><div
               class="section"><div
                 class="titlepage"><div><div><h4
                       class="title"><a
-                        id="sect.raid-setup"></a>12.1.1.2. Å sette opp RAID</h4></div></div></div><a
+                        id="sect.raid-setup"></a>12.1.1.2. Oppsett av RAID</h4></div></div></div><a
                 id="id-1.15.4.6.9.2"
                 class="indexterm"></a><div
                 class="para">
-					Å sette opp RAID-volumer krever <span
+					Oppsett av RAID-volumer krever <span
                   class="pkg pkg">mdadm</span>-pakken; den leverer <code
-                  class="command">mdadm</code>-kommandoen, som gjør det mulig å lage og håndtere RAID-tabeller, samt prosedyrer og verktøy som integrerer den i resten av systemet, inkludert overvåkningssystemet.
+                  class="command">mdadm</code>-kommandoen, som gjør det mulig å lage og håndtere RAID-tabeller, samt prosedyrer og verktøy som integrerer den i resten av systemet, inkludert monitoreringssystemet.
 				</div><div
                 class="para">
-					Vårt eksempel vil være en tjener med en rekke disker, der noen er allerede brukt, og resten blir tilgjengelig til å sette opp RAID. Vi har i utgangspunktet følgende disker og partisjoner:
+					Vårt eksempel vil være en tjener med en rekke disker, der noen er allerede brukt, og resten er tilgjengelig til å sette opp RAID. Vi har i utgangspunktet følgende disker og partisjoner:
 				</div><div
                 xmlns:d="http://docbook.org/ns/docbook"
                 class="itemizedlist"><ul><li
                     class="listitem"><div
                       class="para">
 							<code
-                        class="filename">sdb</code>-disken, 4 GB, er fullt tilgjengelig;
+                        class="filename">sdb</code>-disken, 4 GB, er tilgjengelig i sin helhet;
 						</div></li><li
                     class="listitem"><div
                       class="para">
 							<code
-                        class="filename">sdc</code>-disken, 4 GB, er også fullt ut tilgjengelig;
+                        class="filename">sdc</code>-disken, 4 GB, er også helt tilgjengelig;
 						</div></li><li
                     class="listitem"><div
                       class="para">
@@ -301,13 +301,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="sidebar"><div
                   class="titlepage"><div><div><p
                         class="title"><strong><span
-                            class="emphasis"><em>NOTE</em></span> Identifisere eksisterende RAID-volumer</strong></p></div></div></div><div
+                            class="emphasis"><em>MERK</em></span> Identifisere eksisterende RAID-volumer</strong></p></div></div></div><div
                   class="para">
 					Filen <code
                     class="filename">/proc/mdstat</code> lister eksisterende volumer og tilstanden deres. Når du oppretter et nytt RAID-volum, bør man være forsiktig for å ikke gi det samme navnet som på et eksisterende volum.
 				</div></div><div
                 class="para">
-					Vi kommer til å bruke disse fysiske elementer for å bygge to volumer, en RAID-0 og ett speil (RAID-1). La oss starte med RAID-0-volumet:
+					Vi kommer til å bruke disse fysiske elementene for å bygge to volumer, et RAID-0 og et speil (RAID-1). La oss starte med RAID-0-volumet:
 				</div><pre
                 class="screen"><code
                   class="computeroutput"># </code><strong
@@ -377,14 +377,14 @@ Writing superblocks and filesystem accounting information: done
                   class="command">mdadm --create</code> krever flere parametre: Navnet på volumet som skal lages (<code
                   class="filename">/dev/md*</code>, der MD står for <span
                   class="foreignphrase"><em
-                    class="foreignphrase">Multiple Device</em></span>), RAID-nivået, antall disker (som er obligatorisk til tross for at det er mest meningsfullt bare med RAID-1 og over), og de fysiske enhetene som skal brukes. Når enheten er opprettet, kan vi bruke den som vi ville bruke en vanlig partisjon, opprette et filsystem på den, montere dette filsystemet, og så videre. Vær oppmerksom på at vår etablering av et RAID-0-volum på <code
-                  class="filename">md0</code> ikke er et sammentreff, og nummereringen av tabellen ikke trenger å være korrelert til den valgte størrelsen på reservekapasiteten. Det er også mulig å lage navngitte RAID-arrays, ved å gi <code
-                  class="command">mdadm</code> parametre slik som <code
+                    class="foreignphrase">Multiple Device</em></span>), RAID-nivået, antall disker (som er obligatorisk til tross for at det er mest meningsfylt bare med RAID-1 og over), og de fysiske enhetene som skal brukes. Når enheten er opprettet, kan vi bruke den som vi ville bruke en vanlig partisjon, opprette et filsystem på den, montere dette filsystemet, og så videre. Vær oppmerksom på at vår oppretting av et RAID-0-volum på <code
+                  class="filename">md0</code> kun er et sammentreff, og nummereringen av tabellen ikke trenger å være korrelert til det valgte redundansnivå. Det er også mulig å lage navngitte RAID-arrays, ved å gi <code
+                  class="command">mdadm</code> et parametre ala <code
                   class="filename">/dev/md/linear</code> i stedet for <code
                   class="filename">/dev/md0</code>.
 				</div><div
                 class="para">
-					Opprettelse av en RAID-1 følger opp en lignende måte, forskjellene blir bare merkbare etter etableringen:
+					Opprettelse av et RAID-1 gjøres på lignende måte, forskjellene blir bare merkbare etter opprettelsen:
 				</div><pre
                 class="screen"><code
                   class="computeroutput"># </code><strong
@@ -445,42 +445,42 @@ Working Devices : 2
                         class="title"><strong><span
                             class="emphasis"><em>TIPS</em></span> RAID, disker og partisjoner</strong></p></div></div></div><div
                   class="para">
-					Som illustrert ved vårt eksempel, kan RAID-enheter bygges fra diskpartisjoner, og krever ikke hele disker.
+					Som illustrert i eksempelet vårt, kan RAID-enheter lages fra diskpartisjoner, og krever ikke hele disker.
 				</div></div><div
                 class="para">
 					Noen få merknader er på sin plass. Først, <code
                   class="command">mdadm</code> merker at de fysiske elementene har forskjellige størrelser; siden dette innebærer at noe plass går tapt på de større elementene, kreves en bekreftelse.
 				</div><div
                 class="para">
-					Enda viktigere er det å merke tilstanden til speilet. Normal tilstand for et RAID-speil er at begge diskene har nøyaktig samme innhold. Men ingenting garanterer at dette er tilfelle når volumet blir opprettet. RAID-subsystem vil derfor gi denne garantien selv, og det vil være en synkroniseringsfase så snart RAID-enheten er opprettet. Etter en tid (den nøyaktige tiden vil avhenge av den faktiske størrelsen på diskene ...), skifter RAID-tabellen til «aktiv» eller «ren» tilstand. Legg merke til at i løpet av denne gjenoppbyggingsfasen, er speilet i en degradert modus, og reservekapasitet er ikke sikret. En disk som svikter på dette trinnet kan føre til at alle data mistes. Store mengder av viktige data er imidlertid sjelden lagret på en nyopprettet RAID før den første synkroniseringen. Legg merke til at selv i degradert modus, vil <code
-                  class="filename">/dev/md1</code> kunne brukes, og et filsystem kan opprettes på den, så vel som noe data kopieres på den.
+					Enda viktigere er det å merke tilstanden til speilet. Normal tilstand for et RAID-speil er at begge diskene har nøyaktig samme innhold. Men ingenting garanterer at dette er tilfelle når volumet blir opprettet. RAID-delsystem vil derfor sikre denne garantien selv, og det vil være en synkroniseringsfase i det RAID-enheten er opprettet. Etter en tid (den nøyaktige tiden vil avhenge av den faktiske størrelsen på diskene ...), skifter RAID-tabellen til «aktiv» eller «ren» tilstand. Legg merke til at i løpet av denne gjenoppbyggingsfasen, er speilet i en degradert modus, og reservekapasitet er ikke sikret. En disk som svikter på dette trinnet kan føre til at alle data mistes. Store mengder av viktige data er imidlertid sjelden lagret på en nyopprettet RAID før den første synkroniseringen. Legg merke til at selv i degradert modus, vil <code
+                  class="filename">/dev/md1</code> kunne brukes, og et filsystem kan opprettes på den, og data kan kopieres inn.
 				</div><div
                 class="sidebar"><div
                   class="titlepage"><div><div><p
                         class="title"><strong><span
-                            class="emphasis"><em>TIPS</em></span> Å starte et speil i degradert modus</strong></p></div></div></div><div
+                            class="emphasis"><em>TIPS</em></span> Oppstart av speil i degradert modus</strong></p></div></div></div><div
                   class="para">
-					Noen ganger er to disker ikke umiddelbart tilgjengelig når man ønsker å starte et RAID-1-speil, for eksempel fordi en av diskene en planlegger å inkludere, allerede er brukt til å lagre dataene man ønsker å flytte til matrisen. I slike tilfeller er det mulig å bevisst skape en degradert RAID-1-tabell ved å sende <code
+					Noen ganger er to disker ikke umiddelbart tilgjengelig når man ønsker å starte et RAID-1-speil, for eksempel fordi en av diskene som planlegges inkludert, allerede er brukt til å lagre dataene man ønsker å flytte til settet. I slike tilfeller er det mulig å med vilje opprette et degradert RAID-1-sett ved å sende <code
                     class="filename">missing</code> i stedet for en enhetsfil som ett av argumentene til <code
-                    class="command">mdadm</code>. Når dataene er blitt kopiert til «speilet», kan den gamle disken legges til matrisen. Så vil det finne sted en synkronisering, noe som gir oss den reservekapasitet som var ønsket i første omgang.
+                    class="command">mdadm</code>. Når dataene er kopiert til «speilet», kan den gamle disken legges til settet. Deretter vil det finne sted en synkronisering, noe som gir oss den reservekapasitet som var ønsket i første omgang.
 				</div></div><div
                 class="sidebar"><div
                   class="titlepage"><div><div><p
                         class="title"><strong><span
-                            class="emphasis"><em>TIPS</em></span> Å sette opp et speil uten synkronisering</strong></p></div></div></div><div
+                            class="emphasis"><em>TIPS</em></span> Oppsett av et speil uten synkronisering</strong></p></div></div></div><div
                   class="para">
-					RAID-1-volumer er ofte laget for å bli brukt som en ny disk, ofte betraktet som blank. Det faktiske innledende innholdet på disken er dermed ikke så relevant, siden man bare trenger å vite at dataene som er skrevet etter etableringen av volumet, spesielt filsystemet, kan nås senere.
+					RAID-1-volumer opprettes oftest for å brukes som en ny disk, som antas å være blank. Det faktiske og opprinnelige innholdet på disken er dermed ikke så relevant, siden man bare trenger å vite at dataene som er skrevet etter at volumet og spesielt filsystemet er opprettet, kan nås senere.
 				</div><div
                   class="para">
 					Man kan derfor lure på om poenget med å synkronisere begge diskene ved tidpunktet for opprettelsen er god. Hvorfor bry seg om innholdet er identisk på soner i volumet som vi vet kun vil leses etter at vi har skrevet til dem?
 				</div><div
                   class="para">
-					Heldigvis kan denne synkroniseringfasen unngås ved å gå forbi <code
+					Heldigvis kan denne synkroniseringsfasen unngås ved å sende inn <code
                     class="literal">--assume-clean</code>-valget til <code
-                    class="command">mdadm</code>. Imidlertid kan dette alternativet føre til overraskelser i tilfeller hvor de første dataene vil bli lest (for eksempel hvis et filsystem allerede er der på de fysiske diskene), som er grunnen til at den ikke er aktivert som standard.
+                    class="command">mdadm</code>. Imidlertid kan dette alternativet gi overraskelser i tilfeller hvor de opprinnelige dataene leses (for eksempel hvis et filsystem allerede er til stede på de fysiske diskene). Dette er grunnen til at valget ikke er aktivert som standard.
 				</div></div><div
                 class="para">
-					La oss nå se hva som skjer når et av elementene i RAID-1-tabellen svikter. <code
+					La oss nå se hva som skjer når et av elementene i RAID-1-settet svikter. <code
                   class="command">mdadm</code>, spesielt <code
                   class="literal">--fail</code>-valget tillater å simulere en slik diskfeiling:
 				</div><pre
@@ -511,8 +511,8 @@ Working Devices : 1
 
        1       8       64        -      faulty   /dev/sde</code></pre><div
                 class="para">
-					Innholdet i volumet er fortsatt tilgjengelig (og, hvis det er montert, legger ikke programmene merke til en ting), men datasikkerheten er ikke trygg lenger: Skulle <code
-                  class="filename">sdd</code>-disken i sin tur svikte, vil dataene gå tapt. Vi ønsker å unngå denne risikoen, så vi erstatter den ødelagte disken med en ny en, <code
+					Innholdet i volumet er fortsatt tilgjengelig (og, hvis det er montert, legger ikke programmene merke til noen ting), men datasikkerheten er ikke trygg lenger: Skulle <code
+                  class="filename">sdd</code>-disken i sin tur svikte, vil data gå tapt. Vi ønsker å unngå denne risikoen, så vi erstatter den ødelagte disken med en ny, <code
                   class="filename">sdf</code>:
 				</div><pre
                 class="screen"><code
@@ -573,8 +573,8 @@ Working Devices : 2
 
        1       8       64        -      faulty   /dev/sde</code></pre><div
                 class="para">
-					Her igjen utløser kjernen automatisk en rekonstruksjonsfase der volumet fortsatt er tilgjengelig, men i en degradert modus. Når gjenoppbyggingen er over, er RAID-matrisen tilbake i normal tilstand. Man kan da si til systemet at <code
-                  class="filename">sde</code>-disken er i ferd med å bli fjernet fra matrisen, for å ende opp med et klassisk RAID-speil på to disker:
+					Her utløser kjernen som vanlig automatisk en rekonstruksjonsfase der volumet fortsatt er tilgjengelig, men i en degradert modus. Når gjenoppbyggingen er over, er RAID-settet tilbake i normal tilstand. Man kan da si til systemet at <code
+                  class="filename">sde</code>-disken er i ferd med å bli fjernet fra settet, for å ende opp med et klassisk RAID-speil med to disker:
 				</div><pre
                 class="screen"><code
                   class="computeroutput"># </code><strong
@@ -590,27 +590,27 @@ Working Devices : 2
        0       8       50        0      active sync   /dev/sdd2
        2       8       80        1      active sync   /dev/sdf</code></pre><div
                 class="para">
-					Fra da av kan driveren fysisk fjernes når tjeneren nærmest er slått av, eller til og med hot-fjernes når maskinvareoppsettet tillater det. Slike konfigurasjoner inkluderer noen SCSI-kontrollere, de fleste SATA-disker, og eksterne harddisker som opererer via USB eller Firewire.
+					Etter dette kan disken fysisk fjernes når tjenermaskinen er slått av neste gang, eller til og med fjernes under kjøring hvis maskinvareoppsettet tillater det. Slike oppsett inkluderer noen SCSI-kontrollere, de fleste SATA-disker, og eksterne harddisker tilkoblet via USB eller Firewire.
 				</div></div><div
               class="section"><div
                 class="titlepage"><div><div><h4
                       class="title"><a
-                        id="sect.backup-raid-config"></a>12.1.1.3. Sikkerhetskopi av konfigureringen</h4></div></div></div><div
+                        id="sect.backup-raid-config"></a>12.1.1.3. Sikkerhetskopi av oppsettet</h4></div></div></div><div
                 class="para">
-					De fleste av meta-dataene som gjelder gjelder RAID-volumer lagres direkte på diskene til disse matrisene, slik at kjernen kan oppdage matriser og komponentene deres, og montere dem automatisk når systemet starter opp. Men det oppmuntres til sikkerhetskopiering av denne konfigurasjonen, fordi denne deteksjonen ikke er feilfri, og det er bare å forvente at den vil svikte akkurat under sensitive omstendigheter. I vårt eksempel, hvis en svikt i <code
+					Det meste av meta-dataene som gjelder gjelder RAID-volumer lagres direkte på diskene til disse settene, slik at kjernen kan oppdage settene og tilhørende komponenter, og montere dem automatisk når systemet starter opp. Men det oppmuntres til sikkerhetskopiering av dette oppsettet, fordi denne deteksjonen ikke er feilfri, og det er bare å forvente at den vil svikte akkurat under følsomme omstendigheter. I vårt eksempel, hvis en svikt i <code
                   class="filename">sde</code>-disken hadde vært virkelig (i stedet for simulert), og systemet har blitt startet på nytt uten å fjerne denne <code
-                  class="filename">sde</code>-disken, kunne denne disken begynne å jobbe igjen etter å ha blitt undersøkt under omstarten. Kjernen vil da ha tre fysiske elementer, som hver utgir seg for å inneholde halvparten av det samme RAID-volumet. En annen kilde til forvirring kan komme når RAID-volumer fra to tjenere er konsolidert inn i bare en tjener. Hvis disse matrisene kjørte normalt før diskene ble flyttet, ville kjernen være i stand til å oppdage og montere parene riktig; men hvis de flyttede diskene hadde blitt samlet i en <code
+                  class="filename">sde</code>-disken, kunne denne disken bli tatt i bruk igjen etter å ha blitt oppdaget under omstarten. Kjernen vil da ha tre fysiske elementer, som hver utgir seg for å inneholde halvparten av det samme RAID-volumet. En annen kilde til forvirring kan komme når RAID-volumer fra to tjenermaskiner blir samlet inn i bare en tjenermaskin. Hvis disse settene kjørte normalt før diskene ble flyttet, ville kjernen være i stand til å oppdage og montere parene riktig; men hvis de flyttede diskene var samlet i en <code
                   class="filename">md1</code> på den gamle tjeneren, og den nye tjeneren allerede har en <code
                   class="filename">md1</code>, ville et av speilene få nytt navn.
 				</div><div
                 class="para">
-					Å sikkerhetskopiere konfigurasjonen er derfor viktig, om bare som referanse. Den vanlige måten å gjøre det på er å redigere <code
+					Å sikkerhetskopiere oppsettet er derfor viktig, om enn bare som referanse. Den vanlige måten å gjøre det på er å endre på <code
                   class="filename">/etc/mdadm/mdadm.conf</code>-filen, et eksempel på det er listet her:
 				</div><div
                 class="example"><a
                   id="example.mdadm-conf"></a><p
                   class="title"><strong>Eksempel 12.1. <code
-                      class="command">mdadm</code>-konfigurasjonsfil</strong></p><div
+                      class="command">mdadm</code>-oppsettsfil</strong></p><div
                   class="example-contents"><pre
                     class="programlisting"># mdadm.conf
 #
@@ -636,15 +636,14 @@ ARRAY /dev/md0 metadata=1.2 name=mirwiz:0 UUID=bb085b35:28e821bd:20d697c9:650152
 ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f67464
 
 # This configuration was auto-generated on Thu, 17 Jan 2013 16:21:01 +0100
-# by mkconf 3.2.5-3
-</pre></div></div><div
+# by mkconf 3.2.5-3</pre></div></div><div
                 class="para">
 					En av de mest nyttige detaljer er <code
-                  class="literal">DEVICE</code>-valget, som viser enhetene som systemet automatisk vil se etter deler av RAID-volumer ved oppstartstidspunktet. I vårt eksempel erstattet vi standardverdien, <code
+                  class="literal">DEVICE</code>-valget, som viser enhetene som systemet automatisk vil undersøke for å se etter deler av RAID-volumer ved oppstarts. I vårt eksempel erstattet vi standardverdien, <code
                   class="literal">partitions containers</code>, med en eksplisitt liste over enhetsfiler, siden vi valgte å bruke hele disker, og ikke bare partisjoner for noen volumer.
 				</div><div
                 class="para">
-					De to siste linjene i vårt eksempel er de som tillater kjernen trygt å velge hvilke volumnummer som skal tilordnes hvilken matrise. Metadataene som er lagret på selve diskene er nok til å sette volumene sammen igjen, men ikke for å bestemme volumnummeret (og det matchende <code
+					De to siste linjene i vårt eksempel er de som tillater kjernen trygt å velge hvilke volumnummer som skal tilordnes hvilket sett. Metadataene som er lagret på selve diskene er nok til å sette volumene sammen igjen, men ikke for å bestemme volumnummeret (og det matchende <code
                   class="filename">/dev/md*</code>-enhetsnavn).
 				</div><div
                 class="para">
@@ -657,7 +656,7 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
                   class="computeroutput">ARRAY /dev/md0 metadata=1.2 name=mirwiz:0 UUID=bb085b35:28e821bd:20d697c9:650152bb
 ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f67464</code></pre><div
                 class="para">
-					Innholdet i disse to siste linjene er ikke avhengig av listen over disker som inngår i volumet. Det er derfor ikke nødvendig å regenerere disse linjene når du skifter ut en feilet disk med en ny. På den annen side må man sørge for å oppdatere filen når du oppretter eller sletter et RAID-oppsett.
+					Innholdet i disse to siste linjene avhenger ikke av listen over disker som inngår i volumet. Det er derfor ikke nødvendig å lage disse linjene på nytt når du bytter ut en feilet disk med en ny. På den annen side må man sørge for å oppdatere filen når en oppretter eller sletter et RAID-sett.
 				</div></div></div><div
             class="section"><div
               class="titlepage"><div><div><h3
@@ -669,7 +668,7 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
               class="indexterm"></a><div
               class="para">
 				LVM, <span
-                class="emphasis"><em>Logical Volume Manager</em></span> ( logisk volumhåndtering), er en annen tilnærming for å abstrahere logiske volumer fra sin fysiske forankring, som fokuserer på økt fleksibilitet i stedet for økt pålitelighet. LVM lar deg endre et logisk volum transparent så langt programmene angår; for eksempel er det mulig å legge til nye disker, overføre dataene til dem, og fjerne gamle disker, uten at volumet demonteres.
+                class="emphasis"><em>Logical Volume Manager</em></span> ( logisk volumhåndtering), er en annen tilnærming for å abstrahere logiske volumer fra sin fysiske forankring, som fokuserer på økt fleksibilitet i stedet for økt pålitelighet. LVM lar deg endre et logisk volum transparent så langt programmene angår; for eksempel er det mulig å legge til nye disker, overføre dataene til dem, og fjerne gamle disker, uten at volumet avmonteres.
 			</div><div
               class="section"><div
                 class="titlepage"><div><div><h4
@@ -680,33 +679,33 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
 				</div><div
                 class="para">
 					Først, PV (<span
-                  class="emphasis"><em>Physical Volume</em></span>, fysisk volum) er enheten nærmest maskinvaren: Det kan være partisjoner på en disk, en full disk, eller til og med en annen blokkenhet (inkludert, for eksempel, en RAID-matrise). Merk at når et fysisk element er satt opp til å bli en PV for LVM, skal den kun være tilgjengelige via LVM, ellers vil systemet bli forvirret.
+                  class="emphasis"><em>Physical Volume</em></span>, fysisk volum) er enheten nærmest maskinvaren: Det kan være partisjoner på en disk, en hel disk, eller til og med en annen blokkenhet (inkludert, for eksempel, et RAID-sett). Merk at når et fysisk element er satt opp til å bli en PV for LVM, skal den kun være tilgjengelige via LVM, ellers vil systemet bli forvirret.
 				</div><div
                 class="para">
 					Et antall PV-er kan samles i en VG (<span
-                  class="emphasis"><em>Volume Group</em></span>, volumgruppe), som kan sammenlignes med både virtuelle og utvidbare disker. VG er abstrakte, og vises ikke i en enhetsfil i <code
+                  class="emphasis"><em>Volume Group</em></span>, volumgruppe), som kan sammenlignes med både virtuelle og utvidbare disker. VG-er er abstrakte, og dukker ikke opp som en enhetsfil i <code
                   class="filename">/dev</code>-hierarkiet, så det er ingen risiko for å bruke dem direkte.
 				</div><div
                 class="para">
 					Den tredje typen objekt er LV (<span
-                  class="emphasis"><em>Logical Volume</em></span>, logisk volum), som er en del av en VG; hvis vi holder på VG-as-disk analogien, LV kan sammenlignes med en partisjon. LV-en fremstår som en blokkenhet med en oppføring i <code
-                  class="filename">/dev</code>, og den kan brukes som en hvilken som helst annen fysisk partisjon (som oftest, for å være vert for et filsystem eller et vekselminne).
+                  class="emphasis"><em>Logical Volume</em></span>, logisk volum), som er en del av en VG; hvis vi holder på analogien VG-som-disk, kan LV sammenlignes med en partisjon. LV-en fremstår som en blokkenhet med en oppføring i <code
+                  class="filename">/dev</code>, og den kan brukes som en hvilken som helst annen fysisk partisjon (som oftest, som en vert for et filsystem eller et vekselminne).
 				</div><div
                 class="para">
-					Det viktige er at splittingen av en VG til LVS-er er helt uavhengig av dens fysiske komponenter (PVS-ene). En VG med bare en enkelt fysisk komponent (en disk for eksempel) kan deles opp i et dusin logiske volumer; på samme måte kan en VG bruke flere fysiske disker, og fremstå som et eneste stort logisk volum. Den eneste begrensningen, selvsagt, er at den totale størrelsen allokert (fordelt) til LV-er kan ikke være større enn den totale kapasiteten til PV-ene i volumgruppen.
+					Det viktige er at splittingen av en VG til LV-er er helt uavhengig av dens fysiske komponenter (PV-ene). En VG med bare en enkelt fysisk komponent (en disk for eksempel) kan deles opp i et dusin logiske volumer; på samme måte kan en VG bruke flere fysiske disker, og fremstå som et eneste stort logisk volum. Den eneste begrensningen, selvsagt, er at den totale størrelsen tildelt LV-er kan ikke være større enn den totale kapasiteten til PV-ene i volumgruppen.
 				</div><div
                 class="para">
 					Det er imidlertid ofte fornuftig å ha en viss form for homogenitet blant de fysiske komponentene i en VG, og dele VG-en i logiske volumer som vil ha lignende brukermønstre. For eksempel, hvis tilgjengelig maskinvare inkluderer raske og tregere disker, kan de raske bli gruppert i en VG, og de tregere i en annen; deler av den første kan deretter bli tildelt til applikasjoner som krever rask tilgang til data, mens den andre kan beholdes til mindre krevende oppgaver.
 				</div><div
                 class="para">
-					I alle fall, husk at en LV ikke er spesielt knyttet til en bestemt PV. Det er mulig å påvirke hvor data fra en LV fysisk er lagret, men å bruk denne muligheten på daglig basis er ikke nødvendig. Tvert imot: Ettersom settet med fysiske komponenter i en VG utvikler seg, kan de fysiske lagringsstedene som tilsvarer en bestemt LV, migreres over disker (mens den selvfølgelig blir værende innenfor PV-er tildelt VG-en).
+					I alle fall, husk at en LV ikke er spesielt knyttet til en bestemt PV. Det er mulig å påvirke hvor data fra en LV fysisk er lagret, men å bruk denne muligheten er ikke nødvendig til daglig. Tvert imot: Ettersom settet med fysiske komponenter i en VG utvikler seg, kan de fysiske lagringsstedene som tilsvarer en bestemt LV, spres over disker (mens den selvfølgelig blir værende innenfor PV-er tildelt VG-en).
 				</div></div><div
               class="section"><div
                 class="titlepage"><div><div><h4
                       class="title"><a
-                        id="sect.lvm-setup"></a>12.1.2.2. Å sette opp LVM</h4></div></div></div><div
+                        id="sect.lvm-setup"></a>12.1.2.2. Oppsett av LVM</h4></div></div></div><div
                 class="para">
-					La oss nå følge, trinn for trinn, prosessen med å sette opp LVM for et typisk brukstilfelle: Vi ønsker å forenkle en kompleks lagringssituasjon. En slik situasjon skjer vanligvis etter en lang og innfløkt historie med akkumulerte midlertidige tiltak. For illustrasjonsformål vil vi vurdere en tjener der lagringsbehovene har endret seg over tid, og endte opp i en labyrint av tilgjengelige partisjoner fordelt over flere delvis brukte disker. Mer konkret er følgende partisjoner tilgjengelige:
+					La oss nå følge prosessen, steg for steg, med å sette opp LVM i et typisk brukstilfelle: Vi ønsker å forenkle en kompleks lagringssituasjon. En slik situasjon oppstår vanligvis etter en lang og innfløkt historie med akkumulerte midlertidige tiltak. For illustrasjonsformål vil vi vurdere en tjenermaskin der lagringsbehovene har endret seg over tid, og endte opp i en labyrint av tilgjengelige partisjoner fordelt over flere delvis brukte disker. Mer konkret er følgende partisjoner tilgjengelige:
 				</div><div
                 xmlns:d="http://docbook.org/ns/docbook"
                 class="itemizedlist"><ul><li
@@ -725,7 +724,7 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
                     class="listitem"><div
                       class="para">
 							<code
-                        class="filename">sdd</code>-disken, 4 GB, fullt tilgjengelig;
+                        class="filename">sdd</code>-disken, 4 GB, hele er tilgjengelig;
 						</div></li><li
                     class="listitem"><div
                       class="para">
@@ -737,17 +736,17 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
                 class="para">
 					I tillegg, la oss anta at diskene <code
                   class="filename">sdb</code> og <code
-                  class="filename">sdf</code> er raskere enn de andre to.
+                  class="filename">sdf</code> er raskere enn de to andre.
 				</div><div
                 class="para">
-					Vårt mål er å sette opp tre logiske volumer for tre ulike programmer: En filtjener som krever 5 GB lagringsplass, en database (1 GB), og noe plass for sikkerhetskopiering (12 GB). De to første trenger god ytelse, men sikkerhetskopiering er mindre kritisk med tanke på tilgangshastighet. Alle disse begrensninger forhindrer bruk av partisjoner på egen hånd; å bruke LVM kan samle den fysiske størrelsen på enhetene, slik at den totale tilgjengelige plassen er den eneste begrensningen.
+					Målet vårt er å sette opp tre logiske volumer for tre ulike programmer: En filtjener som krever 5 GB lagringsplass, en database (1 GB), og noe plass for sikkerhetskopiering (12 GB). De to første trenger god ytelse, men sikkerhetskopiering er mindre kritisk med tanke på tilgangshastighet. Alle disse begrensninger forhindrer bruk av partisjoner på egen hånd; å bruke LVM kan samle den fysiske størrelsen på enhetene, slik at den totale tilgjengelige plassen er den eneste begrensningen.
 				</div><div
                 class="para">
-					De verktøy som kreves er i <span
-                  class="pkg pkg">lvm2</span>-pakken og det den krever. Når de er installert, skal det tre trinn til for å sette opp LVM som svarer til de tre konseptnivåene.
+					Verktøyene som kreves er i <span
+                  class="pkg pkg">lvm2</span>-pakken og dens avhengigheter. Når de er installert, skal det tre trinn til for å sette opp LVM som svarer til de tre konseptnivåene.
 				</div><div
                 class="para">
-					Først forbereder vi de fysiske volumene ved å bruke <code
+					Først gjør vi klare de fysiske volumene ved å bruke <code
                   class="command">pvcreate</code>:
 				</div><a
                 id="screen.pvcreate"></a><pre
@@ -792,14 +791,14 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
   /dev/sdf2       lvm2 ---  5.22g 5.22g
 </code></pre><div
                 class="para">
-					Så langt så bra. Vær oppmerksom på at en PV kan settes opp på en full disk, samt på individuelle partisjoner på den. Som vist ovenfor <code
-                  class="command">pvdisplay</code>-kommandoen lister eksisterende PV-er, med to mulige utdataresultater.
+					Alt bra så langt. Vær oppmerksom på at en PV kan settes opp på en hel disk, samt på individuelle partisjoner på disken. Kommandoen <code
+                  class="command">pvdisplay</code>, som vist ovenfor, lister eksisterende PV-er, med to mulige utdataformater.
 				</div><div
                 class="para">
-					Nå la oss sette sammen disse fysiske elementer til VG-er ved å bruke <code
-                  class="command">vgcreate</code>. Vi vil samle bare PV-er fra de raske diskene inn i en <code
-                  class="filename">vg_critical</code>-VG. Den andre VG-en, <code
-                  class="filename">vg_normal</code>, vil også inkludere langsommere elementer.
+					Deretter setter vi sammen disse fysiske elementer til VG-er ved å bruke <code
+                  class="command">vgcreate</code>. Vi samler kun raske PV-er i VG-en <code
+                  class="filename">vg_critical</code>. Den andre VG-en, <code
+                  class="filename">vg_normal</code>, vil inneholde også langsommere enheter.
 				</div><a
                 id="screen.vgcreate"></a><pre
                 class="screen"><code
@@ -847,13 +846,13 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
   vg_normal     3   0   0 wz--n- 12.30g 12.30g
 </code></pre><div
                 class="para">
-					Her igjen, kommandoer er ganske greie (og <code
-                  class="command">vgdisplay</code> foreslår to utdataformater). Merk at det er fullt mulig å bruke to partisjoner på samme fysiske disk i to forskjellige VG-er. Merk også at vi brukte en <code
-                  class="filename">vg_</code>-forstavelse til å navngi våre VG-er, men det er ikke noe mer enn en konvensjon.
+					Her ser vi igjen at kommandoene er ganske greie (og <code
+                  class="command">vgdisplay</code> foreslår to utdataformater). Merk at det er fullt mulig å bruke to partisjoner på samme fysiske disk i to forskjellige VG-er. Merk også at vi navnga våre VG-er med <code
+                  class="filename">vg_</code>-forstavelse. Dette er ikke noe mer enn en konvensjon.
 				</div><div
                 class="para">
-					Vi har nå to «virtuelle disker», med størrelse henholdsvis ca. 8 GB og 12 GB. La oss nå riste dem opp i «virtuelle partisjoner» (LV-er). Dette innbefatter <code
-                  class="command">lvcreate</code>-kommandoen, og en litt mer komplisert syntaks:
+					Vi har nå to «virtuelle disker», med størrelse henholdsvis ca. 8 GB og 12 GB. La oss nå dele dem opp i «virtuelle partisjoner» (LV-er). Dette innebærer bruk av kommandoen <code
+                  class="command">lvcreate</code>, og en litt mer komplisert syntaks:
 				</div><a
                 id="screen.lvcreate"></a><pre
                 class="screen"><code
@@ -900,10 +899,10 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
   lv_files   vg_critical -wi-a---  5.00g                                           
   lv_backups vg_normal   -wi-a--- 12.00g</code></pre><div
                 class="para">
-					To parametere er nødvendig når du oppretter logiske volumer; de må sendes til <code
-                  class="command">lvcreate</code> som valgmuligheter. Navnet på LV som skal opprettes er angitt med alternativet <code
-                  class="literal">-n</code>, og størrelsen dens er generelt gitt ved å bruke <code
-                  class="literal">-L</code>-alternativet. Vi trenger også, selvfølgelig, å fortelle kommandoen hvilken VG som skal brukes, derav den siste parameteren på kommandolinjen.
+					To parameter er nødvendig når du oppretter logiske volumer; de må sendes til <code
+                  class="command">lvcreate</code> som tilvalg. Navnet på LV som skal opprettes er angitt med alternativet <code
+                  class="literal">-n</code>, og dens størrelse er generelt gitt ved å bruke <code
+                  class="literal">-L</code>-alternativet. Vi trenger også, selvfølgelig, å fortelle kommandoen hvilken VG som skal brukes, derav det siste parameteret på kommandolinjen.
 				</div><div
                 class="sidebar"><div
                   class="titlepage"><div><div><p
@@ -912,28 +911,28 @@ ARRAY /dev/md1 metadata=1.2 name=mirwiz:1 UUID=6ec558ca:0c2c04a0:19bca283:95f674
                             class="command">lvcreate</code>-valgene</strong></p></div></div></div><div
                   class="para">
 					Kommandoen <code
-                    class="command">lvcreate</code> har flere alternativer for å tilpasse hvordan LV-en blir laget.
+                    class="command">lvcreate</code> har flere alternativer for å tilpasse hvordan LV-en opprettes.
 				</div><div
                   class="para">
 					La oss først beskrive <code
                     class="literal">-l</code>-valget, der LVs størrelse kan gis som et antall blokker (i motsetning til de «menneskelige» enheter vi brukte ovenfor). Disse blokkene (kalt PES, <span
-                    class="emphasis"><em>physical extents</em></span> (fysiske omfang), i LVM-termer) er sammenhengende enheter med lagringsplass i PV-er, og de kan ikke deles på tvers over LV-er. Når man ønsker å definere lagringsplass for en LV med noe presisjon, for eksempel å bruke hele det tilgjengelige rommet, vil <code
-                    class="literal">-l</code>-valget trolig bli foretrukket fremfor <code
+                    class="emphasis"><em>physical extents</em></span> (fysiske omfang), i LVM-termer) er sammenhengende enheter med lagringsplass i PV-er, og de kan ikke deles på tvers av LV-er. Når man ønsker å definere lagringsplass for en LV med noe presisjon, for eksempel å bruke hele den tilgjengelige plassen, vil <code
+                    class="literal">-l</code>-valget trolig foretrekkes fremfor <code
                     class="literal">-L</code>.
 				</div><div
                   class="para">
-					Det er også mulig å antyde den fysiske plasseringen for en LV, slik at dens omfang lagres på en bestemt PV (mens du selvfølgelig er innenfor den som er tildelt VG-en). Siden vi vet at <code
+					Det er også mulig å hinte om fysisk plassering for en LV, slik at dens omfang lagres på en bestemt PV (mens du selvfølgelig er innenfor den som er tildelt VG-en). Siden vi vet at <code
                     class="filename">sdb</code> er raskere enn <code
-                    class="filename">sdf</code>, kan vi ønske å lagre <code
-                    class="filename">lv_base</code> der hvis vi ønsker å gi en fordel til databasetjeneren i forhold til filtjeneren. Kommandolinjen blir: <code
-                    class="command">lvcreate -n lv_base -L 1G vg_critical /dev/sdb2</code>. Merk at denne kommandoen kan mislykkes hvis PV-en ikke har nok ledig plass. I vårt eksempel ville vi trolig måtte lage <code
+                    class="filename">sdf</code>, kan det hende vi ønsker å lagre <code
+                    class="filename">lv_base</code> der hvis vi ønsker å gi en fordel til databasetjeneren i forhold til filtjeneren. Da blir kommandolinjen: <code
+                    class="command">lvcreate -n lv_base -L 1G vg_critical /dev/sdb2</code>. Merk at denne kommandoen kan feile hvis PV-en ikke har nok ledig plass. I vårt eksempel ville vi trolig måtte lage <code
                     class="filename">lv_base</code> før <code
                     class="filename">lv_files</code> for å unngå denne situasjonen - eller frigjøre litt plass på <code
-                    class="filename">sdb2</code> med <code
-                    class="command">pvmove</code>-kommandoen.
+                    class="filename">sdb2</code> med kommandoen <code
+                    class="command">pvmove</code>.
 				</div></div><div
                 class="para">
-					Logiske volumer, en gang laget, ender opp som blokkenhetsfiler i <code
+					Logiske volumer, når de er opprettet, ender opp som blokkenhetsfiler i <code
                   class="filename">/dev/mapper/</code>:
 				</div><pre
                 class="screen"><code
@@ -955,15 +954,15 @@ brw-rw---- 1 root disk 253, 2 Jun 10 17:05 /dev/dm-2
                 class="sidebar"><div
                   class="titlepage"><div><div><p
                         class="title"><strong><span
-                            class="emphasis"><em>NOTE</em></span> Automatisk gjenkjenning av LVM</strong></p></div></div></div><div
+                            class="emphasis"><em>MERK</em></span> Oppdag LVM-volumer automatisk</strong></p></div></div></div><div
                   class="para">
-					Når datamaskinen starter, kjører <code
-                    class="filename">lvm2-activation</code> systemd tjenesteenhet <code
-                    class="command">vgchange -aay</code> for å «aktivisere» volumgrupper. Den skanner de tilgjengelige enhetene; de som har blitt initialisert som fysiske volumer for LVM, er registrert i LVMs undersystem, de som tilhører volumgrupper monteres, og de aktuelle logiske volumer er startet og gjort tilgjengelige. Det er derfor ikke nødvendig å redigere konfigurasjonsfiler når du oppretter eller endrer LVM-volumer.
+					Når datamaskinen starter, vil systemd-tjenesteenheten <code
+                    class="filename">lvm2-activation</code> kjøre <code
+                    class="command">vgchange -aay</code> for å «aktivisere» volumgrupper. Denne søker igjennom de tilgjengelige enhetene; de som har blitt initialisert som fysiske volumer for LVM, blir registrert i LVM-delsystemet, de som tilhører volumgrupper monteres, og de aktuelle logiske volumer startes og gjøres tilgjengelige. Det er derfor ikke nødvendig å endre på oppsettsfiler når du oppretter eller endrer LVM-volumer.
 				</div><div
                   class="para">
-					Merk imidlertid at utformingen av LVM-elementer (fysiske og logiske volumer, og volumgrupper) er sikkerhetskopiert i <code
-                    class="filename">/etc/lvm/backup</code>, som kan være nyttig i tilfelle av et problem (eller bare for å snike seg til en titt under panseret).
+					Merk imidlertid at utformingen av LVM-elementer (fysiske og logiske volumer, og volumgrupper) sikkerhetskopieres i <code
+                    class="filename">/etc/lvm/backup</code>, som er nyttig hvis det oppstår et problem (eller bare for å titte under panseret).
 				</div></div><div
                 class="para">
 					For å gjøre ting enklere er praktiske og egnede symbolske lenker også opprettet i kataloger som samsvarer med VG-er:
@@ -981,7 +980,7 @@ lrwxrwxrwx 1 root root 7 Jun 10 17:05 lv_files -&gt; ../dm-0
                   class="computeroutput">total 0
 lrwxrwxrwx 1 root root 7 Jun 10 17:05 lv_backups -&gt; ../dm-2</code></pre><div
                 class="para">
-					LV-er kan deretter brukes akkurat som standard partisjoner:
+					LV-ene kan deretter brukes akkurat som vanlige partisjoner:
 				</div><pre
                 class="screen"><code
                   class="computeroutput"># </code><strong
@@ -1016,17 +1015,17 @@ Writing superblocks and filesystem accounting information: done
 /dev/vg_critical/lv_files   /srv/files      ext4 defaults 0 2
 /dev/vg_normal/lv_backups   /srv/backups    ext4 defaults 0 2</code></pre><div
                 class="para">
-					Fra programsynspunkt har de utallige små partisjonene nå blitt abstrahert til ett stort 12 GB volum, med et vennligere navn.
+					Fra programmenes synspunkt har de utallige små partisjonene nå blitt abstrahert til ett stort 12 GB volum, med et hyggeligere navn.
 				</div></div><div
               class="section"><div
                 class="titlepage"><div><div><h4
                       class="title"><a
                         id="sect.lvm-over-time"></a>12.1.2.3. LVM over tid</h4></div></div></div><div
                 class="para">
-					Selv om muligheten til å aggregere partisjoner eller fysiske disker er praktisk, er dette ikke den viktigste fordelen LVM har brakt. Den fleksibiliteten den gir, er spesielt lagt merke til over tid, ettersom behovene utvikler seg. I vårt eksempel, la oss anta at nye store filer må lagres, og at LV øremerket til filtjeneren er for liten til å romme dem. Siden vi ikke har brukt hele plassen i <code
-                  class="filename">vg_critical</code>, kan vi øke <code
-                  class="filename">lv_files</code>. For det formålet bruker vi <code
-                  class="command">lvresize</code>-kommandoen, deretter <code
+					Selv om muligheten til å samle sammen partisjoner eller fysiske disker er praktisk, er dette ikke den viktigste fordelen LVM gir oss. Fleksibiliteten den gir, merkes spesielt over tid, etter som behovene utvikler seg. I vårt eksempel, la oss anta at nye store filer må lagres, og at LV øremerket til filtjeneren er for liten til å romme dem. Siden vi ikke har brukt hele plassen i <code
+                  class="filename">vg_critical</code>, kan vi gjøre <code
+                  class="filename">lv_files</code> større. Til det formålet bruker vi kommandoen <code
+                  class="command">lvresize</code>, deretter <code
                   class="command">resize2fs</code> for å tilpasse filsystemet tilsvarende:
 				</div><pre
                 class="screen"><code
@@ -1073,13 +1072,13 @@ The filesystem on /dev/vg_critical/lv_files is now 1835008 (4k) blocks long.
                         class="title"><strong><span
                             class="emphasis"><em>VÆR VARSOM</em></span> Endre størrelse på filsystemer</strong></p></div></div></div><div
                   class="para">
-					Ikke alle filsystemer kan få størrelsen endret fra nettet; å endre størrelsen på et volum kan derfor kreve at filsystemet avmonteres først, og remonteres i etterkant. Selvfølgelig, hvis man ønsker å krympe den avsatte plassen til en LV, må filsystemet krympes først. Rekkefølgen reverseres når skaleringen går i motsatt retning: Det logiske volumet må utvides før det aktuelle filsystemet. Det er ganske enkelt, fordi filsystemet ikke på noe tidspunkt må være større enn blokkenheten den ligger på (enten enheten er en fysisk partisjon eller et logisk volum).
+					Ikke alle filsystemer kan endre størrelse mens de er i bruk; Å endre størrelse på et volum kan derfor kreve at filsystemet avmonteres først og monteres på nytt i etterkant. Naturligvis, hvis en ønsker å krympe plassen avsatt til en LV, må filsystemet krympes først;. Rekkefølgen reverseres når endring av størrelse går i motsatt retning: det logiske volumet må utvides før filsystemet det inneholder. Det er ganske enkelt, siden ikke på noe tidspunkt må filsystemets størrelse være større enn blokkenheten der den ligger (enten den enheten er en fysisk partisjon eller et logisk volum).
 				</div><div
                   class="para">
-					De ext3-, ext4- og xfs-filsystemer kan vokse på nettet, uten avmontering. Krymping krever avmontering. Reiserfs filsystem tillater online endring av størrelse i begge retninger. Den ærverdige ext2 gjør ingen av delene, og krever alltid demontering.
+					Filsystemene ext3, ext4 og xfs kan vokse mens de er i bruk, uten avmontering. Krymping krever avmontering. Reiserfs filsystem tillater endring av størrelse i begge retninger mens det er i bruk. Det ærverdige ext2 håndterer ingen av delene, og krever alltid avmontering.
 				</div></div><div
                 class="para">
-					Vi kunne fortsette på en lignende måte å utvide volumet som er vertskap for databasen, bare til vi har nådd VG-ens grense for tilgjengelig plass:
+					Vi kunne fortsette med på tilsvarende måte å utvide volumet som er vertskap for databasen, men vi har nådd VG-ens grense for tilgjengelig plass:
 				</div><pre
                 class="screen"><code
                   class="computeroutput"># </code><strong
@@ -1093,10 +1092,10 @@ The filesystem on /dev/vg_critical/lv_files is now 1835008 (4k) blocks long.
                   class="computeroutput">  VG          #PV #LV #SN Attr   VSize VFree 
   vg_critical   2   2   0 wz--n- 8.09g 92.00m</code></pre><div
                 class="para">
-					Det er ikke noe problem ettersom LVM tillater å legge til fysiske volumer til eksisterende volumgrupper. Vi har for eksempel kanskje lagt merke til at <code
+					Det gjør ikke noe, ettersom LVM lar en legge fysiske volumer til eksisterende volumgrupper. For eksempel, kanskje har vi lagt merke til at <code
                   class="filename">sdb1</code>-partisjonen, som så langt ble brukt utenfor LVM, bare inneholdt arkiver som kan flyttes til <code
-                  class="filename">lv_backups</code>. Vi kan nå resirkulere den, og integrere den i volumgruppen, og dermed gjenvinne noe ledig plass. Dette er hensikten med <code
-                  class="command">vgextend</code>-kommandoen. Selvfølgelig må partisjonen på forhånd forberedes som et fysisk volum. Når VG er utvidet, kan vi bruke lignende kommandoer som tidligere for å utvide det logiske volumet, og deretter filsystemet:
+                  class="filename">lv_backups</code>. Vi kan nå resirkulere den, og ta den inn i volumgruppen , og dermed gjenvinne noe ledig plass. Dette er hensikten med kommandoen <code
+                  class="command">vgextend</code>. Først må selvfølgelig partisjonen forberedes som et fysisk volum. Når VG er utvidet, kan vi bruke lignende kommandoer som tidligere for å utvide det logiske volumet, deretter filsystemets:
 				</div><pre
                 class="screen"><code
                   class="computeroutput"># </code><strong
@@ -1126,43 +1125,43 @@ The filesystem on /dev/vg_critical/lv_files is now 1835008 (4k) blocks long.
                         class="title"><strong><span
                             class="emphasis"><em>FOR VIDEREKOMMENDE</em></span> Avansert LVM</strong></p></div></div></div><div
                   class="para">
-					LVM åpner også for mer avansert bruk, der mange detaljer kan spesifiseres for hånd. For eksempel kan en administrator justere størrelsen på blokkene som utgjør fysiske og logiske volumer, samt deres fysiske utforminger. Det er også mulig å flytte blokker mellom PV-er, for eksempel for å finjustere ytelsen, eller på en mer triviell måte, å frigjøre en PV når man trenger å trekke ut den tilsvarende fysiske disken fra VG-en (om det skal knytte den til en annen VG eller å fjerne den fra LVM helt). Manualsidene som beskriver kommandoene er generelt klare og detaljerte. Et god inngangspunkt er <span
+					LVM åpner også for mer avansert bruk, der mange detaljer kan spesifiseres for hånd. For eksempel kan en administrator justere størrelsen på blokkene som utgjør fysiske og logiske volumer, samt deres fysiske utforminger. Det er også mulig å flytte blokker mellom PV-er, for eksempel for å finjustere ytelsen, eller mer hverdagslig, å frigjøre en PV når man trenger å trekke ut den tilsvarende fysiske disken fra VG-en (om den skal kobles til en annen VG eller å fjernes helt fra LVM). Manualsidene som beskriver kommandoene er generelt klare og detaljerte. Et god inngangspunkt er manualsiden<span
                     class="citerefentry"><span
-                      class="refentrytitle">lvm</span>(8)</span>-manualside.
+                      class="refentrytitle">lvm</span>(8)</span>.
 				</div></div></div></div><div
             class="section"><div
               class="titlepage"><div><div><h3
                     class="title"><a
                       id="sect.raid-or-lvm"></a>12.1.3. RAID eller LVM?</h3></div></div></div><div
               class="para">
-				RAID og LVM bringer begge udiskutable fordeler så snart man forlater det enkle tilfellet med en stasjonær datamaskin med en enkelt harddisk, der bruksmønster ikke endres over tid. Men RAID og LVM går i to forskjellige retninger, med divergerende mål, og det er legitimt å lure på hvilken som bør velges. Det mest hensiktsmessige svaret vil selvfølgelig avhenge av nåværende og forventede krav.
+				Både RAID og LVM bringer udiskutable fordeler så snart man forlater det enkle tilfellet med en stasjonær datamaskin med en enkelt harddisk, der bruksmønster ikke endres over tid. Men RAID og LVM går i to forskjellige retninger, med divergerende mål, og det er legitimt å lure på hvilken som bør velges. Det mest hensiktsmessige svaret vil selvfølgelig avhenge av nåværende og forventede krav.
 			</div><div
               class="para">
-				Det finnes noen enkle tilfeller hvor spørsmålet egentlig ikke oppstår. Hvis kravet er å sikre data mot maskinvarefeil, så vil åpenbart RAID bli satt opp med en romslig matrise med disker, ettersom LVM ikke løser dette problemet. Dersom det, på den annen side, er behov for et fleksibelt lagringsopplegg der volumene lages uavhengig av den fysiske utformingen av diskene, bidrar ikke RAID med mye, og LVM vil være det naturlige valget.
+				Det finnes noen enkle tilfeller hvor spørsmålet egentlig ikke oppstår. Hvis kravet er å sikre data mot maskinvarefeil, så vil åpenbart RAID bli satt opp med en romslig sett med disker, ettersom LVM ikke løser dette problemet. På den andre side, dersom det er behov for et fleksibelt lagringsopplegg der volumene lages uavhengig av den fysiske utformingen av diskene, bidrar ikke RAID med mye, og LVM vil være det naturlige valget.
 			</div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
-                          class="emphasis"><em>NOTE</em></span> Hvis ytelse betyr noe…</strong></p></div></div></div><div
+                          class="emphasis"><em>MERK</em></span> Når ytelse teller…</strong></p></div></div></div><div
                 class="para">
-				Hvis input/output-hastighet er viktig, spesielt i form av aksesstid, kan det å bruke LVM / eller RAID i en av de mange kombinasjonene ha noen innvirkning på ytelser, og dette kan påvirke beslutninger om hvilken som skal velges. Men disse forskjellene i ytelse er veldig små, og vil bare være målbare i noen brukstilfeller. Hvis ytelsen betyr noe, er det størst gevinst ved å bruke ikke-roterende lagringsmedier (<a
+				Hvis input/output-hastighet er viktig, spesielt i form av aksesstid, kan det å bruke LVM og/eller RAID i en av de mange kombinasjonene ha en viss innvirkning på ytelser, og dette kan påvirke beslutninger om hvilken som skal velges. Men disse forskjellene i ytelse er veldig små, og vil bare være målbare i noen brukstilfeller. Hvis ytelsen betyr noe, er det størst gevinst ved å bruke ikke-roterende lagringsmedier (<a
                   id="id-1.15.4.8.4.2.1"
                   class="indexterm"></a><span
-                  class="emphasis"><em>solid-state drives</em></span>, eller SSDs). Kostnaden deres per megabyte er høyere enn for standard harddisker, kapasiteten deres er vanligvis mindre, men de gir utmerkede resultater for tilfeldige aksesser. Hvis bruksmønster inneholder mange input/output-operasjoner spredt rundt i filsystemet, for eksempel for databaser der komplekse spørringer blir kjørt rutinemessig, så oppveier fordelen av å kjøre dem på en SSD langt hva som kan oppnås ved å velge LVM over RAID eller omvendt. I slike situasjoner bør valget bestemmes av andre hensyn enn ren fart, siden ytelsesaspektet lettest håndteres ved å bruke SSD.
+                  class="emphasis"><em>solid-state drives</em></span>, eller SSDs). Kostnaden deres pr. megabyte er høyere enn for standard harddisker, kapasiteten deres er vanligvis mindre, men de gir utmerkede resultater for tilfeldig aksess. Hvis bruksmønster inneholder mange input/output-operasjoner spredt rundt i filsystemet, for eksempel for databaser der komplekse spørringer blir kjørt rutinemessig, så oppveier fordelen av å kjøre dem på en SSD langt hva som kan oppnås ved å velge LVM over RAID eller omvendt. I slike situasjoner bør valget bestemmes av andre hensyn enn ren fart, siden ytelsesaspektet lettest håndteres ved å bruke SSD.
 			</div></div><div
               class="para">
-				Det tredje bemerkelsesverdige brukstilfellet er når man bare ønsker å samle to disker i ett volum, enten av ytelseshensyn, eller for å ha et enkelt filsystem som er større enn noen av de tilgjengelige diskene. Dette tilfellet kan adresseres både med en RAID-0 (eller til og med en lineær-RAID), og med et LVM-volum. Når du er i denne situasjonen, og sperring gir ekstra begrensninger (for eksempel å måtte være på linje med resten av datamaskinene hvis de bare bruker RAID), vil konfigurasjonsvalget ofte være LVM. Første oppsett er snaut nok komplekst, og den svake økning i kompleksitet mer enn gjør opp for LVMs ekstra fleksibiliteten dersom kravene må endres, eller dersom nye disker må legges til.
+				Det tredje bemerkelsesverdige brukstilfellet er når man bare ønsker å samle to disker i ett volum, enten av ytelseshensyn, eller for å ha et enkelt filsystem som er større enn noen av de tilgjengelige diskene. Dette tilfellet kan adresseres både med en RAID-0 (eller til og med en lineær-RAID), og med et LVM-volum. Når du er i denne situasjonen, og ikke har øvrige begrensninger (for eksempel å måtte fungere likt med de andre datamaskinene hvis de bare bruker RAID), vil oppsettsvalget ofte være LVM. Første gangs oppsett er ikke spesielt mer komplekst, og den svake økning i kompleksitet mer enn gjør opp for LVMs ekstra fleksibilitet dersom kravene må endres, eller dersom nye disker må legges til.
 			</div><div
               class="para">
-				Så selvfølgelig er det det virkelig interessante brukereksempel, der lagringssystemet må gjøres både motstandsdyktig mot maskinvarefeil, og gi en fleksibel volumtildeling. Verken RAID eller LVM kan imøtekomme begge kravene på egen hånd. Uansett, det er her vi bruker begge samtidig - eller rettere sagt, den ene oppå den andre. Ordningen som har alt, men er blitt en standard siden RAID og LVM har nådd modenheten til å sikre datatallighet (dataredundans), først ved å gruppere disker i et lite antall store RAID-matriser, og å bruke disse RAID-matrisene som LVM fysiske volumer. Logiske partisjoner vil da bli meislet ut fra disse LV-ene for filsystemer. Salgspoenget med dette oppsettet er at når en disk svikter, vil bare et lite antall RAID-matriser trenge rekonstruering, og dermed begrense tiden administrator bruker for gjenoppretting.
+				Så er det selvfølgelig det virkelig interessante brukseksempel, der lagringssystemet må gjøres både motstandsdyktig mot maskinvarefeil, og gi en fleksibel volumtildeling. Verken RAID eller LVM kan imøtekomme begge kravene på egen hånd. Uansett, det er her vi bruker begge samtidig - eller rettere sagt, den ene oppå den andre. Ordningen som har alt, men er blitt en standard siden RAID og LVM har nådd modenheten til å sikre datatallighet (dataredundans), først ved å gruppere disker i et lite antall store RAID-sett, og å bruke disse RAID-settene som LVM fysiske volumer. Logiske partisjoner vil da bli meislet ut fra disse LV-ene for filsystemer. Salgsargumentet med dette oppsettet er at når en disk svikter, vil bare et lite antall RAID-sett trenge rekonstruksjon, og dermed begrense tiden administrator bruker for gjenoppretting.
 			</div><div
               class="para">
-				La oss ta et konkret eksempel: PR-avdelingen på Falcot Corp trenger en arbeidsstasjon for videoredigering, men avdelingens budsjett tillater ikke investere i dyr maskinvare fra bunnen av. Det er avgjort å favorisere maskinvaren som spesifikk for det grafiske arbeidets art (skjerm og skjermkort), og å fortsette med felles maskinvare for lagring. Men som viden kjent ,har digital video noen spesielle krav til mengden av date for lagring, og gjennomstrømningshastighet for lesing og skriving er viktig for den generelle systemytelsen (mer enn vanlig aksesstid, for eksempel). Disse begrensningene må være imøtekommet med felles maskinvare, i dette tilfellet med 300 GB SATA-harddisker. Systemdata må også gjøres motstandsdyktige mot maskinvarefeil, og også noen brukerdata. Redigerte videoklipp må faktisk være trygge, men for videoer som venter på redigering er det mindre kritisk, siden de fortsatt er på videobånd, eller på opptaksutstyret.
+				La oss ta et konkret eksempel: PR-avdelingen på Falcot Corp trenger en arbeidsstasjon for videoredigering, men avdelingens budsjett tillater ikke investere i dyr maskinvare fra bunnen av. Det er bestemt at maskinvaren som er spesifikk for det grafiske arbeidets art (skjerm og skjermkort) skal prioriteres, og at en skal fortsette med felles maskinvare for lagring. Men som kjent har digital video noen særegne krav til lagringen sin, datamengden er stor og gjennomstrømmingshastigheten for lesing og skriving er viktig for systemets generelle ytelse (for eksempel mer enn typisk aksesstid). Disse begrensningene må imøtekommes med vanlig maskinvare, i dette tilfellet to 300 GB SATA-harddisker. Systemdata må også gjøres motstandsdyktig mot maskinvarefeil, det samme gjelder noe brukerdata. Ferdigredigerte videoklipp må være trygge, men for videoer som venter på redigering er det mindre kritisk, siden de fortsatt er på videobånd.
 			</div><div
               class="para">
-				RAID-1 og LVM kombineres for å tilfredsstille disse begrensningene. Diskene er knyttet til to forskjellige SATA-kontrollere for å optimalisere parallell tilgang, og redusere risikoen for samtidig svikt, og de synes derfor som <code
+				RAID-1 og LVM kombineres for å tilfredsstille disse begrensningene. Diskene er knyttet til to forskjellige SATA-kontrollere for å optimalisere parallell tilgang, og redusere risikoen for samtidig svikt, og de vises derfor som <code
                 class="filename">sda</code> og <code
-                class="filename">sdc</code>. De er partisjonert likt langs det følgende skjemaet:
+                class="filename">sdc</code>. De er partisjonert likt slik det vises under:
 			</div><pre
               class="screen"><code
                 class="computeroutput"># </code><strong
@@ -1187,14 +1186,14 @@ Device    Boot     Start       End   Sectors Size Id Type
               class="itemizedlist"><ul><li
                   class="listitem"><div
                     class="para">
-						De første partisjonene til begge disker (ca 1 GB) er satt sammen til ett RAID-1-volum <code
-                      class="filename">md0</code>. Dette speilet er direkte brukt til å lagre rotfilsystemet.
+						De første partisjonene på begge diskene (ca 1 GB) er satt sammen til ett RAID-1-volum <code
+                      class="filename">md0</code>. Dette speilet er brukt direkte til å lagre rotfilsystemet.
 					</div></li><li
                   class="listitem"><div
                     class="para">
 						Partisjonene <code
                       class="filename">sda2</code> og <code
-                      class="filename">sdc2</code> brukes som vekselminnepartisjoner, noe som gir en totalt 2 GB vekselminne. Med 1 GB RAM, har arbeidsstasjonen en komfortabel mengde tilgjengelig minne.
+                      class="filename">sdc2</code> brukes som vekselminnepartisjoner, noe som gir totalt 2 GB vekselminne. Med 1 GB RAM, har arbeidsstasjonen tilgjengelig en komfortabel mengde minne.
 					</div></li><li
                   class="listitem"><div
                     class="para">
@@ -1204,51 +1203,51 @@ Device    Boot     Start       End   Sectors Size Id Type
                       class="filename">sda6</code> og <code
                       class="filename">sdc6</code>, er samlet til to nye RAID-1-volumer på rundt 100 GB hver, <code
                       class="filename">md1</code> og <code
-                      class="filename">md2</code>. Begge disse speilene er internalisert som fysiske volumer for LVM, og knyttet til volumgruppen <code
-                      class="filename">vg_raid</code>. Denne VG-en inneholder derfor et trygt rom på 200 GB.
+                      class="filename">md2</code>. Begge disse speilene er satt opp som fysiske volumer for LVM, og knyttet til volumgruppen <code
+                      class="filename">vg_raid</code>. Denne VG-en inneholder dermed 200 GB sikker lagring.
 					</div></li><li
                   class="listitem"><div
                     class="para">
-						De gjenstående partisjoner, <code
+						De gjenværende partisjonene, <code
                       class="filename">sda7</code> og <code
                       class="filename">sdc7</code>, brukes direkte som fysiske volumer, og knyttet til en annen VG kalt <code
                       class="filename">vg_bulk</code>, som da ender opp med omtrent 200 GB lagringsplass.
 					</div></li></ul></div><div
               class="para">
-				Når VG-er er opprettet, kan de fordeles svært fleksibelt. Man må huske på at LV-er opprettet i <code
+				Når VG-ene er opprettet, kan de svært fleksibelt deles opp. Man må huske på at LV-er opprettet i <code
                 class="filename">vg_raid</code>, blir bevart selv om en av diskene svikter, noe som ikke vil være tilfelle for LV-er opprettet i <code
                 class="filename">vg_bulk</code>. På den annen side vil de sistnevnte fordeles i parallell på begge disker, som tillater høyere lese- eller skrivehastigheter for store filer.
 			</div><div
               class="para">
-				Vi vil derfor lage <code
+				Vi lager derfor LV-ene <code
                 class="filename">lv_usr</code>, <code
                 class="filename">lv_var</code> og <code
-                class="filename">lv_home</code> LVs on <code
-                class="filename">vg_raid</code> til å være vertskap for de matchende filsystemene. En annen stor LV, <code
+                class="filename">lv_home</code> på <code
+                class="filename">vg_raid</code> til å være vertskap for de tilsvarende filsystemene. En annen stor LV, <code
                 class="filename">lv_movies</code>, skal brukes som vert for endelige versjoner av filmer etter redigering. Den andre VG-en vil bli delt inn i et stort <code
                 class="filename">lv_rushes</code>, for data rett fra det digitale videokameraet, og et <code
-                class="filename">lv_tmp</code> for midlertidige filer. Plasseringen av arbeidsområdet er et mindre enkelt valg å ta. Mens god ytelse er nødvendig for det volumet, er det verdt å risikere å miste arbeid hvis en disk svikter under redigeringsøkten ? Avhengig av svaret på det spørsmålet, vil den aktuelle LV-en bli lagt til den ene VG-en, eller på den andre.
+                class="filename">lv_tmp</code> for midlertidige filer. Plasseringen av arbeidsområdet er et mindre enkelt valg å ta. Mens god ytelse er nødvendig for det volumet, er det verdt å risikere å miste arbeid hvis en disk svikter under redigeringsøkten? Avhengig av svaret på det spørsmålet, vil den aktuelle LV-en bli lagt til den ene VG-en, eller på den andre.
 			</div><div
               class="para">
-				Vi har nå både litt overskudd til viktige data, og mye fleksibilitet i hvordan den tilgjengelige plassen er delt på tvers av programmene. Skal ny programvare installeres senere (for å redigere lydklipp, for eksempel), kan LV-vertskapet <code
-                class="filename">/usr/</code> utvides smertefritt.
+				Vi har nå både endel redundans for viktige data, og mye fleksibilitet i hvordan den tilgjengelige plassen er delt mellom programmene. Skal ny programvare installeres senere (for å redigere lydklipp, for eksempel), kan LV-en som inneholder <code
+                class="filename">/usr/</code> utvides uten problemer.
 			</div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
-                          class="emphasis"><em>NOTE</em></span> Hvorfor tre RAID-1-volumer?</strong></p></div></div></div><div
+                          class="emphasis"><em>MERK</em></span> Hvorfor tre RAID-1-volumer?</strong></p></div></div></div><div
                 class="para">
 				Vi kunne ha satt opp ett RAID-1-volum bare for å tjene som et fysisk volum for <code
-                  class="filename">vg_raid</code>. Hvorfor lage tre av dem da?
+                  class="filename">vg_raid</code>. Hva er poenget med å lage tre av dem?
 			</div><div
                 class="para">
-				Grunnen til den første delingen (<code
-                  class="filename">md0</code> opp mot de andre) dreier seg om datasikkerhet. Data skrevet til begge elementer i et RAID-1-speil er nøyaktig de samme, og det er derfor mulig å omgå RAID-laget, og montere en av diskene direkte. I tilfelle av, for eksempel en kjernefeil, eller hvis LVM-metadata blir ødelagt, er det fortsatt mulig å starte opp et minimalt system for å få tilgang til viktige data som for eksempel utformingen av diskene i RAID-en og LVM-en. Metadataene kan så rekonstrueres, og filene kan igjen nås, slik at systemet kan bringes tilbake til sin nominelle tilstand.
+				Forklaringen på den første delingen (<code
+                  class="filename">md0</code> versus de andre) dreier seg om datasikkerhet. Data skrevet til begge elementer i et RAID-1-speil er nøyaktig de samme, og det er derfor mulig å gå rundt RAID-laget, og montere en av diskene direkte. I tilfelle av, for eksempel en kjernefeil, eller hvis LVM-metadata blir ødelagt, er det fortsatt mulig å starte opp et minimalt system for å få tilgang til viktige data som for eksempel utformingen av diskene i RAID-et og LVM-en. Metadataene kan så rekonstrueres, og filene kan igjen nås, slik at systemet kan bringes tilbake til sin nominelle tilstand.
 			</div><div
                 class="para">
 				Begrunnelsen for den andre delingen (<code
                   class="filename">md1</code> mot <code
-                  class="filename">md2</code>) er mindre entydig, og mer knyttet til erkjennelsen av at fremtiden er usikker. Når arbeidsstasjonen først er montert, er de eksakte kravene til oppbevaring ikke nødvendigvis kjent med perfekt presisjon. De kan også utvikle seg over tid. I vårt tilfelle kan vi ikke på forhånd vite det faktiske lagringsbehovet for video-opptak og komplette videoklipp. Hvis et bestemt klipp har en meget stor mengde uredigerte opptak, og VG-en øremerket til ledige data er mindre enn halvveis full, kan vi gjenbruke noe av den plassen som ikke trenges. Vi kan fjerne et av de fysiske volumene, la oss si <code
+                  class="filename">md2</code>) er mindre entydig, og mer knyttet til erkjennelsen av at fremtiden er usikker. Når arbeidsstasjonen først er montert, er de eksakte kravene til oppbevaring ikke nødvendigvis kjent med perfekt presisjon. De kan også utvikle seg over tid. I vårt tilfelle kan vi ikke på forhånd vite det faktiske lagringsbehovet for video-opptak og komplette videoklipp. Hvis et bestemt klipp har en meget stor mengde uredigerte opptak, og VG-en øremerket til ledige data er mindre enn halvveis full, kan vi gjenbruke noe av den plassen som ikke trengs. Vi kan fjerne et av de fysiske volumene, la oss si <code
                   class="filename">md2</code>, fra <code
                   class="filename">vg_raid</code>, og enten knytte det til <code
                   class="filename">vg_bulk</code> direkte (hvis den forventede varigheten av operasjonen er kort nok til at vi kan leve med midlertidig fall i ytelsen), eller sette tilbake RAID-oppsettet på <code
@@ -1269,7 +1268,7 @@ Device    Boot     Start       End   Sectors Size Id Type
             href="index.html"><strong>Hjem</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.virtualization.html"><strong>Neste</strong>12.2. virtualisering</a></li></ul><div
+            href="sect.virtualization.html"><strong>Neste</strong>12.2. Virtualisering</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/advanced-administration.html">ar-MA</a></li><li><a
               href="../da-DK/advanced-administration.html">da-DK</a></li><li><a
