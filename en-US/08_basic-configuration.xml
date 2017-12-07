@@ -407,26 +407,36 @@ $ </computeroutput><userinput>ls travail/</userinput>
       remain the same.</para>
     </sidebar>
 
-    <para>Since the network is automatically configured during the initial
-    installation, the <filename>/etc/network/interfaces</filename> file
-    already contains a valid configuration. A line starting with
+    <para>The network is automatically configured during the initial
+    installation. If Network Manager gets installed (which is generally the case
+    for full desktop installations), then it might be that no configuration
+    is actually required (for example, if you rely on DHCP on a wired
+    connection and have no specific requirements). If a configuration is required
+    (for example for a WiFi interface), then it will create the appropriate
+    file in <filename>/etc/NetworkManager/system-connections/</filename>.</para>
+      
+    <para>If Network Manager is not installed, then the installer
+    will configure <emphasis role="pkg">ifupdown</emphasis> by creating
+    the <filename>/etc/network/interfaces</filename> file. A line starting with
     <literal>auto</literal> gives a list of interfaces to be automatically
-    configured on boot by <emphasis role="pkg">ifupdown</emphasis> and
-    its <filename>/etc/init.d/networking</filename> init script.
-    This will often be <literal>eth0</literal>, which
-    refers to the first Ethernet card.</para>
+    configured on boot by the <literal>networking</literal> service.
+    </para>
+
+    <para>
+      In a server context, <emphasis role="pkg">ifupdown</emphasis> is
+      thus the network configuration tool that you usually get. That is why
+      we will cover it in the next sections.
+    </para>
 
     <indexterm><primary>network</primary><secondary>configuration</secondary></indexterm>
     <indexterm><primary>configuration</primary><secondary>of the network</secondary></indexterm>
     <indexterm><primary>interface</primary><secondary>network interface</secondary></indexterm>
-    <indexterm><primary><literal>eth0</literal></primary></indexterm>
 
     <sidebar>
       <title><emphasis>ALTERNATIVE</emphasis> NetworkManager</title>
       <indexterm><primary><emphasis role="pkg">network-manager</emphasis></primary></indexterm>
 
-      <!-- MAYCHANGE: the URL below are specific to version 0.9 in jessie,
-           stretch already has a newer version -->
+      <!-- MAYCHANGE: the URL below are version-specific -->
       <para>If Network Manager is particularly recommended in roaming setups
       (see <xref linkend="sect.roaming-network-config" />),
       it is also perfectly usable as the default network management
@@ -438,8 +448,8 @@ $ </computeroutput><userinput>ls travail/</userinput>
       Just remember to deactivate all entries in
       <filename>/etc/network/interfaces</filename> if you want
       Network Manager to handle them.
-      <ulink type="block" url="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie"/>
-      <ulink type="block" url="https://developer.gnome.org/NetworkManager/0.9/ref-settings.html"/>
+      <ulink type="block" url="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings"/>
+      <ulink type="block" url="https://developer.gnome.org/NetworkManager/1.6/ref-settings.html"/>
       </para>
     </sidebar>
 
@@ -462,11 +472,51 @@ $ </computeroutput><userinput>ls travail/</userinput>
         <title>DHCP configuration</title>
 
         <programlisting>
-auto eth0
-iface eth0 inet dhcp
+auto enp0s31f6
+iface enp0s31f6 inet dhcp
   hostname arrakis
 </programlisting>
       </example>
+
+      <sidebar>
+        <title><emphasis>IN PRACTICE</emphasis> Names of network interfaces</title>
+        <indexterm><primary><literal>eth0</literal></primary></indexterm>
+        <indexterm><primary><literal>en*</literal></primary></indexterm>
+        <indexterm><primary><literal>wlan0</literal></primary></indexterm>
+        <indexterm><primary><literal>wl*</literal></primary></indexterm>
+        <para>
+          By default, the kernel attributes generic names such a
+          <literal>eth0</literal> (for wired Ethernet) or
+          <literal>wlan0</literal> (for WiFi) to the network interfaces.
+          The number in those names is a simple incremental counter
+          representing the order in which they have been detected.
+          With modern hardware, that order might change for each reboot
+          and thus the default names are not reliable.
+        </para>
+        <para>
+          Fortunately, systemd and udev are able to rename the interfaces
+          as soon as they appear. The default name policy is defined
+          by <filename>/lib/systemd/network/99-default.link</filename>
+          (see
+          <citerefentry><refentrytitle>systemd.link</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+          for an explanation of the <literal>NamePolicy</literal> entry in
+          that file). In practice, the names are often based on the device's
+          physical location (as guessed by where they are connected) and you
+          will see names starting with <literal>en</literal> for wired
+          ethernet and <literal>wl</literal> for WiFi. In the example
+          above, the rest of the name indicates, in abbreviated form, a
+          PCI (<literal>p</literal>) bus number (<literal>0</literal>),
+          a slot number (<literal>s31</literal>), a function number
+          (<literal>f6</literal>).
+        </para>
+        <para>
+          Obviously, you are free to override this policy and/or to
+          complement it to customize the names of some specific
+          interfaces. You can find out the names of the network
+          interfaces in the output of <command>ip addr</command>
+          (or as filenames in <filename>/sys/class/net/</filename>).
+        </para>
+      </sidebar>
 
       <para>A “static” configuration must indicate network settings in
       a fixed manner. This includes at least the IP address and subnet
@@ -478,8 +528,8 @@ iface eth0 inet dhcp
         <title>Static configuration</title>
 
         <programlisting>
-auto eth0
-iface eth0 inet static
+auto enp0s31f6
+iface enp0s31f6 inet static
   address 192.168.0.3
   netmask 255.255.255.0
   broadcast 192.168.0.255
@@ -501,6 +551,100 @@ iface eth0 inet static
 	but these options are only used in very special cases. The examples
 	cited here are typical of the usual configurations.</para>
       </sidebar>
+    </section>
+    <section id="sect.interface-wireless">
+      <title>Wireless Interface</title>
+      <indexterm><primary>wireless</primary></indexterm>
+      <para>
+        Getting wireless network cards to work can be a bit more
+        challenging. First of all, they often require the installation
+        of proprietary firmwares which are not installed by default
+        in Debian. Then wireless networks rely on cryptography to
+        restrict access to authorized users only, this implies
+        storing some secret key in the network configuration.
+        Let's tackle those topics one by one.
+      </para>
+      <section>
+        <title>Installing the required firmwares</title>
+        <indexterm><primary>firmware</primary></indexterm>
+        <indexterm><primary>isenkram</primary></indexterm>
+        <para>
+          First you have to enable the non-free repository
+          in APT's sources.list file: see <xref linkend="sect.apt-sources.list" />
+          for details about this file. Many firmware are proprietary
+          and are thus located in this repository. You can try to
+          skip this step if you want, but if the next step doesn't find the
+          required firmware, retry after having enabled the non-free section.
+        </para>
+        <para>
+          Then you have to install the appropriate
+          <literal>firmware-*</literal> packages. If you don't know which
+          package you need, you can install the <emphasis
+            role="pkg">isenkram</emphasis> package and run its
+          <command>isenkram-autoinstall-firmware</command> command. The
+          packages are often named after the hardware manufacturer or the
+          corresponding kernel module: <emphasis
+            role="pkg">firmware-iwlwifi</emphasis> for Intel wireless
+          cards, <emphasis role="pkg">firmware-atheros</emphasis> for
+          Qualcomm Atheros, <emphasis
+            role="pkg">firmware-ralink</emphasis> for Ralink, etc. A
+          reboot is then recommended because the kernel driver usually
+          looks for the firmware files when it is first loaded and no
+          longer afterwards.
+        </para>
+      </section>
+      <section>
+        <title>Wireless specific entries in <filename>/etc/network/interfaces</filename></title>
+        <indexterm><primary>WPA</primary></indexterm>
+        <para>
+          <emphasis>ifupdown</emphasis> is able to manage wireless
+          interfaces but it needs the help of the <emphasis
+            role="pkg">wpasupplicant</emphasis> package which provides
+          the required integration between <emphasis>ifupdown</emphasis>
+          and the <command>wpa_supplicant</command> command used to configure
+          the wireless interfaces (when using WPA/WPA2 encryption). The
+          usual entry in <filename>/etc/network/interfaces</filename>
+          needs to be extended with two supplementary parameters to specify
+          the name of the wireless network (aka its SSID) and the
+          <emphasis>Pre-Shared Key</emphasis> (PSK).
+        </para>
+        <example id="example.config-wireless">
+          <title>DHCP configuration for a wireless interface</title>
+          <programlisting>
+auto wlp4s0
+iface wlp4s0 inet dhcp
+  wpa-ssid Falcot
+  wpa-psk ccb290fd4fe6b22935cbae31449e050edd02ad44627b16ce0151668f5f53c01b
+</programlisting>
+</example>
+        <para>
+          The <literal>wpa-psk</literal> parameter can contain either the
+          plain text passphrase or its hashed version generated with
+          <command>wpa_passphrase <replaceable>SSID</replaceable>
+            <replaceable>passphrase</replaceable></command>. If you
+          use an unencrypted wireless connection, then you should
+          put a <literal>wpa-key-mgmt NONE</literal> and no
+          <literal>wpa-psk</literal> entry. For more information
+          about the possible configuration options, have a look
+          at <filename>/usr/share/doc/wpasupplicant/README.Debian.gz</filename>.
+        </para>
+        <para>
+          At this point, you should consider restricting the read permissions
+          on <filename>/etc/network/interfaces</filename> to the root user
+          only since the file contains a private key that not all users should
+          have access to.
+        </para>
+        <sidebar>
+          <title><emphasis>HISTORY</emphasis> WEP encryption</title>
+          <indexterm><primary>WEP</primary></indexterm>
+          <para>
+            Usage of the deprecated WEP encryption protocol is possible
+            with the <emphasis role="pkg">wireless-tools</emphasis> package.
+            See <filename>/usr/share/doc/wireless-tools/README.Debian</filename>
+            for instructions.
+          </para>
+        </sidebar>
+      </section>
     </section>
     <section id="sect.ppp-rtc">
       <title>Connecting with PPP through a PSTN Modem</title>
@@ -583,9 +727,7 @@ iface eth0 inet static
 	  keeping them always open.  The standard means to do so is to
 	  use the init system.</para>
 
-          <para>The default init system on <emphasis
-	  role="distribution">Jessie</emphasis> is
-	  <command>systemd</command>.  Adding an automatically
+          <para>With systemd, adding an automatically
 	  restarting task for the ADSL connection is a simple matter
 	  of creating a “unit file” such as
           <filename>/etc/systemd/system/adsl-connection.service</filename>,
@@ -717,20 +859,6 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
       <para>Note that this program is installed by default when the
       “Desktop Environment” task is chosen during initial
       installation.</para>
-
-      <sidebar>
-        <title><emphasis>ALTERNATIVE</emphasis> Configuration by “network profile”</title>
-        <indexterm><primary><emphasis role="pkg">guessnet</emphasis></primary></indexterm>
-
-	<para>More advanced users may want to try the <emphasis
-	role="pkg">guessnet</emphasis> package for automatic network
-	configuration. A group of test scripts determine which network
-	profile should be activated and configure it on the fly.</para>
-
-	<para>Users who prefer to manually select a network profile will
-	prefer the <emphasis role="pkg">netenv</emphasis> program, found in
-	the package of the same name.</para>
-      </sidebar>
     </section>
   </section>
   <section id="sect.hostname-name-service">
@@ -1180,12 +1308,13 @@ nameserver 8.8.8.8
       commands add or delete a group, respectively. The
       <command>groupmod</command> command modifies a group's information
       (its <literal>gid</literal> or identifier). The command
-      <command>passwd -g <replaceable>group</replaceable></command> changes
-      the password for the group, while the <command>passwd -r -g
+      <command>gpasswd <replaceable>group</replaceable></command> changes
+      the password for the group, while the <command>gpasswd -r
       <replaceable>group</replaceable></command> command deletes it.</para>
       <indexterm><primary><command>addgroup</command></primary></indexterm>
       <indexterm><primary><command>delgroup</command></primary></indexterm>
       <indexterm><primary><command>groupmod</command></primary></indexterm>
+      <indexterm><primary><command>gpasswd</command></primary></indexterm>
       <indexterm><primary>group</primary><secondary>creation</secondary></indexterm>
       <indexterm><primary>creation</primary><secondary>of groups</secondary></indexterm>
       <indexterm><primary>group</primary><secondary>deletion</secondary></indexterm>
@@ -1326,12 +1455,12 @@ nameserver 8.8.8.8
       <para>Each command interpreter has a specific syntax and its own
       configuration files. Thus, <command>zsh</command> uses
       <filename>/etc/zshrc</filename> and <filename>/etc/zshenv</filename>;
-      <command>csh</command> uses <filename>/etc/csh.cshrc</filename>,
+      <command>tcsh</command> uses <filename>/etc/csh.cshrc</filename>,
       <filename>/etc/csh.login</filename> and
       <filename>/etc/csh.logout</filename>. The man pages for these
       programs document which files they use.</para>
       <indexterm><primary><command>zsh</command></primary></indexterm>
-      <indexterm><primary><command>csh</command></primary></indexterm>
+      <indexterm><primary><command>tcsh</command></primary></indexterm>
     </sidebar>
 
     <para>For <command>bash</command>, it is useful to activate
@@ -1347,11 +1476,9 @@ nameserver 8.8.8.8
       name or argument when the user hits the <keycap>Tab</keycap> key.
       This lets users work more efficiently and be less error-prone.</para>
 
-      <!-- MAYCHANGE: use apt as sample command that has auto-completion
-           hopefully #747094 will be fixed for stretch ! -->
       <para>This function is very powerful and flexible. It is possible to
       configure its behavior according to each command. Thus, the first
-      argument following <command>apt-get</command> will be proposed
+      argument following <command>apt</command> will be proposed
       according to the syntax of this command, even if it does not match
       any file (in this case, the possible choices are
       <literal>install</literal>, <literal>remove</literal>,
@@ -1444,7 +1571,7 @@ nameserver 8.8.8.8
     role="pkg">cups-client</emphasis> contains a group of programs to
     interact with the server (block or unblock a printer, view or delete
     print jobs in progress, etc.); and finally, <emphasis
-    role="pkg">cups-driver-gutenprint</emphasis> contains a collection of
+    role="pkg">printer-driver-gutenprint</emphasis> contains a collection of
     additional printer drivers for <command>cups</command>.</para>
     <indexterm><primary><command>lpr</command></primary></indexterm>
     <indexterm><primary><command>lpd</command></primary></indexterm>
@@ -1480,7 +1607,7 @@ nameserver 8.8.8.8
       Programs that rely upon this file to get a list of available printers
       will, thus, fail. To avoid this problem, delete this file and make it
       a symbolic link (see sidebar <xref linkend="sidebar.symbolic-link"/>)
-      to <filename>/var/run/cups/printcap</filename>, which is maintained
+      to <filename>/run/cups/printcap</filename>, which is maintained
       by <emphasis>cups</emphasis> to ensure compatibility.</para>
       <indexterm><primary><filename>printcap</filename></primary></indexterm>
     </sidebar>
@@ -2155,7 +2282,8 @@ macosx=/dev/sda5
       <indexterm><primary><filename>/etc/fstab</filename></primary></indexterm></para>
       <itemizedlist>
         <listitem>
-	  <para>device to mount: this can be a local partition (hard drive,
+          <para>file system: this indicates where the filesystem to be mounted can be found,
+          it can be a local device (hard drive partition,
 	  CD-ROM) or a remote filesystem (such as NFS).</para>
 
 	  <para>This field is frequently replaced with the unique ID of the
@@ -2244,13 +2372,13 @@ macosx=/dev/sda5
           </itemizedlist>
         </listitem>
         <listitem>
-	  <para>backup: this field is almost always set to
+          <para>dump: this field is almost always set to
 	  <literal>0</literal>. When it is <literal>1</literal>, it tells
 	  the <command>dump</command> tool that the partition contains data
 	  that is to be backed up.</para>
         </listitem>
         <listitem>
-	  <para>check order: this last field indicates whether the
+          <para>pass: this last field indicates whether the
 	  integrity of the filesystem should be checked on boot, and in
 	  which order this check should be executed. If it is
 	  <literal>0</literal>, no check is conducted. The root filesystem
@@ -2288,21 +2416,32 @@ arrakis:/shared /shared         nfs     defaults        0       0
       <sidebar>
         <title><emphasis>GOING FURTHER</emphasis> Auto-mounting</title>
 
-        <!-- TODO: document that systemd can handle auto-mounting -->
-	<para>The <emphasis>am-utils</emphasis> package provides the
-	<command>amd</command> auto-mounting utility, able to mount
-	removable media on demand when a user attempts to access their
-	usual mount point. It will unmount these devices when no process is
-	accessing them any longer.</para>
+        <para>
+          systemd is able to manage automount points: those are filesystems
+          that are mounted on-demand when a user attempts
+          to access their target mount points. It can also unmount these
+          filesystems when no process is accessing them any longer.
+        </para>
+        <para>
+          Like most concepts in systemd, automount points are managed with
+          dedicated units (using the <literal>.automount</literal> suffix).
+          See
+          <citerefentry><refentrytitle>systemd.automount</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+          for their precise syntax.
+        </para>
+
         <indexterm><primary><emphasis>am-utils</emphasis></primary></indexterm>
         <indexterm><primary><command>amd</command></primary></indexterm>
         <indexterm><primary><command>automount</command></primary></indexterm>
         <indexterm><primary><emphasis>autofs</emphasis></primary></indexterm>
         <indexterm><primary>automounter</primary></indexterm>
 
-	<para>Other auto-mounting utilities exist, such as
-	<command>automount</command> in the <emphasis>autofs</emphasis>
-	package.</para>
+        <para>
+          Other auto-mounting utilities exist, such as
+          <command>automount</command> in the <emphasis
+            role="pkg">autofs</emphasis> package or <command>amd</command>
+          in the <emphasis role="pkg">am-utils</emphasis>.
+        </para>
 
 	<para>Note also that GNOME, KDE, and other graphical desktop
 	environments work together with <emphasis>udisks</emphasis>,
@@ -2423,7 +2562,7 @@ arrakis:/shared /shared         nfs     defaults        0       0
       kernel sources are available in a package. To retrieve them, just
       install the <emphasis
       role="pkg">linux-source-<replaceable>version</replaceable></emphasis>
-      package. The <command>apt-cache search ^linux-source</command>
+      package. The <command>apt search ^linux-source</command>
       command lists the various kernel versions packaged by Debian. The
       latest version is available in the <emphasis
       role="distribution">Unstable</emphasis> distribution: you can
@@ -2438,14 +2577,14 @@ arrakis:/shared /shared         nfs     defaults        0       0
       kernel versions, new features not yet (entirely) merged in the upstream
       Linux tree, and sometimes even Debian specific changes.</para>
 
-      <para>The remainder of this section focuses on the 3.16 version of
+      <para>The remainder of this section focuses on the 4.9 version of
       the Linux kernel, but the examples can, of course, be adapted to the
       particular version of the kernel that you want.</para>
 
       <para>We assume the <emphasis
-      role="pkg">linux-source-3.16</emphasis> package has been installed.
+      role="pkg">linux-source-4.9</emphasis> package has been installed.
       It contains
-      <filename>/usr/src/linux-source-3.16.tar.xz</filename>, a
+      <filename>/usr/src/linux-source-4.9.tar.xz</filename>, a
       compressed archive of the kernel sources. You must extract these
       files in a new directory (not directly under
       <filename>/usr/src/</filename>, since there is no need for special
@@ -2454,7 +2593,7 @@ arrakis:/shared /shared         nfs     defaults        0       0
 
       <screen>
 <computeroutput>$ </computeroutput><userinput>mkdir ~/kernel; cd ~/kernel</userinput>
-<computeroutput>$ </computeroutput><userinput>tar -xaf /usr/src/linux-source-3.16.tar.xz</userinput>
+<computeroutput>$ </computeroutput><userinput>tar -xaf /usr/src/linux-source-4.9.tar.xz</userinput>
 </screen>
 
       <sidebar>
@@ -2495,7 +2634,7 @@ arrakis:/shared /shared         nfs     defaults        0       0
       kernel sources.</para>
 
       <screen>
-<computeroutput>$ </computeroutput><userinput>cp /boot/config-3.16.0-4-amd64 ~/kernel/linux-source-3.16/.config</userinput>
+<computeroutput>$ </computeroutput><userinput>cp /boot/config-4.9.0-3-amd64 ~/kernel/linux-source-4.9/.config</userinput>
 </screen>
 
       <para>Unless you need to change the configuration, you can stop here
@@ -2599,10 +2738,10 @@ arrakis:/shared /shared         nfs     defaults        0       0
       <screen><computeroutput>$ </computeroutput><userinput>make deb-pkg LOCALVERSION=-falcot KDEB_PKGVERSION=$(make kernelversion)-1
 </userinput><computeroutput>[...]
 $ </computeroutput><userinput>ls ../*.deb
-</userinput><computeroutput>../linux-headers-3.16.7-ckt4-falcot_3.16.7-1_amd64.deb
-../linux-image-3.16.7-ckt4-falcot_3.16.7-1_amd64.deb
-../linux-image-3.16.7-ckt4-falcot-dbg_3.16.7-1_amd64.deb
-../linux-libc-dev_3.16.7-1_amd64.deb
+</userinput><computeroutput>../linux-headers-4.9.30-ckt4-falcot_4.9.30-1_amd64.deb
+../linux-image-4.9.30-ckt4-falcot_4.9.30-1_amd64.deb
+../linux-image-4.9.30-ckt4-falcot-dbg_4.9.30-1_amd64.deb
+../linux-libc-dev_4.9.30-1_amd64.deb
 </computeroutput></screen>
     </section>
     <section id="sect.modules-build">
@@ -2645,11 +2784,10 @@ $ </computeroutput><userinput>ls ../*.deb
 <computeroutput>$ </computeroutput><userinput>sudo apt install xtables-addons-dkms</userinput>
 <computeroutput>
 [...]
-Setting up xtables-addons-dkms (2.6-1) ...
-Loading new xtables-addons-2.6 DKMS files...
-First Installation: checking all kernels...
-Building only for 3.16.0-4-amd64
-Building initial module for 3.16.0-4-amd64
+Setting up xtables-addons-dkms (2.12-0.1) ...
+Loading new xtables-addons-2.12 DKMS files...
+Building for 4.9.0-3-amd64
+Building initial module for 4.9.0-3-amd64
 Done.
 
 xt_ACCOUNT:
@@ -2657,13 +2795,13 @@ Running module version sanity check.
  - Original module
    - No original module exists within this kernel
  - Installation
-   - Installing to /lib/modules/3.16.0-4-amd64/updates/dkms/
+   - Installing to /lib/modules/4.9.0-3-amd64/updates/dkms/
 [...]
 DKMS: install completed.
 $ </computeroutput><userinput>sudo dkms status</userinput>
-<computeroutput>xtables-addons, 2.6, 3.16.0-4-amd64, x86_64: installed
+<computeroutput>xtables-addons, 2.12, 4.9.0-3-amd64, x86_64: installed
 $ </computeroutput><userinput>sudo modinfo xt_ACCOUNT</userinput>
-<computeroutput>filename:       /lib/modules/3.16.0-4-amd64/updates/dkms/xt_ACCOUNT.ko
+<computeroutput>filename:       /lib/modules/4.9.0-3-amd64/updates/dkms/xt_ACCOUNT.ko
 license:        GPL
 alias:          ipt_ACCOUNT
 author:         Intra2net AG &lt;opensource@intra2net.com&gt;
@@ -2698,22 +2836,23 @@ description:    Xtables: per-IP accounting for large prefixes
       Such features may be distributed as patches that anyone is then free
       to apply to the kernel sources.</para>
 
-      <para>Debian distributes some of these patches in <emphasis
-      role="pkg">linux-patch-*</emphasis> or <emphasis
-      role="pkg">kernel-patch-*</emphasis> packages (for instance,
-      <emphasis role="pkg">linux-patch-grsecurity2</emphasis>, which
-      tightens some of the kernel's security policies). These packages
-      install files in the <filename>/usr/src/kernel-patches/</filename>
-      directory.</para>
+      <para>
+        Debian sometimes provides some of these patches in <emphasis
+          role="pkg">linux-patch-*</emphasis> packages but they
+        often don't make it into stable releases (sometimes for the very
+        same reasons that they are not merged into the official upstream
+        kernel). These packages install files in the
+        <filename>/usr/src/kernel-patches/</filename> directory.
+      </para>
 
       <para>To apply one or more of these installed patches, use the
       <command>patch</command> command in the sources directory then start
       compilation of the kernel as described above.</para>
 
       <screen>
-<computeroutput>$ </computeroutput><userinput>cd ~/kernel/linux-source-3.16</userinput>
+<computeroutput>$ </computeroutput><userinput>cd ~/kernel/linux-source-4.9</userinput>
 <computeroutput>$ </computeroutput><userinput>make clean</userinput>
-<computeroutput>$ </computeroutput><userinput>zcat /usr/src/kernel-patches/diffs/grsecurity2/grsecurity-3.0-3.17.1-201410250027.patch.gz | patch -p1</userinput>
+<computeroutput>$ </computeroutput><userinput>zcat /usr/src/kernel-patches/diffs/grsecurity2/grsecurity-3.1-4.9.11-201702181444.patch.gz | patch -p1</userinput>
 </screen>
 
       <para>Note that a given patch may not necessarily work with every
@@ -2783,7 +2922,7 @@ description:    Xtables: per-IP accounting for large prefixes
       where <literal><replaceable>package</replaceable>.deb</literal> is
       the name of a <emphasis role="pkg">linux-image</emphasis> package
       such as
-      <filename>linux-image-3.16.7-ckt4-falcot_1_amd64.deb</filename>.</para>
+      <filename>linux-image-4.9.30-ckt4-falcot_1_amd64.deb</filename>.</para>
 
       <para>The configuration steps described in this chapter are basic and
       can lead both to a server system or a workstation, and it can be
