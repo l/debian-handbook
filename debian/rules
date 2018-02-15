@@ -7,10 +7,10 @@ LANGS=$(shell echo [a-z][a-z]-[A-Z][A-Z])
 %:
 	dh $@ 
 
-override_dh_auto_build:
-	set -e; for lang in $(LANGS); do \
-		./build/build-html --lang=$$lang; \
-	done
+# Build multiple languages in parallel
+override_dh_auto_build: $(foreach lang,$(LANGS),build-html-$(lang))
+build-html-%:
+	./bin/build-html --lang=$*
 
 override_dh_auto_install:
 	mkdir -p $(DOCDIR)
@@ -26,5 +26,3 @@ override_dh_auto_install:
 
 override_dh_auto_clean:
 	publican clean
-
-.PHONY: build

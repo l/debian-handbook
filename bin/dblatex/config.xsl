@@ -320,6 +320,21 @@ actual page. By default the page is centered as required in this mode.
     </l:context>
   </l:l10n>
 
+  <l:l10n language="zh_cn">
+    <l:gentext key="minitoc" text="内容"/>
+    <l:gentext key="keywordset" text="关键词"/>
+    <l:context name="xref">
+      <l:template name="page.citation" text="%p 页"/>
+      <l:template name="sidebar" text="“%t”"/>
+    </l:context>
+    <l:context name="xref-number-and-title">
+      <!-- Don't start with capital letters -->
+      <l:template name="chapter" text="第 %n 章, “%t”"/>
+      <l:template name="section" text="第 %n 节, “%t”"/>
+      <l:template name="appendix" text="附录 %n, “%t”"/>
+    </l:context>
+  </l:l10n>
+
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../../brand/xsl/l10n-ja-JP.xml"/>
 
