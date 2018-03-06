@@ -148,38 +148,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               href="sect.ipv6.html">Section 10.5, « IPv6 »</a>, mais les concepts resteront les mêmes.
 		</div></div><div
           class="para">
-			Le réseau étant automatiquement réglé lors de l'installation initiale, le fichier <code
-            class="filename">/etc/network/interfaces</code> contient déjà une configuration valide. Une ligne débutant par <code
-            class="literal">auto</code> donne la liste des interfaces qu'<span
-            class="pkg pkg">ifupdown</span> configure automatiquement au démarrage. Souvent, on y trouve <code
-            class="literal">eth0</code>, qui correspond à la première carte Ethernet.
+			The network is automatically configured during the initial installation. If Network Manager gets installed (which is generally the case for full desktop installations), then it might be that no configuration is actually required (for example, if you rely on DHCP on a wired connection and have no specific requirements). If a configuration is required (for example for a WiFi interface), then it will create the appropriate file in <code
+            class="filename">/etc/NetworkManager/system-connections/</code>.
+		</div><div
+          class="para">
+			If Network Manager is not installed, then the installer will configure <span
+            class="pkg pkg">ifupdown</span> by creating the <code
+            class="filename">/etc/network/interfaces</code> file. A line starting with <code
+            class="literal">auto</code> gives a list of interfaces to be automatically configured on boot by the <code
+            class="literal">networking</code> service.
+		</div><div
+          class="para">
+			In a server context, <span
+            class="pkg pkg">ifupdown</span> is thus the network configuration tool that you usually get. That is why we will cover it in the next sections.
 		</div><a
-          id="id-1.11.6.4"
-          class="indexterm"></a><a
-          id="id-1.11.6.5"
-          class="indexterm"></a><a
           id="id-1.11.6.6"
           class="indexterm"></a><a
           id="id-1.11.6.7"
+          class="indexterm"></a><a
+          id="id-1.11.6.8"
           class="indexterm"></a><div
           class="sidebar"><div
             class="titlepage"><div><div><p
                   class="title"><strong><span
                       class="emphasis"><em>ALTERNATIVE</em></span> NetworkManager</strong></p></div></div></div><a
-            id="id-1.11.6.8.2"
+            id="id-1.11.6.9.2"
             class="indexterm"></a><div
             class="para">
-			Si Network Manager est particulièrement recommandé pour des environnements mobiles ou itinérants (voir <a
+			If Network Manager is particularly recommended in roaming setups (see <a
               class="xref"
-              href="sect.network-config.html#sect.roaming-network-config">Section 8.2.4, « Configuration réseau itinérante »</a>), il est également parfaitement utilisable en tant qu'outil par défaut pour la gestion du réseau. Il est possible de créer des « connexions système », qui sont activées dès que l'ordinateur démarre, soit en créant à la main un fichier à la syntaxe <code
-              class="filename">.ini</code> dans <code
-              class="filename">/etc/NetworkManager/system-connections/</code>, soit à travers un outil graphique (<code
-              class="command">nm-connection-editor</code>). Il faut simplement se rappeler de désactiver toutes les entrées de <code
-              class="filename">/etc/network/interfaces</code> pour que Network Manager s'occupe de ces interfaces. <div
+              href="sect.network-config.html#sect.roaming-network-config">Section 8.2.5, « Configuration réseau itinérante »</a>), it is also perfectly usable as the default network management tool. You can create “System connections” that are used as soon as the computer boots either manually with a <code
+              class="filename">.ini</code>-like file in <code
+              class="filename">/etc/NetworkManager/system-connections/</code> or through a graphical tool (<code
+              class="command">nm-connection-editor</code>). Just remember to deactivate all entries in <code
+              class="filename">/etc/network/interfaces</code> if you want Network Manager to handle them. <div
               class="url">→ <a
-                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie</a></div> <div
+                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings</a></div> <div
               class="url">→ <a
-                href="https://developer.gnome.org/NetworkManager/0.9/ref-settings.html">https://developer.gnome.org/NetworkManager/0.9/ref-settings.html</a></div>
+                href="https://developer.gnome.org/NetworkManager/1.6/ref-settings.html">https://developer.gnome.org/NetworkManager/1.6/ref-settings.html</a></div>
 		</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
@@ -189,19 +195,54 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 				Si l'ordinateur dispose d'une carte réseau Ethernet, il faut configurer le réseau qui y est associé en optant pour l'une de deux méthodes. La configuration dynamique par DHCP, la plus simple, nécessite la présence d'un serveur DHCP sur le réseau local. Elle peut indiquer un nom d'hôte souhaité, ce qui correspond au paramètre facultatif <code
               class="literal">hostname</code> dans l'exemple qui suit. Le serveur DHCP renvoie alors les paramètres de configuration du réseau qui conviennent.
 			</div><a
-            id="id-1.11.6.9.3"
+            id="id-1.11.6.10.3"
             class="indexterm"></a><a
-            id="id-1.11.6.9.4"
+            id="id-1.11.6.10.4"
             class="indexterm"></a><div
             class="example"><a
               id="example.config-dhcp"></a><p
               class="title"><strong>Exemple 8.1. Configuration par DHCP</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet dhcp
+auto enp0s31f6
+iface enp0s31f6 inet dhcp
   hostname arrakis
 </pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> Names of network interfaces</strong></p></div></div></div><a
+              id="id-1.11.6.10.6.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.3"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.4"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.5"
+              class="indexterm"></a><div
+              class="para">
+				By default, the kernel attributes generic names such a <code
+                class="literal">eth0</code> (for wired Ethernet) or <code
+                class="literal">wlan0</code> (for WiFi) to the network interfaces. The number in those names is a simple incremental counter representing the order in which they have been detected. With modern hardware, that order might change for each reboot and thus the default names are not reliable.
+			</div><div
+              class="para">
+				Fortunately, systemd and udev are able to rename the interfaces as soon as they appear. The default name policy is defined by <code
+                class="filename">/lib/systemd/network/99-default.link</code> (see <span
+                class="citerefentry"><span
+                  class="refentrytitle">systemd.link</span>(5)</span> for an explanation of the <code
+                class="literal">NamePolicy</code> entry in that file). In practice, the names are often based on the device's physical location (as guessed by where they are connected) and you will see names starting with <code
+                class="literal">en</code> for wired ethernet and <code
+                class="literal">wl</code> for WiFi. In the example above, the rest of the name indicates, in abbreviated form, a PCI (<code
+                class="literal">p</code>) bus number (<code
+                class="literal">0</code>), a slot number (<code
+                class="literal">s31</code>), a function number (<code
+                class="literal">f6</code>).
+			</div><div
+              class="para">
+				Obviously, you are free to override this policy and/or to complement it to customize the names of some specific interfaces. You can find out the names of the network interfaces in the output of <code
+                class="command">ip addr</code> (or as filenames in <code
+                class="filename">/sys/class/net/</code>).
+			</div></div><div
             class="para">
 				Une configuration « statique » doit mentionner de manière fixe les paramètres du réseau. Cela inclut au minimum l'adresse IP et le masque de sous-réseau, parfois les adresses de réseau et de <span
               class="foreignphrase"><em
@@ -214,8 +255,8 @@ iface eth0 inet dhcp
               class="title"><strong>Exemple 8.2. Configuration statique</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet static
+auto enp0s31f6
+iface enp0s31f6 inet static
   address 192.168.0.3
   netmask 255.255.255.0
   broadcast 192.168.0.255
@@ -235,14 +276,97 @@ iface eth0 inet static
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.ppp-rtc"></a>8.2.2. Connexion PPP par modem téléphonique</h3></div></div></div><a
-            id="id-1.11.6.10.2"
+                    id="sect.interface-wireless"></a>8.2.2. Wireless Interface</h3></div></div></div><a
+            id="id-1.11.6.11.2"
+            class="indexterm"></a><div
+            class="para">
+				Getting wireless network cards to work can be a bit more challenging. First of all, they often require the installation of proprietary firmwares which are not installed by default in Debian. Then wireless networks rely on cryptography to restrict access to authorized users only, this implies storing some secret key in the network configuration. Let's tackle those topics one by one.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.4"></a>8.2.2.1. Installing the required firmwares</h4></div></div></div><a
+              id="id-1.11.6.11.4.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.11.4.3"
+              class="indexterm"></a><div
+              class="para">
+					First you have to enable the non-free repository in APT's sources.list file: see <a
+                class="xref"
+                href="apt.html#sect.apt-sources.list">Section 6.1, « Renseigner le fichier <code
+                  class="filename">sources.list</code> »</a> for details about this file. Many firmware are proprietary and are thus located in this repository. You can try to skip this step if you want, but if the next step doesn't find the required firmware, retry after having enabled the non-free section.
+				</div><div
+              class="para">
+					Then you have to install the appropriate <code
+                class="literal">firmware-*</code> packages. If you don't know which package you need, you can install the <span
+                class="pkg pkg">isenkram</span> package and run its <code
+                class="command">isenkram-autoinstall-firmware</code> command. The packages are often named after the hardware manufacturer or the corresponding kernel module: <span
+                class="pkg pkg">firmware-iwlwifi</span> for Intel wireless cards, <span
+                class="pkg pkg">firmware-atheros</span> for Qualcomm Atheros, <span
+                class="pkg pkg">firmware-ralink</span> for Ralink, etc. A reboot is then recommended because the kernel driver usually looks for the firmware files when it is first loaded and no longer afterwards.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.5"></a>8.2.2.2. Wireless specific entries in <code
+                      class="filename">/etc/network/interfaces</code></h4></div></div></div><a
+              id="id-1.11.6.11.5.2"
+              class="indexterm"></a><div
+              class="para">
+					<span
+                class="emphasis"><em>ifupdown</em></span> is able to manage wireless interfaces but it needs the help of the <span
+                class="pkg pkg">wpasupplicant</span> package which provides the required integration between <span
+                class="emphasis"><em>ifupdown</em></span> and the <code
+                class="command">wpa_supplicant</code> command used to configure the wireless interfaces (when using WPA/WPA2 encryption). The usual entry in <code
+                class="filename">/etc/network/interfaces</code> needs to be extended with two supplementary parameters to specify the name of the wireless network (aka its SSID) and the <span
+                class="emphasis"><em>Pre-Shared Key</em></span> (PSK).
+				</div><div
+              class="example"><a
+                id="example.config-wireless"></a><p
+                class="title"><strong>Exemple 8.3. DHCP configuration for a wireless interface</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+auto wlp4s0
+iface wlp4s0 inet dhcp
+  wpa-ssid Falcot
+  wpa-psk ccb290fd4fe6b22935cbae31449e050edd02ad44627b16ce0151668f5f53c01b
+</pre></div></div><div
+              class="para">
+					The <code
+                class="literal">wpa-psk</code> parameter can contain either the plain text passphrase or its hashed version generated with <code
+                class="command">wpa_passphrase <em
+                  class="replaceable">SSID</em> <em
+                  class="replaceable">passphrase</em></code>. If you use an unencrypted wireless connection, then you should put a <code
+                class="literal">wpa-key-mgmt NONE</code> and no <code
+                class="literal">wpa-psk</code> entry. For more information about the possible configuration options, have a look at <code
+                class="filename">/usr/share/doc/wpasupplicant/README.Debian.gz</code>.
+				</div><div
+              class="para">
+					At this point, you should consider restricting the read permissions on <code
+                class="filename">/etc/network/interfaces</code> to the root user only since the file contains a private key that not all users should have access to.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>HISTORY</em></span> WEP encryption</strong></p></div></div></div><a
+                id="id-1.11.6.11.5.7.2"
+                class="indexterm"></a><div
+                class="para">
+					Usage of the deprecated WEP encryption protocol is possible with the <span
+                  class="pkg pkg">wireless-tools</span> package. See <code
+                  class="filename">/usr/share/doc/wireless-tools/README.Debian</code> for instructions.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ppp-rtc"></a>8.2.3. Connexion PPP par modem téléphonique</h3></div></div></div><a
+            id="id-1.11.6.12.2"
             class="indexterm"></a><a
-            id="id-1.11.6.10.3"
+            id="id-1.11.6.12.3"
             class="indexterm"></a><a
-            id="id-1.11.6.10.4"
+            id="id-1.11.6.12.4"
             class="indexterm"></a><a
-            id="id-1.11.6.10.5"
+            id="id-1.11.6.12.5"
             class="indexterm"></a><div
             class="para">
 				Une connexion point à point (PPP) établit une connexion intermittente ; c'est donc la solution la plus souvent employée pour les connexions par modem téléphonique (sur le réseau téléphonique commuté RTC).
@@ -254,9 +378,9 @@ iface eth0 inet static
                 class="foreignphrase">provider</em></span> (fournisseur d'accès). En cas de doute sur le protocole d'authentification, choisissez <span
               class="emphasis"><em>PAP</em></span> : il est proposé par la majorité des fournisseurs d'accès.
 			</div><a
-            id="id-1.11.6.10.8"
+            id="id-1.11.6.12.8"
             class="indexterm"></a><a
-            id="id-1.11.6.10.9"
+            id="id-1.11.6.12.9"
             class="indexterm"></a><div
             class="para">
 				Après configuration, il est possible de se connecter par la commande <code
@@ -266,19 +390,19 @@ iface eth0 inet static
               class="command">poff</code>. Ces deux commandes peuvent être exécutées par l'utilisateur root ou par un autre utilisateur, à condition qu'il fasse partie du groupe <code
               class="literal">dip</code>.
 			</div><a
-            id="id-1.11.6.10.11"
+            id="id-1.11.6.12.11"
             class="indexterm"></a><a
-            id="id-1.11.6.10.12"
+            id="id-1.11.6.12.12"
             class="indexterm"></a></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.adsl"></a>8.2.3. Connexion par modem ADSL</h3></div></div></div><a
-            id="id-1.11.6.11.2"
+                    id="sect.adsl"></a>8.2.4. Connexion par modem ADSL</h3></div></div></div><a
+            id="id-1.11.6.13.2"
             class="indexterm"></a><a
-            id="id-1.11.6.11.3"
+            id="id-1.11.6.13.3"
             class="indexterm"></a><a
-            id="id-1.11.6.11.4"
+            id="id-1.11.6.13.4"
             class="indexterm"></a><div
             class="para">
 				Le terme générique de « modem ADSL » recouvre des périphériques aux fonctionnements très différents. Les modems les plus simples à employer avec Linux sont ceux qui disposent d'une interface Ethernet. Ceux-ci ont tendance à se répandre, les fournisseurs d'accès à Internet par ADSL prêtant (ou louant) de plus en plus souvent une « box » disposant d'interfaces Ethernet en plus (ou en remplacement) des interfaces USB. Selon le type de modem, la configuration nécessaire peut fortement varier.
@@ -286,10 +410,10 @@ iface eth0 inet static
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pppoe"></a>8.2.3.1. Modem fonctionnant avec PPPOE</h4></div></div></div><a
-              id="id-1.11.6.11.6.2"
+                      id="sect.adsl-pppoe"></a>8.2.4.1. Modem fonctionnant avec PPPOE</h4></div></div></div><a
+              id="id-1.11.6.13.6.2"
               class="indexterm"></a><a
-              id="id-1.11.6.11.6.3"
+              id="id-1.11.6.13.6.3"
               class="indexterm"></a><div
               class="para">
 					Certains modems Ethernet fonctionnent avec le protocole PPPOE (<span
@@ -305,26 +429,24 @@ iface eth0 inet static
                 class="command">pon dsl-provider</code> et la stopper avec <code
                 class="command">poff dsl-provider</code>.
 				</div><a
-              id="id-1.11.6.11.6.6"
+              id="id-1.11.6.13.6.6"
               class="indexterm"></a><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>ASTUCE</em></span> Exécuter <code
                           class="command">ppp</code> au démarrage de l'ordinateur</strong></p></div></div></div><a
-                id="id-1.11.6.11.6.7.2"
+                id="id-1.11.6.13.6.7.2"
                 class="indexterm"></a><a
-                id="id-1.11.6.11.6.7.3"
+                id="id-1.11.6.13.6.7.3"
                 class="indexterm"></a><div
                 class="para">
 					Les connexions PPP par ADSL sont par définition intermittentes. Comme elles ne sont pas facturées à la durée, la tentation est grande de les garder toujours ouvertes ; un moyen simple est de les faire démarrer par le processus <code
                   class="command">init</code>.
 				</div><div
                 class="para">
-					Le système d'initialisation par défaut de <span
-                  class="distribution distribution">Jessie</span> est <code
-                  class="command">systemd</code>. Pour ajouter une tâche qui (re)démarre automatiquement la connexion ADSL il suffit de créer, par exemple, un fichier <code
-                  class="filename">/etc/systemd/system/adsl-connection.service</code> contenant ceci :
+					With systemd, adding an automatically restarting task for the ADSL connection is a simple matter of creating a “unit file” such as <code
+                  class="filename">/etc/systemd/system/adsl-connection.service</code>, with contents such as the following:
 				</div><pre
                 class="programlisting">[Unit]
 Description=ADSL connection
@@ -349,16 +471,15 @@ WantedBy=multi-user.target</pre><div
                   class="command">init</code>.
 				</div><pre
                 class="programlisting">
-adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
-</pre><div
+adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
                 class="para">
 					Pour les connexions ADSL qui subissent une déconnexion quotidienne, cette méthode permet de réduire la durée de la coupure.
 				</div></div></div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pptp"></a>8.2.3.2. Modem fonctionnant avec PPTP</h4></div></div></div><a
-              id="id-1.11.6.11.7.2"
+                      id="sect.adsl-pptp"></a>8.2.4.2. Modem fonctionnant avec PPTP</h4></div></div></div><a
+              id="id-1.11.6.13.7.2"
               class="indexterm"></a><div
               class="para">
 					Le protocole PPTP (<span
@@ -370,7 +491,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-dhcp"></a>8.2.3.3. Modem fonctionnant avec DHCP</h4></div></div></div><div
+                      id="sect.adsl-dhcp"></a>8.2.4.3. Modem fonctionnant avec DHCP</h4></div></div></div><div
               class="para">
 					Lorsque le modem est connecté à l'ordinateur par un câble Ethernet (croisé), il fait le plus souvent office de serveur DHCP (c'est parfois une option de configuration à activer sur le modem). Il suffit alors à l'ordinateur de configurer une connexion réseau par DHCP ; le modem s'inscrit automatiquement comme passerelle par défaut et prend en charge le travail de routage (c'est-à-dire qu'il gère le trafic réseau entre l'ordinateur et Internet).
 				</div><div
@@ -378,7 +499,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>B.A.-BA</em></span> Câble croisé pour une connexion Ethernet directe</strong></p></div></div></div><a
-                id="id-1.11.6.11.8.3.2"
+                id="id-1.11.6.13.8.3.2"
                 class="indexterm"></a><div
                 class="para">
 					Les cartes réseau des ordinateurs s'attendent à recevoir les données sur un brin particulier du câble et les envoyer sur un autre. Lorsqu'on relie un ordinateur à un réseau local, on branche habituellement un câble (droit ou décroisé) entre la carte réseau et un répétiteur ou un commutateur, qui est prévu pour. Cependant, si l'on souhaite relier deux ordinateurs directement (c'est-à-dire sans répétiteur/commutateur intermédiaire), il faut acheminer le signal émis par une carte vers le brin de réception de l'autre carte et réciproquement ; c'est là l'objet (et la nécessité) d'un câble croisé.
@@ -392,10 +513,10 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.roaming-network-config"></a>8.2.4. Configuration réseau itinérante</h3></div></div></div><a
-            id="id-1.11.6.12.2"
+                    id="sect.roaming-network-config"></a>8.2.5. Configuration réseau itinérante</h3></div></div></div><a
+            id="id-1.11.6.14.2"
             class="indexterm"></a><a
-            id="id-1.11.6.12.3"
+            id="id-1.11.6.14.3"
             class="indexterm"></a><div
             class="para">
 				De nombreux ingénieurs de Falcot disposent d'un ordinateur portable professionnel qu'ils emploient aussi bien chez eux qu'au travail. Bien entendu, la configuration réseau à employer n'est pas la même selon l'endroit. À la maison, c'est un réseau Wi-Fi (protégé par une clé WPA) et au travail, c'est un réseau filaire offrant plus de sécurité et plus de débit.
@@ -414,21 +535,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
 			</div><div
             class="para">
 				Il est intéressant de noter que ce logiciel est installé par défaut lorsque la tâche « Environnement bureautique » est sélectionnée au cours de l'installation initiale.
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>ALTERNATIVE</em></span> Configuration par « profil réseau »</strong></p></div></div></div><a
-              id="id-1.11.6.12.9.2"
-              class="indexterm"></a><div
-              class="para">
-				Les utilisateurs les plus avancés peuvent aussi envisager d'employer le paquet <span
-                class="pkg pkg">guessnet</span> pour avoir une configuration réseau automatique. Un ensemble de scripts de tests permettent de déterminer quel profil réseau doit être activé et de le configurer dans la foulée.
-			</div><div
-              class="para">
-				Ceux qui préfèrent sélectionner manuellement un profil réseau emploieront plutôt <span
-                class="pkg pkg">netenv</span>.
-			</div></div></div></div><ul
+			</div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"

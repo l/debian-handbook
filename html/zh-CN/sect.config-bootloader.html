@@ -4,7 +4,7 @@
     xmlns="http://www.w3.org/1999/xhtml"><head><meta
         http-equiv="Content-Type"
         content="text/html; charset=UTF-8" /><title
-        xmlns:d="http://docbook.org/ns/docbook">8.8. Configuring the Bootloader</title><link
+        xmlns:d="http://docbook.org/ns/docbook">8.8. 配置 Bootloader</title><link
         rel="stylesheet"
         type="text/css"
         href="Common_Content/css/default.css" /><link
@@ -28,10 +28,10 @@
         title="第 8 章 基础配置：网络，账户，打印……" /><link
         rel="prev"
         href="sect.config-printing.html"
-        title="8.7. Printer Configuration" /><link
+        title="8.7. 打印机配置" /><link
         rel="next"
         href="sect.config-misc.html"
-        title="8.9. Other Configurations: Time Synchronization, Logs, Sharing Access…" /><meta
+        title="8.9. 其他配置：时间同步、记录、共享近用…" /><meta
         name="viewport"
         content="width=device-width, initial-scale=1" /><meta
         name="flattr:id"
@@ -70,79 +70,79 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
         class="section"><div
           class="titlepage"><div><div><h2
                 class="title"><a
-                  id="sect.config-bootloader"></a>8.8. Configuring the Bootloader</h2></div></div></div><a
+                  id="sect.config-bootloader"></a>8.8. 配置 Bootloader</h2></div></div></div><a
           id="id-1.11.12.2"
           class="indexterm"></a><a
           id="id-1.11.12.3"
           class="indexterm"></a><div
           class="para">
-			It is probably already functional, but it is always good to know how to configure and install the bootloader in case it disappears from the Master Boot Record. This can occur after installation of another operating system, such as Windows. The following information can also help you to modify the bootloader configuration if needed.
+			或许已经运作了，但最好知道如何配置与安装加载启动器，万一它不在 Master Boot Record 中。安装 Windows 等其他操作系统后，很可能出现这种情况。以下的信息在必要时可协助修改加载启动器配置。
 		</div><div
           class="sidebar"><div
             class="titlepage"><div><div><p
                   class="title"><strong><span
-                      class="emphasis"><em>BACK TO BASICS</em></span> Master boot record</strong></p></div></div></div><a
+                      class="emphasis"><em>基本</em></span> Master boot record</strong></p></div></div></div><a
             id="id-1.11.12.5.2"
             class="indexterm"></a><a
             id="id-1.11.12.5.3"
             class="indexterm"></a><div
             class="para">
-			The Master Boot Record (MBR) occupies the first 512 bytes of the first hard disk, and is the first thing loaded by the BIOS to hand over control to a program capable of booting the desired operating system. In general, a bootloader gets installed in the MBR, removing its previous content.
+			主引导记录 (Master Boot Record, MBR) 位于第一颗磁盘的最前方 512 字节，首先被 BIOS 加载，再启动操作系统。一般来说，由主引导记录安装启动程序，移除稍早的内容。
 		</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.identify-disks"></a>8.8.1. Identifying the Disks</h3></div></div></div><div
+                    id="sect.identify-disks"></a>8.8.1. 辨识磁盘</h3></div></div></div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>CULTURE</em></span> <span
-                        class="emphasis"><em>udev</em></span> and <code
+                        class="emphasis"><em>文化</em></span> <span
+                        class="emphasis"><em>udev</em></span> 与 <code
                         class="filename">/dev/</code></strong></p></div></div></div><div
               class="para">
-				The <code
-                class="filename">/dev/</code> directory traditionally houses so-called “special” files, intended to represent system peripherals (see sidebar <a
+				<code
+                class="filename">/dev/</code> 文件夹习惯保存被称为 “特殊的” 文件，用于代表系统的周边设备 (见专栏 <a
                 class="xref"
                 href="sect.creating-accounts.html#sidebar.special-files"><span
-                  class="emphasis"><em>BACK TO BASICS</em></span> Device access permissions</a>). Once upon a time, it used to contain all special files that could potentially be used. This approach had a number of drawbacks among which the fact that it restricted the number of devices that one could use (due to the hardcoded list of names), and that it was impossible to know which special files were actually useful.
+                  class="emphasis"><em>基本</em></span> 设备访问权限</a>)。曾经纳入所有可能用到的特殊文件。这种处理方式有若干缺点，限制设备数量是其中之一，每种设备只能有一个 (因为清单名称被限制)，且不可能知道实际上该用那个特殊文件。
 			</div><div
               class="para">
-				Nowadays, the management of special files is entirely dynamic and matches better the nature of hot-swappable computer devices. The kernel cooperates with <span
-                class="emphasis"><em>udev</em></span> to create and delete them as needed when the corresponding devices appear and disappear. For this reason, <code
-                class="filename">/dev/</code> doesn't need to be persistent and is thus a RAM-based filesystem that starts empty and contains only the relevant entries.
+				如今，以动态方式管理特殊的文件，并且更适合热切换的电脑设备。核心与 <span
+                class="emphasis"><em>udev</em></span> 合作在需要的时候添加与删除文件以映射出现或消失的设备。所以，<code
+                class="filename">/dev/</code> 不需要维持不变，反而采用 RAM 保存的文件系统清除或纳入相关的条目。
 			</div><div
               class="para">
-				The kernel communicates lots of information about any newly added device and hands out a pair of major/minor numbers to identify it. With this <code
-                class="command">udevd</code> can create the special file under the name and with the permissions that it wants. It can also create aliases and perform additional actions (such as initialization or registration tasks). <code
-                class="command">udevd</code>'s behavior is driven by a large set of (customizable) rules.
+				核心与添加的设备沟通，并发给主要/次要号码以供辨识。以 <code
+                class="command">udevd</code> 命令可以添加特殊的文件并授权使用它。也可添加别名运行其他的工作 (诸如初始化或登录工作)。<code
+                class="command">udevd</code> 命令的行为由一组 (可客制化) 的规则驱动。
 			</div><div
               class="para">
-				With dynamically assigned names, you can thus keep the same name for a given device, regardless of the connector used or the connection order, which is especially useful when you use various USB peripherals. The first partition on the first hard drive can then be called <code
-                class="filename">/dev/sda1</code> for backwards compatibility, or <code
-                class="filename">/dev/root-partition</code> if you prefer, or even both at the same time since <code
-                class="command">udevd</code> can be configured to automatically create a symbolic link.
+				动态给予名称，就能够让同名称永远指向特定设备，不必在意链接的设备或顺序，尤其在使用 USB 周边时更为便利。第一个磁盘的第一个区块称为 <code
+                class="filename">/dev/sda1</code> 可供向后兼容，喜欢的话也可称为 <code
+                class="filename">/dev/root-partition</code>，或两者共用，因为 <code
+                class="command">udevd</code> 可以配置成自动添加符号链接。
 			</div><div
               class="para">
-				In ancient times, some kernel modules did automatically load when you tried to access the corresponding device file. This is no longer the case, and the peripheral's special file no longer exists prior to loading the module; this is no big deal, since most modules are loaded on boot thanks to automatic hardware detection. But for undetectable peripherals (such as very old disk drives or PS/2 mice), this doesn't work. Consider adding the modules, <code
-                class="literal">floppy</code>, <code
-                class="literal">psmouse</code> and <code
-                class="literal">mousedev</code> to <code
-                class="filename">/etc/modules</code> in order to force loading them on boot.
+				过去在需要进入特定设备文件时，部分的核心模块无法自动加载。现在情况已变了，周边设备的特殊文件于加载模块时才会存在；所以问题不大，受惠于自动侦测硬件，大部分模块都可于启动时加载。但对于侦测不到的周边 (诸如极旧的磁盘机或 PS/2 鼠标)，则无效。在此情况下，就需添加 <code
+                class="literal">floppy</code>、<code
+                class="literal">psmouse</code> 与 <code
+                class="literal">mousedev</code> 等模块至 <code
+                class="filename">/etc/modules</code> 才能于启动时强迫加载。
 			</div></div><a
             id="id-1.11.12.6.3"
             class="indexterm"></a><a
             id="id-1.11.12.6.4"
             class="indexterm"></a><div
             class="para">
-				Configuration of the bootloader must identify the different hard drives and their partitions. Linux uses “block” special files stored in the <code
-              class="filename">/dev/</code> directory, for this purpose. Since Debian <span
-              class="distribution distribution">Squeeze</span>, the naming scheme for hard drives has been unified by the Linux kernel, and all hard drives (IDE/PATA, SATA, SCSI, USB, IEEE 1394) are now represented by <code
-              class="filename">/dev/sd*</code>.
+				配置启动程序必须辨认硬盘及其分区。Linux 使用 “block” 特殊文件保存在 <code
+              class="filename">/dev/</code> 文件夹内。因为 Debian <span
+              class="distribution distribution">Squeeze</span> 版本使用源自 Linux 核心的硬盘命名架构，所有的硬盘 (IDE/PATA、SATA、SCSI、USB、IEEE 1394) 都以 <code
+              class="filename">/dev/sd*</code> 表示。
 			</div><div
             class="para">
-				Each partition is represented by its number on the disk on which it resides: for instance, <code
-              class="filename">/dev/sda1</code> is the first partition on the first disk, and <code
-              class="filename">/dev/sdb3</code> is the third partition on the second disk.
+				每个分区由其磁盘代号表示：如，<code
+              class="filename">/dev/sda1</code> 是第一个磁盘的第一个分区，而 <code
+              class="filename">/dev/sdb3</code> 是第二个磁盘的第三个分区。
 			</div><a
             id="id-1.11.12.6.7"
             class="indexterm"></a><a
@@ -153,25 +153,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             id="id-1.11.12.6.10"
             class="indexterm"></a><div
             class="para">
-				The PC architecture (or “i386”, including its younger cousin “amd64”) has long been limited to using the “MS-DOS” partition table format, which only allows four “primary” partitions per disk. To go beyond this limitation under this scheme, one of them has to be created as an “extended” partition, and it can then contain additional “secondary” partitions. These secondary partitions are numbered from 5. Thus the first secondary partition could be <code
-              class="filename">/dev/sda5</code>, followed by <code
-              class="filename">/dev/sda6</code>, etc.
+				PC 架构 (或 “i386”，包括新出现的 “amd64”) 不再受限于使用 “MS-DOS” 分区表格式，每个磁盘可以拥有超过 4 个 “主要” 分区。在此架构下要超过此限制，必须添加 “延伸” 分区，然后就能使用添加的 “次要” 分区。这些次要分区由 5 开始编号。所以，第一个磁盘的次要分区可以是 <code
+              class="filename">/dev/sda5</code>，然后是 <code
+              class="filename">/dev/sda6</code>，余此类推。
 			</div><div
             class="para">
-				Another restriction of the MS-DOS partition table format is that it only allows disks up to 2 TiB in size, which is becoming a real problem with recent disks.
+				MS-DOS 分区表格式的另个限制是磁盘的容量不能超过 2 TiB，成为当代磁盘的真正问题。
 			</div><a
             id="id-1.11.12.6.13"
             class="indexterm"></a><a
             id="id-1.11.12.6.14"
             class="indexterm"></a><div
             class="para">
-				A new partition table format called GPT loosens these constraints on the number of partitions (it allows up to 128 partitions when using standard settings) and on the size of the disks (up to 8 ZiB, which is more than 8 billion terabytes). If you intend to create many physical partitions on the same disk, you should therefore ensure that you are creating the partition table in the GPT format when partitioning your disk.
+				GPT 是新的分区表格式，解放对区分数的限制 (标准方式最多可以设置 128 个区分) 以及磁盘容量的限制 (最多达 8 ZiB，超过 8 百万兆字节)。若想在一个磁盘切出多个实体区分，必须以 GPT 格式添加分区表。
 			</div><div
             class="para">
-				It is not always easy to remember what disk is connected to which SATA controller, or in third position in the SCSI chain, especially since the naming of hotplugged hard drives (which includes among others most SATA disks and external disks) can change from one boot to another. Fortunately, <code
-              class="command">udev</code> creates, in addition to <code
-              class="filename">/dev/sd*</code>, symbolic links with a fixed name, which you could then use if you wished to identify a hard drive in a non-ambiguous manner. These symbolic links are stored in <code
-              class="filename">/dev/disk/by-id</code>. On a machine with two physical disks, for example, one could find the following:
+				不容易记得磁盘挂在 SATA 控制卡的位置，或在 SCSI 链的第三个位置，尤其是热插拔硬式磁盘机 (包括 SATA 磁盘与插件磁盘) 可改变开机的位置。还好，<code
+              class="command">udev</code> 以固定的名称，添加 <code
+              class="filename">/dev/sd*</code> 以外的符号链接，就能够轻易的辨识硬式磁盘机。这种符号链接保存在 <code
+              class="filename">/dev/disk/by-id</code> 之内。例如，在两个实体磁盘的机器，可以找到如下的消息：
 			</div><pre
             class="screen"><code
               class="computeroutput">mirexpress:/dev/disk/by-id# </code><strong
@@ -203,31 +203,31 @@ lrwxrwxrwx 1 root root 10 23 jul. 08:58 wwn-0x5000c50015c4842f-part1 -&gt; ../..
 [...]
 mirexpress:/dev/disk/by-id# </code></pre><div
             class="para">
-				Note that some disks are listed several times (because they behave simultaneously as ATA disks and SCSI disks), but the relevant information is mainly in the model and serial numbers of the disks, from which you can find the peripheral file.
+				同颗磁盘出现多次 (因为它们同时做为 ATA 磁盘与 SCSI 磁盘)，但是根据磁盘的型号与序号等相关信息，就可找到对应的周边设备文件。
 			</div><div
             class="para">
-				The example configuration files given in the following sections are based on the same setup: a single SATA disk, where the first partition is an old Windows installation and the second contains Debian GNU/Linux.
+				下节的配置档根据同样的设置而来：一个 SATA 磁盘，第一个区分是安装旧型的窗口、第二个分区安装 Debian GNU/Linux。
 			</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.config-lilo"></a>8.8.2. Configuring LILO</h3></div></div></div><a
+                    id="sect.config-lilo"></a>8.8.2. 配置 LILO</h3></div></div></div><a
             id="id-1.11.12.7.2"
             class="indexterm"></a><a
             id="id-1.11.12.7.3"
             class="indexterm"></a><div
             class="para">
 				<span
-              class="emphasis"><em>LILO</em></span> (LInux LOader) is the oldest bootloader — solid but rustic. It writes the physical address of the kernel to boot on the MBR, which is why each update to LILO (or its configuration file) must be followed by the command <code
-              class="command">lilo</code>. Forgetting to do so will render a system unable to boot if the old kernel was removed or replaced as the new one will not be in the same location on the disk.
+              class="emphasis"><em>LILO</em></span> (Linux 启动程序, LInux LOader) 是最旧的启动程序 — 稳定但粗糙。把核心的实体地址写入 MBR 的启动，所以每次更新至 LILO (或其配置文件) 都必须再运行命令 <code
+              class="command">lilo</code>。忘记的话，移除或更新核心后，新的核心就不会在磁盘的原来位置，以致系统无法启动。
 			</div><div
             class="para">
-				LILO's configuration file is <code
-              class="filename">/etc/lilo.conf</code>; a simple file for standard configuration is illustrated in the example below.
+				LILO 的配置档是 <code
+              class="filename">/etc/lilo.conf</code>；一个简单的文件供标准配置之用，如下例。
 			</div><div
             class="example"><a
               id="example.lilo.conf"></a><p
-              class="title"><strong>例 8.3. LILO configuration file</strong></p><div
+              class="title"><strong>例 8.4. LILO 配置文件</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
 # The disk on which LILO should be installed.
@@ -254,41 +254,40 @@ image=/vmlinuz.old
 
 # only for Linux/Windows dual boot
 other=/dev/sda1
-  label=Windows
-</pre></div></div></div><div
+  label=Windows</pre></div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.config-grub"></a>8.8.3. GRUB 2 Configuration</h3></div></div></div><a
+                    id="sect.config-grub"></a>8.8.3. GRUB 2 配置</h3></div></div></div><a
             id="id-1.11.12.8.2"
             class="indexterm"></a><a
             id="id-1.11.12.8.3"
             class="indexterm"></a><div
             class="para">
 				<span
-              class="emphasis"><em>GRUB</em></span> (GRand Unified Bootloader) is more recent. It is not necessary to invoke it after each update of the kernel; <span
-              class="emphasis"><em>GRUB</em></span> knows how to read the filesystems and find the position of the kernel on the disk by itself. To install it on the MBR of the first disk, simply type <code
-              class="command">grub-install /dev/sda</code>. <a
+              class="emphasis"><em>GRUB</em></span> (GRand Unified Bootloader) 是最近的事。更新核心后不必再启动它；<span
+              class="emphasis"><em>GRUB</em></span> 知道如何读取文件系统并找到核心在磁盘的位置。键入 <code
+              class="command">grub-install /dev/sda</code> 命令就能够把它安装在第一个磁盘的 MBR。<a
               id="id-1.11.12.8.4.4"
               class="indexterm"></a>
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>NOTE</em></span> Disk names for GRUB</strong></p></div></div></div><div
+                        class="emphasis"><em>说明</em></span> GRUB 的磁盘名称</strong></p></div></div></div><div
               class="para">
-				GRUB can only identify hard drives based on information provided by the BIOS. <code
-                class="literal">(hd0)</code> corresponds to the first disk thus detected, <code
-                class="literal">(hd1)</code> the second, etc. In most cases, this order corresponds exactly to the usual order of disks under Linux, but problems can occur when you associate SCSI and IDE disks. GRUB stores correspondences that it detects in the file <code
-                class="filename">/boot/grub/device.map</code>. If you find errors there (because you know that your BIOS detects drives in a different order), correct them manually and run <code
-                class="command">grub-install</code> again. <code
-                class="command">grub-mkdevicemap</code> can help creating a <code
-                class="filename">device.map</code> file from which to start.
+				GRUB 只能根据 BIOS 提供的信息辨识硬式磁盘机。<code
+                class="literal">(hd0)</code> 对应侦测到的第一个磁盘、<code
+                class="literal">(hd1)</code> 第二个磁盘等。大部分的情况下，此顺序刚好是 Linux 的磁盘顺序，同时使用 SCSI 与 IDE 磁盘时就出问题。GRUB 把侦测到的信息保存在 <code
+                class="filename">/boot/grub/device.map</code> 文件内。若在此发现错误 (因为已知 BIOS 以不同的顺序侦测到磁盘)，再次运行 <code
+                class="command">grub-install</code> 命令。<code
+                class="command">grub-mkdevicemap</code> 命令可添加 <code
+                class="filename">device.map</code> 文件。
 			</div><div
               class="para">
-				Partitions also have a specific name in GRUB. When you use “classical” partitions in MS-DOS format, the first partition on the first disk is labeled, <code
-                class="literal">(hd0,msdos1)</code>, the second <code
-                class="literal">(hd0,msdos2)</code>, etc.
+				区分表在 GRUB 内也有特定的名称。通常使用 MS-DOS 格式的 “经典” 区分，第一个磁盘的第一个分区标记为 <code
+                class="literal">(hd0,msdos1)</code>、第二个分区标记为 <code
+                class="literal">(hd0,msdos2)</code>，余此类推。
 			</div></div><div
             class="para">
 				GRUB 2 configuration is stored in <code
@@ -306,26 +305,26 @@ other=/dev/sda1
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.config-yaboot"></a>8.8.4. For Macintosh Computers (PowerPC): Configuring Yaboot</h3></div></div></div><a
+                    id="sect.config-yaboot"></a>8.8.4. Macintosh 电脑 (PowerPC)：配置 Yaboot</h3></div></div></div><a
             id="id-1.11.12.9.2"
             class="indexterm"></a><div
             class="para">
-				Yaboot is the bootloader used by old Macintosh computers using PowerPC processors. They do not boot like PCs, but rely on a “bootstrap” partition, from which the BIOS (or OpenFirmware) executes the loader, and on which the <code
-              class="command">ybin</code> program installs <code
-              class="command">yaboot</code> and its configuration file. You will only need to run this command again if the <code
-              class="filename">/etc/yaboot.conf</code> is modified (it is duplicated on the bootstrap partition, and <code
-              class="command">yaboot</code> knows how to find the position of the kernels on the disks).
+				Yaboot 是使用 PowerPC 芯片的旧型 Macintosh 电脑用到的启动程序。它的启动方式不同于 PC，采用 “引导” 分区法，从 BIOS (或 OpenFirmware) 运行启动程序，然后由 <code
+              class="command">ybin</code> 程序安装 <code
+              class="command">yaboot</code> 及其配置档。修改 <code
+              class="filename">/etc/yaboot.conf</code> 文件后 (在启动程序分区复制，且 <code
+              class="command">yaboot</code> 知道如何到磁盘找寻核心的位置)，需再次运行此命令。
 			</div><div
             class="para">
-				Before executing <code
-              class="command">ybin</code>, you must first have a valid <code
-              class="filename">/etc/yaboot.conf</code>. The following is an example of a minimal configuration. <a
+				运行 <code
+              class="command">ybin</code> 之前，应有合法的 <code
+              class="filename">/etc/yaboot.conf</code> 程序。以下的最小配置的范例。<a
               id="id-1.11.12.9.4.3"
               class="indexterm"></a>
 			</div><div
             class="example"><a
               id="example.yaboot.conf"></a><p
-              class="title"><strong>例 8.4. Yaboot configuration file</strong></p><div
+              class="title"><strong>例 8.5. Yaboot 配置文件</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
 # bootstrap partition
@@ -359,12 +358,11 @@ image=/vmlinux.old
 macosx=/dev/sda5
 
 # bsd=/dev/sdaX and macos=/dev/sdaX
-# are also possible
-</pre></div></div></div></div><ul
+# are also possible</pre></div></div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"
-            href="sect.config-printing.html"><strong>上一页</strong>8.7. Printer Configuration</a></li><li
+            href="sect.config-printing.html"><strong>上一页</strong>8.7. 打印机配置</a></li><li
           class="up"><a
             accesskey="u"
             href="#"><strong>上一级</strong></a></li><li
@@ -373,7 +371,7 @@ macosx=/dev/sda5
             href="index.html"><strong>起始页</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.config-misc.html"><strong>下一页</strong>8.9. Other Configurations: Time Synchronization, ...</a></li></ul><div
+            href="sect.config-misc.html"><strong>下一页</strong>8.9. 其他配置：时间同步、记录、共享近用…</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/sect.config-bootloader.html">ar-MA</a></li><li><a
               href="../da-DK/sect.config-bootloader.html">da-DK</a></li><li><a

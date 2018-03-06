@@ -132,8 +132,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 			Debian パッケージのフォーマットは伝統的なコマンドである <code
               class="command">ar</code>、<code
               class="command">tar</code>、<code
-              class="command">gzip</code> (<code
-              class="command">xz</code> や <code
+              class="command">xz</code> (<code
+              class="command">gzip</code> や <code
               class="command">bzip2</code> の場合もあります) を備える Unix システムで内容を展開できるように設計されました。この一見たわいもない特徴は可搬性と障害復旧を考えると重要です。
 		</div><div
             class="para">
@@ -158,7 +158,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="command">busybox</code> はさらに依存関係が少なく、<code
               class="command">busybox ar</code>、<code
               class="command">busybox tar</code>、<code
-              class="command">busybox gunzip</code> などのサブコマンドを備えています。
+              class="command">busybox xz</code> などのサブコマンドを備えています。
 		</div><div
             class="sidebar"><a
               id="sidebar.dpkg-apt-ar"></a><div
@@ -202,16 +202,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="command">ar</code> はとても基本的なツールであり、Unix 管理者はめったにこれを使いません。対して、<code
                 class="command">tar</code> は日常的に使われる、進化したアーカイブとファイルの管理プログラムです。そんなわけで、<code
                 class="command">dpkg</code> を誤って削除した場合でも、簡単に元の状態に戻すことが可能です。Debian パッケージをダウンロードして、<code
-                class="filename">data.tar.gz</code> アーカイブからシステムのルート (<code
+                class="filename">data.tar.xz</code> アーカイブからシステムのルート (<code
                 class="filename">/</code>) で内容を抽出するだけです。
 		</div><pre
               class="screen">
 <code
                 class="computeroutput"># </code><strong
-                class="userinput"><code>ar x dpkg_1.17.23_amd64.deb</code></strong>
+                class="userinput"><code>ar x dpkg_1.18.24_amd64.deb</code></strong>
 <code
                 class="computeroutput"># </code><strong
-                class="userinput"><code>tar -C / -p -xzf data.tar.gz</code></strong></pre></div><div
+                class="userinput"><code>tar -C / -p -xJf data.tar.xz</code></strong></pre></div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
@@ -246,36 +246,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 		</div><pre
             class="screen"><code
               class="computeroutput">$ </code><strong
-              class="userinput"><code>ar t dpkg_1.17.23_amd64.deb</code></strong>
+              class="userinput"><code>ar t dpkg_1.18.24_amd64.deb</code></strong>
 <code
               class="computeroutput">debian-binary
 control.tar.gz
-data.tar.gz
+data.tar.xz
 $ </code><strong
-              class="userinput"><code>ar x dpkg_1.17.23_amd64.deb</code></strong>
+              class="userinput"><code>ar x dpkg_1.18.24_amd64.deb</code></strong>
 <code
               class="computeroutput">$ </code><strong
               class="userinput"><code>ls</code></strong>
 <code
-              class="computeroutput">control.tar.gz  data.tar.gz  debian-binary  dpkg_1.17.23_amd64.deb
+              class="computeroutput">control.tar.gz  data.tar.xz  debian-binary  dpkg_1.18.24_amd64.deb
 $ </code><strong
-              class="userinput"><code>tar tzf data.tar.gz | head -n 15</code></strong>
+              class="userinput"><code>tar tJf data.tar.xz | head -n 15</code></strong>
 <code
               class="computeroutput">./
-./var/
-./var/lib/
-./var/lib/dpkg/
-./var/lib/dpkg/parts/
-./var/lib/dpkg/info/
-./var/lib/dpkg/alternatives/
-./var/lib/dpkg/updates/
 ./etc/
+./etc/alternatives/
+./etc/alternatives/README
+./etc/cron.daily/
+./etc/cron.daily/dpkg
+./etc/dpkg/
+./etc/dpkg/dpkg.cfg
+./etc/dpkg/dpkg.cfg.d/
 ./etc/logrotate.d/
 ./etc/logrotate.d/dpkg
-./etc/dpkg/
-./etc/dpkg/dpkg.cfg.d/
-./etc/dpkg/dpkg.cfg
-./etc/alternatives/
+./sbin/
+./sbin/start-stop-daemon
+./usr/
+./usr/bin/
 $ </code><strong
               class="userinput"><code>tar tzf control.tar.gz</code></strong>
 <code
@@ -284,7 +284,6 @@ $ </code><strong
 ./postinst
 ./md5sums
 ./prerm
-./preinst
 ./control
 ./postrm
 $ </code><strong
@@ -301,7 +300,7 @@ $ </code><strong
                   class="para">
 					<code
                     class="filename">debian-binary</code>。これは使われている <code
-                    class="filename">.deb</code> ファイルのバージョンを示す (2015 年の時点ではバージョン 2.0) テキストファイルです。
+                    class="filename">.deb</code> ファイルのバージョンを示す (2017 年の時点ではバージョン 2.0) テキストファイルです。
 				</div></li><li
                 class="listitem"><div
                   class="para">
@@ -311,9 +310,9 @@ $ </code><strong
                 class="listitem"><div
                   class="para">
 					<code
-                    class="filename">data.tar.gz</code>。このアーカイブには、パッケージから展開されるすべてのファイルが含まれています。つまり、実行ファイル、文書などすべてが保存されています。一部のパッケージでは異なる圧縮フォーマットが使われているかもしれません、このような場合、ファイルは別の名前が付けられています (bzip2 の場合 <code
-                    class="filename">data.tar.bz2</code>、XZ の場合 <code
-                    class="filename">data.tar.xz</code> です)。
+                    class="filename">data.tar.xz</code>。このアーカイブには、パッケージから展開されるすべてのファイルが含まれています。つまり、実行ファイル、文書などすべてが保存されています。一部のパッケージでは異なる圧縮フォーマットが使われているかもしれません、このような場合、ファイルは別の名前が付けられています (bzip2 の場合 <code
+                    class="filename">data.tar.bz2</code>、gzip の場合 <code
+                    class="filename">data.tar.gz</code> です)。
 				</div></li></ul></div></div></div><ul
         class="docnav"><li
           class="previous"><a

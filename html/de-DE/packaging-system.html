@@ -129,12 +129,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             id="id-1.8.5.3"
             class="indexterm"></a><div
             class="para">
-			Das Debian-Paketformat ist so gestaltet, dass sein Inhalt auf jedem Unixsystem entpackt werden kann, das über die klassischen Befehle <code
+			The Debian package format is designed so that its content may be extracted on any Unix system that has the classic commands <code
               class="command">ar</code>, <code
-              class="command">tar</code> und <code
-              class="command">gzip</code> (manchmal auch <code
-              class="command">xz</code> oder <code
-              class="command">bzip2</code>) verfügt. Diese eigentlich triviale Anforderung ist wichtig für die Portierbarkeit und Wiederherstellung.
+              class="command">tar</code>, and <code
+              class="command">xz</code> (sometimes <code
+              class="command">gzip</code> or <code
+              class="command">bzip2</code>). This seemingly trivial property is important for portability and disaster recovery.
 		</div><div
             class="para">
 			Imagine, for example, that you mistakenly deleted the <code
@@ -157,7 +157,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="pkg pkg">busybox-static</span> package), which is even more self-contained, and provides subcommands such as <code
               class="command">busybox ar</code>, <code
               class="command">busybox tar</code> and <code
-              class="command">busybox gunzip</code>.
+              class="command">busybox xz</code>.
 		</div><div
             class="sidebar"><a
               id="sidebar.dpkg-apt-ar"></a><div
@@ -199,16 +199,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="command">ar</code> is a very rudimentary tool that a Unix administrator would only use on rare occasions, but admins routinely use <code
                 class="command">tar</code>, a more evolved archive and file management program. This is why it is easy to restore <code
                 class="command">dpkg</code> in the event of an erroneous deletion. You would only have to download the Debian package and extract the content from the <code
-                class="filename">data.tar.gz</code> archive in the system's root (<code
+                class="filename">data.tar.xz</code> archive in the system's root (<code
                 class="filename">/</code>):
 		</div><pre
               class="screen">
 <code
                 class="computeroutput"># </code><strong
-                class="userinput"><code>ar x dpkg_1.17.23_amd64.deb</code></strong>
+                class="userinput"><code>ar x dpkg_1.18.24_amd64.deb</code></strong>
 <code
                 class="computeroutput"># </code><strong
-                class="userinput"><code>tar -C / -p -xzf data.tar.gz</code></strong></pre></div><div
+                class="userinput"><code>tar -C / -p -xJf data.tar.xz</code></strong></pre></div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
@@ -241,36 +241,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 		</div><pre
             class="screen"><code
               class="computeroutput">$ </code><strong
-              class="userinput"><code>ar t dpkg_1.17.23_amd64.deb</code></strong>
+              class="userinput"><code>ar t dpkg_1.18.24_amd64.deb</code></strong>
 <code
               class="computeroutput">debian-binary
 control.tar.gz
-data.tar.gz
+data.tar.xz
 $ </code><strong
-              class="userinput"><code>ar x dpkg_1.17.23_amd64.deb</code></strong>
+              class="userinput"><code>ar x dpkg_1.18.24_amd64.deb</code></strong>
 <code
               class="computeroutput">$ </code><strong
               class="userinput"><code>ls</code></strong>
 <code
-              class="computeroutput">control.tar.gz  data.tar.gz  debian-binary  dpkg_1.17.23_amd64.deb
+              class="computeroutput">control.tar.gz  data.tar.xz  debian-binary  dpkg_1.18.24_amd64.deb
 $ </code><strong
-              class="userinput"><code>tar tzf data.tar.gz | head -n 15</code></strong>
+              class="userinput"><code>tar tJf data.tar.xz | head -n 15</code></strong>
 <code
               class="computeroutput">./
-./var/
-./var/lib/
-./var/lib/dpkg/
-./var/lib/dpkg/parts/
-./var/lib/dpkg/info/
-./var/lib/dpkg/alternatives/
-./var/lib/dpkg/updates/
 ./etc/
+./etc/alternatives/
+./etc/alternatives/README
+./etc/cron.daily/
+./etc/cron.daily/dpkg
+./etc/dpkg/
+./etc/dpkg/dpkg.cfg
+./etc/dpkg/dpkg.cfg.d/
 ./etc/logrotate.d/
 ./etc/logrotate.d/dpkg
-./etc/dpkg/
-./etc/dpkg/dpkg.cfg.d/
-./etc/dpkg/dpkg.cfg
-./etc/alternatives/
+./sbin/
+./sbin/start-stop-daemon
+./usr/
+./usr/bin/
 $ </code><strong
               class="userinput"><code>tar tzf control.tar.gz</code></strong>
 <code
@@ -279,7 +279,6 @@ $ </code><strong
 ./postinst
 ./md5sums
 ./prerm
-./preinst
 ./control
 ./postrm
 $ </code><strong
@@ -296,7 +295,7 @@ $ </code><strong
                   class="para">
 					<code
                     class="filename">debian-binary</code>. This is a text file which simply indicates the version of the <code
-                    class="filename">.deb</code> file used (in 2015: version 2.0).
+                    class="filename">.deb</code> file used (in 2017: version 2.0).
 				</div></li><li
                 class="listitem"><div
                   class="para">
@@ -306,9 +305,9 @@ $ </code><strong
                 class="listitem"><div
                   class="para">
 					<code
-                    class="filename">data.tar.gz</code>. This archive contains all of the files to be extracted from the package; this is where the executable files, documentation, etc., are all stored. Some packages may use other compression formats, in which case the file will be named differently (<code
+                    class="filename">data.tar.xz</code>. This archive contains all of the files to be extracted from the package; this is where the executable files, documentation, etc., are all stored. Some packages may use other compression formats, in which case the file will be named differently (<code
                     class="filename">data.tar.bz2</code> for bzip2, <code
-                    class="filename">data.tar.xz</code> for XZ).
+                    class="filename">data.tar.gz</code> for gzip).
 				</div></li></ul></div></div></div><ul
         class="docnav"><li
           class="previous"><a

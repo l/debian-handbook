@@ -4,7 +4,7 @@
     xmlns="http://www.w3.org/1999/xhtml"><head><meta
         http-equiv="Content-Type"
         content="text/html; charset=UTF-8" /><title
-        xmlns:d="http://docbook.org/ns/docbook">6.7. Keeping a System Up to Date</title><link
+        xmlns:d="http://docbook.org/ns/docbook">6.7. 保持系统在最新状态</title><link
         rel="stylesheet"
         type="text/css"
         href="Common_Content/css/default.css" /><link
@@ -28,10 +28,10 @@
         title="第 6 章 维护和更新：APT 工具" /><link
         rel="prev"
         href="sect.dist-upgrade.html"
-        title="6.6. Upgrading from One Stable Distribution to the Next" /><link
+        title="6.6. 升级至下个稳定发行版" /><link
         rel="next"
         href="sect.automatic-upgrades.html"
-        title="6.8. Automatic Upgrades" /><meta
+        title="6.8. 自动升级" /><meta
         name="viewport"
         content="width=device-width, initial-scale=1" /><meta
         name="flattr:id"
@@ -70,71 +70,74 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
         class="section"><div
           class="titlepage"><div><div><h2
                 class="title"><a
-                  id="sect.regular-upgrades"></a>6.7. Keeping a System Up to Date</h2></div></div></div><div
+                  id="sect.regular-upgrades"></a>6.7. 保持系统在最新状态</h2></div></div></div><div
           class="para">
-			The Debian distribution is dynamic and changes continually. Most of the changes are in the <span
-            class="distribution distribution">Testing</span> and <span
-            class="distribution distribution">Unstable</span> versions, but even <span
-            class="distribution distribution">Stable</span> is updated from time to time, mostly for security-related fixes. Whatever version of Debian a system runs, it is generally a good idea to keep it up to date, so that you can get the benefit of recent evolutions and bug fixes.
+			Debian 发行版永远处于动态、持续变化中。大部分的变化在 <span
+            class="distribution distribution">测试版</span> 与 <span
+            class="distribution distribution">不稳定版</span> 中，即使是 <span
+            class="distribution distribution">稳定版</span> 也随时在更新中，主要是安全相关的修订。不论运行那个版本，都需保持在最新的版本，才能用到最新的状态及修订错误。
 		</div><div
           class="para">
-			While it is of course possible to periodically run a tool to check for available updates and run the upgrades, such a repetitive task is tedious, especially when it needs to be performed on several machines. Fortunately, like many repetitive tasks, it can be partly automated, and a set of tools have already been developed to that effect.
+			最好定期运行升级与更新，虽然很琐碎却是必要的。幸运的是，这种重复性的工作可以自动运行，有很多任务具可以使用。
 		</div><div
           class="para">
-			The first of these tools is <code
-            class="command">apticron</code>, in the package of the same name. Its main effect is to run a script daily (via <code
-            class="command">cron</code>). The script updates the list of available packages, and, if some installed packages are not in the latest available version, it sends an email with a list of these packages along with the changes that have been made in the new versions. Obviously, this package mostly targets users of Debian <span
-            class="distribution distribution">Stable</span>, since the daily emails would be very long for the faster paced versions of Debian. When updates are available, <code
-            class="command">apticron</code> automatically downloads them. It does not install them — the administrator will still do it — but having the packages already downloaded and available locally (in APT's cache) makes the job faster.
+			第一个工具是 <code
+            class="command">apticron</code>，位于同名软件包中。主要作用是每日运行一个脚本 (经由 <code
+            class="command">cron</code>)。这个脚本更新可用软件包清单，若已安装的软件包不在此清单内，则发送电子邮件列出该等软件包清单，并指出在新版中可用的软件包。明显地，此软件包的对象是 Debian <span
+            class="distribution distribution">稳定版</span> 的用户，对其他版本的用户而言，此清单太长了。取得可更新清单后，<code
+            class="command">apticron</code> 自动下载它们。不会安装它们 — 那是管理者的权限与工作 — 但已下载的软件包可以本地 (于 APT 缓存内) 安装，速度快多了。
 		</div><div
           class="para">
-			Administrators in charge of several computers will no doubt appreciate being informed of pending upgrades, but the upgrades themselves are still as tedious as they used to be, which is where the <code
-            class="filename">/etc/cron.daily/apt</code> script (in the <span
-            class="pkg pkg">apt</span> package) comes in handy. This script is also run daily (and non-interactively) by <code
-            class="command">cron</code>. To control its behavior, use APT configuration variables (which are therefore stored in a file under <code
-            class="filename">/etc/apt/apt.conf.d/</code>). The main variables are:
+			Administrators in charge of several computers will no doubt appreciate being informed of pending upgrades, but the upgrades themselves are still as tedious as they used to be. Periodic upgrades can be enabled: it uses a <code
+            class="command">systemd</code> timer unit or <code
+            class="command">cron</code>. If <span
+            class="pkg pkg">systemd</span> is not installed the <code
+            class="filename">/etc/cron.daily/apt-compat</code> script (in the <span
+            class="pkg pkg">apt</span> package) comes in handy. This script is run daily (and non-interactively) by <code
+            class="command">cron</code>. To control the behavior, use APT configuration variables (which are therefore stored in a file <code
+            class="filename">/etc/apt/apt.conf.d/10periodic</code>). The main variables are:
 		</div><div
           class="variablelist"><dl
             class="variablelist"><dt><span
-                class="term"> <code
-                  class="literal">APT::Periodic::Update-Package-Lists</code> </span></dt><dd><div
+                class="term"><code
+                  class="literal">APT::Periodic::Update-Package-Lists</code></span></dt><dd><div
                 class="para">
-						This option allows you to specify the frequency (in days) at which the package lists are refreshed. <code
-                  class="command">apticron</code> users can do without this variable, since <code
-                  class="command">apticron</code> already does this task.
+						此选项允许您指定重新加载的频率。<code
+                  class="command">apticron</code> 也可以在无变量的前提下运行，因为 <code
+                  class="command">apticron</code> 本来就已在运行中。
 					</div></dd><dt><span
-                class="term"> <code
-                  class="literal">APT::Periodic::Download-Upgradeable-Packages</code> </span></dt><dd><div
+                class="term"><code
+                  class="literal">APT::Periodic::Download-Upgradeable-Packages</code></span></dt><dd><div
                 class="para">
-						Again, this option indicates a frequency (in days), this time for the downloading of the actual packages. Again, <code
-                  class="command">apticron</code> users won't need it.
+						再次地，此选项指定频率 (以日计)，此时实际地下载软件包。同样地，用户不需指定运行 <code
+                  class="command">apticron</code>。
 					</div></dd><dt><span
-                class="term"> <code
-                  class="literal">APT::Periodic::AutocleanInterval</code> </span></dt><dd><div
+                class="term"><code
+                  class="literal">APT::Periodic::AutocleanInterval</code></span></dt><dd><div
                 class="para">
-						This option covers a feature that <code
-                  class="command">apticron</code> doesn't have. It controls how often obsolete packages (those not referenced by any distribution anymore) are removed from the APT cache. This keeps the APT cache at a reasonable size and means that you don't need to worry about that task.
+						此选项包括 <code
+                  class="command">apticron</code> 没有的功能。指定过时软件包 (未被任何发行版参照) 移出 APT 缓存的时机。如此一来，APT 缓存的容量就保持在合理的范围，不必再担心其工作负担。
 					</div></dd><dt><span
-                class="term"> <code
-                  class="literal">APT::Periodic::Unattended-Upgrade</code> </span></dt><dd><a
+                class="term"><code
+                  class="literal">APT::Periodic::Unattended-Upgrade</code></span></dt><dd><a
                 id="id-1.9.16.6.4.2.1"
                 class="indexterm"></a><div
                 class="para">
-						When this option is enabled, the daily script will execute <code
-                  class="command">unattended-upgrade</code> (from the <span
-                  class="pkg pkg">unattended-upgrades</span> package) which — as its name suggest — can automatize the upgrade process for some packages (by default it only takes care of security updates, but this can be customized in <code
-                  class="filename">/etc/apt/apt.conf.d/50unattended-upgrades</code>). Note that this option can be set with the help of debconf by running <code
-                  class="command">dpkg-reconfigure -plow unattended-upgrades</code>.
+						启用此选项后，逐日启用的脚本将运行 <code
+                  class="command">unattended-upgrade</code> (从 <span
+                  class="pkg pkg">unattended-upgrades</span> 软件包中取用) — 如其名称所示 — 可自动化升级同软件包 (缺省只运行安全性升级，但可在 <code
+                  class="filename">/etc/apt/apt.conf.d/50unattended-upgrades</code> 内客制化它)。运行 <code
+                  class="command">dpkg-reconfigure -plow unattended-upgrades</code> 时可以设置此选项。
 					</div></dd></dl></div><div
           class="para">
 			Other options can allow you to control the cache cleaning behavior with more precision. They are not listed here, but they are described in the <code
-            class="filename">/etc/cron.daily/apt</code> script.
+            class="filename">/usr/lib/apt/apt.systemd.daily</code> script.
 		</div><a
           id="id-1.9.16.8"
           class="indexterm"></a><div
           class="para">
-			These tools work very well for servers, but desktop users generally prefer a more interactive system. That is why the “Debian desktop environment” task installs <span
-            class="pkg pkg">gnome-packagekit</span> (at least when you select GNOME as desktop environment). It provides an icon in the notification area of desktop environments when updates are available; clicking on this icon then runs <code
+			These tools work very well for servers, but desktop users generally prefer a more interactive system. The package <span
+            class="pkg pkg">gnome-packagekit</span> provides an icon in the notification area of desktop environments when updates are available; clicking on this icon then runs <code
             class="command">gpk-update-viewer</code>, a simplified interface to perform updates. You can browse through available updates, read the short description of the relevant packages and the corresponding <code
             class="filename">changelog</code> entries, and select whether to apply the update or not on a case-by-case basis.
 		</div><div
@@ -143,13 +146,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="figure-contents"><div
               class="mediaobject"><img
                 src="images/gnome-packagekit.png"
-                alt="Upgrading with gpk-update-viewer" /></div></div><p
-            class="title"><strong>图 6.3. Upgrading with <code
-                class="command">gpk-update-viewer</code></strong></p></div></div><ul
+                alt="使用 gpk-update-viewer 升级" /></div></div><p
+            class="title"><strong>图 6.3. 使用 <code
+                class="command">gpk-update-viewer</code> 升级</strong></p></div><div
+          class="para">
+			This tool is no longer installed in the default GNOME desktop. The new philosophy is that security updates should be automatically installed, either in the background or, preferably, when you shutdown your computer so as to not confuse any running application.
+		</div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"
-            href="sect.dist-upgrade.html"><strong>上一页</strong>6.6. Upgrading from One Stable Distribution to th...</a></li><li
+            href="sect.dist-upgrade.html"><strong>上一页</strong>6.6. 升级至下个稳定发行版</a></li><li
           class="up"><a
             accesskey="u"
             href="#"><strong>上一级</strong></a></li><li
@@ -158,7 +164,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             href="index.html"><strong>起始页</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.automatic-upgrades.html"><strong>下一页</strong>6.8. Automatic Upgrades</a></li></ul><div
+            href="sect.automatic-upgrades.html"><strong>下一页</strong>6.8. 自动升级</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/sect.regular-upgrades.html">ar-MA</a></li><li><a
               href="../da-DK/sect.regular-upgrades.html">da-DK</a></li><li><a

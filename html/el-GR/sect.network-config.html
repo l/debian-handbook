@@ -138,39 +138,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               href="sect.ipv6.html">Τμήμα 10.5, «IPv6»</a>, but the concepts remain the same.
 		</div></div><div
           class="para">
-			Since the network is automatically configured during the initial installation, the <code
-            class="filename">/etc/network/interfaces</code> file already contains a valid configuration. A line starting with <code
-            class="literal">auto</code> gives a list of interfaces to be automatically configured on boot by <span
-            class="pkg pkg">ifupdown</span> and its <code
-            class="filename">/etc/init.d/networking</code> init script. This will often be <code
-            class="literal">eth0</code>, which refers to the first Ethernet card.
+			The network is automatically configured during the initial installation. If Network Manager gets installed (which is generally the case for full desktop installations), then it might be that no configuration is actually required (for example, if you rely on DHCP on a wired connection and have no specific requirements). If a configuration is required (for example for a WiFi interface), then it will create the appropriate file in <code
+            class="filename">/etc/NetworkManager/system-connections/</code>.
+		</div><div
+          class="para">
+			If Network Manager is not installed, then the installer will configure <span
+            class="pkg pkg">ifupdown</span> by creating the <code
+            class="filename">/etc/network/interfaces</code> file. A line starting with <code
+            class="literal">auto</code> gives a list of interfaces to be automatically configured on boot by the <code
+            class="literal">networking</code> service.
+		</div><div
+          class="para">
+			In a server context, <span
+            class="pkg pkg">ifupdown</span> is thus the network configuration tool that you usually get. That is why we will cover it in the next sections.
 		</div><a
-          id="id-1.11.6.4"
-          class="indexterm"></a><a
-          id="id-1.11.6.5"
-          class="indexterm"></a><a
           id="id-1.11.6.6"
           class="indexterm"></a><a
           id="id-1.11.6.7"
+          class="indexterm"></a><a
+          id="id-1.11.6.8"
           class="indexterm"></a><div
           class="sidebar"><div
             class="titlepage"><div><div><p
                   class="title"><strong><span
                       class="emphasis"><em>ALTERNATIVE</em></span> NetworkManager</strong></p></div></div></div><a
-            id="id-1.11.6.8.2"
+            id="id-1.11.6.9.2"
             class="indexterm"></a><div
             class="para">
 			If Network Manager is particularly recommended in roaming setups (see <a
               class="xref"
-              href="sect.network-config.html#sect.roaming-network-config">Τμήμα 8.2.4, «Automatic Network Configuration for Roaming Users»</a>), it is also perfectly usable as the default network management tool. You can create “System connections” that are used as soon as the computer boots either manually with a <code
+              href="sect.network-config.html#sect.roaming-network-config">Τμήμα 8.2.5, «Automatic Network Configuration for Roaming Users»</a>), it is also perfectly usable as the default network management tool. You can create “System connections” that are used as soon as the computer boots either manually with a <code
               class="filename">.ini</code>-like file in <code
               class="filename">/etc/NetworkManager/system-connections/</code> or through a graphical tool (<code
               class="command">nm-connection-editor</code>). Just remember to deactivate all entries in <code
               class="filename">/etc/network/interfaces</code> if you want Network Manager to handle them. <div
               class="url">→ <a
-                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie</a></div> <div
+                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings</a></div> <div
               class="url">→ <a
-                href="https://developer.gnome.org/NetworkManager/0.9/ref-settings.html">https://developer.gnome.org/NetworkManager/0.9/ref-settings.html</a></div>
+                href="https://developer.gnome.org/NetworkManager/1.6/ref-settings.html">https://developer.gnome.org/NetworkManager/1.6/ref-settings.html</a></div>
 		</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
@@ -180,19 +185,54 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 				If the computer has an Ethernet card, the IP network that is associated with it must be configured by choosing from one of two methods. The simplest method is dynamic configuration with DHCP, and it requires a DHCP server on the local network. It may indicate a desired hostname, corresponding to the <code
               class="literal">hostname</code> setting in the example below. The DHCP server then sends configuration settings for the appropriate network.
 			</div><a
-            id="id-1.11.6.9.3"
+            id="id-1.11.6.10.3"
             class="indexterm"></a><a
-            id="id-1.11.6.9.4"
+            id="id-1.11.6.10.4"
             class="indexterm"></a><div
             class="example"><a
               id="example.config-dhcp"></a><p
               class="title"><strong>Παράδειγμα 8.1. DHCP configuration</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet dhcp
+auto enp0s31f6
+iface enp0s31f6 inet dhcp
   hostname arrakis
 </pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> Names of network interfaces</strong></p></div></div></div><a
+              id="id-1.11.6.10.6.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.3"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.4"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.5"
+              class="indexterm"></a><div
+              class="para">
+				By default, the kernel attributes generic names such a <code
+                class="literal">eth0</code> (for wired Ethernet) or <code
+                class="literal">wlan0</code> (for WiFi) to the network interfaces. The number in those names is a simple incremental counter representing the order in which they have been detected. With modern hardware, that order might change for each reboot and thus the default names are not reliable.
+			</div><div
+              class="para">
+				Fortunately, systemd and udev are able to rename the interfaces as soon as they appear. The default name policy is defined by <code
+                class="filename">/lib/systemd/network/99-default.link</code> (see <span
+                class="citerefentry"><span
+                  class="refentrytitle">systemd.link</span>(5)</span> for an explanation of the <code
+                class="literal">NamePolicy</code> entry in that file). In practice, the names are often based on the device's physical location (as guessed by where they are connected) and you will see names starting with <code
+                class="literal">en</code> for wired ethernet and <code
+                class="literal">wl</code> for WiFi. In the example above, the rest of the name indicates, in abbreviated form, a PCI (<code
+                class="literal">p</code>) bus number (<code
+                class="literal">0</code>), a slot number (<code
+                class="literal">s31</code>), a function number (<code
+                class="literal">f6</code>).
+			</div><div
+              class="para">
+				Obviously, you are free to override this policy and/or to complement it to customize the names of some specific interfaces. You can find out the names of the network interfaces in the output of <code
+                class="command">ip addr</code> (or as filenames in <code
+                class="filename">/sys/class/net/</code>).
+			</div></div><div
             class="para">
 				A “static” configuration must indicate network settings in a fixed manner. This includes at least the IP address and subnet mask; network and broadcast addresses are also sometimes listed. A router connecting to the exterior will be specified as a gateway.
 			</div><div
@@ -201,8 +241,8 @@ iface eth0 inet dhcp
               class="title"><strong>Παράδειγμα 8.2. Static configuration</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet static
+auto enp0s31f6
+iface enp0s31f6 inet static
   address 192.168.0.3
   netmask 255.255.255.0
   broadcast 192.168.0.255
@@ -222,14 +262,97 @@ iface eth0 inet static
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.ppp-rtc"></a>8.2.2. Connecting with PPP through a PSTN Modem</h3></div></div></div><a
-            id="id-1.11.6.10.2"
+                    id="sect.interface-wireless"></a>8.2.2. Wireless Interface</h3></div></div></div><a
+            id="id-1.11.6.11.2"
+            class="indexterm"></a><div
+            class="para">
+				Getting wireless network cards to work can be a bit more challenging. First of all, they often require the installation of proprietary firmwares which are not installed by default in Debian. Then wireless networks rely on cryptography to restrict access to authorized users only, this implies storing some secret key in the network configuration. Let's tackle those topics one by one.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.4"></a>8.2.2.1. Installing the required firmwares</h4></div></div></div><a
+              id="id-1.11.6.11.4.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.11.4.3"
+              class="indexterm"></a><div
+              class="para">
+					First you have to enable the non-free repository in APT's sources.list file: see <a
+                class="xref"
+                href="apt.html#sect.apt-sources.list">Τμήμα 6.1, «Filling in the <code
+                  class="filename">sources.list</code> File»</a> for details about this file. Many firmware are proprietary and are thus located in this repository. You can try to skip this step if you want, but if the next step doesn't find the required firmware, retry after having enabled the non-free section.
+				</div><div
+              class="para">
+					Then you have to install the appropriate <code
+                class="literal">firmware-*</code> packages. If you don't know which package you need, you can install the <span
+                class="pkg pkg">isenkram</span> package and run its <code
+                class="command">isenkram-autoinstall-firmware</code> command. The packages are often named after the hardware manufacturer or the corresponding kernel module: <span
+                class="pkg pkg">firmware-iwlwifi</span> for Intel wireless cards, <span
+                class="pkg pkg">firmware-atheros</span> for Qualcomm Atheros, <span
+                class="pkg pkg">firmware-ralink</span> for Ralink, etc. A reboot is then recommended because the kernel driver usually looks for the firmware files when it is first loaded and no longer afterwards.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.5"></a>8.2.2.2. Wireless specific entries in <code
+                      class="filename">/etc/network/interfaces</code></h4></div></div></div><a
+              id="id-1.11.6.11.5.2"
+              class="indexterm"></a><div
+              class="para">
+					<span
+                class="emphasis"><em>ifupdown</em></span> is able to manage wireless interfaces but it needs the help of the <span
+                class="pkg pkg">wpasupplicant</span> package which provides the required integration between <span
+                class="emphasis"><em>ifupdown</em></span> and the <code
+                class="command">wpa_supplicant</code> command used to configure the wireless interfaces (when using WPA/WPA2 encryption). The usual entry in <code
+                class="filename">/etc/network/interfaces</code> needs to be extended with two supplementary parameters to specify the name of the wireless network (aka its SSID) and the <span
+                class="emphasis"><em>Pre-Shared Key</em></span> (PSK).
+				</div><div
+              class="example"><a
+                id="example.config-wireless"></a><p
+                class="title"><strong>Παράδειγμα 8.3. DHCP configuration for a wireless interface</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+auto wlp4s0
+iface wlp4s0 inet dhcp
+  wpa-ssid Falcot
+  wpa-psk ccb290fd4fe6b22935cbae31449e050edd02ad44627b16ce0151668f5f53c01b
+</pre></div></div><div
+              class="para">
+					The <code
+                class="literal">wpa-psk</code> parameter can contain either the plain text passphrase or its hashed version generated with <code
+                class="command">wpa_passphrase <em
+                  class="replaceable">SSID</em> <em
+                  class="replaceable">passphrase</em></code>. If you use an unencrypted wireless connection, then you should put a <code
+                class="literal">wpa-key-mgmt NONE</code> and no <code
+                class="literal">wpa-psk</code> entry. For more information about the possible configuration options, have a look at <code
+                class="filename">/usr/share/doc/wpasupplicant/README.Debian.gz</code>.
+				</div><div
+              class="para">
+					At this point, you should consider restricting the read permissions on <code
+                class="filename">/etc/network/interfaces</code> to the root user only since the file contains a private key that not all users should have access to.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>HISTORY</em></span> WEP encryption</strong></p></div></div></div><a
+                id="id-1.11.6.11.5.7.2"
+                class="indexterm"></a><div
+                class="para">
+					Usage of the deprecated WEP encryption protocol is possible with the <span
+                  class="pkg pkg">wireless-tools</span> package. See <code
+                  class="filename">/usr/share/doc/wireless-tools/README.Debian</code> for instructions.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ppp-rtc"></a>8.2.3. Connecting with PPP through a PSTN Modem</h3></div></div></div><a
+            id="id-1.11.6.12.2"
             class="indexterm"></a><a
-            id="id-1.11.6.10.3"
+            id="id-1.11.6.12.3"
             class="indexterm"></a><a
-            id="id-1.11.6.10.4"
+            id="id-1.11.6.12.4"
             class="indexterm"></a><a
-            id="id-1.11.6.10.5"
+            id="id-1.11.6.12.5"
             class="indexterm"></a><div
             class="para">
 				A point to point (PPP) connection establishes an intermittent connection; this is the most common solution for connections made with a telephone modem (“PSTN modem”, since the connection goes over the public switched telephone network).
@@ -240,9 +363,9 @@ iface eth0 inet static
               class="literal">provider</code> (as in Internet service provider). When in doubt about the authentication protocol, choose <span
               class="emphasis"><em>PAP</em></span>: it is offered by the majority of Internet service providers.
 			</div><a
-            id="id-1.11.6.10.8"
+            id="id-1.11.6.12.8"
             class="indexterm"></a><a
-            id="id-1.11.6.10.9"
+            id="id-1.11.6.12.9"
             class="indexterm"></a><div
             class="para">
 				After configuration, it is possible to connect using the <code
@@ -251,19 +374,19 @@ iface eth0 inet static
               class="command">poff</code> command. These two commands can be executed by the root user, or by any other user, provided they are in the <code
               class="literal">dip</code> group.
 			</div><a
-            id="id-1.11.6.10.11"
+            id="id-1.11.6.12.11"
             class="indexterm"></a><a
-            id="id-1.11.6.10.12"
+            id="id-1.11.6.12.12"
             class="indexterm"></a></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.adsl"></a>8.2.3. Connecting through an ADSL Modem</h3></div></div></div><a
-            id="id-1.11.6.11.2"
+                    id="sect.adsl"></a>8.2.4. Connecting through an ADSL Modem</h3></div></div></div><a
+            id="id-1.11.6.13.2"
             class="indexterm"></a><a
-            id="id-1.11.6.11.3"
+            id="id-1.11.6.13.3"
             class="indexterm"></a><a
-            id="id-1.11.6.11.4"
+            id="id-1.11.6.13.4"
             class="indexterm"></a><div
             class="para">
 				The generic term “ADSL modem” covers a multitude of devices with very different functions. The modems that are simplest to use with Linux are those that have an Ethernet interface (and not only a USB interface). These tend to be popular; most ADSL Internet service providers lend (or lease) a “box” with Ethernet interfaces. Depending on the type of modem, the configuration required can vary widely.
@@ -271,10 +394,10 @@ iface eth0 inet static
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pppoe"></a>8.2.3.1. Modems Supporting PPPOE</h4></div></div></div><a
-              id="id-1.11.6.11.6.2"
+                      id="sect.adsl-pppoe"></a>8.2.4.1. Modems Supporting PPPOE</h4></div></div></div><a
+              id="id-1.11.6.13.6.2"
               class="indexterm"></a><a
-              id="id-1.11.6.11.6.3"
+              id="id-1.11.6.13.6.3"
               class="indexterm"></a><div
               class="para">
 					Some Ethernet modems work with the PPPOE protocol (Point to Point Protocol over Ethernet). The <code
@@ -288,24 +411,22 @@ iface eth0 inet static
                 class="command">pon dsl-provider</code> and disconnect with <code
                 class="command">poff dsl-provider</code>.
 				</div><a
-              id="id-1.11.6.11.6.6"
+              id="id-1.11.6.13.6.6"
               class="indexterm"></a><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>TIP</em></span> Starting <code
                           class="command">ppp</code> at boot</strong></p></div></div></div><a
-                id="id-1.11.6.11.6.7.2"
+                id="id-1.11.6.13.6.7.2"
                 class="indexterm"></a><a
-                id="id-1.11.6.11.6.7.3"
+                id="id-1.11.6.13.6.7.3"
                 class="indexterm"></a><div
                 class="para">
 					PPP connections over ADSL are, by definition, intermittent. Since they are usually not billed according to time, there are few downsides to the temptation of keeping them always open. The standard means to do so is to use the init system.
 				</div><div
                 class="para">
-					The default init system on <span
-                  class="distribution distribution">Jessie</span> is <code
-                  class="command">systemd</code>. Adding an automatically restarting task for the ADSL connection is a simple matter of creating a “unit file” such as <code
+					With systemd, adding an automatically restarting task for the ADSL connection is a simple matter of creating a “unit file” such as <code
                   class="filename">/etc/systemd/system/adsl-connection.service</code>, with contents such as the following:
 				</div><pre
                 class="programlisting">[Unit]
@@ -339,8 +460,8 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pptp"></a>8.2.3.2. Modems Supporting PPTP</h4></div></div></div><a
-              id="id-1.11.6.11.7.2"
+                      id="sect.adsl-pptp"></a>8.2.4.2. Modems Supporting PPTP</h4></div></div></div><a
+              id="id-1.11.6.13.7.2"
               class="indexterm"></a><div
               class="para">
 					The PPTP (Point-to-Point Tunneling Protocol) protocol was created by Microsoft. Deployed at the beginning of ADSL, it was quickly replaced by PPPOE. If this protocol is forced on you, see <a
@@ -350,7 +471,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-dhcp"></a>8.2.3.3. Modems Supporting DHCP</h4></div></div></div><div
+                      id="sect.adsl-dhcp"></a>8.2.4.3. Modems Supporting DHCP</h4></div></div></div><div
               class="para">
 					When a modem is connected to the computer by an Ethernet cable (crossover cable) you typically configure a network connection by DHCP on the computer; the modem automatically acts as a gateway by default and takes care of routing (meaning that it manages the network traffic between the computer and the Internet).
 				</div><div
@@ -358,7 +479,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>BACK TO BASICS</em></span> Crossover cable for a direct Ethernet connection</strong></p></div></div></div><a
-                id="id-1.11.6.11.8.3.2"
+                id="id-1.11.6.13.8.3.2"
                 class="indexterm"></a><div
                 class="para">
 					Computer network cards expect to receive data on specific wires in the cable, and send their data on others. When you connect a computer to a local network, you usually connect a cable (straight or crossover) between the network card and a repeater or switch. However, if you want to connect two computers directly (without an intermediary switch or repeater), you must route the signal sent by one card to the receiving side of the other card, and vice-versa. This is the purpose of a crossover cable, and the reason it is used.
@@ -372,10 +493,10 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.roaming-network-config"></a>8.2.4. Automatic Network Configuration for Roaming Users</h3></div></div></div><a
-            id="id-1.11.6.12.2"
+                    id="sect.roaming-network-config"></a>8.2.5. Automatic Network Configuration for Roaming Users</h3></div></div></div><a
+            id="id-1.11.6.14.2"
             class="indexterm"></a><a
-            id="id-1.11.6.12.3"
+            id="id-1.11.6.14.3"
             class="indexterm"></a><div
             class="para">
 				Many Falcot engineers have a laptop computer that, for professional purposes, they also use at home. The network configuration to use differs according to location. At home, it may be a wifi network (protected by a WPA key), while the workplace uses a wired network for greater security and more bandwidth.
@@ -394,21 +515,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
 			</div><div
             class="para">
 				Note that this program is installed by default when the “Desktop Environment” task is chosen during initial installation.
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>ALTERNATIVE</em></span> Configuration by “network profile”</strong></p></div></div></div><a
-              id="id-1.11.6.12.9.2"
-              class="indexterm"></a><div
-              class="para">
-				More advanced users may want to try the <span
-                class="pkg pkg">guessnet</span> package for automatic network configuration. A group of test scripts determine which network profile should be activated and configure it on the fly.
-			</div><div
-              class="para">
-				Users who prefer to manually select a network profile will prefer the <span
-                class="pkg pkg">netenv</span> program, found in the package of the same name.
-			</div></div></div></div><ul
+			</div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"

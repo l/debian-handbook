@@ -138,39 +138,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               href="sect.ipv6.html">第 10.5 節「IPv6」</a>で説明されていますが、その概念は IPv4 と同じです。
 		</div></div><div
           class="para">
-			ネットワークは初回インストール時に自動設定されますので、<code
-            class="filename">/etc/network/interfaces</code> ファイルには既にさまざまな設定が含まれています。<code
-            class="literal">auto</code> で始まる行は、起動時に <span
-            class="pkg pkg">ifupdown</span> と <code
-            class="filename">/etc/init.d/networking</code> init スクリプトで自動的に設定したい、インターフェースのリストです。通常 <code
-            class="literal">eth0</code> は自動設定したいインターフェースで、1 つ目のイーサネットカードを意味しています。
+			ネットワークは初回インストール時に自動設定されます。このとき同時に Network Manager がインストールされたなら (一般にデスクトップ環境をインストールした場合には同時にインストールされます)、自分で設定する必要はないかもしれません (例えば、単一の有線接続で DHCP を使い、特別な設定を必要としない場合など)。自分で設定する必要がある場合 (例えば WiFi インターフェイス用の設定が必要な場合)、<code
+            class="filename">/etc/NetworkManager/system-connections/</code> に設定ファイルを配置します。
+		</div><div
+          class="para">
+			Network Manager がインストールされなかった場合、インストーラは <code
+            class="filename">/etc/network/interfaces</code> ファイルを作成して <span
+            class="pkg pkg">ifupdown</span> を設定します。<code
+            class="literal">auto</code> で始まる行は、そのインターフェイスが <code
+            class="literal">networking</code> サービスによって起動時に自動設定されることを意味します。
+		</div><div
+          class="para">
+			サーバ環境においては通常、ネットワーク設定ツールとして <span
+            class="pkg pkg">ifupdown</span> を使います。このため、<span
+            class="pkg pkg">ifupdown</span> については次節で説明します。
 		</div><a
-          id="id-1.11.6.4"
-          class="indexterm"></a><a
-          id="id-1.11.6.5"
-          class="indexterm"></a><a
           id="id-1.11.6.6"
           class="indexterm"></a><a
           id="id-1.11.6.7"
+          class="indexterm"></a><a
+          id="id-1.11.6.8"
           class="indexterm"></a><div
           class="sidebar"><div
             class="titlepage"><div><div><p
                   class="title"><strong><span
                       class="emphasis"><em>ALTERNATIVE</em></span> NetworkManager</strong></p></div></div></div><a
-            id="id-1.11.6.8.2"
+            id="id-1.11.6.9.2"
             class="indexterm"></a><div
             class="para">
 			NetworkManager はマシンを移動して使う場合に特に推奨され (<a
               class="xref"
-              href="sect.network-config.html#sect.roaming-network-config">第 8.2.4 節「ローミングユーザ向けの自動ネットワーク設定」</a>を参照してください)、デフォルトのネットワーク管理ツールとしても極めて便利です。コンピュータの起動の可能な限り早い段階で使われる「システム接続」を作るには、<code
+              href="sect.network-config.html#sect.roaming-network-config">第 8.2.5 節「ローミングユーザ向けの自動ネットワーク設定」</a>を参照してください)、デフォルトのネットワーク管理ツールとしても極めて便利です。コンピュータの起動の可能な限り早い段階で使われる「システム接続」を作るには、<code
               class="filename">/etc/NetworkManager/system-connections/</code> 内の <code
               class="filename">.ini</code> 系ファイルを手作業で編集するか、またはグラフィカルツール (<code
               class="command">nm-connection-editor</code>) を使います。NetworkManager でネットワーク接続を管理する場合、<code
               class="filename">/etc/network/interfaces</code> に含まれるすべてのエントリを無効化するのを忘れないでください。<div
               class="url">→ <a
-                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie</a></div><div
+                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings</a></div><div
               class="url">→ <a
-                href="https://developer.gnome.org/NetworkManager/0.9/ref-settings.html">https://developer.gnome.org/NetworkManager/0.9/ref-settings.html</a></div>
+                href="https://developer.gnome.org/NetworkManager/1.6/ref-settings.html">https://developer.gnome.org/NetworkManager/1.6/ref-settings.html</a></div>
 		</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
@@ -180,18 +186,53 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 				コンピュータにイーサネットカードが付けられている場合、イーサネットカードに関連付けられる IP ネットワークは 1 つか 2 つの方法で必ず設定されなければいけません。最も簡単な方法は DHCP を使う動的設定で、これにはローカルネットワークで DHCP サーバを動かす必要があります。動的設定では、以下の例で <code
               class="literal">hostname</code> 設定に対応する、希望ホスト名を示すことが可能です。そして、DHCP サーバは適切なネットワーク設定を送信します。
 			</div><a
-            id="id-1.11.6.9.3"
+            id="id-1.11.6.10.3"
             class="indexterm"></a><a
-            id="id-1.11.6.9.4"
+            id="id-1.11.6.10.4"
             class="indexterm"></a><div
             class="example"><a
               id="example.config-dhcp"></a><p
               class="title"><strong>例 8.1 DHCP 設定</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet dhcp
+auto enp0s31f6
+iface enp0s31f6 inet dhcp
   hostname arrakis</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> ネットワークインターフェースの名称</strong></p></div></div></div><a
+              id="id-1.11.6.10.6.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.3"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.4"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.5"
+              class="indexterm"></a><div
+              class="para">
+				デフォルトで、カーネルはネットワークインターフェースに <code
+                class="literal">eth0</code> (優先イーサネット) や <code
+                class="literal">wlan0</code> (WiFi) などの一般名を付けます。一般名中の番号は検出順を意味するカウンタです。現代的なハードウェアにおいては、ハードウェアの検出順序は再起動のたびに変化するかもしれません。このためデフォルト名は当てになりません。
+			</div><div
+              class="para">
+				幸いなことに、systemd と udev にはインターフェースを検出したら直ちにその名前を変更する機能があります。デフォルトの命名規則は <code
+                class="filename">/lib/systemd/network/99-default.link</code> で定義されています (ファイル内の <code
+                class="literal">NamePolicy</code> エントリに関する説明は <span
+                class="citerefentry"><span
+                  class="refentrytitle">systemd.link</span>(5)</span> を参照してください)。実際のところ、インターフェース名はデバイスの物理位置に基づいており (どこに接続されているか予想しやすいようになっています)、有線イーサネットは <code
+                class="literal">en</code> から WiFi は <code
+                class="literal">wl</code> から名前が始まります。上の例では、名前の残りの部分は PCI (<code
+                class="literal">p</code>)、バス番号 (<code
+                class="literal">0</code>)、スロット番号 (<code
+                class="literal">s31</code>)、ファンクション番号 (<code
+                class="literal">f6</code>) の略称です。
+			</div><div
+              class="para">
+				当然ですが、この命名規則を上書きしたり、幾つかの特定のインターフェースに特別な名前をつけることも可能です。ネットワークインターフェースの名前は <code
+                class="command">ip addr</code> の出力 (または <code
+                class="filename">/sys/class/net/</code> のファイル名) に使われています。
+			</div></div><div
             class="para">
 				「静的」設定の場合、必ず決められた方法でネットワーク設定を定義しなければいけません。「静的」設定には少なくとも IP アドレスとサブネットマスクが含まれます。さらに場合によってはネットワークとブロードキャストアドレスが含まれることがあります。ゲートウェイには外部に接続しているルータを指定します。
 			</div><div
@@ -200,8 +241,8 @@ iface eth0 inet dhcp
               class="title"><strong>例 8.2 静的設定</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet static
+auto enp0s31f6
+iface enp0s31f6 inet static
   address 192.168.0.3
   netmask 255.255.255.0
   broadcast 192.168.0.255
@@ -220,14 +261,96 @@ iface eth0 inet static
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.ppp-rtc"></a>8.2.2. PSTN モデム経由の PPP 接続</h3></div></div></div><a
-            id="id-1.11.6.10.2"
+                    id="sect.interface-wireless"></a>8.2.2. 無線インターフェース</h3></div></div></div><a
+            id="id-1.11.6.11.2"
+            class="indexterm"></a><div
+            class="para">
+				ワイヤレスネットワークカードを使えるようにすることはもう少し難しい作業かもしれません。まず最初に、多くのワイヤレスネットワークカードにはプロプライエタリのファームウェアが必要で、Debian はそれをデフォルトでインストールしません。ワイヤレスネットワークでは暗号を使って、アクセス権限を持つユーザのみがネットワークを使えるように制限しています。これはつまりネットワーク設定に秘密鍵を保存することを意味します。それでは各項目ごとに解決していきましょう。
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.4"></a>8.2.2.1. 必要なファームウェアのインストール</h4></div></div></div><a
+              id="id-1.11.6.11.4.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.11.4.3"
+              class="indexterm"></a><div
+              class="para">
+					最初に APT の sources.list ファイルで non-free リポジトリを有効化しなければいけません。このファイルに関する詳細は <a
+                class="xref"
+                href="apt.html#sect.apt-sources.list">第 6.1 節「<code
+                  class="filename">sources.list</code> ファイルの内容」</a> を参照してください。多くのファームウェアがプロプライエタリなものであり、そのため non-free リポジトリにあります。この手順を飛ばすこともできますが、次の手順で必要なファームウェアが見つからなかった場合には、non-free セクションを有効化してください。
+				</div><div
+              class="para">
+					適切な <code
+                class="literal">firmware-*</code> パッケージをインストールしなければいけませんが、インストールするべきパッケージがわからないなら、<span
+                class="pkg pkg">isenkram</span> パッケージをインストールして、<code
+                class="command">isenkram-autoinstall-firmware</code> コマンドを実行してください。通常、パッケージの名前はハードウェア製造業者の名前か対応するカーネルモジュールからつけられています。つまり Intel の無線カード用のパッケージは <span
+                class="pkg pkg">firmware-iwlwifi</span>、Qualcomm Atheros 用は <span
+                class="pkg pkg">firmware-atheros</span>、Ralink 用は <span
+                class="pkg pkg">firmware-ralink</span> などです。ファームウェアのインストール後に再起動をおすすめします。なぜなら、カーネルドライバがファームウェアファイルを探すのは最初にロードされたときに限られ、それ以降はファームウェアを探さないからです。
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.5"></a>8.2.2.2. <code
+                      class="filename">/etc/network/interfaces</code> 内の無線に関するエントリ</h4></div></div></div><a
+              id="id-1.11.6.11.5.2"
+              class="indexterm"></a><div
+              class="para">
+					<span
+                class="emphasis"><em>ifupdown</em></span> には無線インターフェースを管理する機能がありますが、<span
+                class="pkg pkg">wpasupplicant</span> パッケージの手助けが必要です。これは <span
+                class="emphasis"><em>ifupdown</em></span> と (WPA/WPA2 暗号化を使う場合に) 無線インターフェースを設定するための <code
+                class="command">wpa_supplicant</code> コマンドを統合するものです。これで <code
+                class="filename">/etc/network/interfaces</code> 内のエントリに無線ネットワークの名前 (SSID) と <span
+                class="emphasis"><em>事前共有鍵</em></span> (PSK) を指定する 2 つの拡張パラメータを利用可能になります。
+				</div><div
+              class="example"><a
+                id="example.config-wireless"></a><p
+                class="title"><strong>例 8.3 無線インターフェース用の DHCP 設定</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+auto wlp4s0
+iface wlp4s0 inet dhcp
+  wpa-ssid Falcot
+  wpa-psk ccb290fd4fe6b22935cbae31449e050edd02ad44627b16ce0151668f5f53c01b</pre></div></div><div
+              class="para">
+					<code
+                class="literal">wpa-psk</code> パラメータには平文または <code
+                class="command">wpa_passphrase <em
+                  class="replaceable">SSID</em> <em
+                  class="replaceable">passphrase</em></code> でハッシュ化されたパスフレーズを指定します。暗号化されていない無線接続を使う場合、<code
+                class="literal">wpa-key-mgmt NONE</code> を追記して <code
+                class="literal">wpa-psk</code> エントリを削除します。利用可能な設定オプションに関する詳しい情報は <code
+                class="filename">/usr/share/doc/wpasupplicant/README.Debian.gz</code> を参照してください。
+				</div><div
+              class="para">
+					この時点で、<code
+                class="filename">/etc/network/interfaces</code> の読み込みパーミッションを root ユーザのみに制限することを検討すべきでしょう。なぜなら、このファイルに含まれる秘密鍵を誰もが見れる状況は避けるべきだからです。
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>HISTORY</em></span> WEP 暗号化</strong></p></div></div></div><a
+                id="id-1.11.6.11.5.7.2"
+                class="indexterm"></a><div
+                class="para">
+					WEP 暗号化プロトコルを使うことは推奨されませんが、<span
+                  class="pkg pkg">wireless-tools</span> パッケージを使えばそれも可能です。使い方は <code
+                  class="filename">/usr/share/doc/wireless-tools/README.Debian</code> を参照してください。
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ppp-rtc"></a>8.2.3. PSTN モデム経由の PPP 接続</h3></div></div></div><a
+            id="id-1.11.6.12.2"
             class="indexterm"></a><a
-            id="id-1.11.6.10.3"
+            id="id-1.11.6.12.3"
             class="indexterm"></a><a
-            id="id-1.11.6.10.4"
+            id="id-1.11.6.12.4"
             class="indexterm"></a><a
-            id="id-1.11.6.10.5"
+            id="id-1.11.6.12.5"
             class="indexterm"></a><div
             class="para">
 				2 点間 (PPP) 接続は断続的な接続を確立します。さらに PPP 接続は電話モデム (「PSTN モデム」とも呼ばれます。この名前は公衆交換電話網を経由して接続するところから付けられました) を使って接続する場合の最も一般的な接続方法です。
@@ -240,9 +363,9 @@ iface eth0 inet static
               class="emphasis"><em>PAP</em></span> を使ってください。大多数のインターネットサービスプロバイダは <span
               class="emphasis"><em>PAP</em></span> を提供しています。
 			</div><a
-            id="id-1.11.6.10.8"
+            id="id-1.11.6.12.8"
             class="indexterm"></a><a
-            id="id-1.11.6.10.9"
+            id="id-1.11.6.12.9"
             class="indexterm"></a><div
             class="para">
 				設定が完了したら、<code
@@ -251,19 +374,19 @@ iface eth0 inet static
               class="command">poff</code> コマンドを使ってください。これら 2 つのコマンドを実行できるのは、root ユーザと <code
               class="literal">dip</code> グループに所属するユーザだけです。
 			</div><a
-            id="id-1.11.6.10.11"
+            id="id-1.11.6.12.11"
             class="indexterm"></a><a
-            id="id-1.11.6.10.12"
+            id="id-1.11.6.12.12"
             class="indexterm"></a></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.adsl"></a>8.2.3. ADSL モデム経由の接続</h3></div></div></div><a
-            id="id-1.11.6.11.2"
+                    id="sect.adsl"></a>8.2.4. ADSL モデム経由の接続</h3></div></div></div><a
+            id="id-1.11.6.13.2"
             class="indexterm"></a><a
-            id="id-1.11.6.11.3"
+            id="id-1.11.6.13.3"
             class="indexterm"></a><a
-            id="id-1.11.6.11.4"
+            id="id-1.11.6.13.4"
             class="indexterm"></a><div
             class="para">
 				「ADSL モデム」という一般名称の意味には、全く違う機能を持つ数多くの装置が含まれています。Linux で使うのが最も簡単なモデムはイーサネットインターフェースを持つものです (USB インターフェースではありません)。この種のモデムは人気になりつつあります。さらに、多くの ADSL インターネットサービスプロバイダはイーサネットインターフェース付きの「ボックス」を貸与します (またはリースします)。モデムの種類に依存して、必要な設定は広範囲にわたります。
@@ -271,10 +394,10 @@ iface eth0 inet static
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pppoe"></a>8.2.3.1. PPPOE をサポートするモデム</h4></div></div></div><a
-              id="id-1.11.6.11.6.2"
+                      id="sect.adsl-pppoe"></a>8.2.4.1. PPPOE をサポートするモデム</h4></div></div></div><a
+              id="id-1.11.6.13.6.2"
               class="indexterm"></a><a
-              id="id-1.11.6.11.6.3"
+              id="id-1.11.6.13.6.3"
               class="indexterm"></a><div
               class="para">
 					一部のイーサネットモデムは PPPOE プロトコル (Point to Point Protocol over Ethernet) に対応しています。PPPOE 接続を設定するには、<code
@@ -290,24 +413,22 @@ iface eth0 inet static
                 class="command">pon dsl-provider</code> で ADSL 接続を開始、<code
                 class="command">poff dsl-provider</code> で切断できます。
 				</div><a
-              id="id-1.11.6.11.6.6"
+              id="id-1.11.6.13.6.6"
               class="indexterm"></a><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>TIP</em></span> 起動時に <code
                           class="command">ppp</code> を開始</strong></p></div></div></div><a
-                id="id-1.11.6.11.6.7.2"
+                id="id-1.11.6.13.6.7.2"
                 class="indexterm"></a><a
-                id="id-1.11.6.11.6.7.3"
+                id="id-1.11.6.13.6.7.3"
                 class="indexterm"></a><div
                 class="para">
 					定義によれば、ADSL 上の PPP 接続は断続的なものです。しかしながら、通常サービスプロバイダは時間に依存して従量課金しないので、常に接続状態を保つという誘惑に対して、ほとんど不利な点はありません。常時接続状態を保つ標準的な方法は init システムを使うことです。
 				</div><div
                 class="para">
-					<span
-                  class="distribution distribution">Jessie</span> のデフォルト init システムは <code
-                  class="command">systemd</code> です。ADSL 接続用の自動再開タスクを追加するには、以下の内容を含む <code
+					systemd を使うなら、ADSL 接続用の自動再開タスクを追加するには、以下の内容を含む <code
                   class="filename">/etc/systemd/system/adsl-connection.service</code> などの「ユニットファイル」を作成するだけで簡単に行うことが可能です。
 				</div><pre
                 class="programlisting">[Unit]
@@ -340,8 +461,8 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pptp"></a>8.2.3.2. PPTP をサポートするモデム</h4></div></div></div><a
-              id="id-1.11.6.11.7.2"
+                      id="sect.adsl-pptp"></a>8.2.4.2. PPTP をサポートするモデム</h4></div></div></div><a
+              id="id-1.11.6.13.7.2"
               class="indexterm"></a><div
               class="para">
 					PPTP (Point-to-Point Tunneling Protocol) プロトコルは Microsoft によって作られました。PPTP は 初期の ADSL で使われましたが、すぐに PPPOE によって置き換えられました。PPTP を使わなければいけない場合は、<a
@@ -351,7 +472,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-dhcp"></a>8.2.3.3. DHCP をサポートするモデム</h4></div></div></div><div
+                      id="sect.adsl-dhcp"></a>8.2.4.3. DHCP をサポートするモデム</h4></div></div></div><div
               class="para">
 					モデムとコンピュータがイーサネットケーブル (クロスケーブル) で接続されている場合、通常は DHCP でコンピュータのネットワーク接続を設定します。さらにそのようなモデムは自動的にデフォルトでゲートウェイとして働き、ルーティングを処理します (これは、モデムがコンピュータとインターネットの間のネットワークトラフィックを管理することを意味しています)。
 				</div><div
@@ -359,7 +480,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>BACK TO BASICS</em></span> 直接イーサネット接続用のクロスケーブル</strong></p></div></div></div><a
-                id="id-1.11.6.11.8.3.2"
+                id="id-1.11.6.13.8.3.2"
                 class="indexterm"></a><div
                 class="para">
 					コンピュータネットワークカードはケーブルの特定のワイヤからデータを受信し、別のワイヤからデータを送信します。コンピュータをローカルネットワークに接続する場合、通常ネットワークカードとリピータまたはスイッチの間をケーブル (ストレートまたはクロスケーブル) で接続します。しかしながら、2 台のコンピュータを直接 (中間にスイッチやリピータを介さずに) 接続したい場合、必ず送信側カードからみた送信ワイヤに伝わる信号を受信側カードからみた受信ワイヤに (その逆も) 伝送させなければいけません。これがクロスケーブルの目的であり、クロスケーブルが使われる理由です。
@@ -373,10 +494,10 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.roaming-network-config"></a>8.2.4. ローミングユーザ向けの自動ネットワーク設定</h3></div></div></div><a
-            id="id-1.11.6.12.2"
+                    id="sect.roaming-network-config"></a>8.2.5. ローミングユーザ向けの自動ネットワーク設定</h3></div></div></div><a
+            id="id-1.11.6.14.2"
             class="indexterm"></a><a
-            id="id-1.11.6.12.3"
+            id="id-1.11.6.14.3"
             class="indexterm"></a><div
             class="para">
 				Falcot の多くのエンジニアはラップトップコンピュータを持っており、自宅でも職務上の目的を果たすためにそれを使います。使用するネットワーク設定は場所によって異なります。自宅では wifi ネットワーク (WPA 鍵で保護されている) を使っているかもしれませんし、その一方で職場ではセキュリティと帯域幅を向上させるために有線ネットワークを使っています。
@@ -395,22 +516,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
 			</div><div
             class="para">
 				NetworkManager は最初のインストール中に「デスクトップ環境」タスクを選んだ場合にデフォルトでインストールされることに注意してください。
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>ALTERNATIVE</em></span> 「ネットワークプロファイル」を使った設定</strong></p></div></div></div><a
-              id="id-1.11.6.12.9.2"
-              class="indexterm"></a><div
-              class="para">
-				さらに熟練したユーザは、自動的にネットワークを設定するために <span
-                class="pkg pkg">guessnet</span> パッケージを試したくなるかもしれません。<span
-                class="pkg pkg">guessnet</span> パッケージは臨機応変に有効化および設定すべきネットワークプロファイルがどれかを判断する一連のテストスクリプト集です。
-			</div><div
-              class="para">
-				ネットワークプロファイルを手作業で選択するのを好むユーザは <span
-                class="pkg pkg">netenv</span> プログラムを好むかもしれません。このプログラムは同名のパッケージに含まれます。
-			</div></div></div></div><ul
+			</div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"

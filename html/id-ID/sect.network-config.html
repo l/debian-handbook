@@ -138,39 +138,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               href="sect.ipv6.html">Bagian 10.5, “IPv6”</a>, namun konsepnya sama saja.
 		</div></div><div
           class="para">
-			Karena jaringan secara otomatis dikonfigurasi selama instalasi awal, berkas <code
-            class="filename">/etc/network/interfaces</code> telah berisi konfigurasi yang tepat. Sebuah baris yang dimulai dengan <code
-            class="literal">auto</code> merupakan antarmuka yang dikonfigurasi secara otomatis ketika booting oleh <span
-            class="pkg pkg">ifupdown</span> dan skrip init-nya <code
-            class="filename">/etc/init.d/networking</code>. Ini seringkali berupa <code
-            class="literal">eth0</code>, yang mengacu pada kartu jaringan pertama.
+			The network is automatically configured during the initial installation. If Network Manager gets installed (which is generally the case for full desktop installations), then it might be that no configuration is actually required (for example, if you rely on DHCP on a wired connection and have no specific requirements). If a configuration is required (for example for a WiFi interface), then it will create the appropriate file in <code
+            class="filename">/etc/NetworkManager/system-connections/</code>.
+		</div><div
+          class="para">
+			If Network Manager is not installed, then the installer will configure <span
+            class="pkg pkg">ifupdown</span> by creating the <code
+            class="filename">/etc/network/interfaces</code> file. A line starting with <code
+            class="literal">auto</code> gives a list of interfaces to be automatically configured on boot by the <code
+            class="literal">networking</code> service.
+		</div><div
+          class="para">
+			In a server context, <span
+            class="pkg pkg">ifupdown</span> is thus the network configuration tool that you usually get. That is why we will cover it in the next sections.
 		</div><a
-          id="id-1.11.6.4"
-          class="indexterm"></a><a
-          id="id-1.11.6.5"
-          class="indexterm"></a><a
           id="id-1.11.6.6"
           class="indexterm"></a><a
           id="id-1.11.6.7"
+          class="indexterm"></a><a
+          id="id-1.11.6.8"
           class="indexterm"></a><div
           class="sidebar"><div
             class="titlepage"><div><div><p
                   class="title"><strong><span
                       class="emphasis"><em>ALTERNATIF</em></span> NetworkManager</strong></p></div></div></div><a
-            id="id-1.11.6.8.2"
+            id="id-1.11.6.9.2"
             class="indexterm"></a><div
             class="para">
-			Jika Network Manager direkomendasikan dalam pengaturan roaming (lihat <a
+			If Network Manager is particularly recommended in roaming setups (see <a
               class="xref"
-              href="sect.network-config.html#sect.roaming-network-config">Bagian 8.2.4, “Konfigurasi Jaringan Otomatis untuk Pengguna Luar”</a>), dia juga sangat berguna sebagai pengatur jaringan standar. Anda dapat membuat “Koneksi sistem” yang digunakan sesegera setelah komputer boot entah itu secara manual dengan berkas mirip <code
-              class="filename">.ini</code> dalam <code
-              class="filename">/etc/NetworkManager/system-connections/</code> atau melalui tool grafis (<code
-              class="command">nm-connection-editor</code>). Ingatlah untuk menonaktifkan seluruh entri dalam <code
-              class="filename">/etc/network/interfaces</code> jika Anda ingin Network Manager menanganinya. <div
+              href="sect.network-config.html#sect.roaming-network-config">Bagian 8.2.5, “Konfigurasi Jaringan Otomatis untuk Pengguna Luar”</a>), it is also perfectly usable as the default network management tool. You can create “System connections” that are used as soon as the computer boots either manually with a <code
+              class="filename">.ini</code>-like file in <code
+              class="filename">/etc/NetworkManager/system-connections/</code> or through a graphical tool (<code
+              class="command">nm-connection-editor</code>). Just remember to deactivate all entries in <code
+              class="filename">/etc/network/interfaces</code> if you want Network Manager to handle them. <div
               class="url">→ <a
-                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie</a></div> <div
+                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings</a></div> <div
               class="url">→ <a
-                href="https://developer.gnome.org/NetworkManager/09/ref-settings.html">https://developer.gnome.org/NetworkManager/09/ref-settings.html</a></div>
+                href="https://developer.gnome.org/NetworkManager/1.6/ref-settings.html">https://developer.gnome.org/NetworkManager/1.6/ref-settings.html</a></div>
 		</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
@@ -180,19 +185,54 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 				Jika komputer memiliki sebuah kartu Ethernet, jaringan IP yang bersesuaian dengannya harus dikonfigurasi dengan memilih salah satu metode. Metode yang paling sederhana adalah konfigurasi dinamis dengan DHCP, dan dia memerlukan server DHCP pada jaringan lokal. Ini mungkin menunjukkan hostname yang diinginkan, berhubungan dengan pengaturan <code
               class="literal">hostname</code> dalam contoh berikut. Server DHCP kemudian mengirimkan pengaturan konfigurasi untuk jaringan yang sesuai.
 			</div><a
-            id="id-1.11.6.9.3"
+            id="id-1.11.6.10.3"
             class="indexterm"></a><a
-            id="id-1.11.6.9.4"
+            id="id-1.11.6.10.4"
             class="indexterm"></a><div
             class="example"><a
               id="example.config-dhcp"></a><p
               class="title"><strong>Contoh 8.1. Konfigurasi DHCP</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet dhcp
+auto enp0s31f6
+iface enp0s31f6 inet dhcp
   hostname arrakis
 </pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> Names of network interfaces</strong></p></div></div></div><a
+              id="id-1.11.6.10.6.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.3"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.4"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.5"
+              class="indexterm"></a><div
+              class="para">
+				By default, the kernel attributes generic names such a <code
+                class="literal">eth0</code> (for wired Ethernet) or <code
+                class="literal">wlan0</code> (for WiFi) to the network interfaces. The number in those names is a simple incremental counter representing the order in which they have been detected. With modern hardware, that order might change for each reboot and thus the default names are not reliable.
+			</div><div
+              class="para">
+				Fortunately, systemd and udev are able to rename the interfaces as soon as they appear. The default name policy is defined by <code
+                class="filename">/lib/systemd/network/99-default.link</code> (see <span
+                class="citerefentry"><span
+                  class="refentrytitle">systemd.link</span>(5)</span> for an explanation of the <code
+                class="literal">NamePolicy</code> entry in that file). In practice, the names are often based on the device's physical location (as guessed by where they are connected) and you will see names starting with <code
+                class="literal">en</code> for wired ethernet and <code
+                class="literal">wl</code> for WiFi. In the example above, the rest of the name indicates, in abbreviated form, a PCI (<code
+                class="literal">p</code>) bus number (<code
+                class="literal">0</code>), a slot number (<code
+                class="literal">s31</code>), a function number (<code
+                class="literal">f6</code>).
+			</div><div
+              class="para">
+				Obviously, you are free to override this policy and/or to complement it to customize the names of some specific interfaces. You can find out the names of the network interfaces in the output of <code
+                class="command">ip addr</code> (or as filenames in <code
+                class="filename">/sys/class/net/</code>).
+			</div></div><div
             class="para">
 				Konfigurasi “statis” harus menunjukkan pengaturan jaringan secara tetap. Termasuk setidaknya alamat IP dan subnet mask; jaringan dan alamat broadcast kadang juga termasuk. Sebuah router menghubungkan ke jaringan luar akan disebut gateway.
 			</div><div
@@ -201,8 +241,8 @@ iface eth0 inet dhcp
               class="title"><strong>Contoh 8.2. Konfigurasi statis</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet static
+auto enp0s31f6
+iface enp0s31f6 inet static
   address 192.168.0.3
   netmask 255.255.255.0
   broadcast 192.168.0.255
@@ -222,14 +262,97 @@ iface eth0 inet static
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.ppp-rtc"></a>8.2.2. Terhubung dengan PPP melalui modem PSTN</h3></div></div></div><a
-            id="id-1.11.6.10.2"
+                    id="sect.interface-wireless"></a>8.2.2. Wireless Interface</h3></div></div></div><a
+            id="id-1.11.6.11.2"
+            class="indexterm"></a><div
+            class="para">
+				Getting wireless network cards to work can be a bit more challenging. First of all, they often require the installation of proprietary firmwares which are not installed by default in Debian. Then wireless networks rely on cryptography to restrict access to authorized users only, this implies storing some secret key in the network configuration. Let's tackle those topics one by one.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.4"></a>8.2.2.1. Installing the required firmwares</h4></div></div></div><a
+              id="id-1.11.6.11.4.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.11.4.3"
+              class="indexterm"></a><div
+              class="para">
+					First you have to enable the non-free repository in APT's sources.list file: see <a
+                class="xref"
+                href="apt.html#sect.apt-sources.list">Bagian 6.1, “Mengisi Berkas <code
+                  class="filename">sources.list</code>”</a> for details about this file. Many firmware are proprietary and are thus located in this repository. You can try to skip this step if you want, but if the next step doesn't find the required firmware, retry after having enabled the non-free section.
+				</div><div
+              class="para">
+					Then you have to install the appropriate <code
+                class="literal">firmware-*</code> packages. If you don't know which package you need, you can install the <span
+                class="pkg pkg">isenkram</span> package and run its <code
+                class="command">isenkram-autoinstall-firmware</code> command. The packages are often named after the hardware manufacturer or the corresponding kernel module: <span
+                class="pkg pkg">firmware-iwlwifi</span> for Intel wireless cards, <span
+                class="pkg pkg">firmware-atheros</span> for Qualcomm Atheros, <span
+                class="pkg pkg">firmware-ralink</span> for Ralink, etc. A reboot is then recommended because the kernel driver usually looks for the firmware files when it is first loaded and no longer afterwards.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.5"></a>8.2.2.2. Wireless specific entries in <code
+                      class="filename">/etc/network/interfaces</code></h4></div></div></div><a
+              id="id-1.11.6.11.5.2"
+              class="indexterm"></a><div
+              class="para">
+					<span
+                class="emphasis"><em>ifupdown</em></span> is able to manage wireless interfaces but it needs the help of the <span
+                class="pkg pkg">wpasupplicant</span> package which provides the required integration between <span
+                class="emphasis"><em>ifupdown</em></span> and the <code
+                class="command">wpa_supplicant</code> command used to configure the wireless interfaces (when using WPA/WPA2 encryption). The usual entry in <code
+                class="filename">/etc/network/interfaces</code> needs to be extended with two supplementary parameters to specify the name of the wireless network (aka its SSID) and the <span
+                class="emphasis"><em>Pre-Shared Key</em></span> (PSK).
+				</div><div
+              class="example"><a
+                id="example.config-wireless"></a><p
+                class="title"><strong>Contoh 8.3. DHCP configuration for a wireless interface</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+auto wlp4s0
+iface wlp4s0 inet dhcp
+  wpa-ssid Falcot
+  wpa-psk ccb290fd4fe6b22935cbae31449e050edd02ad44627b16ce0151668f5f53c01b
+</pre></div></div><div
+              class="para">
+					The <code
+                class="literal">wpa-psk</code> parameter can contain either the plain text passphrase or its hashed version generated with <code
+                class="command">wpa_passphrase <em
+                  class="replaceable">SSID</em> <em
+                  class="replaceable">passphrase</em></code>. If you use an unencrypted wireless connection, then you should put a <code
+                class="literal">wpa-key-mgmt NONE</code> and no <code
+                class="literal">wpa-psk</code> entry. For more information about the possible configuration options, have a look at <code
+                class="filename">/usr/share/doc/wpasupplicant/README.Debian.gz</code>.
+				</div><div
+              class="para">
+					At this point, you should consider restricting the read permissions on <code
+                class="filename">/etc/network/interfaces</code> to the root user only since the file contains a private key that not all users should have access to.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>HISTORY</em></span> WEP encryption</strong></p></div></div></div><a
+                id="id-1.11.6.11.5.7.2"
+                class="indexterm"></a><div
+                class="para">
+					Usage of the deprecated WEP encryption protocol is possible with the <span
+                  class="pkg pkg">wireless-tools</span> package. See <code
+                  class="filename">/usr/share/doc/wireless-tools/README.Debian</code> for instructions.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ppp-rtc"></a>8.2.3. Terhubung dengan PPP melalui modem PSTN</h3></div></div></div><a
+            id="id-1.11.6.12.2"
             class="indexterm"></a><a
-            id="id-1.11.6.10.3"
+            id="id-1.11.6.12.3"
             class="indexterm"></a><a
-            id="id-1.11.6.10.4"
+            id="id-1.11.6.12.4"
             class="indexterm"></a><a
-            id="id-1.11.6.10.5"
+            id="id-1.11.6.12.5"
             class="indexterm"></a><div
             class="para">
 				Koneksi point to pont (PPP) berlangsung sebuah koneksi yang berselang-seling; ini adalah solusi umum untuk koneksi yang dibuat dengan modem telepon (“PSTN modem”, karena koneksi melalui kabel jaringan telepon publik).
@@ -240,9 +363,9 @@ iface eth0 inet static
               class="literal">provider</code> (sebagai penyedia layanan Internet). Ketika ragu tentang protokol otentikasi, pilih <span
               class="emphasis"><em>PAP</em></span>: ini ditawarkan oleh kebanyakan penyedia layanan Internet.
 			</div><a
-            id="id-1.11.6.10.8"
+            id="id-1.11.6.12.8"
             class="indexterm"></a><a
-            id="id-1.11.6.10.9"
+            id="id-1.11.6.12.9"
             class="indexterm"></a><div
             class="para">
 				Setelah konfigurasi, adalah mungkin untuk menghubungkan dengan perintah <code
@@ -251,19 +374,19 @@ iface eth0 inet static
               class="command">poff</code>. Kedua perintah ini dapat dieksekusi oleh root, atau pengguna lain, yang ada dalam group <code
               class="literal">dip</code>.
 			</div><a
-            id="id-1.11.6.10.11"
+            id="id-1.11.6.12.11"
             class="indexterm"></a><a
-            id="id-1.11.6.10.12"
+            id="id-1.11.6.12.12"
             class="indexterm"></a></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.adsl"></a>8.2.3. Menghubungkan melalui modem ADSL</h3></div></div></div><a
-            id="id-1.11.6.11.2"
+                    id="sect.adsl"></a>8.2.4. Menghubungkan melalui modem ADSL</h3></div></div></div><a
+            id="id-1.11.6.13.2"
             class="indexterm"></a><a
-            id="id-1.11.6.11.3"
+            id="id-1.11.6.13.3"
             class="indexterm"></a><a
-            id="id-1.11.6.11.4"
+            id="id-1.11.6.13.4"
             class="indexterm"></a><div
             class="para">
 				Istilah generik “ADSL modem” mencakup berbagai perangkat dengan fungsi yang sangat berbeda. Modem yang paling sederhana untuk digunakan dengan Linux adalah yang memiliki antarmuka Ethernet (dan tak hanya antarmuka USB). Ini menjadi populer; kebanyakan penyedia layanan meminjamkan (atau sewa) sebuah “box” ADSL dengan antarmuka Ethernet. Tergantung pada tipe modem, konfigurasi yang diperlukan dapat bermacam-macam.
@@ -271,10 +394,10 @@ iface eth0 inet static
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pppoe"></a>8.2.3.1. Modem Mendukung PPPOE</h4></div></div></div><a
-              id="id-1.11.6.11.6.2"
+                      id="sect.adsl-pppoe"></a>8.2.4.1. Modem Mendukung PPPOE</h4></div></div></div><a
+              id="id-1.11.6.13.6.2"
               class="indexterm"></a><a
-              id="id-1.11.6.11.6.3"
+              id="id-1.11.6.13.6.3"
               class="indexterm"></a><div
               class="para">
 					Beberapa modem Ethernet bekerja dengan protokol PPPOE (Point to Point Protocol over Ethernet). Alat <code
@@ -288,25 +411,23 @@ iface eth0 inet static
                 class="command">pon dsl-provider</code> dan memutuskannya dengan <code
                 class="command">poff dsl-provider</code>.
 				</div><a
-              id="id-1.11.6.11.6.6"
+              id="id-1.11.6.13.6.6"
               class="indexterm"></a><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>TIP</em></span> Memulai <code
                           class="command">ppp</code> saat boot</strong></p></div></div></div><a
-                id="id-1.11.6.11.6.7.2"
+                id="id-1.11.6.13.6.7.2"
                 class="indexterm"></a><a
-                id="id-1.11.6.11.6.7.3"
+                id="id-1.11.6.13.6.7.3"
                 class="indexterm"></a><div
                 class="para">
 					Koneksi PPP melalui ADSL, secara definisi, terputus-putus. Karena mereka biasanya tidak ditagih berdasarkan waktu, ada beberapa dorongan untuk menjaganya tetap terbuka. Cara standar untuk melakukannya adalah dengan menggunakan sistem init.
 				</div><div
                 class="para">
-					Sistem init baku pada <span
-                  class="distribution distribution">Jessie</span> adalah <code
-                  class="command">systemd</code>. Menambahkan suatu tugas yang secara otomatis dimulai lagi bagi koneksi ADSL cukup dengan membuat suatu "berkas unit" seperti <code
-                  class="filename">/etc/systemd/system/adsl-connection-service</code>, dengan isi sebagai berikut:
+					With systemd, adding an automatically restarting task for the ADSL connection is a simple matter of creating a “unit file” such as <code
+                  class="filename">/etc/systemd/system/adsl-connection.service</code>, with contents such as the following:
 				</div><pre
                 class="programlisting">[Unit]
 Description=ADSL connection
@@ -331,16 +452,15 @@ WantedBy=multi-user.target</pre><div
                   class="command">init</code> akan menyambungkannya lagi.
 				</div><pre
                 class="programlisting">
-adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
-</pre><div
+adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
                 class="para">
 					Untuk koneksi ADSL yang memutus otomatis setiap hari, metode ini mengurangi durasi interupsi.
 				</div></div></div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pptp"></a>8.2.3.2. Modem Mendukung PPTP</h4></div></div></div><a
-              id="id-1.11.6.11.7.2"
+                      id="sect.adsl-pptp"></a>8.2.4.2. Modem Mendukung PPTP</h4></div></div></div><a
+              id="id-1.11.6.13.7.2"
               class="indexterm"></a><div
               class="para">
 					Protokol PPTP (Point-to-Point Tunneling Protocol) dibuat oleh Microsoft. Digelar pada permulaan ADSL, ini telah digantikan secara cepat oleh PPPOE. Jika protokol ini dipaksakan pada Anda, lihat <a
@@ -350,7 +470,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-dhcp"></a>8.2.3.3. Modem Mendukung DHCP</h4></div></div></div><div
+                      id="sect.adsl-dhcp"></a>8.2.4.3. Modem Mendukung DHCP</h4></div></div></div><div
               class="para">
 					Ketika sebuah modem terhubung ke komputer dengan sebuah kabel Ethernet (kabel crossover) Anda secara khusus mengonfigurasi koneksi jaringan dengan DHCP pada komputer; modem secara otomatis bertindak sebagai gateway secara default dan menangani routing (berarti dia mengatur traffik jaringan antara komputer dan Internet).
 				</div><div
@@ -358,7 +478,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>KEMBALI KE DASAR</em></span> Kabel crossover untuk koneksi Ethernet langsung</strong></p></div></div></div><a
-                id="id-1.11.6.11.8.3.2"
+                id="id-1.11.6.13.8.3.2"
                 class="indexterm"></a><div
                 class="para">
 					Kartu jaringan komputer berharap menerima data pada kawat khusus dalam kabel, dan mengirim datanya ke yang lainnya. Ketika menghubungkan komputer ke jaringan lokal, Anda biasanya menghubungkan sebuah kabel (straight atau crossover) antara kartu jaringan dan sebuah repeater atau switch. Akan tetapi, jika Anda ingin menghubungkan dua komputer secara langsung (tanpa perantara switch atau repeater), Anda harus me-route sinyal terkirim oleh satu kartu ke sisi penerima kartu lain, dan sebaliknya. Ini adalah tujuan kabel crossover, dan alasannya dipergunakan.
@@ -372,10 +492,10 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.roaming-network-config"></a>8.2.4. Konfigurasi Jaringan Otomatis untuk Pengguna Luar</h3></div></div></div><a
-            id="id-1.11.6.12.2"
+                    id="sect.roaming-network-config"></a>8.2.5. Konfigurasi Jaringan Otomatis untuk Pengguna Luar</h3></div></div></div><a
+            id="id-1.11.6.14.2"
             class="indexterm"></a><a
-            id="id-1.11.6.12.3"
+            id="id-1.11.6.14.3"
             class="indexterm"></a><div
             class="para">
 				Banyak insinyur Falcot memiliki komputer laptop yang, untuk tujuan profesional, mereka gunakan juga di rumah. Konfigurasi jaringan yang digunakan berbeda berdasarkan lokasinya. Di rumah, mungkin berupa jaringan wifi (dilindungi oleh sebuah kunci WPA), ketika di tempat kerja menggunakan jaringan kabel untuk alasan keamanan dan bandwidth yang lebih.
@@ -394,21 +514,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider
 			</div><div
             class="para">
 				Catat bahwa program ini diinstall secara standar ketika “Desktop Environment” dipilih ketika instalasi awal.
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>ALTERNATIF</em></span> Konfigurasi dengan “profil jaringan”</strong></p></div></div></div><a
-              id="id-1.11.6.12.9.2"
-              class="indexterm"></a><div
-              class="para">
-				Pengguna yang lebih mahir mungkin ingin mencoba paket <span
-                class="pkg pkg">guessnet</span> untuk konfigurasi jaringan otomatis. Sekelompok skrip test menentukan profil jaringan mana yang akan diaktifkan dan mengonfigurasinya dengan cepat.
-			</div><div
-              class="para">
-				Pengguna yang lebih memilih secara manual profil jaringan akan lebih memilih program <span
-                class="pkg pkg">netenv</span>, ditemukan pada paket dengan nama yang sama.
-			</div></div></div></div><ul
+			</div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"

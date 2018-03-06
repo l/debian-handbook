@@ -135,31 +135,31 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 					Алгоритм RSA широко используется в криптографии публичного ключа. Он включает «пару ключей», содержащую частный и публичный ключ. Два ключа тесно связаны между собой и их математические свойства тоже, например, сообщение зашифрованное с публичным ключом может быть расшифровано тем, кто знает частный ключ, что обеспечивает конфиденциальность. Наоборот, сообщение, зашифрованное с частным ключом, может расшифровать любой, знающий публичный ключ — это гарантия установления подлинности сообщения, т. к. создать такое мог только человек с доступом к частному ключу. Если есть связь с цифровой хэш-функцией (MD5, SHA1 или более современные), то это механизм подписи, который может быть применён к любому сообщению.
 				</div><div
               class="para">
-					However, anyone can create a key pair, store any identity on it, and pretend to be the identity of their choice. One solution involves the concept of a <span
-                class="emphasis"><em>Certification Authority</em></span> (CA), formalized by the X.509 standard. This term covers an entity that holds a trusted key pair known as a <span
-                class="emphasis"><em>root certificate</em></span>. This certificate is only used to sign other certificates (key pairs), after proper steps have been undertaken to check the identity stored on the key pair. Applications using X.509 can then check the certificates presented to them, if they know about the trusted root certificates.
+					Однако кто угодно может создать пару ключей, наполнить её любой информацией, касаемой индивидуальных данных какого-либо лица, и притвориться в любой момент, что он и есть та или иная "личность". Чтобы исключить такие ситуации, было решено создать Центр сертификации (открытых публичных ключей) - <span
+                class="emphasis"><em>Certification Authority</em></span> (CA), работающий по стандарту X.509. Смысл в том, что данному центру доверяют хранить одну половинку ключа, известной как <span
+                class="emphasis"><em>root certificate</em></span> (доверенный корневой сертификат). Этот сертификат (открытый публичный ключ) используется только для подписания других сертификатов (одной половины ключа от пары), после выполнения предварительных действий по подтверждению подлинности личности (организаций и физических лиц), сохраняемой в паре ключей. Программы, использующие X.509 могут затем проверить сертификаты, представленные им, при этом они должны знать о доверенных корневых сертификатах.
 				</div><div
               class="para">
-					OpenVPN follows this rule. Since public CAs only emit certificates in exchange for a (hefty) fee, it is also possible to create a private certification authority within the company. The <span
-                class="pkg pkg">easy-rsa</span> package provides tools to serve as an X.509 certification infrastructure, implemented as a set of scripts using the <code
-                class="command">openssl</code> command.
+					OpenVPN придерживается этого правила. Поскольку публичные CA выпускают сертификаты только в обмен за деньги (здоровéнные), OpenVPN может создать свой приватный центр сертификации, авторизированный внутри компании (то есть независимый локальный центр сертификации) и выдавать самоподписанные сертификаты (то есть открытые публичные ключи). Пакет <span
+                class="pkg pkg">easy-rsa</span> включает в себя инструменты, с помощью которых можно управлять инфраструктурой сертификации X.509, а также они включают в себя сценарии с использованием команды <code
+                class="command">openssl</code>.
 				</div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
-                          class="emphasis"><em>NOTE</em></span> <span
-                          class="emphasis"><em>easy-rsa</em></span> before <span
+                          class="emphasis"><em>ЗАМЕТКА</em></span> <span
+                          class="emphasis"><em>easy-rsa</em></span> до создания дистибутива <span
                           class="distribution distribution">Jessie</span></strong></p></div></div></div><div
                 class="para">
-					In versions of Debian up to <span
+					В более ранних версиях Debian, до <span
                   class="distribution distribution">Wheezy</span>, <span
-                  class="emphasis"><em>easy-rsa</em></span> was distributed as part of the <span
-                  class="pkg pkg">openvpn</span> package, and its scripts were to be found under <code
-                  class="filename">/usr/share/doc/openvpn/examples/easy-rsa/2.0/</code>. Setting up a CA involved copying that directory, instead of using the <code
-                  class="command">make-cadir</code> command as documented here.
+                  class="emphasis"><em>easy-rsa</em></span> распространялся как часть пакета <span
+                  class="pkg pkg">openvpn</span>, а месторасположение его сценариев было в <code
+                  class="filename">/usr/share/doc/openvpn/examples/easy-rsa/2.0/</code>. Настройка CA включала в себя копирование этого каталога, тогда как сейчас используется команда <code
+                  class="command">make-cadir</code>, как описано здесь.
 				</div></div><div
               class="para">
-					The Falcot Corp administrators use this tool to create the required certificates, both for the server and the clients. This allows the configuration of all clients to be similar since they will only have to be set up so as to trust certificates coming from Falcot's local CA. This CA is the first certificate to create; to this end, the administrators set up a directory with the files required for the CA in an appropriate location, preferably on a machine not connected to the network in order to mitigate the risk of the CA's private key being stolen.
+					Администраторы Falcot Corp используют этот инструмент для создания нужных сертификатов, для обеих сторон - для сервера и клиентов. Это позволяет настраивать всех клиентов похожим образом, поскольку на клиентах надо только установить, чтобы они считали доверенными сертификатами те, что были выданы локальным CA, расположенным в Falcot. Этот CA в Falcot имеет порядковый номер - первый сертификат, который он выдал сам себе в самом начале своей работы. Для учёта и хранения выдаваемых сертификатов администраторы создают каталог с нужными файлами для CA в подходящем месте, предпочтительнее на машине, не подсоединённой к сети. Это делается для того, чтобы уменьшить риск кражи закрытых ключей, выданных локальным CA.
 				</div><pre
               class="screen">
 <code
@@ -169,9 +169,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="computeroutput">$ </code><strong
                 class="userinput"><code>cd pki-falcot</code></strong></pre><div
               class="para">
-					They then store the required parameters into the <code
-                class="filename">vars</code> file, especially those named with a <code
-                class="literal">KEY_</code> prefix; these variables are then integrated into the environment:
+					Нужные опции располагаются в файле <code
+                class="filename">vars</code>, особенно те, что имеют в качестве приставки к словам <code
+                class="literal">KEY_</code>; эти переменные затем интегрируются в в окружающую среду:
 				</div><pre
               class="screen">
 <code
@@ -203,9 +203,9 @@ $ </code><strong
                 class="userinput"><code>./clean-all
 </code></strong></pre><div
               class="para">
-					The next step is the creation of the CA's key pair itself (the two parts of the key pair will be stored under <code
-                class="filename">keys/ca.crt</code> and <code
-                class="filename">keys/ca.key</code> during this step):
+					Следующим шагом является создание пары к ключу CA (то есть приватного ключа), то есть самому себе (при выполнении этого шага обе части ключа, или "пара", будут размещены под именами <code
+                class="filename">keys/ca.crt</code> и <code
+                class="filename">keys/ca.key</code>):
 				</div><pre
               class="screen">
 <code
@@ -213,7 +213,7 @@ $ </code><strong
                 class="userinput"><code>./build-ca</code></strong>
 <code
                 class="computeroutput">Generating a 2048 bit RSA private key
-...................................................................+++
+....................................................................+++
 ...+++
 writing new private key to 'ca.key'
 -----
@@ -234,10 +234,10 @@ Name [Certificate authority for Falcot Corp]:
 Email Address [admin@falcot.com]:
 </code></pre><div
               class="para">
-					The certificate for the VPN server can now be created, as well as the Diffie-Hellman parameters required for the server side of an SSL/TLS connection. The VPN server is identified by its DNS name <code
-                class="literal">vpn.falcot.com</code>; this name is re-used for the generated key files (<code
-                class="filename">keys/vpn.falcot.com.crt</code> for the public certificate, <code
-                class="filename">keys/vpn.falcot.com.key</code> for the private key):
+					А сейчас можно создать сертификат для сервера VPN, при необходимости активизировать и протокол Диффи-Хелмана для серверной стороны соединения по SSL/TLS. VPN сервер идентифицируется по его DNS имени <code
+                class="literal">vpn.falcot.com</code>; это имя будет использоваться в дальнейшем для создания файлов ключей (<code
+                class="filename">keys/vpn.falcot.com.crt</code> - для публичного сертификата - первой половинки ключа, <code
+                class="filename">keys/vpn.falcot.com.key</code> - для закрытого ключа - второй половинки):
 				</div><pre
               class="screen">
 <code
@@ -300,7 +300,7 @@ This is going to take a long time
 […]
 </code></pre><div
               class="para">
-					The following step creates certificates for the VPN clients; one certificate is required for each computer or person allowed to use the VPN:
+					Следующим шагом создаются сертификаты для клиентов VPN; один сертификат нужен каждому компьютеру или лицу, которым позволено использовать VPN:
 				</div><pre
               class="screen">
 <code
@@ -344,103 +344,103 @@ Organizational Unit Name (eg, section) [Certificate authority]:</code><strong
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="id-1.13.5.7.7"></a>10.2.1.2. Configuring the OpenVPN Server</h4></div></div></div><div
+                      id="id-1.13.5.7.7"></a>10.2.1.2. Настройка сервера OpenVPN</h4></div></div></div><div
               class="para">
-					By default, the OpenVPN initialization script tries starting all virtual private networks defined in <code
-                class="filename">/etc/openvpn/*.conf</code>. Setting up a VPN server is therefore a matter of storing a corresponding configuration file in this directory. A good starting point is <code
-                class="filename">/usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz</code>, which leads to a rather standard server. Of course, some parameters need to be adapted: <code
+					По умолчанию, при первоначальном запуске OpenVPN сценарий пытается запустить все виртуальные частные сети, описанные в файле <code
+                class="filename">/etc/openvpn/*.conf</code>. Поэтому важно, настраивая VPN сервер, располагать соответствующие файлы конфигурации в этом каталоге. Хорошей отправной точкой может быть <code
+                class="filename">/usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz</code>, в котором приведён довольно стандартный сервер. Конечно, некоторые опции нуждаются в уточнении: <code
                 class="literal">ca</code>, <code
                 class="literal">cert</code>, <code
-                class="literal">key</code> and <code
-                class="literal">dh</code> need to describe the selected locations (respectively, <code
+                class="literal">key</code> и <code
+                class="literal">dh</code> нужны для описания выбранного местоположения (соответственно, <code
                 class="literal">/etc/ssl/certs/Falcot_CA.crt</code>, <code
                 class="literal">/etc/ssl/vpn.falcot.com.crt</code>, <code
-                class="literal">/etc/ssl/private/vpn.falcot.com.key</code> and <code
-                class="literal">/etc/openvpn/dh2048.pem</code>). The <code
-                class="literal">server 10.8.0.0 255.255.255.0</code> directive defines the subnet to be used by the VPN; the server uses the first IP address in that range (<code
-                class="literal">10.8.0.1</code>) and the rest of the addresses are allocated to clients.
+                class="literal">/etc/ssl/private/vpn.falcot.com.key</code> и <code
+                class="literal">/etc/openvpn/dh2048.pem</code>). Директива <code
+                class="literal">server 10.8.0.0 255.255.255.0</code> определяет подсеть, которая будет использоваться для VPN; сервер использует первый IP адрес в этом диапазоне (<code
+                class="literal">10.8.0.1</code>), а остальные адреса распределяются клиентам.
 				</div><div
               class="para">
-					With this configuration, starting OpenVPN creates the virtual network interface, usually under the <code
-                class="literal">tun0</code> name. However, firewalls are often configured at the same time as the real network interfaces, which happens before OpenVPN starts. Good practice therefore recommends creating a persistent virtual network interface, and configuring OpenVPN to use this pre-existing interface. This further allows choosing the name for this interface. To this end, <code
-                class="command">openvpn --mktun --dev vpn --dev-type tun</code> creates a virtual network interface named <code
-                class="literal">vpn</code> with type <code
-                class="literal">tun</code>; this command can easily be integrated in the firewall configuration script, or in an <code
-                class="literal">up</code> directive of the <code
-                class="filename">/etc/network/interfaces</code> file. The OpenVPN configuration file must also be updated accordingly, with the <code
-                class="literal">dev vpn</code> and <code
-                class="literal">dev-type tun</code> directives.
+					С этой конфигурацией, запущенный OpenVPN создаёт виртуальный сетевой интерфейс, обычно под именем <code
+                class="literal">tun0</code>. Однако, брандмауэры часто настраиваются в одно время с настройкой реальных сетевых интерфейсов, и это обычно происходит ранее, до старта OpenVPN. Поэтому, уже имеющийся хороший опыт использования связки OpenVPN+брандмауэр рекомендует создать постоянный виртуальный сетевой интерфейс, и настроить OpenVPN использовать этот интерфейс. Тогда в будущем, можно будет подобрать имя для этого интерфейса. С этой целью, <code
+                class="command">openvpn --mktun --dev vpn --dev-type tun</code> создаст виртуальный сетевой интерфейс, назвав его <code
+                class="literal">vpn</code> с типом <code
+                class="literal">tun</code>. Эта команда может быть быстро включена в сценарий настройки брэндмауэра, или в директиву <code
+                class="literal">up</code> файла <code
+                class="filename">/etc/network/interfaces</code>. Конфигурационный файл OpenVPN должен быть также обновлён соответствующим образом, с директивами <code
+                class="literal">dev vpn</code> и <code
+                class="literal">dev-type tun</code>.
 				</div><div
               class="para">
-					Barring further action, VPN clients can only access the VPN server itself by way of the <code
-                class="literal">10.8.0.1</code> address. Granting the clients access to the local network (192.168.0.0/24), requires adding a <code
-                class="literal">push route 192.168.0.0 255.255.255.0</code> directive to the OpenVPN configuration so that VPN clients automatically get a network route telling them that this network is reachable by way of the VPN. Furthermore, machines on the local network also need to be informed that the route to the VPN goes through the VPN server (this automatically works when the VPN server is installed on the gateway). Alternatively, the VPN server can be configured to perform IP masquerading so that connections coming from VPN clients appear as if they are coming from the VPN server instead (see <a
+					Для исключения отдалённых последствий, клиенты VPN могут только получать доступ к серверу VPN через адрес <code
+                class="literal">10.8.0.1</code>. Для предоставления клиентам доступа в локальную сеть (192.168.0.0/24), необходимо добавить директиву <code
+                class="literal">push route 192.168.0.0 255.255.255.0</code> в конфигурацию OpenVPN, тогда клиенты VPN автоматически получат уведомление о том, что сетевая маршрутизация к этой сети осуществляется через VPN. Кроме того, машины в локальной сети также должны быть информированы о том, что маршрутизация пакетов VPN должна осуществляться через сервер VPN (в случае установки сервера VPN на шлюз это происходит автоматически). И как альтернатива, сервер VPN можно настроить с возможностью использования IP masquerading (трансляция - замена одних IP на другие) таким образом, что соединения, приходящие от клиентов VPN будут появляться так, как будто они пришли с сервера VPN взамен (смотри вкладку <a
                 class="xref"
                 href="network-infrastructure.html#sect.gateway">Раздел 10.1, «Шлюз»</a>).
 				</div></div><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="id-1.13.5.7.8"></a>10.2.1.3. Configuring the OpenVPN Client</h4></div></div></div><div
+                      id="id-1.13.5.7.8"></a>10.2.1.3. Настройка клиента OpenVPN</h4></div></div></div><div
               class="para">
-					Setting up an OpenVPN client also requires creating a configuration file in <code
-                class="filename">/etc/openvpn/</code>. A standard configuration can be obtained by using <code
-                class="filename">/usr/share/doc/openvpn/examples/sample-config-files/client.conf</code> as a starting point. The <code
-                class="literal">remote vpn.falcot.com 1194</code> directive describes the address and port of the OpenVPN server; the <code
+					При настройке клиента OpenVPN нужно тоже создать конфигурационный файл, поместив его в <code
+                class="filename">/etc/openvpn/</code>. Стандартная конфигурация, которую можно принять за основу, расположена в примерах по адресу <code
+                class="filename">/usr/share/doc/openvpn/examples/sample-config-files/client.conf</code>. Директива <code
+                class="literal">remote vpn.falcot.com 1194</code> описывает адрес и порт сервера OpenVPN; <code
                 class="literal">ca</code>, <code
-                class="literal">cert</code> and <code
-                class="literal">key</code> also need to be adapted to describe the locations of the key files.
+                class="literal">cert</code> и <code
+                class="literal">key</code> также нуждаются в редактировании описаний с уточнением месторасположения файлов ключей.
 				</div><div
               class="para">
-					If the VPN should not be started automatically on boot, set the <code
-                class="literal">AUTOSTART</code> directive to <code
-                class="literal">none</code> in the <code
-                class="filename">/etc/default/openvpn</code> file. Starting or stopping a given VPN connection is always possible with the commands <code
+					Если нет необходимости запускать VPN сразу, при загрузке системы автоматически, то надо установить для директивы <code
+                class="literal">AUTOSTART</code> опцию <code
+                class="literal">none</code> в файле <code
+                class="filename">/etc/default/openvpn</code>. Запуск и остановка данного соединения VPN всегда можно выполнить вручную командами <code
                 class="command">service openvpn@<em
-                  class="replaceable">name</em> start</code> and <code
+                  class="replaceable">name</em> start</code> и <code
                 class="command">service openvpn@<em
-                  class="replaceable">name</em> stop</code> (where the connection <em
-                class="replaceable">name</em> matches the one defined in <code
+                  class="replaceable">name</em> stop</code> (где название соединения <em
+                class="replaceable">name</em> подходит к одному из определённых в файле <code
                 class="filename">/etc/openvpn/<em
                   class="replaceable">name</em>.conf</code>).
 				</div><div
               class="para">
-					The <span
-                class="pkg pkg">network-manager-openvpn-gnome</span> package contains an extension to Network Manager (see <a
+					Пакет <span
+                class="pkg pkg">network-manager-openvpn-gnome</span> содержит расширения для Менеджера Сети (смотри вкладку <a
                 class="xref"
-                href="sect.network-config.html#sect.roaming-network-config">Раздел 8.2.4, «Automatic Network Configuration for Roaming Users»</a>) that allows managing OpenVPN virtual private networks. This allows every user to configure OpenVPN connections graphically and to control them from the network management icon. <a
+                href="sect.network-config.html#sect.roaming-network-config">Раздел 8.2.5, «Автоматическая настройки сети для мобильных пользователей»</a>), что позволяет управлять виртуальными частными сетями OpenVPN. С их помощью каждый пользователь может настраивать соединения OpenVPN в графическом виде и контролировать их из иконки сетевого управления. <a
                 id="id-1.13.5.7.8.4.3"
                 class="indexterm"></a>
 				</div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.ssh-vpn"></a>10.2.2. Virtual Private Network with SSH</h3></div></div></div><a
+                    id="sect.ssh-vpn"></a>10.2.2. Виртуальные Частные Сети с SSH</h3></div></div></div><a
             id="id-1.13.5.8.2"
             class="indexterm"></a><a
             id="id-1.13.5.8.3"
             class="indexterm"></a><div
             class="para">
-				There are actually two ways of creating a virtual private network with SSH. The historic one involves establishing a PPP layer over the SSH link. This method is described in a HOWTO document: <div
+				В настоящее время фактически существуют два способа создания частных виртуальных сетей, использующих SSH. Исторически так сложилось, что одно из этих решений предполагает использование слоя PPP поверх соединения SSH. Этот вариант описывается в документе HOWTO: <div
               class="url">→ <a
                 href="http://www.tldp.org/HOWTO/ppp-ssh/">http://www.tldp.org/HOWTO/ppp-ssh/</a></div>
 			</div><div
             class="para">
-				The second method is more recent, and was introduced with OpenSSH 4.3; it is now possible for OpenSSH to create virtual network interfaces (<code
-              class="literal">tun*</code>) on both sides of an SSH connection, and these virtual interfaces can be configured exactly as if they were physical interfaces. The tunneling system must first be enabled by setting <code
-              class="literal">PermitTunnel</code> to “yes” in the SSH server configuration file (<code
-              class="filename">/etc/ssh/sshd_config</code>). When establishing the SSH connection, the creation of a tunnel must be explicitly requested with the <code
-              class="literal">-w any:any</code> option (<code
-              class="literal">any</code> can be replaced with the desired <code
-              class="literal">tun</code> device number). This requires the user to have administrator privilege on both sides, so as to be able to create the network device (in other words, the connection must be established as root).
+				Второй способ является более современным, и был введён с появлением OpenSSH 4.3; теперь стало возможным для OpenSSH создание виртуальных сетевых интерфейсов (<code
+              class="literal">tun*</code>) на обеих сторонах соединения SSH, и эти виртуальные интерфейсы можно настраивать так, как будто они являются физическими интерфейсами. Первоначально необходимо разрешить создание тунельной системы путём установки для <code
+              class="literal">PermitTunnel</code> опции “yes” в конфигурационном файле сервера SSH(<code
+              class="filename">/etc/ssh/sshd_config</code>). При устанавлении соединения SSH, необходимо ясно выразить желание создать тунель с опцией <code
+              class="literal">-w any:any</code> (<code
+              class="literal">any</code> может быть заменено на уже имеющееся в системе устройство с номером <code
+              class="literal">tun</code>). Такое решение требует наличия на обеих сторонах соединения SSH у пользователя прав администратора, так как необходимо создавать сетевые устройства (другими словами, соединение должно устанавливаться администратором).
 			</div><div
             class="para">
-				Both methods for creating a virtual private network over SSH are quite straightforward. However, the VPN they provide is not the most efficient available; in particular, it does not handle high levels of traffic very well.
+				Оба метода создания виртуальных частных сетей через SSH довольно просты. Однако, VPN поддерживает такие соединения не очень эффективно; в частности, не достигается высокий уровень скорости прохождения трафика, как бы хотелось.
 			</div><div
             class="para">
-				The explanation is that when a TCP/IP stack is encapsulated within a TCP/IP connection (for SSH), the TCP protocol is used twice, once for the SSH connection and once within the tunnel. This leads to problems, especially due to the way TCP adapts to network conditions by altering timeout delays. The following site describes the problem in more detail: <div
+				Объясняется это тем, что когда стек TCP/IP инкапсулируется внутрь соединения TCP/IP (для SSH), то протокол TCP используется дважды, сначала для соединения по SSH и затем уже внутри самого туннеля. Это приводит к проблемам, особенно из-за особенностей TCP подстраиваться под состояние сети путем изменения задержки тайм-аута. Следующий сайт описывает проблему более детально: <div
               class="url">→ <a
-                href="http://sites.inka.de/sites/bigred/devel/tcp-tcp.html">http://sites.inka.de/sites/bigred/devel/tcp-tcp.html</a></div> VPNs over SSH should therefore be restricted to one-off tunnels with no performance constraints.
+                href="http://sites.inka.de/sites/bigred/devel/tcp-tcp.html">http://sites.inka.de/sites/bigred/devel/tcp-tcp.html</a></div> Поэтому соединение VPN через SSH должно быть ограничено созданием разовых туннелей без ограничения производительности.
 			</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
@@ -542,8 +542,8 @@ Organizational Unit Name (eg, section) [Certificate authority]:</code><strong
 				</div><div
               class="example"><a
                 id="example.ppp-options.pptp"></a><p
-                class="title"><strong>Пример 10.2. The <code
-                    class="filename">/etc/ppp/options.pptp</code> file</strong></p><div
+                class="title"><strong>Пример 10.2. Файл <code
+                    class="filename">/etc/ppp/options.pptp</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 # PPP options used for a PPTP connection
@@ -554,8 +554,8 @@ nodeflate
 </pre></div></div><div
               class="example"><a
                 id="example.ppp-peers-falcot"></a><p
-                class="title"><strong>Пример 10.3. The <code
-                    class="filename">/etc/ppp/peers/falcot</code> file</strong></p><div
+                class="title"><strong>Пример 10.3. Файл <code
+                    class="filename">/etc/ppp/peers/falcot</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 # vpn.falcot.com is the PPTP server
@@ -570,8 +570,8 @@ ipparam falcot
 </pre></div></div><div
               class="example"><a
                 id="example.ppp-ip-up.d-falcot"></a><p
-                class="title"><strong>Пример 10.4. The <code
-                    class="filename">/etc/ppp/ip-up.d/falcot</code> file</strong></p><div
+                class="title"><strong>Пример 10.4. Файл <code
+                    class="filename">/etc/ppp/ip-up.d/falcot</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 # Create the route to the Falcot network
@@ -582,8 +582,8 @@ fi
 </pre></div></div><div
               class="example"><a
                 id="example.ppp-ip-down.d-falcot"></a><p
-                class="title"><strong>Пример 10.5. The <code
-                    class="filename">/etc/ppp/ip-down.d/falcot</code> file</strong></p><div
+                class="title"><strong>Пример 10.5. Файл <code
+                    class="filename">/etc/ppp/ip-down.d/falcot</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 # Delete the route to the Falcot network
@@ -595,7 +595,7 @@ fi
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
-                          class="emphasis"><em>SECURITY</em></span> MPPE</strong></p></div></div></div><div
+                          class="emphasis"><em>БЕЗОПАСНОСТЬ</em></span> MPPE</strong></p></div></div></div><div
                 class="para">
 					Securing PPTP involves using the MPPE feature (<span
                   class="emphasis"><em>Microsoft Point-to-Point Encryption</em></span>), which is available in official Debian kernels as a module.
@@ -607,7 +607,7 @@ fi
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.pptp-config-serveur"></a>10.2.4.2. Configuring the Server</h4></div></div></div><div
+                      id="sect.pptp-config-serveur"></a>10.2.4.2. Настройка сервера</h4></div></div></div><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
@@ -627,8 +627,8 @@ fi
 				</div><div
               class="example"><a
                 id="example.pptpd.conf"></a><p
-                class="title"><strong>Пример 10.6. The <code
-                    class="filename">/etc/pptpd.conf</code> file</strong></p><div
+                class="title"><strong>Пример 10.6. Файл <code
+                    class="filename">/etc/pptpd.conf</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 # TAG: speed
@@ -690,8 +690,8 @@ remoteip 192.168.0.200-250
 				</div><div
               class="example"><a
                 id="example.ppp-pptpd-options"></a><p
-                class="title"><strong>Пример 10.7. The <code
-                    class="filename">/etc/ppp/pptpd-options</code> file</strong></p><div
+                class="title"><strong>Пример 10.7. Файл <code
+                    class="filename">/etc/ppp/pptpd-options</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 ## turn pppd syslog debugging on
@@ -736,8 +736,8 @@ lock
 				</div><div
               class="example"><a
                 id="example.ppp-chap-secrets"></a><p
-                class="title"><strong>Пример 10.8. The <code
-                    class="filename">/etc/ppp/chap-secrets</code> file</strong></p><div
+                class="title"><strong>Пример 10.8. Файл <code
+                    class="filename">/etc/ppp/chap-secrets</code></strong></p><div
                 class="example-contents"><pre
                   class="programlisting">
 # Secrets for authentication using CHAP
@@ -748,7 +748,7 @@ FALCOT\\vpn     pptp    f@Lc3au     *
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
-                          class="emphasis"><em>SECURITY</em></span> PPTP vulnerabilities</strong></p></div></div></div><div
+                          class="emphasis"><em>БЕЗОПАСНОСТЬ</em></span> уязвимости PPTP</strong></p></div></div></div><div
                 class="para">
 					Microsoft's first PPTP implementation drew severe criticism because it had many security vulnerabilities; most have since then been fixed in more recent versions. The configuration documented in this section uses the latest version of the protocol. Be aware though that removing some options (such as <code
                   class="literal">require-mppe-128</code> and <code

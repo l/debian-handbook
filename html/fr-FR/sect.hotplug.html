@@ -114,33 +114,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="para">
 				C'est pour résoudre ces problématiques qu'<span
               class="emphasis"><em>udev</em></span> a été créé.
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>EN PRATIQUE</em></span> Gestion des cartes réseau</strong></p></div></div></div><div
-              class="para">
-				De nombreux ordinateurs intègrent plusieurs cartes réseau (parfois deux interfaces filaires et une interface Wi-Fi) et avec la prise en charge de <span
-                class="emphasis"><em>hotplug</em></span> sur la plupart des types de bus, le noyau Linux n'offre pas de garantie de nommage fixe sur ces interfaces réseau. Pourtant l'utilisateur qui veut configurer son réseau dans <code
-                class="filename">/etc/network/interfaces</code> a besoin d'un nom fixe !
-			</div><div
-              class="para">
-				Il serait pénible de demander à chaque utilisateur de se créer ses propres règles <span
-                class="emphasis"><em>udev</em></span> pour régler ce problème, c'est pourquoi <span
-                class="emphasis"><em>udev</em></span> a été configuré d'une manière un peu particulière : au premier démarrage (et plus généralement à chaque fois qu'une carte jamais rencontrée apparaît), il utilise le nom de l'interface réseau et son adresse MAC pour créer des nouvelles règles qui, aux prochains redémarrages, seront employées pour réattribuer systématiquement les mêmes noms. Ces règles sont stockées dans <code
-                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code>.
-			</div><div
-              class="para">
-				Ce mécanisme a des effets de bord qu'il est bon de connaître. Considérons le cas d'un ordinateur qui n'a qu'une seule carte réseau PCI. L'interface réseau se nomme logiquement <code
-                class="literal">eth0</code>. La carte tombe en panne et l'administrateur la remplace, la nouvelle carte a donc une nouvelle adresse MAC. Puisque l'ancienne carte avait reçu le nom <code
-                class="literal">eth0</code>, la nouvelle se verra attribuer le nom <code
-                class="literal">eth1</code> alors même que la carte <code
-                class="literal">eth0</code> ne réapparaîtra jamais (et le réseau ne sera pas fonctionnel car <code
-                class="filename">/etc/network/interfaces</code> configure vraisemblablement une interface <code
-                class="literal">eth0</code>). Dans ces cas, il suffit de supprimer le fichier <code
-                class="filename">/etc/udev/rules.d/70-persistent-net.rules</code> avant de redémarrer l'ordinateur et la nouvelle carte recevra le nom <code
-                class="literal">eth0</code> attendu.
-			</div></div></div><div
+			</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
@@ -332,8 +306,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               class="command">udevadm info -a -n /dev/sdc</code> (en remplaçant évidemment <em
               class="replaceable">/dev/sdc</em> par le nom réel affecté à la clé).
 			</div><pre
-            class="screen">
-<code
+            class="screen"><code
               class="computeroutput"># </code><strong
               class="userinput"><code>udevadm info -a -n /dev/sdc</code></strong>
 <code
@@ -388,10 +361,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             class="para">
 				Pour constituer une ligne de règle, on peut employer des tests sur les variables du périphérique ainsi que celles d'un seul des périphériques parents. L'exemple ci-dessus permet notamment de créer deux règles comme celles-ci :
 			</div><pre
-            class="programlisting">
-KERNEL=="sd?", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="clef_usb/disk"
-KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="clef_usb/part%n"
-</pre><div
+            class="programlisting">KERNEL=="sd?", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="clef_usb/disk"
+KERNEL=="sd?[0-9]", SUBSYSTEM=="block", ATTRS{serial}=="M004021000001", SYMLINK+="clef_usb/part%n"</pre><div
             class="para">
 				Une fois ces règles placées dans un fichier, nommé par exemple <code
               class="filename">/etc/udev/rules.d/010_local.rules</code>, il suffit de retirer puis réinsérer la clé USB. On peut alors constater que <code

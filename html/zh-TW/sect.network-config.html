@@ -22,7 +22,7 @@
         content="組態, 在地化, 地區設定, 網路, 名稱解析, 使用者, 群組, 帳號, 命令列解析器, Shell, 列印, 啟動程式, 編譯核心" /><link
         rel="home"
         href="index.html"
-        title="The Debian Administrator's Handbook" /><link
+        title="Debian管理者手冊" /><link
         rel="up"
         href="basic-configuration.html"
         title="章 8. 基本組態：網路、帳號、列印..." /><link
@@ -63,7 +63,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           class="previous"><a
             accesskey="p"
             href="basic-configuration.html"><strong>前一頁</strong></a></li><li
-          class="home">The Debian Administrator's Handbook</li><li
+          class="home">Debian管理者手冊</li><li
           class="next"><a
             accesskey="n"
             href="sect.hostname-name-service.html"><strong>下一頁</strong></a></li></ul><div
@@ -138,39 +138,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
               href="sect.ipv6.html">節 10.5, “IPv6”</a>，其概念是一樣的。
 		</div></div><div
           class="para">
-			初始安裝時會自動組態網路，<code
-            class="filename">/etc/network/interfaces</code> 檔案內已有完備的組態。以 <code
-            class="literal">auto</code> 起頭的資料在開機時自動被 <span
-            class="pkg pkg">ifupdown</span> 組態，且組態它的 <code
-            class="filename">/etc/init.d/networking</code> init 腳本。通常是 <code
-            class="literal">eth0</code>，指向第一個 Ethernet 網卡。
+			The network is automatically configured during the initial installation. If Network Manager gets installed (which is generally the case for full desktop installations), then it might be that no configuration is actually required (for example, if you rely on DHCP on a wired connection and have no specific requirements). If a configuration is required (for example for a WiFi interface), then it will create the appropriate file in <code
+            class="filename">/etc/NetworkManager/system-connections/</code>.
+		</div><div
+          class="para">
+			If Network Manager is not installed, then the installer will configure <span
+            class="pkg pkg">ifupdown</span> by creating the <code
+            class="filename">/etc/network/interfaces</code> file. A line starting with <code
+            class="literal">auto</code> gives a list of interfaces to be automatically configured on boot by the <code
+            class="literal">networking</code> service.
+		</div><div
+          class="para">
+			In a server context, <span
+            class="pkg pkg">ifupdown</span> is thus the network configuration tool that you usually get. That is why we will cover it in the next sections.
 		</div><a
-          id="id-1.11.6.4"
-          class="indexterm"></a><a
-          id="id-1.11.6.5"
-          class="indexterm"></a><a
           id="id-1.11.6.6"
           class="indexterm"></a><a
           id="id-1.11.6.7"
+          class="indexterm"></a><a
+          id="id-1.11.6.8"
           class="indexterm"></a><div
           class="sidebar"><div
             class="titlepage"><div><div><p
                   class="title"><strong><span
                       class="emphasis"><em>其他</em></span> NetworkManager</strong></p></div></div></div><a
-            id="id-1.11.6.8.2"
+            id="id-1.11.6.9.2"
             class="indexterm"></a><div
             class="para">
-			漫遊設定推薦使用的網路管理器 (見 <a
+			If Network Manager is particularly recommended in roaming setups (see <a
               class="xref"
-              href="sect.network-config.html#sect.roaming-network-config">節 8.2.4, “網路自動組態漫遊使用者”</a>)，同樣適用於預設的網路管理工具。啟動電腦時以人工啟用 <code
-              class="filename">.ini</code> 之類的檔案在 <code
-              class="filename">/etc/NetworkManager/system-connections/</code> 之內或經由圖形工具 (<code
-              class="command">nm-connection-editor</code>)，可以同時新增 “系統連結”。想要網路管理器處理它們時，記得關閉 <code
-              class="filename">/etc/network/interfaces</code> 內的所有條目。<div
+              href="sect.network-config.html#sect.roaming-network-config">節 8.2.5, “網路自動組態漫遊使用者”</a>), it is also perfectly usable as the default network management tool. You can create “System connections” that are used as soon as the computer boots either manually with a <code
+              class="filename">.ini</code>-like file in <code
+              class="filename">/etc/NetworkManager/system-connections/</code> or through a graphical tool (<code
+              class="command">nm-connection-editor</code>). Just remember to deactivate all entries in <code
+              class="filename">/etc/network/interfaces</code> if you want Network Manager to handle them. <div
               class="url">→ <a
-                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings/jessie</a></div> <div
+                href="https://wiki.gnome.org/Projects/NetworkManager/SystemSettings">https://wiki.gnome.org/Projects/NetworkManager/SystemSettings</a></div> <div
               class="url">→ <a
-                href="https://developer.gnome.org/NetworkManager/0.9/ref-settings.html">https://developer.gnome.org/NetworkManager/0.9/ref-settings.html</a></div>
+                href="https://developer.gnome.org/NetworkManager/1.6/ref-settings.html">https://developer.gnome.org/NetworkManager/1.6/ref-settings.html</a></div>
 		</div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
@@ -180,18 +185,54 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
 				電腦使用 Ethernet 網路卡時，必須以下列的方法之一組態 IP 網路。最簡單的方式是以 DHCP 動態組態，需要在地網路的 DHCP 伺服器。可以使用與下例 <code
               class="literal">hostname</code> 設定的主機名稱。DHCP 伺服器就會送出組態設定給適當的網路。
 			</div><a
-            id="id-1.11.6.9.3"
+            id="id-1.11.6.10.3"
             class="indexterm"></a><a
-            id="id-1.11.6.9.4"
+            id="id-1.11.6.10.4"
             class="indexterm"></a><div
             class="example"><a
               id="example.config-dhcp"></a><p
               class="title"><strong>範例 8.1. DHCP 組態</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet dhcp
-  hostname arrakis</pre></div></div><div
+auto enp0s31f6
+iface enp0s31f6 inet dhcp
+  hostname arrakis
+</pre></div></div><div
+            class="sidebar"><div
+              class="titlepage"><div><div><p
+                    class="title"><strong><span
+                        class="emphasis"><em>IN PRACTICE</em></span> Names of network interfaces</strong></p></div></div></div><a
+              id="id-1.11.6.10.6.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.3"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.4"
+              class="indexterm"></a><a
+              id="id-1.11.6.10.6.5"
+              class="indexterm"></a><div
+              class="para">
+				By default, the kernel attributes generic names such a <code
+                class="literal">eth0</code> (for wired Ethernet) or <code
+                class="literal">wlan0</code> (for WiFi) to the network interfaces. The number in those names is a simple incremental counter representing the order in which they have been detected. With modern hardware, that order might change for each reboot and thus the default names are not reliable.
+			</div><div
+              class="para">
+				Fortunately, systemd and udev are able to rename the interfaces as soon as they appear. The default name policy is defined by <code
+                class="filename">/lib/systemd/network/99-default.link</code> (see <span
+                class="citerefentry"><span
+                  class="refentrytitle">systemd.link</span>(5)</span> for an explanation of the <code
+                class="literal">NamePolicy</code> entry in that file). In practice, the names are often based on the device's physical location (as guessed by where they are connected) and you will see names starting with <code
+                class="literal">en</code> for wired ethernet and <code
+                class="literal">wl</code> for WiFi. In the example above, the rest of the name indicates, in abbreviated form, a PCI (<code
+                class="literal">p</code>) bus number (<code
+                class="literal">0</code>), a slot number (<code
+                class="literal">s31</code>), a function number (<code
+                class="literal">f6</code>).
+			</div><div
+              class="para">
+				Obviously, you are free to override this policy and/or to complement it to customize the names of some specific interfaces. You can find out the names of the network interfaces in the output of <code
+                class="command">ip addr</code> (or as filenames in <code
+                class="filename">/sys/class/net/</code>).
+			</div></div><div
             class="para">
 				“靜態” 組態必須以固定方式指明網路設定。至少包括 IP 網址及次網路遮罩；有時也列出網路及廣播位址。必須以閘道指出連結外部的路由器。
 			</div><div
@@ -200,13 +241,14 @@ iface eth0 inet dhcp
               class="title"><strong>範例 8.2. 靜態組態</strong></p><div
               class="example-contents"><pre
                 class="programlisting">
-auto eth0
-iface eth0 inet static
+auto enp0s31f6
+iface enp0s31f6 inet static
   address 192.168.0.3
   netmask 255.255.255.0
   broadcast 192.168.0.255
   network 192.168.0.0
-  gateway 192.168.0.1</pre></div></div><div
+  gateway 192.168.0.1
+</pre></div></div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
@@ -220,14 +262,97 @@ iface eth0 inet static
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.ppp-rtc"></a>8.2.2. 經由 PSTN 數據機的 PPP 連結</h3></div></div></div><a
-            id="id-1.11.6.10.2"
+                    id="sect.interface-wireless"></a>8.2.2. Wireless Interface</h3></div></div></div><a
+            id="id-1.11.6.11.2"
+            class="indexterm"></a><div
+            class="para">
+				Getting wireless network cards to work can be a bit more challenging. First of all, they often require the installation of proprietary firmwares which are not installed by default in Debian. Then wireless networks rely on cryptography to restrict access to authorized users only, this implies storing some secret key in the network configuration. Let's tackle those topics one by one.
+			</div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.4"></a>8.2.2.1. Installing the required firmwares</h4></div></div></div><a
+              id="id-1.11.6.11.4.2"
+              class="indexterm"></a><a
+              id="id-1.11.6.11.4.3"
+              class="indexterm"></a><div
+              class="para">
+					First you have to enable the non-free repository in APT's sources.list file: see <a
+                class="xref"
+                href="apt.html#sect.apt-sources.list">節 6.1, “寫入 <code
+                  class="filename">sources.list</code> 檔案”</a> for details about this file. Many firmware are proprietary and are thus located in this repository. You can try to skip this step if you want, but if the next step doesn't find the required firmware, retry after having enabled the non-free section.
+				</div><div
+              class="para">
+					Then you have to install the appropriate <code
+                class="literal">firmware-*</code> packages. If you don't know which package you need, you can install the <span
+                class="pkg pkg">isenkram</span> package and run its <code
+                class="command">isenkram-autoinstall-firmware</code> command. The packages are often named after the hardware manufacturer or the corresponding kernel module: <span
+                class="pkg pkg">firmware-iwlwifi</span> for Intel wireless cards, <span
+                class="pkg pkg">firmware-atheros</span> for Qualcomm Atheros, <span
+                class="pkg pkg">firmware-ralink</span> for Ralink, etc. A reboot is then recommended because the kernel driver usually looks for the firmware files when it is first loaded and no longer afterwards.
+				</div></div><div
+            class="section"><div
+              class="titlepage"><div><div><h4
+                    class="title"><a
+                      id="id-1.11.6.11.5"></a>8.2.2.2. Wireless specific entries in <code
+                      class="filename">/etc/network/interfaces</code></h4></div></div></div><a
+              id="id-1.11.6.11.5.2"
+              class="indexterm"></a><div
+              class="para">
+					<span
+                class="emphasis"><em>ifupdown</em></span> is able to manage wireless interfaces but it needs the help of the <span
+                class="pkg pkg">wpasupplicant</span> package which provides the required integration between <span
+                class="emphasis"><em>ifupdown</em></span> and the <code
+                class="command">wpa_supplicant</code> command used to configure the wireless interfaces (when using WPA/WPA2 encryption). The usual entry in <code
+                class="filename">/etc/network/interfaces</code> needs to be extended with two supplementary parameters to specify the name of the wireless network (aka its SSID) and the <span
+                class="emphasis"><em>Pre-Shared Key</em></span> (PSK).
+				</div><div
+              class="example"><a
+                id="example.config-wireless"></a><p
+                class="title"><strong>範例 8.3. DHCP configuration for a wireless interface</strong></p><div
+                class="example-contents"><pre
+                  class="programlisting">
+auto wlp4s0
+iface wlp4s0 inet dhcp
+  wpa-ssid Falcot
+  wpa-psk ccb290fd4fe6b22935cbae31449e050edd02ad44627b16ce0151668f5f53c01b
+</pre></div></div><div
+              class="para">
+					The <code
+                class="literal">wpa-psk</code> parameter can contain either the plain text passphrase or its hashed version generated with <code
+                class="command">wpa_passphrase <em
+                  class="replaceable">SSID</em> <em
+                  class="replaceable">passphrase</em></code>. If you use an unencrypted wireless connection, then you should put a <code
+                class="literal">wpa-key-mgmt NONE</code> and no <code
+                class="literal">wpa-psk</code> entry. For more information about the possible configuration options, have a look at <code
+                class="filename">/usr/share/doc/wpasupplicant/README.Debian.gz</code>.
+				</div><div
+              class="para">
+					At this point, you should consider restricting the read permissions on <code
+                class="filename">/etc/network/interfaces</code> to the root user only since the file contains a private key that not all users should have access to.
+				</div><div
+              class="sidebar"><div
+                class="titlepage"><div><div><p
+                      class="title"><strong><span
+                          class="emphasis"><em>HISTORY</em></span> WEP encryption</strong></p></div></div></div><a
+                id="id-1.11.6.11.5.7.2"
+                class="indexterm"></a><div
+                class="para">
+					Usage of the deprecated WEP encryption protocol is possible with the <span
+                  class="pkg pkg">wireless-tools</span> package. See <code
+                  class="filename">/usr/share/doc/wireless-tools/README.Debian</code> for instructions.
+				</div></div></div></div><div
+          class="section"><div
+            class="titlepage"><div><div><h3
+                  class="title"><a
+                    id="sect.ppp-rtc"></a>8.2.3. 經由 PSTN 數據機的 PPP 連結</h3></div></div></div><a
+            id="id-1.11.6.12.2"
             class="indexterm"></a><a
-            id="id-1.11.6.10.3"
+            id="id-1.11.6.12.3"
             class="indexterm"></a><a
-            id="id-1.11.6.10.4"
+            id="id-1.11.6.12.4"
             class="indexterm"></a><a
-            id="id-1.11.6.10.5"
+            id="id-1.11.6.12.5"
             class="indexterm"></a><div
             class="para">
 				點對點 (PPP) 連結建立斷續的連結；這是電話數據機最常見的連結方式 (“PSTN 數據機”，經由公共交換電話網路)。
@@ -238,9 +363,9 @@ iface eth0 inet static
               class="literal">提供者</code> (做為網際網路服務提供者)。對認證協定有疑義時，選擇 <span
               class="emphasis"><em>PAP</em></span>：大多數網際網路服務提供者使用它。
 			</div><a
-            id="id-1.11.6.10.8"
+            id="id-1.11.6.12.8"
             class="indexterm"></a><a
-            id="id-1.11.6.10.9"
+            id="id-1.11.6.12.9"
             class="indexterm"></a><div
             class="para">
 				組態之後，就可以使用 <code
@@ -249,19 +374,19 @@ iface eth0 inet static
               class="command">poff</code> 命令斷線。這兩個令可以被根使用者執行，或位在 <code
               class="literal">dip</code> 群組的其他使用者。
 			</div><a
-            id="id-1.11.6.10.11"
+            id="id-1.11.6.12.11"
             class="indexterm"></a><a
-            id="id-1.11.6.10.12"
+            id="id-1.11.6.12.12"
             class="indexterm"></a></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.adsl"></a>8.2.3. 以 ADSL 數據連結</h3></div></div></div><a
-            id="id-1.11.6.11.2"
+                    id="sect.adsl"></a>8.2.4. 以 ADSL 數據連結</h3></div></div></div><a
+            id="id-1.11.6.13.2"
             class="indexterm"></a><a
-            id="id-1.11.6.11.3"
+            id="id-1.11.6.13.3"
             class="indexterm"></a><a
-            id="id-1.11.6.11.4"
+            id="id-1.11.6.13.4"
             class="indexterm"></a><div
             class="para">
 				“ADSL 數據機” 一辭包括不同功能的多種設備。使用 Linux 的數據機有 Ethernet 介面 (不祗是 USB 介面)。這是極為普遍的數據機；大部份的 ADSL 網際網路服務商出借 (或出租) 一個含 Ethernet 介面的 “盒子”。視其類型而有不同的設定。
@@ -269,10 +394,10 @@ iface eth0 inet static
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pppoe"></a>8.2.3.1. 支援 PPPOE 的數據機</h4></div></div></div><a
-              id="id-1.11.6.11.6.2"
+                      id="sect.adsl-pppoe"></a>8.2.4.1. 支援 PPPOE 的數據機</h4></div></div></div><a
+              id="id-1.11.6.13.6.2"
               class="indexterm"></a><a
-              id="id-1.11.6.11.6.3"
+              id="id-1.11.6.13.6.3"
               class="indexterm"></a><div
               class="para">
 					部份 Ethernet 數據機使用 PPPOE 協定 (乙太網上的對等協定，Point to Point Protocol over Ethernet)。<code
@@ -286,25 +411,23 @@ iface eth0 inet static
                 class="command">pon dsl-provider</code> 開啟 ADSL 連結，並以命令 <code
                 class="command">poff dsl-provider</code> 斷線。
 				</div><a
-              id="id-1.11.6.11.6.6"
+              id="id-1.11.6.13.6.6"
               class="indexterm"></a><div
               class="sidebar"><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>秘訣</em></span>啟動 <code
                           class="command">ppp</code> 於開機時</strong></p></div></div></div><a
-                id="id-1.11.6.11.6.7.2"
+                id="id-1.11.6.13.6.7.2"
                 class="indexterm"></a><a
-                id="id-1.11.6.11.6.7.3"
+                id="id-1.11.6.13.6.7.3"
                 class="indexterm"></a><div
                 class="para">
 					PPP 在 ADSL 上的連結，其本意是斷斷續續的。因為不是依照連線時間收費，所以不必隨時打開它。標準的方法是使用 init 系統。
 				</div><div
                 class="para">
-					在 <span
-                  class="distribution distribution">Jessie</span> 預設的 init 系統是 <code
-                  class="command">systemd</code>。在 ADSL 連結自動重新啟動很簡單，新增一個像 <code
-                  class="filename">/etc/systemd/system/adsl-connection.service</code> 之類的 “unit file” 就可以了，其內容類似以下的：
+					With systemd, adding an automatically restarting task for the ADSL connection is a simple matter of creating a “unit file” such as <code
+                  class="filename">/etc/systemd/system/adsl-connection.service</code>, with contents such as the following:
 				</div><pre
                 class="programlisting">[Unit]
 Description=ADSL connection
@@ -336,8 +459,8 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-pptp"></a>8.2.3.2. 支援 PPTP 的數據機</h4></div></div></div><a
-              id="id-1.11.6.11.7.2"
+                      id="sect.adsl-pptp"></a>8.2.4.2. 支援 PPTP 的數據機</h4></div></div></div><a
+              id="id-1.11.6.13.7.2"
               class="indexterm"></a><div
               class="para">
 					PPTP (點對點隧道協議，Point-to-Point Tunneling Protocol) 協定由微軟創製。在 ADSL 的初期就已布置，取代 PPPOE。若被強迫使用此協定，參見 <a
@@ -347,7 +470,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
             class="section"><div
               class="titlepage"><div><div><h4
                     class="title"><a
-                      id="sect.adsl-dhcp"></a>8.2.3.3. 支援 DHCP 數據機</h4></div></div></div><div
+                      id="sect.adsl-dhcp"></a>8.2.4.3. 支援 DHCP 數據機</h4></div></div></div><div
               class="para">
 					以 Ethernet 纜線 (跳線) 連線電腦的數據機，可以在電腦以 DHCP 組態網路連結；數據機自動成為閘道且執行路由的功能 (就是管理電腦與網際網路的流量)。
 				</div><div
@@ -355,7 +478,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
                 class="titlepage"><div><div><p
                       class="title"><strong><span
                           class="emphasis"><em>基本</em></span> 直接連結 Ethernet 的跳線</strong></p></div></div></div><a
-                id="id-1.11.6.11.8.3.2"
+                id="id-1.11.6.13.8.3.2"
                 class="indexterm"></a><div
                 class="para">
 					電腦網路卡經由特定纜線接收資料，也從同樣的管道送出資料。電腦連上地區網路後，通常以纜線 (直接連線或跳線) 連結網路上與中繼器或交換器。若想直接連結兩部電腦 (不經過交換器或中繼器)，必須經由網路卡送出資料至接收端的另個網路卡，反之亦然。這就是跳線的作用，以及使用它的原因。
@@ -369,10 +492,10 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.roaming-network-config"></a>8.2.4. 網路自動組態漫遊使用者</h3></div></div></div><a
-            id="id-1.11.6.12.2"
+                    id="sect.roaming-network-config"></a>8.2.5. 網路自動組態漫遊使用者</h3></div></div></div><a
+            id="id-1.11.6.14.2"
             class="indexterm"></a><a
-            id="id-1.11.6.12.3"
+            id="id-1.11.6.14.3"
             class="indexterm"></a><div
             class="para">
 				Falcot 公司的工程師擁有專業用的筆電，同時也在家裡使用它。根據使用場所的不同，網路有不同的組態方式。在家裡，可能使用 WiFi 網路 (以 WPA 鑰保護)，在工作場合則使用較安全與頻寬更充足的固接網路。
@@ -391,21 +514,7 @@ adsl:2345:respawn:/usr/sbin/pppd call dsl-provider</pre><div
 			</div><div
             class="para">
 				在初始安裝階段選擇 “桌面環境”的工作，就能夠預設安裝此程式。
-			</div><div
-            class="sidebar"><div
-              class="titlepage"><div><div><p
-                    class="title"><strong><span
-                        class="emphasis"><em>其他</em></span> 由“網路設定檔”組態</strong></p></div></div></div><a
-              id="id-1.11.6.12.9.2"
-              class="indexterm"></a><div
-              class="para">
-				更進階的使用者可能布望試用 <span
-                class="pkg pkg">guessnet</span> 套件做為網路自動組態的工具。以一組測試腳本決定啟用與組態的網路設定檔。
-			</div><div
-              class="para">
-				以人工選定網路設定的使用者，將偏向使用在同名套件內找到的 <span
-                class="pkg pkg">netenv</span> 程式。
-			</div></div></div></div><ul
+			</div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"
