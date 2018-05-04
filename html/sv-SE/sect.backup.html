@@ -28,7 +28,7 @@
         title="Kapitel 9. Unixtjänster" /><link
         rel="prev"
         href="sect.quotas.html"
-        title="9.9. Quotas" /><link
+        title="9.9. Kvoter" /><link
         rel="next"
         href="sect.hotplug.html"
         title="9.11. Hot Plugging: hotplug" /><meta
@@ -72,17 +72,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="title"><a
                   id="sect.backup"></a>9.10. Säkerhetskopia</h2></div></div></div><div
           class="para">
-			Making backups is one of the main responsibilities of any administrator, but it is a complex subject, involving powerful tools which are often difficult to master.
+			Att ta säkerhetskopior är en av huvuduppgifterna för en administratör, men det är ett komplex område och involverar kraftfulla verktyg som ofta är svårhanterliga.
 		</div><a
           id="id-1.12.13.3"
           class="indexterm"></a><a
           id="id-1.12.13.4"
           class="indexterm"></a><div
           class="para">
-			Many programs exist, such as <code
+			Det finns många program, som <code
             class="command">amanda</code>, <code
             class="command">bacula</code>, <code
-            class="command">BackupPC</code>. Those are client/server system featuring many options, whose configuration is rather difficult. Some of them provide user-friendly web interfaces to mitigate this. But Debian contains dozens of other backup software covering all possible use cases, as you can easily confirm with <code
+            class="command">BackupPC</code>. De är klient/serversystem som innehåller många alternativ vars konfiguration är ganska svår. En del av dem tillhandahåller användarvänliga webbgränssnitt för att sköta dem. Men Debian innehåller dussintals andra säkerhetskopior som täcker alla möjliga fall, som du enkelt kan bekräfta med <code
             class="command">apt-cache search backup</code>.
 		</div><a
           id="id-1.12.13.6"
@@ -92,47 +92,47 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           id="id-1.12.13.8"
           class="indexterm"></a><div
           class="para">
-			Rather than detailing some of them, this section will present the thoughts of the Falcot Corp administrators when they defined their backup strategy.
+			Istället för att i detalj beskriva dem kommer detta avsnitt att presentera tankegången hos Falcot Corp-administratörerna när de definiera sin säkerhetsstrategi.
 		</div><div
           class="para">
-			At Falcot Corp, backups have two goals: recovering erroneously deleted files, and quickly restoring any computer (server or desktop) whose hard drive has failed.
+			På Falcot Corp har säkerhetskopior två mål: att återskapa felaktigt borttagna filer och att snabbt återställa datorer (server eller skrivbord) där hårddisken har fallerat.
 		</div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="id-1.12.13.11"></a>9.10.1. Backing Up with <code
+                    id="id-1.12.13.11"></a>9.10.1. Säkerhetskopiera med <code
                     class="command">rsync</code></h3></div></div></div><div
             class="para">
-				Backups on tape having been deemed too slow and costly, data will be backed up on hard drives on a dedicated server, on which the use of software RAID (see <a
+				Säkerhetskopior på band har bedömts vara för långsamma och kostsamma, data kommer att säkerhetskopieras på hårdiskar på en dedikerade server, för vilken användningen av mjukvaru-RAID (se <a
               class="xref"
-              href="advanced-administration.html#sect.raid-soft">Avsnitt 12.1.1, ”Software RAID”</a>) will protect the data from hard drive failure. Desktop computers are not backed up individually, but users are advised that their personal account on their department's file server will be backed up. The <code
-              class="command">rsync</code> command (from the package of the same name) is used daily to back up these different servers.
+              href="advanced-administration.html#sect.raid-soft">Avsnitt 12.1.1, ”Software RAID”</a> kommer att skydda data från hårddiskfel. Normalt tas inte säkerhetskopior för skrivbordsdatorer , men det rekommenderas att användarnas personliga konton på deras avdelnings filserver säkerhetkopieras. Kommandot <code
+              class="command">rsync</code> från paketet med samma namn) används dagligen för att ta säkerhetskopior av de olika servrarna.
 			</div><a
             id="id-1.12.13.11.3"
             class="indexterm"></a><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>BACK TO BASICS</em></span> The hard link, a second name for the file</strong></p></div></div></div><a
+                        class="emphasis"><em>GRUNDLÄGGANDE</em></span> Hårdlänken, ett till namn för filen</strong></p></div></div></div><a
               id="id-1.12.13.11.4.2"
               class="indexterm"></a><a
               id="id-1.12.13.11.4.3"
               class="indexterm"></a><div
               class="para">
-				A hard link, as opposed to a symbolic link, cannot be differentiated from the linked file. Creating a hard link is essentially the same as giving an existing file a second name. This is why the deletion of a hard link only removes one of the names associated with the file. As long as another name is still assigned to the file, the data therein remain present on the filesystem. It is interesting to note that, unlike a copy, the hard link does not take up additional space on the hard drive.
+				En hårdlink kan i motsats till en mjuklänk inte skiljas från den länkade filen. Att skapa en hårdlänk är i praktiken detsamma som att ge en befintlig fil ett till namn. Det är därför borttagningen av en hårdlänk endast tar bort en av namnen associerat med filen.Så länge som ett annat namn fortfarande är kopplat till filen kommer data därinne att kvarstå på filsystemet. Det är intressant att observera att, istället för en kopia så tar inte hårdlänken upp ytterligare utrymme på hårddisken.
 			</div><div
               class="para">
-				A hard link is created with the <code
+				En hårdlänk skapas med kommandot <code
                 class="command">ln <em
-                  class="replaceable">target</em> <em
-                  class="replaceable">link</em></code> command. The <em
-                class="replaceable">link</em> file is then a new name for the <em
-                class="replaceable">target</em> file. Hard links can only be created on the same filesystem, while symbolic links are not subject to this limitation.
+                  class="replaceable">mål</em> <em
+                  class="replaceable">länk</em></code>. Filen <em
+                class="replaceable">länk</em> är sedan det nya namnet för <em
+                class="replaceable">mål</em>. Hårdlänken kan endast skapas på samma filsystem, med symboliska länkar inte har denna begränsning.
 			</div></div><div
             class="para">
-				The available hard drive space prohibits implementation of a complete daily backup. As such, the <code
-              class="command">rsync</code> command is preceded by a duplication of the content of the previous backup with hard links, which prevents usage of too much hard drive space. The <code
-              class="command">rsync</code> process then only replaces files that have been modified since the last backup. With this mechanism a great number of backups can be kept in a small amount of space. Since all backups are immediately available and accessible (for example, in different directories of a given share on the network), you can quickly make comparisons between two given dates.
+				Det tillgängliga hårddiskutrymmet förhindrar implementationen av en komplett daglig säkerhetskopia. Som sådant är kommandot <code
+              class="command">rsync</code> föregås av en duplicering av innehållet av föregående säkerhetskopia med hårdlänkar, vilka förhindrar användning av för mycket hårddiskutrymme. Processen <code
+              class="command">rsync</code> ersätter då endast filer som har modifierats sedan senaste säkerhetskopian. Med denna mekanism kommer ett stort antal säkerhetskopior att kunna lagras med ett litet utrymme. Eftersom alla säkerhetskopior är tillgängliga och direkt åtkomliga (till exempel, i olika kataloger för en given utdelning av nätverket) kan du snabbt utföra jämförelser mellan två givna datum.
 			</div><a
             id="id-1.12.13.11.6"
             class="indexterm"></a><a
@@ -141,20 +141,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
             id="id-1.12.13.11.8"
             class="indexterm"></a><div
             class="para">
-				This backup mechanism is easily implemented with the <code
-              class="command">dirvish</code> program. It uses a backup storage space (“bank” in its vocabulary) in which it places timestamped copies of sets of backup files (these sets are called “vaults” in the dirvish documentation).
+				Mekanismen för säkerhetskopia är enkelt implementerat med programmet <code
+              class="command">dirvish</code>. Det använder ett säkerhetslagringsutrymme (”bank” i vokabulären) i vilken den placerar kopior av säkerhetskopierade filer som kallas ”valv” i dirvish-dokumentationen.
 			</div><div
             class="para">
-				The main configuration is in the <code
-              class="filename">/etc/dirvish/master.conf</code> file. It defines the location of the backup storage space, the list of “vaults” to manage, and default values for expiration of the backups. The rest of the configuration is located in the <code
+				Huvudkonfigurationen finns i filen <code
+              class="filename">/etc/dirvish/master.conf</code>. Den definierar säkerhetskopiornas lagringsutrymme, listan av ”valv“ att hantera och standardvärden för utgången av säkerhetskopior. Resten av konfigurationen finns i filerna <code
               class="filename"><em
                 class="replaceable">bank</em>/<em
-                class="replaceable">vault</em>/dirvish/default.conf</code> files and contains the specific configuration for the corresponding set of files.
+                class="replaceable">valv</em>/dirvish/default.conf</code> och innehåller specifik konfiguration för den motsvarande filmängden.
 			</div><div
             class="example"><a
               id="example.dirvish-master"></a><p
-              class="title"><strong>Exempel 9.3. The <code
-                  class="filename">/etc/dirvish/master.conf</code> file</strong></p><div
+              class="title"><strong>Exempel 9.3. Filen <code
+                  class="filename">/etc/dirvish/master.conf</code></strong></p><div
               class="example-contents"><pre
                 class="programlisting">bank:
     /backup
@@ -169,32 +169,31 @@ expire-rule:
 #   MIN HR    DOM MON       DOW  STRFTIME_FMT
     *   *     *   *         1    +3 months
     *   *     1-7 *         1    +1 year
-    *   *     1-7 1,4,7,10  1
-</pre></div></div><div
+    *   *     1-7 1,4,7,10  1</pre></div></div><div
             class="para">
-				The <code
-              class="literal">bank</code> setting indicates the directory in which the backups are stored. The <code
-              class="literal">exclude</code> setting allows you to indicate files (or file types) to exclude from the backup. The <code
-              class="literal">Runall</code> is a list of file sets to backup with a time-stamp for each set, which allows you to assign the correct date to the copy, in case the backup is not triggered at precisely the assigned time. You have to indicate a time just before the actual execution time (which is, by default, 10:04 pm in Debian, according to <code
-              class="filename">/etc/cron.d/dirvish</code>). Finally, the <code
-              class="literal">expire-default</code> and <code
-              class="literal">expire-rule</code> settings define the expiration policy for backups. The above example keeps forever backups that are generated on the first Sunday of each quarter, deletes after one year those from the first Sunday of each month, and after 3 months those from other Sundays. Other daily backups are kept for 15 days. The order of the rules does matter, Dirvish uses the last matching rule, or the <code
-              class="literal">expire-default</code> one if no other <code
-              class="literal">expire-rule</code> matches.
+				Inställningen <code
+              class="literal">bank</code> indikerar katalogen i vilken säkerhetskopian är lagrad. Inställningen <code
+              class="literal">exclude</code> låter dig utesluta filer (eller filtyper) att utesluta från säkerhetskopian. <code
+              class="literal">Runall</code> är en lista över filmängden att säkerhetskopiera med en tidsstämpel för varje mängd som låter dig tilldela korrekt datum till kopian, i det fall säkerhetskopian inte löses ut precis vid tilldelad tid. Du måste ange en tid för precis innan själva körtiden (vilken, som standardvärde, är 10.04 pm i Debian enligt <code
+              class="filename">/etc/cron.d/dirvish</code>). Slutligen, definierar inställningarna <code
+              class="literal">expire-default</code> och <code
+              class="literal">expire-rule</code> reglerna för då tidsgränsen passeras för säkerhetskopian. Exemplet ovan behåller för evigt de som generas den första söndagen i varje kvartal, och tar efter ett år bort dem från de från den första söndagen i varje månad, och efter 3 månader de från andra söndagar. Andra dagliga säkerhetskopior behålls i 15 dagar. Reglernas ordning har betydelse. Dirvish använder den senast matchande regeln eller <code
+              class="literal">expire-default</code> om ingen annan <code
+              class="literal">expire-rule</code> matchar.
 			</div><div
             class="sidebar"><div
               class="titlepage"><div><div><p
                     class="title"><strong><span
-                        class="emphasis"><em>IN PRACTICE</em></span> Scheduled expiration</strong></p></div></div></div><div
+                        class="emphasis"><em>I PRAKTIKEN</em></span> Schemalagd tidsgräns</strong></p></div></div></div><div
               class="para">
-				The expiration rules are not used by <code
-                class="command">dirvish-expire</code> to do its job. In reality, the expiration rules are applied when creating a new backup copy to define the expiration date associated with that copy. <code
-                class="command">dirvish-expire</code> simply peruses the stored copies and deletes those for which the expiration date has passed.
+				Reglerna för tidsgränser används inte av <code
+                class="command">dirvish-expire</code> för att utföra dess jobb. De tillämpas vid skapandet av en ny säkerhetskopia för att definiera utgångsdatum associerad med kopian. <code
+                class="command">dirvish-expire</code> använder de lagrade kopiorna och tar bort de för vilka sista datum har passerat.
 			</div></div><div
             class="example"><a
               id="example.dirvish-vault"></a><p
-              class="title"><strong>Exempel 9.4. The <code
-                  class="filename">/backup/root/dirvish/default.conf</code> file</strong></p><div
+              class="title"><strong>Exempel 9.4. Filen <code
+                  class="filename">/backup/root/dirvish/default.conf</code></strong></p><div
               class="example-contents"><pre
                 class="programlisting">client: rivendell.falcot.com
 tree: /
@@ -206,8 +205,7 @@ exclude:
     /var/cache/man/**
     /tmp/**
     /var/tmp/**
-    *.bak
-</pre></div></div><div
+    *.bak</pre></div></div><div
             class="para">
 				The above example specifies the set of files to back up: these are files on the machine <span
               class="emphasis"><em>rivendell.falcot.com</em></span> (for local data backup, simply specify the name of the local machine as indicated by <code
@@ -289,7 +287,7 @@ exclude:
         class="docnav"><li
           class="previous"><a
             accesskey="p"
-            href="sect.quotas.html"><strong>Föregående</strong>9.9. Quotas</a></li><li
+            href="sect.quotas.html"><strong>Föregående</strong>9.9. Kvoter</a></li><li
           class="up"><a
             accesskey="u"
             href="#"><strong>Upp</strong></a></li><li

@@ -28,10 +28,10 @@
         title="Глава 10. Сетевая инфраструктура" /><link
         rel="prev"
         href="sect.domain-name-servers.html"
-        title="10.6. Domain Name Servers (DNS)" /><link
+        title="10.6. Система Доменных Имен Серверов (DNS)" /><link
         rel="next"
         href="sect.network-diagnosis-tools.html"
-        title="10.8. Network Diagnosis Tools" /><meta
+        title="10.8. Инструменты Диагностики Сети" /><meta
         name="viewport"
         content="width=device-width, initial-scale=1" /><meta
         name="flattr:id"
@@ -72,8 +72,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                 class="title"><a
                   id="sect.dhcp"></a>10.7. DHCP</h2></div></div></div><div
           class="para">
-			DHCP (for <span
-            class="emphasis"><em>Dynamic Host Configuration Protocol</em></span>) is a protocol by which a machine can automatically get its network configuration when it boots. This allows centralizing the management of network configurations, and ensuring that all desktop machines get similar settings.
+			DHCP (расшифровывается как <span
+            class="emphasis"><em>Dynamic Host Configuration Protocol</em></span> или протокол динамической настройки узла) является протоколом, по которому машина может получать в автоматическом режиме номер IP (и соответственно взаимоувязывать его со своими сетевыми интерфейсами), присваиваемый ей в момент загрузки. Это позволяет централизовать управление настройками сети (компьютеров, подсоединяющихся к данной сети), и быть уверенным, что все настольные машины получат похожие параметры.
 		</div><a
           id="id-1.13.10.3"
           class="indexterm"></a><a
@@ -82,11 +82,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
           id="id-1.13.10.5"
           class="indexterm"></a><div
           class="para">
-			A DHCP server provides many network-related parameters. The most common of these is an IP address and the network where the machine belongs, but it can also provide other information, such as DNS servers, WINS servers, NTP servers, and so on.
+			Сервер DHCP предоставляет много разных сетевых параметров. Самым распространенным из них является предоставление IP-адреса машине в сети, к которой она подсоединилась, но кроме этого предоставляет и другую информацию, например кто является сервером DNS, серверами WINS, серверами NTP, и так далее.
 		</div><div
           class="para">
-			The Internet Software Consortium (also involved in developing <code
-            class="command">bind</code>) is the main author of the DHCP server. The matching Debian package is <span
+			Главным авторитетным сервером DHCP является The Internet Software Consortium (или "ISC", который также участвовал в разработке <code
+            class="command">bind</code>). Соответствующий пакет в Debian - <span
             class="pkg pkg">isc-dhcp-server</span>.
 		</div><div
           class="section"><div
@@ -94,44 +94,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
                   class="title"><a
                     id="sect.dhcp-config"></a>10.7.1. Настройка</h3></div></div></div><div
             class="para">
-				The first elements that need to be edited in the DHCP server configuration file (<code
-              class="filename">/etc/dhcp/dhcpd.conf</code>) are the domain name and the DNS servers. If this server is alone on the local network (as defined by the broadcast propagation), the <code
-              class="literal">authoritative</code> directive must also be enabled (or uncommented). One also needs to create a <code
-              class="literal">subnet</code> section describing the local network and the configuration information to be provided. The following example fits a <code
-              class="literal">192.168.0.0/24</code> local network with a router at <code
-              class="literal">192.168.0.1</code> serving as the gateway. Available IP addresses are in the range <code
-              class="literal">192.168.0.128</code> to <code
+				Первыми элементами, которые необходимо отредактировать, в настройках файла сервера DHCP (<code
+              class="filename">/etc/dhcp/dhcpd.conf</code>) являются доменное имя и сервера DNS. Если этот сервер расположен в локальной сети (как определено широковещательной рассылкой), директива <code
+              class="literal">authoritative</code> должна быть также включена (или раскомментирована). Необходимо также создать секцию <code
+              class="literal">subnet</code>, описывающую локальную сеть и включающую информацию о настройках. Следующий пример соответствует локальной сети <code
+              class="literal">192.168.0.0/24</code> с маршрутизатором <code
+              class="literal">192.168.0.1</code>, который одновременно выступает и в роли шлюза. Доступные адреса IP располагаются в диапазоне с <code
+              class="literal">192.168.0.128</code> до <code
               class="literal">192.168.0.254</code>.
 			</div><div
             class="example"><a
               id="example.dhcp-dhcpd.conf"></a><p
-              class="title"><strong>Пример 10.15. Excerpt of <code
+              class="title"><strong>Пример 10.15. Выдержка из <code
                   class="filename">/etc/dhcp/dhcpd.conf</code></strong></p><div
               class="example-contents"><pre
                 class="programlisting">
 #
-# Sample configuration file for ISC dhcpd for Debian
+# Пример настройки файла ISC dhcpd в Debian
 #
 
-# The ddns-updates-style parameter controls whether or not the server will
-# attempt to do a DNS update when a lease is confirmed. We default to the
-# behavior of the version 2 packages ('none', since DHCP v2 didn't
-# have support for DDNS.)
+# Параметр ddns-updates-style контролирует будет или нет сервер
+# пытаться делать обновление DNS когда a lease is confirmed. Мы по 
+# умолчанию используем поведение версии 2 пакета ('none', 
+# поскольку DHCP v2 не имеет поддержки DDNS.)
 ddns-update-style interim;
 
-# option definitions common to all supported networks...
+# параметры, общие для всех поддерживаемых сетей...
 option domain-name "internal.falcot.com";
 option domain-name-servers ns.internal.falcot.com;
 
 default-lease-time 600;
 max-lease-time 7200;
 
-# If this DHCP server is the official DHCP server for the local
-# network, the authoritative directive should be uncommented.
+# Если этот сервер DHCP является официальным сервером DHCP для локальной
+# сети, то директива "authoritative" должна быть раскомментирована.
 authoritative;
 
-# Use this to send dhcp log messages to a different log file (you also
-# have to hack syslog.conf to complete the redirection).
+# Используется для посылки сообщений, касающихся dhcp, для записи в 
+# другой журнал (вы можете использовать журнал syslog.conf для полного 
+# перенаправления).
 log-facility local7;
 
 # My subnet
@@ -140,44 +141,42 @@ subnet 192.168.0.0 netmask 255.255.255.0 {
     option broadcast-address 192.168.0.255;
     range 192.168.0.128 192.168.0.254;
     ddns-domainname "internal.falcot.com";
-}
-</pre></div></div></div><div
+}</pre></div></div></div><div
           class="section"><div
             class="titlepage"><div><div><h3
                   class="title"><a
-                    id="sect.dhcp-dns"></a>10.7.2. DHCP and DNS</h3></div></div></div><a
+                    id="sect.dhcp-dns"></a>10.7.2. DHCP и DNS</h3></div></div></div><a
             id="id-1.13.10.9.2"
             class="indexterm"></a><div
             class="para">
-				A nice feature is the automated registering of DHCP clients in the DNS zone, so that each machine gets a significant name (rather than something impersonal such as <code
-              class="literal">machine-192-168-0-131.internal.falcot.com</code>). Using this feature requires configuring the DNS server to accept updates to the <code
-              class="literal">internal.falcot.com</code> DNS zone from the DHCP server, and configuring the latter to submit updates for each registration.
+				Приятной особеностью является возможность присвоения каждой машиной осмысленного (что-то значащего) имени в момент её регистрации в качестве клиента DHCP в зоне DNS (а не что-то обезличенное, вроде <code
+              class="literal">machine-192-168-0-131.internal.falcot.com</code>). Для использования такой возможности необходимо настроить сервер DNS, чтобы он принимал обновления для зоны DNS <code
+              class="literal">internal.falcot.com</code> от сервера DHCP, который, в свою очередь, надо настроить таким образом, чтобы при каждом подключении и присвоении адреса какой-то машине, он сразу уведомлял об этом сервер DNS.
 			</div><div
             class="para">
-				In the <code
-              class="command">bind</code> case, the <code
-              class="literal">allow-update</code> directive needs to be added to each of the zones that the DHCP server is to edit (the one for the <code
-              class="literal">internal.falcot.com</code> domain, and the reverse zone). This directive lists the IP addresses allowed to perform these updates; it should therefore contain the possible addresses of the DHCP server (both the local address and the public address, if appropriate).
+				В случае с <code
+              class="command">bind</code>, директиву <code
+              class="literal">allow-update</code> необходимо добавить в каждую зону, что сервер DHCP редактирует (для домена <code
+              class="literal">internal.falcot.com</code>, и обратной зоны). Директива перечисляет адреса IP, для которых позволено делать такое обновление; и поэтому она должна содержать также и перечень возможных адресов серверов DHCP (обоих: локальный адрес и публичный, или внешний, адрес, если это уместно).
 			</div><pre
             class="programlisting">
-allow-update { 127.0.0.1 192.168.0.1 212.94.201.10 !any };
-</pre><div
+allow-update { 127.0.0.1 192.168.0.1 212.94.201.10 !any };</pre><div
             class="para">
-				Beware! A zone that can be modified <span
-              class="emphasis"><em>will</em></span> be changed by <code
-              class="command">bind</code>, and the latter will overwrite its configuration files at regular intervals. Since this automated procedure produces files that are less human-readable than manually-written ones, the Falcot administrators handle the <code
-              class="literal">internal.falcot.com</code> domain with a delegated DNS server; this means the <code
-              class="literal">falcot.com</code> zone file stays firmly under their manual control.
+				Остерегайтесь! Зоны, что могут быть видоизменены <span
+              class="emphasis"><em>will</em></span>, изменяются программой <code
+              class="command">bind</code>, и последняя будет перезаписывать конфигурационные файлы через регулярные интервалы (времени). Поскольку эта автоматизированная процедура создает файлы, которые менее удобочитаемые для человеческого восприятия, чем вручную написанные, администраторы Falcot вручную редактируют файл домена <code
+              class="literal">internal.falcot.com</code> с делегированием сервера DNS; это значит: что зона файла <code
+              class="literal">falcot.com</code> всегда остаётся под их ручным контролем.
 			</div><div
             class="para">
-				The DHCP server configuration excerpt above already includes the directives required for DNS zone updates: they are the <code
-              class="literal">ddns-update-style interim;</code> and <code
-              class="literal">ddns-domain-name "internal.falcot.com";</code> lines in the block describing the subnet.
+				Выдержка из файла по настройке сервера DHCP, приведённая выше, включает директивы, необходимые для обновления зоны DNS: это строки <code
+              class="literal">ddns-update-style interim;</code> и <code
+              class="literal">ddns-domain-name "internal.falcot.com";</code>, расположенные в блоке, описывающем подсеть.
 			</div></div></div><ul
         class="docnav"><li
           class="previous"><a
             accesskey="p"
-            href="sect.domain-name-servers.html"><strong>Пред.</strong>10.6. Domain Name Servers (DNS)</a></li><li
+            href="sect.domain-name-servers.html"><strong>Пред.</strong>10.6. Система Доменных Имен Серверов (DNS)</a></li><li
           class="up"><a
             accesskey="u"
             href="#"><strong>Наверх</strong></a></li><li
@@ -186,7 +185,7 @@ allow-update { 127.0.0.1 192.168.0.1 212.94.201.10 !any };
             href="index.html"><strong>Начало</strong></a></li><li
           class="next"><a
             accesskey="n"
-            href="sect.network-diagnosis-tools.html"><strong>След.</strong>10.8. Network Diagnosis Tools</a></li></ul><div
+            href="sect.network-diagnosis-tools.html"><strong>След.</strong>10.8. Инструменты Диагностики Сети</a></li></ul><div
         id="translated_pages"><ul><li><a
               href="../ar-MA/sect.dhcp.html">ar-MA</a></li><li><a
               href="../da-DK/sect.dhcp.html">da-DK</a></li><li><a
